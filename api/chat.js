@@ -2,7 +2,9 @@ import OpenAI from "openai";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Metodo non consentito" });
+    return res.status(405).json({
+      error: "Metodo non consentito"
+    });
   }
 
   if (!process.env.OPENAI_API_KEY) {
@@ -13,12 +15,13 @@ export default async function handler(req, res) {
 
   try {
     const {
-  message,
-  business,
-  clientName,
-  services = [],
-  history = []
-} = req.body || {};
+      message,
+      business,
+      clientName,
+      settings = {},
+      services = [],
+      history = []
+    } = req.body || {};
 
     if (!message) {
       return res.status(400).json({
@@ -29,6 +32,35 @@ export default async function handler(req, res) {
     const client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY
     });
+
+    const hours = settings.hours || {};
+
+    const formatDay = (name, day) => {
+      if (!day || day.status === "closed") {
+        return `${name}: Chiuso`;
+      }
+
+      return `${name}: ${day.open || "--:--"} - ${day.close || "--:--"}`;
+    };
+
+    const openingHours = [
+      formatDay("Lunedì", hours.monday),
+      formatDay("Martedì", hours.tuesday),
+      formatDay("Mercoledì", hours.wednesday),
+      formatDay("Giovedì", hours.thursday),
+      formatDay("Venerdì", hours.friday),
+      formatDay("Sabato", hours.saturday),
+      formatDay("Domenica", hours.sunday)
+    ].join("\n");
+
+    const serviceList = services.length
+      ? services
+          .map(
+            s =>
+              `- ${s.name}: €${s.price} (${s.duration} minuti)`
+          )
+          .join("\n")
+      : "Nessun servizio inserito nel listino.";
 
     const conversation = [
       ...history,
@@ -41,28 +73,49 @@ export default async function handler(req, res) {
     const response = await client.responses.create({
       model: "gpt-5.4-mini",
 
-      instructions: `Sei l'assistente virtuale di ${business || "un'attività locale italiana"}.
+      instructions: `Sei l'assistente virtuale di ${
+        business || "un'attività locale italiana"
+      }.
 
-Parla con i clienti in modo naturale, professionale e disponibile.
+TIPO DI ATTIVITÀ:
+${settings.type || "Non specificato"}
 
-Il tuo compito è aiutare il cliente e raccogliere richieste di appuntamento.
+DESCRIZIONE:
+${settings.description || "Non specificata"}
+
+INDIRIZZO:
+${settings.address || "Non specificato"}
+
+TELEFONO:
+${settings.phone || "Non specificato"}
+
+WHATSAPP:
+${settings.whatsapp || "Non specificato"}
+
+ORARI DI APERTURA:
+${openingHours}
 
 LISTINO DELL'ATTIVITÀ:
-${services.length
-  ? services.map(s => `- ${s.name}: €${s.price} (${s.duration} minuti)`).join("\n")
-  : "Nessun servizio inserito nel listino."}
+${serviceList}
 
-Quando il cliente chiede informazioni su un servizio o sul prezzo, usa esclusivamente il listino sopra.
+REGOLE IMPORTANTI:
 
-Non inventare prezzi o servizi.
+1. Rispondi sempre in italiano.
+2. Usa le informazioni dell'attività fornite sopra.
+3. Non inventare servizi, prezzi, orari, indirizzi o contatti.
+4. Quando il cliente chiede il prezzo di un servizio, usa esclusivamente il listino.
+5. Quando il cliente chiede gli orari, usa esclusivamente gli orari sopra.
+6. Se un giorno è indicato come "Chiuso", informa il cliente che l'attività è chiusa quel giorno.
+7. Se non conosci un'informazione, dillo chiaramente invece di inventarla.
+8. Non dichiarare mai che un appuntamento è realmente prenotato.
+9. Puoi raccogliere una richiesta di appuntamento.
+10. Per raccogliere una richiesta servono:
+   - nome cliente
+   - servizio
+   - giorno
+   - ora
 
-Quando hai TUTTI questi dati:
-- nome cliente
-- servizio
-- giorno
-- ora
-
-devi restituire una risposta JSON valida con questa struttura:
+Quando hai TUTTI questi dati, restituisci JSON valido:
 
 {
   "reply": "testo naturale per il cliente",
@@ -74,18 +127,14 @@ devi restituire una risposta JSON valida con questa struttura:
   }
 }
 
-Se manca anche un solo dato, restituisci:
+Se manca anche un solo dato:
 
 {
   "reply": "testo naturale per il cliente",
   "appointment": null
 }
 
-Non dichiarare mai che un appuntamento è stato realmente prenotato.
-Dichiara solo che la richiesta è stata raccolta.
-
-Non inventare disponibilità.
-Rispondi sempre in italiano.`,
+Non aggiungere testo fuori dal JSON.`,
 
       input: conversation
     });
@@ -111,4 +160,3 @@ Rispondi sempre in italiano.`,
     });
   }
 }
-
