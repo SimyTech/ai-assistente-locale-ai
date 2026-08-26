@@ -1489,72 +1489,45 @@ function isAppointmentFree(
   });
 }
 
-
 function renderCalendar(){
 
-  const input =
-    $('calendarDate');
+  const input = $('calendarDate');
 
   if(!input.value){
 
-    const today =
-      new Date();
+    const today = new Date();
 
-    const y =
-      today.getFullYear();
+    const y = today.getFullYear();
 
-    const m =
-      String(
-        today.getMonth()+1
-      ).padStart(2,'0');
+    const m = String(
+      today.getMonth() + 1
+    ).padStart(2,'0');
 
-    const d =
-      String(
-        today.getDate()
-      ).padStart(2,'0');
+    const d = String(
+      today.getDate()
+    ).padStart(2,'0');
 
-    input.value =
-      `${y}-${m}-${d}`;
-
+    input.value = `${y}-${m}-${d}`;
   }
 
+  $('d').value = input.value;
 
-  $('d').value =
-    input.value;
-
-
-  const date =
-    input.value;
+  const date = input.value;
 
   $('calendarTitle').innerHTML =
-    `<p><b>${esc(
-      formatItalianDate(date)
-    )}</b></p>`;
+    `<p><b>${esc(formatItalianDate(date))}</b></p>`;
 
+  const settings = getSettings();
+  const hours = settings.hours || {};
 
-  const settings =
-    getSettings();
+  const dayName = getDayName(date);
+  const day = hours[dayName];
 
-  const hours =
-    settings.hours || {};
+  const calendar = $('calendar');
 
-  const dayName =
-    getDayName(date);
+  calendar.innerHTML = '';
 
-  const day =
-    hours[dayName];
-
-
-  const calendar =
-    $('calendar');
-
-  calendar.innerHTML='';
-
-
-  if(
-    !day ||
-    day.status === 'closed'
-  ){
+  if(!day || day.status === 'closed'){
 
     calendar.innerHTML = `
       <div class="calendar-empty">
@@ -1565,17 +1538,13 @@ function renderCalendar(){
     return;
   }
 
-
-  const opening =
-    toMinutes(day.open);
-
-  const closing =
-    toMinutes(day.close);
-
+  const opening = toMinutes(day.open);
+  const closing = toMinutes(day.close);
 
   if(
     opening === null ||
-    closing === null
+    closing === null ||
+    opening >= closing
   ){
 
     calendar.innerHTML = `
@@ -1588,51 +1557,61 @@ function renderCalendar(){
     return;
   }
 
+  const appointments = getAppointments();
 
-  const appointments =
-    getAppointments();
+  const selectedServiceName =
+    $('s').value;
 
+  const selectedService =
+    selectedServiceName
+      ? getService(selectedServiceName)
+      : null;
+
+  const selectedDuration =
+    selectedService
+      ? Number(selectedService.duration) || 30
+      : 30;
+
+  /*
+   * Il calendario utilizza intervalli di 30 minuti.
+   */
+
+  const interval = 30;
 
   for(
     let minutes = opening;
     minutes < closing;
-    minutes += 30
+    minutes += interval
   ){
 
-    const time =
-      formatTime(minutes);
+    const time = formatTime(minutes);
 
     const slot =
       document.createElement('div');
 
-    slot.className =
-      'slot';
-
+    slot.className = 'slot';
 
     const timeElement =
       document.createElement('div');
 
-    timeElement.className =
-      'slot-time';
+    timeElement.className = 'slot-time';
 
-    timeElement.textContent =
-      time;
-
+    timeElement.textContent = time;
 
     const box =
       document.createElement('div');
 
-    box.className =
-      'slot-box free';
+    box.className = 'slot-box';
 
-
-    /* PAUSA */
+    /*
+     * Controllo pausa
+     */
 
     if(
       isBreak(
         day,
         minutes,
-        minutes + 30
+        minutes + interval
       )
     ){
 
@@ -1642,11 +1621,11 @@ function renderCalendar(){
       box.textContent =
         'Pausa';
 
-      box.onclick = null;
-
     }else{
 
-      /* APPUNTAMENTO */
+      /*
+       * Controllo appuntamento esistente
+       */
 
       const appointment =
         appointments.find(a => {
@@ -1669,13 +1648,15 @@ function renderCalendar(){
 
           const duration =
             service
-              ? Number(service.duration)||30
+              ? Number(service.duration) || 30
               : 30;
+
+          const end =
+            start + duration;
 
           return (
             minutes >= start &&
-            minutes <
-              start + duration
+            minutes < end
           );
 
         });
@@ -1694,24 +1675,90 @@ function renderCalendar(){
 
       }else{
 
-        box.innerHTML =
-          '<span class="badge">Libero</span>';
+        /*
+         * Controllo se il servizio selezionato
+         * può iniziare realmente in questo orario.
+         */
 
-        box.onclick =
-          () => selectSlot(time);
+        const canBook =
+          isAppointmentFree(
+            date,
+            time,
+            selectedDuration
+          );
+
+
+        if(canBook){
+
+          box.className =
+            'slot-box free';
+
+          box.innerHTML =
+            '<span class="badge">Libero</span>';
+
+          box.onclick =
+            () => selectSlot(time);
+
+        }else{
+
+          box.className =
+            'slot-box closed';
+
+          /*
+           * Se non è stato selezionato un servizio,
+           * distinguiamo lo slot semplicemente come
+           * non disponibile.
+           */
+
+          if(selectedService){
+
+            box.textContent =
+              'Non disponibile';
+
+          }else{
+
+            /*
+             * Senza servizio selezionato,
+             * mostriamo comunque lo slot come libero
+             * se almeno un servizio standard da 30 minuti
+             * può essere inserito.
+             */
+
+            if(
+              isAppointmentFree(
+                date,
+                time,
+                30
+              )
+            ){
+
+              box.className =
+                'slot-box free';
+
+              box.innerHTML =
+                '<span class="badge">Libero</span>';
+
+              box.onclick =
+                () => selectSlot(time);
+
+            }else{
+
+              box.textContent =
+                'Non disponibile';
+
+            }
+
+          }
+
+        }
 
       }
 
     }
 
+    slot.appendChild(timeElement);
 
-    slot.appendChild(
-      timeElement
-    );
-
-    slot.appendChild(
-      box
-    );
+    slot.appendChild(box);
 
     calendar.appendChild(slot);
 
@@ -1720,13 +1767,18 @@ function renderCalendar(){
 }
 
 
+/*
+ * Selezione slot calendario
+ */
+
 function selectSlot(time){
 
-  $('d').value =
+  const date =
     $('calendarDate').value;
 
-  $('t').value =
-    time;
+  $('d').value = date;
+
+  $('t').value = time;
 
   $('appointmentStatus').textContent =
     `Orario selezionato: ${time}.`;
@@ -1739,12 +1791,6 @@ function selectSlot(time){
     });
 
 }
-
-
-/* =========================
-   CAMBIO GIORNO
-========================= */
-
 function changeDay(amount){
 
   const input =
