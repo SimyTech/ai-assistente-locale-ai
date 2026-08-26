@@ -133,13 +133,60 @@ body{margin:0;background:#f5f6fa;color:#17181c;font-family:system-ui,sans-serif}
 const $=x=>document.getElementById(x);function show(x){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));$(x).classList.add('active')}
 function save(){localStorage.biz=$('biz').value;alert('Salvato')}
 function saveSettings(){
+
   const settings={
     name:$('settingsName').value.trim(),
     type:$('settingsType').value,
     address:$('settingsAddress').value.trim(),
     phone:$('settingsPhone').value.trim(),
-    whatsapp:$('settingsWhatsapp').value.trim()
+    whatsapp:$('settingsWhatsapp').value.trim(),
+
+    hours:{
+      monday:{
+        status:$('monClosed').value,
+        open:$('monOpen').value,
+        close:$('monClose').value
+      },
+      tuesday:{
+        status:$('tueClosed').value,
+        open:$('tueOpen').value,
+        close:$('tueClose').value
+      },
+      wednesday:{
+        status:$('wedClosed').value,
+        open:$('wedOpen').value,
+        close:$('wedClose').value
+      },
+      thursday:{
+        status:$('thuClosed').value,
+        open:$('thuOpen').value,
+        close:$('thuClose').value
+      },
+      friday:{
+        status:$('friClosed').value,
+        open:$('friOpen').value,
+        close:$('friClose').value
+      },
+      saturday:{
+        status:$('satClosed').value,
+        open:$('satOpen').value,
+        close:$('satClose').value
+      },
+      sunday:{
+        status:$('sunClosed').value,
+        open:$('sunOpen').value,
+        close:$('sunClose').value
+      }
+    }
   };
+
+  localStorage.settings=JSON.stringify(settings);
+  localStorage.biz=settings.name||'Attività locale';
+
+  $('biz').value=localStorage.biz;
+
+  $('settingsStatus').textContent='Profilo attività salvato.';
+}
 
   localStorage.settings=JSON.stringify(settings);
   localStorage.biz=settings.name||'Attività locale';
