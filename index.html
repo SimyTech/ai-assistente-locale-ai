@@ -28,11 +28,27 @@ body{margin:0;background:#f5f6fa;color:#17181c;font-family:system-ui,sans-serif}
     <input id="settingsPhone" placeholder="Numero di telefono">
 
     <label>WhatsApp</label>
-    <input id="settingsWhatsapp" placeholder="Numero WhatsApp">
+<input id="settingsWhatsapp" placeholder="Numero WhatsApp">
 
-    <button class="primary" onclick="saveSettings()">
-      Salva impostazioni
-    </button>
+<label>Servizi</label>
+
+<div class="row">
+  <input id="serviceName" placeholder="Nome servizio">
+  <input id="servicePrice" type="number" step="0.01" placeholder="Prezzo €">
+  <input id="serviceDuration" type="number" placeholder="Durata min">
+</div>
+
+<button class="primary" onclick="addService()">
+  Aggiungi servizio
+</button>
+
+<div id="servicesList"></div>
+
+<br>
+
+<button class="primary" onclick="saveSettings()">
+  Salva impostazioni
+</button>
 
     <p id="settingsStatus" class="muted"></p>
   </div>
