@@ -556,7 +556,6 @@ function renderCalendar(){
   const day =
     hours[dayName];
 
-  // Attività chiusa
   if(!day || day.status === 'closed'){
 
     $('calendar').innerHTML = `
@@ -576,11 +575,18 @@ function renderCalendar(){
     return;
   }
 
-  const opening =
-    timeToMinutes(day.open);
+  const opening = timeToMinutes(day.open);
+  const closing = timeToMinutes(day.close);
 
-  const closing =
-    timeToMinutes(day.close);
+  const breakStart =
+    day.breakStart
+      ? timeToMinutes(day.breakStart)
+      : null;
+
+  const breakEnd =
+    day.breakEnd
+      ? timeToMinutes(day.breakEnd)
+      : null;
 
   if(
     opening === null ||
@@ -610,10 +616,6 @@ function renderCalendar(){
 
   let html = '';
 
-  /*
-   * Mostriamo il calendario a intervalli di 30 minuti.
-   */
-
   for(
     let minutes = opening;
     minutes < closing;
@@ -623,30 +625,79 @@ function renderCalendar(){
     const hourString =
       minutesToTime(minutes);
 
+    /*
+     * CONTROLLO PAUSA
+     */
+
+    const inBreak =
+      breakStart !== null &&
+      breakEnd !== null &&
+      minutes >= breakStart &&
+      minutes < breakEnd;
+
+    if(inBreak){
+
+      html += `
+        <div style="
+          display:flex;
+          min-height:70px;
+          border-bottom:1px solid #e5e7eb;
+          background:#f3f4f6;
+        ">
+
+          <div style="
+            width:55px;
+            padding:12px 5px;
+            font-weight:700;
+            color:#667085;
+          ">
+            ${hourString}
+          </div>
+
+          <div style="
+            flex:1;
+            padding:10px;
+            color:#667085;
+          ">
+            <b>Pausa</b>
+            <br>
+            <small>Non disponibile</small>
+          </div>
+
+        </div>
+      `;
+
+      continue;
+    }
+
     const appointment =
       dayAppointments.find(a => {
 
         const start =
           timeToMinutes(a.t);
 
+        if(start === null){
+          return false;
+        }
+
+        const duration =
+          getAppointmentDuration(
+            a,
+            services
+          );
+
         return (
-          start !== null &&
           start <= minutes &&
-          minutes < start +
-            getAppointmentDuration(
-              a,
-              services
-            )
+          minutes < start + duration
         );
 
       });
 
-    if(appointment){
+    /*
+     * APPUNTAMENTO
+     */
 
-      /*
-       * Mostriamo l'appuntamento solo
-       * all'inizio del blocco.
-       */
+    if(appointment){
 
       const appointmentStart =
         timeToMinutes(appointment.t);
@@ -684,51 +735,55 @@ function renderCalendar(){
         </div>
       `;
 
-    }else{
+      continue;
+    }
 
-      html += `
+    /*
+     * SLOT LIBERO
+     */
+
+    html += `
+      <div style="
+        display:flex;
+        min-height:70px;
+        border-bottom:1px solid #e5e7eb;
+      ">
+
         <div style="
-          display:flex;
-          min-height:70px;
-          border-bottom:1px solid #e5e7eb;
+          width:55px;
+          padding:12px 5px;
+          font-weight:700;
+          color:#667085;
+        ">
+          ${hourString}
+        </div>
+
+        <div style="
+          flex:1;
+          padding:8px;
         ">
 
-          <div style="
-            width:55px;
-            padding:12px 5px;
-            font-weight:700;
-            color:#667085;
-          ">
-            ${hourString}
-          </div>
-
-          <div style="
-            flex:1;
-            padding:8px;
-          ">
-
-            <button
-              style="
-                width:100%;
-                height:52px;
-                background:#f8fafc;
-                border:1px dashed #cbd5e1;
-                color:#667085;
-                text-align:left;
-              "
-              onclick="selectCalendarSlot(
-                '${dateString}',
-                '${hourString}'
-              )"
-            >
-              + Disponibile
-            </button>
-
-          </div>
+          <button
+            style="
+              width:100%;
+              height:52px;
+              background:#f8fafc;
+              border:1px dashed #cbd5e1;
+              color:#667085;
+              text-align:left;
+            "
+            onclick="selectCalendarSlot(
+              '${dateString}',
+              '${hourString}'
+            )"
+          >
+            + Disponibile
+          </button>
 
         </div>
-      `;
-    }
+
+      </div>
+    `;
   }
 
   $('calendar').innerHTML = html;
