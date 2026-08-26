@@ -42,6 +42,20 @@ body{margin:0;background:#f5f6fa;color:#17181c;font-family:system-ui,sans-serif}
 <script>
 const $=x=>document.getElementById(x);function show(x){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));$(x).classList.add('active')}
 function save(){localStorage.biz=$('biz').value;alert('Salvato')}
+function saveSettings(){
+  const settings={
+    name:$('settingsName').value.trim(),
+    type:$('settingsType').value,
+    address:$('settingsAddress').value.trim(),
+    phone:$('settingsPhone').value.trim(),
+    whatsapp:$('settingsWhatsapp').value.trim()
+  };
+
+  localStorage.settings=JSON.stringify(settings);
+  localStorage.biz=settings.name||'Attività locale';
+
+  $('settingsStatus').textContent='Impostazioni salvate.';
+}
 let chatHistory = [];
   
 async function send(){
