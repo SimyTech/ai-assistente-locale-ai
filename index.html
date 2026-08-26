@@ -188,11 +188,6 @@ function saveSettings(){
   $('settingsStatus').textContent='Profilo attività salvato.';
 }
 
-  localStorage.settings=JSON.stringify(settings);
-  localStorage.biz=settings.name||'Attività locale';
-
-  $('settingsStatus').textContent='Impostazioni salvate.';
-}
 function addService(){
   const name=$('serviceName').value.trim();
   const price=$('servicePrice').value;
