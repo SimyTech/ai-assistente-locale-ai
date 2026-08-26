@@ -131,12 +131,13 @@ async function send(){
     let r=await fetch('/api/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        message:x,
-        business:localStorage.biz||'Attività locale',
-        clientName:$('clientName').value.trim(),
-        history:chatHistory
-      })
+    body:JSON.stringify({
+  message:x,
+  business:localStorage.biz||'Attività locale',
+  clientName:$('clientName').value.trim(),
+  services:JSON.parse(localStorage.services||'[]'),
+  history:chatHistory
+})
     });
 
     let j=await r.json();
