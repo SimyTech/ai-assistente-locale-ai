@@ -62,7 +62,7 @@ async function send(){
   $('status').textContent = '';
   $('q').value = '';
   c.scrollTop = c.scrollHeight;
-}{let x=$('q').value.trim();if(!x)return;let c=$('chat');c.innerHTML+=`<div class="msg user">${esc(x)}</div>`;$('status').textContent='L’assistente sta pensando...';$('q').disabled=true;try{let r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:x,business:localStorage.biz||'Attività locale'})});let j=await r.json();if(!r.ok)throw Error();c.innerHTML+=`<div class="msg bot">${esc(j.reply)}</div>`}catch(e){c.innerHTML+=`<div class="msg bot">Assistente non disponibile: configura il backend e OPENAI_API_KEY.</div>`}$('q').disabled=false;$('status').textContent='';$('q').value='';c.scrollTop=c.scrollHeight}
+}
 function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function add(){let a=JSON.parse(localStorage.a||'[]');a.push({n:$('n').value,d:$('d').value,t:$('t').value,s:$('s').value});localStorage.a=JSON.stringify(a);render()}
 function render(){let a=JSON.parse(localStorage.a||'[]');$('list').innerHTML=a.map(x=>`<p><b>${esc(x.n)}</b> — ${esc(x.s)} — ${x.d} ${x.t}</p>`).join('')}
