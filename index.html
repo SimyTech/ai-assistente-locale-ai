@@ -20,36 +20,32 @@ async function send(){
   let c = $('chat');
 
   c.innerHTML += `<div class="msg user">${esc(x)}</div>`;
-  $('status').textContent = 'L’assistente sta pensando...';
-  $('q').disabled = true;
+  $('status').textContent='L’assistente sta pensando...';
+  $('q').disabled=true;
 
   try {
-    let r = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: x,
-        business: localStorage.biz || 'Attività locale',
-        history: chatHistory
+    let r = await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        message:x,
+        business:localStorage.biz||'Attività locale',
+        history:chatHistory
       })
     });
 
     let j = await r.json();
 
-    if(!r.ok) {
-      throw Error(j.error || 'Errore del server');
-    }
+    if(!r.ok) throw Error(j.error || 'Errore del server');
 
     chatHistory.push({
-      role: 'user',
-      content: x
+      role:'user',
+      content:x
     });
 
     chatHistory.push({
-      role: 'assistant',
-      content: j.reply
+      role:'assistant',
+      content:j.reply
     });
 
     c.innerHTML += `<div class="msg bot">${esc(j.reply)}</div>`;
@@ -58,10 +54,10 @@ async function send(){
     c.innerHTML += `<div class="msg bot">Si è verificato un problema: ${esc(e.message)}</div>`;
   }
 
-  $('q').disabled = false;
-  $('status').textContent = '';
-  $('q').value = '';
-  c.scrollTop = c.scrollHeight;
+  $('q').disabled=false;
+  $('status').textContent='';
+  $('q').value='';
+  c.scrollTop=c.scrollHeight;
 }
 function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function add(){let a=JSON.parse(localStorage.a||'[]');a.push({n:$('n').value,d:$('d').value,t:$('t').value,s:$('s').value});localStorage.a=JSON.stringify(a);render()}
