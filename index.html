@@ -627,6 +627,38 @@ function renderCalendar(){
 
   $('calendar').innerHTML = html;
 }
+function getCalendarDayName(date){
+
+  const days = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday'
+  ];
+
+  return days[date.getDay()];
+}
+
+
+function getAppointmentDuration(
+  appointment,
+  services
+){
+
+  const service =
+    services.find(
+      s =>
+        String(s.name).toLowerCase() ===
+        String(appointment.s).toLowerCase()
+    );
+
+  return service
+    ? Number(service.duration) || 30
+    : 30;
+}
 function selectCalendarSlot(date, time){
 
   $('d').value = date;
