@@ -349,8 +349,239 @@ body:JSON.stringify({
 }
 
 function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function add(){let a=JSON.parse(localStorage.a||'[]');a.push({n:$('n').value,d:$('d').value,t:$('t').value,s:$('s').value});localStorage.a=JSON.stringify(a);render()}
-function render(){let a=JSON.parse(localStorage.a||'[]');$('list').innerHTML=a.map(x=>`<p><b>${esc(x.n)}</b> — ${esc(x.s)} — ${x.d} ${x.t}</p>`).join('')}
+let calendarDate = new Date();
+
+function dateToString(date){
+
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+
+  return `${y}-${m}-${d}`;
+}
+
+function formatCalendarDate(date){
+
+  return date.toLocaleDateString('it-IT',{
+    weekday:'long',
+    day:'numeric',
+    month:'long',
+    year:'numeric'
+  });
+}
+
+function changeCalendarDay(days){
+
+  calendarDate.setDate(
+    calendarDate.getDate() + days
+  );
+
+  renderCalendar();
+}
+
+function goToday(){
+
+  calendarDate = new Date();
+
+  renderCalendar();
+}
+
+function add(){
+
+  const name = $('n').value.trim();
+  const date = $('d').value;
+  const time = $('t').value;
+  const service = $('s').value.trim();
+
+  if(!name || !date || !time || !service){
+
+    alert('Compila tutti i campi');
+
+    return;
+  }
+
+  let appointments =
+    JSON.parse(localStorage.a || '[]');
+
+  appointments.push({
+
+    n:name,
+    d:date,
+    t:time,
+    s:service
+
+  });
+
+  localStorage.a =
+    JSON.stringify(appointments);
+
+  $('n').value='';
+  $('d').value='';
+  $('t').value='';
+  $('s').value='';
+
+  calendarDate =
+    new Date(`${date}T12:00:00`);
+
+  renderCalendar();
+}
+
+function renderCalendar(){
+
+  const dateString =
+    dateToString(calendarDate);
+
+  $('calendarDate').textContent =
+    formatCalendarDate(calendarDate);
+
+  const appointments =
+    JSON.parse(localStorage.a || '[]');
+
+  const services =
+    JSON.parse(localStorage.services || '[]');
+
+  const dayAppointments =
+    appointments
+      .filter(a => a.d === dateString)
+      .sort((a,b) =>
+        String(a.t).localeCompare(String(b.t))
+      );
+
+  let html = '';
+
+  for(let hour=8; hour<=20; hour++){
+
+    const hourString =
+      String(hour).padStart(2,'0') + ':00';
+
+    const appointment =
+      dayAppointments.find(a => {
+
+        const appointmentHour =
+          Number(String(a.t).split(':')[0]);
+
+        return appointmentHour === hour;
+
+      });
+
+    html += `
+      <div style="
+        display:flex;
+        min-height:70px;
+        border-bottom:1px solid #e5e7eb;
+      ">
+
+        <div style="
+          width:55px;
+          padding:12px 5px;
+          font-weight:700;
+          color:#667085;
+        ">
+          ${hourString}
+        </div>
+
+        <div style="
+          flex:1;
+          padding:8px;
+        ">
+
+          ${
+            appointment
+            ?
+            createAppointmentCard(
+              appointment,
+              services
+            )
+            :
+            `<div style="
+              height:100%;
+              color:#98a2b3;
+              padding:10px;
+            ">
+              Disponibile
+            </div>`
+          }
+
+        </div>
+
+      </div>
+    `;
+  }
+
+  $('calendar').innerHTML = html;
+}
+
+function createAppointmentCard(
+  appointment,
+  services
+){
+
+  const service =
+    services.find(
+      s =>
+        String(s.name).toLowerCase() ===
+        String(appointment.s).toLowerCase()
+    );
+
+  const duration =
+    service
+    ? Number(service.duration) || 30
+    : 30;
+
+  const start =
+    timeToMinutes(appointment.t);
+
+  const end =
+    start + duration;
+
+  return `
+    <div style="
+      background:#dbeafe;
+      border-left:5px solid #2563eb;
+      padding:10px;
+      border-radius:10px;
+    ">
+
+      <b>${esc(appointment.n)}</b>
+
+      <br>
+
+      ${esc(appointment.s)}
+
+      <br>
+
+      <span class="muted">
+        ${appointment.t} → ${minutesToTime(end)}
+        · ${duration} min
+      </span>
+
+    </div>
+  `;
+}
+
+function timeToMinutes(time){
+
+  const parts =
+    String(time).split(':');
+
+  return (
+    Number(parts[0]) * 60 +
+    Number(parts[1])
+  );
+}
+
+function minutesToTime(minutes){
+
+  const h =
+    String(Math.floor(minutes / 60))
+      .padStart(2,'0');
+
+  const m =
+    String(minutes % 60)
+      .padStart(2,'0');
+
+  return `${h}:${m}`;
+    }
 function post(){$('out').value=`✨ ${$('topic').value||'Nuova promozione'}!\n\nProfessionalità, attenzione e servizi personalizzati.\n\n📅 Prenota il tuo appuntamento.\n📩 Scrivici per informazioni.`}
 $('biz').value=localStorage.biz||'Salone Bella Linea';
 
