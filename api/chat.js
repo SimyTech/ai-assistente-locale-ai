@@ -37,6 +37,8 @@ export default async function handler(req, res) {
     });
 
     const hours = settings.hours || {};
+    const appointmentInterval =
+  Number(settings.appointmentInterval) || 30;
 
     function formatDay(name, day) {
 
