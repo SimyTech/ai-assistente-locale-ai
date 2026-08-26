@@ -28,10 +28,11 @@ async function send(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        message:x,
-        business:localStorage.biz||'Attività locale',
-        history:chatHistory
-      })
+  message:x,
+  business:localStorage.biz||'Attività locale',
+  clientName:$('clientName').value.trim(),
+  history:chatHistory
+})
     });
 
     let j = await r.json();
