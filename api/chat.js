@@ -35,12 +35,15 @@ export default async function handler(req, res) {
     });
 
     const hours = settings.hours || {};
-    const interval = Number(settings.appointmentInterval) || 30;
+    const interval = 30;
 
     function toMinutes(time) {
-      if (!time || !/^\d{2}:\d{2}$/.test(time)) return null;
+      if (!time || !/^\d{2}:\d{2}$/.test(time)) {
+        return null;
+      }
 
       const [h, m] = time.split(":").map(Number);
+
       return h * 60 + m;
     }
 
@@ -75,6 +78,21 @@ export default async function handler(req, res) {
       );
     }
 
+    function overlapsBreak(start, end, day) {
+      const breakStart = toMinutes(day.breakStart);
+      const breakEnd = toMinutes(day.breakEnd);
+
+      if (
+        breakStart === null ||
+        breakEnd === null ||
+        breakStart >= breakEnd
+      ) {
+        return false;
+      }
+
+      return start < breakEnd && end > breakStart;
+    }
+
     function isSlotFree(date, startTime, duration) {
       const dayName = getDayName(date);
       const day = hours[dayName];
@@ -97,10 +115,17 @@ export default async function handler(req, res) {
 
       const end = start + duration;
 
+      // Fuori dagli orari di apertura
       if (start < opening || end > closing) {
         return false;
       }
 
+      // Dentro la pausa
+      if (overlapsBreak(start, end, day)) {
+        return false;
+      }
+
+      // Controllo appuntamenti esistenti
       return !appointments.some(a => {
         if (a.d !== date || !a.t) {
           return false;
@@ -156,7 +181,13 @@ export default async function handler(req, res) {
       ) {
         const time = formatTime(start);
 
-        if (isSlotFree(date, time, duration)) {
+        if (
+          isSlotFree(
+            date,
+            time,
+            duration
+          )
+        ) {
           slots.push(time);
         }
       }
@@ -180,7 +211,18 @@ export default async function handler(req, res) {
           return `${label}: Chiuso`;
         }
 
-        return `${label}: ${d.open} - ${d.close}`;
+        let text =
+          `${label}: ${d.open} - ${d.close}`;
+
+        if (
+          d.breakStart &&
+          d.breakEnd
+        ) {
+          text +=
+            ` (pausa ${d.breakStart}-${d.breakEnd})`;
+        }
+
+        return text;
       })
       .join("\n");
 
@@ -193,17 +235,15 @@ export default async function handler(req, res) {
           .join("\n")
       : "Nessun servizio inserito.";
 
-    /*
-     * L'AI NON decide la disponibilità.
-     * Deve solamente estrarre la richiesta del cliente.
-     */
+    const response =
+      await client.responses.create({
 
-    const response = await client.responses.create({
-      model: "gpt-5.4-mini",
+        model: "gpt-5.4-mini",
 
-      instructions: `Sei l'assistente virtuale di ${
-        business || "un'attività locale italiana"
-      }.
+        instructions: `
+Sei l'assistente virtuale di ${
+          business || "un'attività locale italiana"
+        }.
 
 Rispondi sempre in italiano.
 
@@ -230,17 +270,19 @@ ${openingHours}
 SERVIZI:
 ${serviceList}
 
-REGOLE IMPORTANTI:
+REGOLE:
 
-- Non inventare servizi.
+- Usa esclusivamente i servizi presenti nel listino.
 - Non inventare prezzi.
-- Non decidere se un orario è disponibile.
-- Non dire che un orario è occupato o libero.
+- Non inventare servizi.
+- Non decidere autonomamente se un orario è disponibile.
 - La disponibilità viene controllata dal sistema.
 - Se il cliente vuole un appuntamento, raccogli nome, servizio, data e ora.
-- Se manca un'informazione, chiedila.
-- Se il cliente non specifica un anno, usa l'anno corrente.
-- Restituisci SEMPRE JSON valido.
+- Se manca un dato, chiedilo.
+- Non dichiarare mai che un appuntamento è realmente prenotato.
+- La richiesta viene soltanto raccolta dopo il controllo del sistema.
+
+Restituisci sempre JSON valido.
 
 Se hai tutti i dati:
 
@@ -261,21 +303,23 @@ Se manca un dato:
   "appointment": null
 }
 
-Non scrivere nulla fuori dal JSON.`,
+Non scrivere testo fuori dal JSON.
+`,
 
-      input: [
-        ...history,
-        {
-          role: "user",
-          content: message
-        }
-      ]
-    });
+        input: [
+          ...history,
+          {
+            role: "user",
+            content: message
+          }
+        ]
+      });
 
     let result;
 
     try {
-      result = JSON.parse(response.output_text);
+      result =
+        JSON.parse(response.output_text);
     } catch {
       result = {
         reply: response.output_text,
@@ -284,13 +328,16 @@ Non scrivere nulla fuori dal JSON.`,
     }
 
     /*
-     * CONTROLLO REALE DELL'APPUNTAMENTO
+     * CONTROLLO REALE APPUNTAMENTO
      */
 
     if (result.appointment) {
-      const requested = result.appointment;
 
-      const service = getService(requested.service);
+      const requested =
+        result.appointment;
+
+      const service =
+        getService(requested.service);
 
       if (!service) {
         return res.status(200).json({
@@ -300,27 +347,31 @@ Non scrivere nulla fuori dal JSON.`,
         });
       }
 
-      const duration = Number(service.duration);
+      const duration =
+        Number(service.duration);
 
       if (!duration || duration <= 0) {
         return res.status(200).json({
           reply:
-            "La durata di questo servizio non è configurata correttamente.",
+            "La durata del servizio non è configurata correttamente.",
           appointment: null
         });
       }
 
-      const date = requested.date;
-      const time = requested.time;
+      const date =
+        requested.date;
 
-      const dayName = getDayName(date);
-      const day = hours[dayName];
+      const time =
+        requested.time;
 
-      /*
-       * CONTROLLO GIORNO
-       */
+      const dayName =
+        getDayName(date);
+
+      const day =
+        hours[dayName];
 
       if (!day || day.status === "closed") {
+
         return res.status(200).json({
           reply:
             "L'attività è chiusa nel giorno richiesto. Scegli un altro giorno.",
@@ -329,26 +380,23 @@ Non scrivere nulla fuori dal JSON.`,
       }
 
       /*
-       * CONTROLLO SLOT
+       * CONTROLLO ORARIO
        */
 
-      const free = isSlotFree(
-        date,
-        time,
-        duration
-      );
+      const free =
+        isSlotFree(
+          date,
+          time,
+          duration
+        );
 
       if (!free) {
+
         const availableSlots =
           findAvailableSlots(
             date,
             duration
           );
-
-        /*
-         * Troviamo gli slot più vicini
-         * all'orario richiesto.
-         */
 
         const requestedMinutes =
           toMinutes(time);
@@ -357,19 +405,22 @@ Non scrivere nulla fuori dal JSON.`,
           availableSlots
             .map(slot => ({
               slot,
-              distance: Math.abs(
-                toMinutes(slot) -
-                requestedMinutes
-              )
+              distance:
+                Math.abs(
+                  toMinutes(slot) -
+                  requestedMinutes
+                )
             }))
             .sort(
               (a, b) =>
-                a.distance - b.distance
+                a.distance -
+                b.distance
             )
             .slice(0, 3)
             .map(x => x.slot);
 
         if (sortedSlots.length > 0) {
+
           return res.status(200).json({
             reply:
               `L'orario ${time} non è disponibile. ` +
@@ -377,11 +428,12 @@ Non scrivere nulla fuori dal JSON.`,
               `${sortedSlots.join(", ")}.`,
             appointment: null
           });
+
         }
 
         return res.status(200).json({
           reply:
-            "L'orario richiesto non è disponibile e non risultano altri slot liberi quel giorno.",
+            "Non ci sono altri slot disponibili quel giorno.",
           appointment: null
         });
       }
@@ -392,7 +444,8 @@ Non scrivere nulla fuori dal JSON.`,
 
       return res.status(200).json({
         reply:
-          `Perfetto. Ho raccolto la richiesta per ${service.name} alle ${time}.`,
+          `Perfetto. Ho raccolto la richiesta per ` +
+          `${service.name} alle ${time}.`,
         appointment: {
           name:
             requested.name ||
@@ -408,7 +461,11 @@ Non scrivere nulla fuori dal JSON.`,
     return res.status(200).json(result);
 
   } catch (error) {
-    console.error("OPENAI ERROR:", error);
+
+    console.error(
+      "OPENAI ERROR:",
+      error
+    );
 
     return res.status(500).json({
       error:
