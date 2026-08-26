@@ -11,7 +11,7 @@ body{margin:0;background:#f5f6fa;color:#17181c;font-family:system-ui,sans-serif}
 <script>
 const $=x=>document.getElementById(x);function show(x){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));$(x).classList.add('active')}
 function save(){localStorage.biz=$('biz').value;alert('Salvato')}
-async function let chatHistory = [];
+let chatHistory = [];
 
 async function send(){
   let x = $('q').value.trim();
