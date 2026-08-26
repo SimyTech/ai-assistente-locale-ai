@@ -13,11 +13,12 @@ export default async function handler(req, res) {
 
   try {
     const {
-      message,
-      business,
-      clientName,
-      history = []
-    } = req.body || {};
+  message,
+  business,
+  clientName,
+  services = [],
+  history = []
+} = req.body || {};
 
     if (!message) {
       return res.status(400).json({
