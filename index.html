@@ -425,7 +425,6 @@ function add(){
 
   renderCalendar();
 }
-
 function renderCalendar(){
 
   const dateString = dateToString(calendarDate);
@@ -439,6 +438,63 @@ function renderCalendar(){
   const services =
     JSON.parse(localStorage.services || '[]');
 
+  const settings =
+    JSON.parse(localStorage.settings || '{}');
+
+  const hours =
+    settings.hours || {};
+
+  const dayName =
+    getCalendarDayName(calendarDate);
+
+  const day =
+    hours[dayName];
+
+  // Attività chiusa
+  if(!day || day.status === 'closed'){
+
+    $('calendar').innerHTML = `
+      <div style="
+        padding:30px 15px;
+        text-align:center;
+        background:#f8fafc;
+        border-radius:12px;
+        color:#667085;
+      ">
+        <b>Attività chiusa</b>
+        <br>
+        Nessun appuntamento disponibile.
+      </div>
+    `;
+
+    return;
+  }
+
+  const opening =
+    timeToMinutes(day.open);
+
+  const closing =
+    timeToMinutes(day.close);
+
+  if(
+    opening === null ||
+    closing === null ||
+    opening >= closing
+  ){
+
+    $('calendar').innerHTML = `
+      <div style="
+        padding:20px;
+        text-align:center;
+        color:#b42318;
+      ">
+        Orari di apertura non configurati correttamente.
+      </div>
+    `;
+
+    return;
+  }
+
   const dayAppointments =
     appointments
       .filter(a => a.d === dateString)
@@ -448,22 +504,50 @@ function renderCalendar(){
 
   let html = '';
 
-  for(let hour=8; hour<=20; hour++){
+  /*
+   * Mostriamo il calendario a intervalli di 30 minuti.
+   */
+
+  for(
+    let minutes = opening;
+    minutes < closing;
+    minutes += 30
+  ){
 
     const hourString =
-      String(hour).padStart(2,'0') + ':00';
+      minutesToTime(minutes);
 
     const appointment =
       dayAppointments.find(a => {
 
-        const appointmentHour =
-          Number(String(a.t).split(':')[0]);
+        const start =
+          timeToMinutes(a.t);
 
-        return appointmentHour === hour;
+        return (
+          start !== null &&
+          start <= minutes &&
+          minutes < start +
+            getAppointmentDuration(
+              a,
+              services
+            )
+        );
 
       });
 
     if(appointment){
+
+      /*
+       * Mostriamo l'appuntamento solo
+       * all'inizio del blocco.
+       */
+
+      const appointmentStart =
+        timeToMinutes(appointment.t);
+
+      if(appointmentStart !== minutes){
+        continue;
+      }
 
       html += `
         <div style="
@@ -526,7 +610,10 @@ function renderCalendar(){
                 color:#667085;
                 text-align:left;
               "
-              onclick="selectCalendarSlot('${dateString}','${hourString}')"
+              onclick="selectCalendarSlot(
+                '${dateString}',
+                '${hourString}'
+              )"
             >
               + Disponibile
             </button>
