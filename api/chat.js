@@ -37,100 +37,117 @@ export default async function handler(req, res) {
     });
 
     const hours = settings.hours || {};
+
     const appointmentInterval =
-  Number(settings.appointmentInterval) || 30;
+      Number(settings.appointmentInterval) || 30;
+
+    function toMinutes(value) {
+      if (!value || !value.includes(":")) return null;
+
+      const [h, m] = value.split(":").map(Number);
+
+      return h * 60 + m;
+    }
+
+    function formatTime(minutes) {
+      const h = String(Math.floor(minutes / 60)).padStart(2, "0");
+      const m = String(minutes % 60).padStart(2, "0");
+
+      return `${h}:${m}`;
+    }
+
+    function getDayName(date) {
+
+      const d = new Date(`${date}T12:00:00`);
+
+      const days = [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday"
+      ];
+
+      return days[d.getDay()];
+    }
+
+    function findAvailableSlots(date, duration) {
+
+      const dayName = getDayName(date);
+
+      const dayHours = hours[dayName];
+
+      if (!dayHours || dayHours.status === "closed") {
+        return [];
+      }
+
+      const opening = toMinutes(dayHours.open);
+      const closing = toMinutes(dayHours.close);
+
+      if (opening === null || closing === null) {
+        return [];
+      }
+
+      const slots = [];
+
+      for (
+        let start = opening;
+        start + duration <= closing;
+        start += appointmentInterval
+      ) {
+
+        const end = start + duration;
+
+        const conflict = appointments.some(a => {
+
+          if (a.d !== date || !a.t) {
+            return false;
+          }
+
+          const existingStart = toMinutes(a.t);
+
+          if (existingStart === null) {
+            return false;
+          }
+
+          let existingDuration = 30;
+
+          const existingService = services.find(
+            s =>
+              String(s.name).toLowerCase() ===
+              String(a.s || "").toLowerCase()
+          );
+
+          if (existingService) {
+            existingDuration =
+              Number(existingService.duration) || 30;
+          }
+
+          const existingEnd =
+            existingStart + existingDuration;
+
+          return (
+            start < existingEnd &&
+            end > existingStart
+          );
+        });
+
+        if (!conflict) {
+          slots.push(formatTime(start));
+        }
+      }
+
+      return slots;
+    }
 
     function formatDay(name, day) {
 
       if (!day || day.status === "closed") {
         return `${name}: Chiuso`;
       }
-function findAvailableSlots(date, duration) {
 
-  const requestedDate = new Date(`${date}T12:00:00`);
-
-  const dayIndex = requestedDate.getDay();
-
-  const dayMap = [
-    "sunday",
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday"
-  ];
-
-  const dayName = dayMap[dayIndex];
-
-  const dayHours = hours[dayName];
-
-  if (!dayHours || dayHours.status === "closed") {
-    return [];
-  }
-
-  function toMinutes(value) {
-    const [h, m] = value.split(":").map(Number);
-    return h * 60 + m;
-  }
-
-  function formatTime(minutes) {
-    const h = String(Math.floor(minutes / 60)).padStart(2, "0");
-    const m = String(minutes % 60).padStart(2, "0");
-
-    return `${h}:${m}`;
-  }
-
-  const opening = toMinutes(dayHours.open);
-  const closing = toMinutes(dayHours.close);
-
-  const slots = [];
-
-  for (
-    let start = opening;
-    start + duration <= closing;
-    start += appointmentInterval
-  ) {
-
-    const end = start + duration;
-
-    const conflict = appointments.some(a => {
-
-      if (a.d !== date || !a.t) {
-        return false;
-      }
-
-      const existingStart = toMinutes(a.t);
-
-      let existingDuration = 30;
-
-      const existingService = services.find(
-        s =>
-          String(s.name).toLowerCase() ===
-          String(a.s || "").toLowerCase()
-      );
-
-      if (existingService) {
-        existingDuration =
-          Number(existingService.duration) || 30;
-      }
-
-      const existingEnd =
-        existingStart + existingDuration;
-
-      return (
-        start < existingEnd &&
-        end > existingStart
-      );
-    });
-
-    if (!conflict) {
-      slots.push(formatTime(start));
-    }
-  }
-
-  return slots;
-}
       return `${name}: ${day.open || "--:--"} - ${day.close || "--:--"}`;
     }
 
@@ -145,15 +162,21 @@ function findAvailableSlots(date, duration) {
     ].join("\n");
 
     const serviceList = services.length
-      ? services.map(s =>
-          `- ${s.name}: €${s.price} (${s.duration} minuti)`
-        ).join("\n")
+      ? services
+          .map(
+            s =>
+              `- ${s.name}: €${s.price} (${s.duration} minuti)`
+          )
+          .join("\n")
       : "Nessun servizio inserito.";
 
     const appointmentList = appointments.length
-      ? appointments.map(a =>
-          `- ${a.n || "Cliente"} | ${a.s || "Servizio"} | ${a.d || "Data"} | ${a.t || "Ora"}`
-        ).join("\n")
+      ? appointments
+          .map(
+            a =>
+              `- ${a.n || "Cliente"} | ${a.s || "Servizio"} | ${a.d || "Data"} | ${a.t || "Ora"}`
+          )
+          .join("\n")
       : "Nessun appuntamento presente.";
 
     const conversation = [
@@ -190,6 +213,9 @@ ${settings.whatsapp || "Non specificato"}
 ORARI:
 ${openingHours}
 
+INTERVALLO APPUNTAMENTI:
+${appointmentInterval} minuti
+
 SERVIZI:
 ${serviceList}
 
@@ -202,39 +228,31 @@ REGOLE:
 2. Non inventare informazioni.
 3. Usa esclusivamente i servizi presenti nel listino.
 4. Usa esclusivamente i prezzi presenti nel listino.
-5. Usa esclusivamente gli orari presenti negli orari dell'attività.
+5. Usa esclusivamente gli orari presenti.
 6. Non proporre appuntamenti quando l'attività è chiusa.
 7. Non dichiarare mai che una prenotazione è realmente confermata.
 8. Puoi raccogliere una richiesta di appuntamento.
-9. Per una richiesta servono:
-   - nome
-   - servizio
-   - giorno
-   - ora
+9. Per una richiesta servono nome, servizio, giorno e ora.
+10. La durata del servizio deve essere rispettata.
+11. Non creare sovrapposizioni con appuntamenti esistenti.
+12. Se l'orario richiesto non è disponibile, considera gli slot liberi forniti dal sistema.
 
-IMPORTANTE:
-
-Quando raccogli un appuntamento devi trasformare SEMPRE:
-
-data → formato YYYY-MM-DD
-ora → formato HH:MM
-
-Esempio:
+Quando tutti i dati sono presenti:
 
 {
-  "reply": "Ho raccolto la tua richiesta per il taglio di capelli.",
+  "reply": "testo naturale",
   "appointment": {
-    "name": "Mario",
-    "service": "Taglio",
-    "date": "2026-08-28",
-    "time": "15:00"
+    "name": "nome",
+    "service": "servizio",
+    "date": "YYYY-MM-DD",
+    "time": "HH:MM"
   }
 }
 
 Se manca un dato:
 
 {
-  "reply": "testo per chiedere il dato mancante",
+  "reply": "testo naturale per chiedere il dato mancante",
   "appointment": null
 }
 
@@ -256,7 +274,7 @@ Non scrivere testo fuori dal JSON.`,
     }
 
     /*
-     * CONTROLLO DISPONIBILITÀ
+     * CONTROLLO APPUNTAMENTO
      */
 
     if (result.appointment) {
@@ -272,7 +290,8 @@ Non scrivere testo fuori dal JSON.`,
       if (!service) {
 
         return res.status(200).json({
-          reply: "Non trovo questo servizio nel listino dell'attività.",
+          reply:
+            "Non trovo questo servizio nel listino dell'attività.",
           appointment: null
         });
       }
@@ -282,7 +301,8 @@ Non scrivere testo fuori dal JSON.`,
       if (!duration || duration <= 0) {
 
         return res.status(200).json({
-          reply: "La durata del servizio non è configurata correttamente.",
+          reply:
+            "La durata del servizio non è configurata correttamente.",
           appointment: null
         });
       }
@@ -290,85 +310,50 @@ Non scrivere testo fuori dal JSON.`,
       const date = requested.date;
       const time = requested.time;
 
-      /*
-       * Verifica formato data
-       */
-
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
 
         return res.status(200).json({
-          reply: "Ho bisogno della data dell'appuntamento.",
+          reply: "La data dell'appuntamento non è valida.",
           appointment: null
         });
       }
-
-      /*
-       * Verifica formato ora
-       */
 
       if (!/^\d{2}:\d{2}$/.test(time)) {
 
         return res.status(200).json({
-          reply: "Ho bisogno dell'orario dell'appuntamento.",
+          reply: "L'orario dell'appuntamento non è valido.",
           appointment: null
         });
       }
 
-      /*
-       * Giorno della settimana
-       */
-
-      const requestedDate = new Date(`${date}T12:00:00`);
-
-      const dayIndex = requestedDate.getDay();
-
-      const dayMap = [
-        "sunday",
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday"
-      ];
-
-      const dayName = dayMap[dayIndex];
+      const dayName = getDayName(date);
 
       const dayHours = hours[dayName];
-
-      /*
-       * Controllo giorno chiuso
-       */
 
       if (!dayHours || dayHours.status === "closed") {
 
         return res.status(200).json({
-          reply: "L'attività è chiusa nel giorno richiesto. Scegli un altro giorno.",
+          reply:
+            "L'attività è chiusa nel giorno richiesto. Scegli un altro giorno.",
           appointment: null
         });
       }
 
-      /*
-       * Conversione minuti
-       */
-
-      function toMinutes(value) {
-
-        const [h, m] = value.split(":").map(Number);
-
-        return h * 60 + m;
-      }
-
       const requestedStart = toMinutes(time);
 
-      const requestedEnd = requestedStart + duration;
+      if (requestedStart === null) {
+
+        return res.status(200).json({
+          reply: "L'orario non è valido.",
+          appointment: null
+        });
+      }
+
+      const requestedEnd =
+        requestedStart + duration;
 
       const opening = toMinutes(dayHours.open);
       const closing = toMinutes(dayHours.close);
-
-      /*
-       * Controllo orario di apertura
-       */
 
       if (
         requestedStart < opening ||
@@ -377,27 +362,23 @@ Non scrivere testo fuori dal JSON.`,
 
         return res.status(200).json({
           reply:
-            `Il servizio dura ${duration} minuti e non può essere effettuato in quell'orario. ` +
-            `L'attività è aperta dalle ${dayHours.open} alle ${dayHours.close}. Scegli un altro orario.`,
+            `Il servizio dura ${duration} minuti. ` +
+            `L'attività è aperta dalle ${dayHours.open} alle ${dayHours.close}.`,
           appointment: null
         });
       }
 
-      /*
-       * Controllo sovrapposizione appuntamenti
-       */
+      const conflict = appointments.some(a => {
 
-      const conflict = appointments.find(a => {
-
-        if (a.d !== date) {
-          return false;
-        }
-
-        if (!a.t) {
+        if (a.d !== date || !a.t) {
           return false;
         }
 
         const existingStart = toMinutes(a.t);
+
+        if (existingStart === null) {
+          return false;
+        }
 
         let existingDuration = 30;
 
@@ -408,7 +389,8 @@ Non scrivere testo fuori dal JSON.`,
         );
 
         if (existingService) {
-          existingDuration = Number(existingService.duration) || 30;
+          existingDuration =
+            Number(existingService.duration) || 30;
         }
 
         const existingEnd =
@@ -422,39 +404,37 @@ Non scrivere testo fuori dal JSON.`,
 
       if (conflict) {
 
-  const availableSlots =
-    findAvailableSlots(date, duration);
+        const availableSlots =
+          findAvailableSlots(date, duration);
 
-  const suggestions =
-    availableSlots
-      .filter(slot => slot !== time)
-      .slice(0, 3);
+        const suggestions =
+          availableSlots
+            .filter(slot => slot !== time)
+            .slice(0, 3);
 
-  if (suggestions.length) {
+        if (suggestions.length) {
 
-    return res.status(200).json({
-      reply:
-        `L'orario ${time} non è disponibile. ` +
-        `Gli orari disponibili più vicini sono: ` +
-        `${suggestions.join(", ")}.`,
-      appointment: null
-    });
+          return res.status(200).json({
+            reply:
+              `L'orario ${time} non è disponibile. ` +
+              `Gli orari disponibili sono: ` +
+              `${suggestions.join(", ")}.`,
+            appointment: null
+          });
+        }
 
-  }
-
-  return res.status(200).json({
-    reply:
-      `L'orario ${time} non è disponibile e non ci sono altri slot disponibili quel giorno.`,
-    appointment: null
-  });
+        return res.status(200).json({
+          reply:
+            "L'orario richiesto non è disponibile e non ci sono altri slot liberi quel giorno.",
+          appointment: null
+        });
       }
 
-      /*
-       * Tutti i controlli superati
-       */
-
       result.appointment = {
-        name: requested.name || clientName || "",
+        name:
+          requested.name ||
+          clientName ||
+          "",
         service: service.name,
         date,
         time
@@ -468,7 +448,9 @@ Non scrivere testo fuori dal JSON.`,
     console.error("OPENAI ERROR:", error);
 
     return res.status(500).json({
-      error: error?.message || "Errore durante la richiesta AI"
+      error:
+        error?.message ||
+        "Errore durante la richiesta AI"
     });
   }
 }
