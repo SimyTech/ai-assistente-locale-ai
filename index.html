@@ -540,7 +540,18 @@ function renderCalendar(){
 
   $('calendar').innerHTML = html;
 }
+function selectCalendarSlot(date, time){
 
+  $('d').value = date;
+  $('t').value = time;
+
+  document.getElementById('n').focus();
+
+  window.scrollTo({
+    top:document.body.scrollHeight,
+    behavior:'smooth'
+  });
+}
 function createAppointmentCard(
   appointment,
   services
