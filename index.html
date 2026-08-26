@@ -1,989 +1,1534 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111827"><link rel="manifest" href="manifest.json"><title>AI Assistente Locale</title><style>
-body{margin:0;background:#f5f6fa;color:#17181c;font-family:system-ui,sans-serif}header{background:#111827;color:white;padding:18px}h1{margin:0;font-size:21px}nav{display:flex;gap:6px;overflow:auto;background:white;padding:10px;position:sticky;top:0}nav button,button{padding:10px;border:0;border-radius:10px;font-weight:700}nav button{background:#eef2ff}main{max-width:800px;margin:auto;padding:16px}.page{display:none}.active{display:block}.card{background:white;padding:17px;border-radius:16px;margin-bottom:13px;border:1px solid #e5e7eb}input,textarea,select{width:100%;padding:12px;margin:7px 0 12px;border:1px solid #d0d5dd;border-radius:10px;font:inherit;box-sizing:border-box}.primary{background:#2563eb;color:white}.chat{height:330px;overflow:auto;background:#fafafa;border:1px solid #ddd;border-radius:12px;padding:10px}.msg{padding:10px 12px;border-radius:12px;margin:7px 0;max-width:86%;white-space:pre-wrap}.bot{background:#e5e7eb}.user{background:#dbeafe;margin-left:auto}.row{display:flex;gap:8px}.row input{margin:0}.muted{color:#667085;font-size:13px}</style></head><body>
-<header><h1>AI Assistente Locale</h1><div class="muted" style="color:#cbd5e1">Assistente AI per attività locali</div></header>
-<nav><button onclick="show('home')">Home</button><button onclick="show('ai')">AI</button><button onclick="show('app')">Appuntamenti</button><button onclick="show('post')">Post</button><button onclick="show('settings')">Impostazioni</button></nav>
+<!doctype html>
+<html lang="it">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<meta name="theme-color" content="#111827">
+
+<link rel="manifest" href="manifest.json">
+
+<title>AI Assistente Locale</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#f5f6fa;
+  color:#17181c;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+header{
+  background:#111827;
+  color:white;
+  padding:18px;
+}
+
+header h1{
+  margin:0;
+  font-size:21px;
+}
+
+.header-subtitle{
+  color:#cbd5e1;
+  font-size:13px;
+  margin-top:4px;
+}
+
+nav{
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  background:white;
+  padding:10px;
+  position:sticky;
+  top:0;
+  z-index:10;
+  border-bottom:1px solid #e5e7eb;
+}
+
+nav button{
+  flex-shrink:0;
+  background:#eef2ff;
+  color:#111827;
+}
+
+nav button.active-nav{
+  background:#2563eb;
+  color:white;
+}
+
+button{
+  padding:11px 14px;
+  border:0;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.primary{
+  background:#2563eb;
+  color:white;
+}
+
+.secondary{
+  background:#eef2f7;
+  color:#111827;
+}
+
+.danger{
+  background:#fee2e2;
+  color:#b91c1c;
+}
+
+main{
+  max-width:900px;
+  margin:auto;
+  padding:16px;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+.card{
+  background:white;
+  padding:17px;
+  border-radius:16px;
+  margin-bottom:13px;
+  border:1px solid #e5e7eb;
+}
+
+.card h2{
+  margin-top:0;
+}
+
+input,
+textarea,
+select{
+  width:100%;
+  padding:12px;
+  margin:7px 0 12px;
+  border:1px solid #d0d5dd;
+  border-radius:10px;
+  font:inherit;
+  background:white;
+}
+
+textarea{
+  resize:vertical;
+}
+
+label{
+  display:block;
+  font-weight:700;
+  margin-top:12px;
+}
+
+.row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.row input,
+.row select{
+  margin:0;
+}
+
+.muted{
+  color:#667085;
+  font-size:13px;
+}
+
+.status{
+  margin-top:10px;
+  font-size:14px;
+  font-weight:600;
+}
+
+.chat{
+  height:330px;
+  overflow:auto;
+  background:#fafafa;
+  border:1px solid #ddd;
+  border-radius:12px;
+  padding:10px;
+}
+
+.msg{
+  padding:10px 12px;
+  border-radius:12px;
+  margin:7px 0;
+  max-width:86%;
+  white-space:pre-wrap;
+  line-height:1.4;
+}
+
+.bot{
+  background:#e5e7eb;
+}
+
+.user{
+  background:#dbeafe;
+  margin-left:auto;
+}
+
+.hour-row{
+  display:grid;
+  grid-template-columns:110px 100px 1fr 1fr;
+  gap:8px;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid #edf0f3;
+}
+
+.hour-row b{
+  font-size:14px;
+}
+
+.hour-row input,
+.hour-row select{
+  margin:0;
+}
+
+.service-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:12px 0;
+  border-bottom:1px solid #edf0f3;
+}
+
+.service-info{
+  min-width:0;
+}
+
+.service-actions{
+  display:flex;
+  gap:5px;
+  flex-shrink:0;
+}
+
+.calendar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.calendar-title{
+  text-align:center;
+  font-weight:800;
+  text-transform:capitalize;
+}
+
+.calendar-day{
+  margin-bottom:10px;
+}
+
+.calendar-slot{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  text-align:left;
+  margin-bottom:7px;
+  background:#f8fafc;
+  border:1px dashed #cbd5e1;
+}
+
+.calendar-slot:hover{
+  background:#eef6ff;
+}
+
+.slot-time{
+  font-weight:800;
+}
+
+.slot-available{
+  color:#16a34a;
+  font-size:13px;
+  font-weight:700;
+}
+
+.appointment-card{
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  padding:11px;
+  border-radius:10px;
+  margin-bottom:7px;
+}
+
+.break-card{
+  background:#f2f4f7;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:7px;
+  color:#667085;
+}
+
+.closed-card{
+  text-align:center;
+  padding:25px;
+  background:#f8fafc;
+  border-radius:12px;
+  color:#667085;
+}
+
+.appointment-list-item{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  border-bottom:1px solid #edf0f3;
+  padding:12px 0;
+}
+
+@media(max-width:700px){
+
+  main{
+    padding:10px;
+  }
+
+  .row{
+    flex-wrap:wrap;
+  }
+
+  .row input,
+  .row select{
+    flex:1 1 100%;
+  }
+
+  .hour-row{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .hour-row b{
+    grid-column:1 / -1;
+  }
+
+  .hour-row input,
+  .hour-row select{
+    width:100%;
+  }
+
+  .service-item,
+  .appointment-list-item{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .service-actions{
+    width:100%;
+  }
+
+  .service-actions button{
+    flex:1;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+  <h1>AI Assistente Locale</h1>
+
+  <div class="header-subtitle">
+    Assistente AI per attività locali
+  </div>
+
+</header>
+
+<nav id="mainNav">
+
+  <button onclick="show('home',this)" class="active-nav">
+    Home
+  </button>
+
+  <button onclick="show('ai',this)">
+    AI
+  </button>
+
+  <button onclick="show('app',this)">
+    Appuntamenti
+  </button>
+
+  <button onclick="show('post',this)">
+    Post
+  </button>
+
+  <button onclick="show('settings',this)">
+    Impostazioni
+  </button>
+
+</nav>
+
 <main>
-<section id="home" class="page active"><div class="card"><h2>Dashboard</h2><p>Versione con assistente AI reale.</p><input id="biz" value="Salone Bella Linea"><button class="primary" onclick="save()">Salva attività</button></div></section>
-<section id="ai" class="page"><div class="card"><h2>Assistente AI reale</h2><div id="chat" class="chat"><div class="msg bot">Ciao! Come posso aiutarti?</div></div><p id="status" class="muted"></p><div class="row"><input id="clientName" placeholder="Nome cliente"><input id="q" placeholder="Scrivi una domanda..."><button class="primary" onclick="send()">Invia</button></div></div></section>
-<section id="app" class="page">
+
+<!-- ========================= -->
+<!-- HOME -->
+<!-- ========================= -->
+
+<section id="home" class="page active">
+
   <div class="card">
 
-    <h2>Calendario appuntamenti</h2>
+    <h2>Dashboard</h2>
 
-    <div class="row">
-      <button onclick="changeWeek(-1)">‹</button>
-      <button class="primary" onclick="goToday()">Oggi</button>
-      <button onclick="changeWeek(1)">›</button>
+    <p>
+      Gestisci la tua attività e lascia che l'assistente AI
+      risponda ai clienti e raccolga le richieste di appuntamento.
+    </p>
+
+    <label>Nome attività</label>
+
+    <input
+      id="biz"
+      value="Salone Bella Linea"
+      placeholder="Nome attività"
+    >
+
+    <button
+      class="primary"
+      onclick="saveBusiness()"
+    >
+      Salva attività
+    </button>
+
+    <p id="homeStatus" class="status"></p>
+
+  </div>
+
+</section>
+
+
+<!-- ========================= -->
+<!-- AI -->
+<!-- ========================= -->
+
+<section id="ai" class="page">
+
+  <div class="card">
+
+    <h2>Assistente AI</h2>
+
+    <div id="chat" class="chat">
+
+      <div class="msg bot">
+        Ciao! Come posso aiutarti?
+      </div>
+
     </div>
 
-    <h3 id="calendarTitle"></h3>
+    <p id="status" class="muted"></p>
+
+    <label>Nome cliente</label>
+
+    <input
+      id="clientName"
+      placeholder="Nome e cognome"
+    >
+
+    <div class="row">
+
+      <input
+        id="q"
+        placeholder="Scrivi una domanda..."
+        onkeydown="handleEnter(event)"
+      >
+
+      <button
+        class="primary"
+        onclick="send()"
+      >
+        Invia
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================= -->
+<!-- APPUNTAMENTI -->
+<!-- ========================= -->
+
+<section id="app" class="page">
+
+  <div class="card">
+
+    <div class="calendar-header">
+
+      <button
+        class="secondary"
+        onclick="changeWeek(-1)"
+      >
+        ‹
+      </button>
+
+      <div
+        id="calendarTitle"
+        class="calendar-title"
+      >
+      </div>
+
+      <button
+        class="secondary"
+        onclick="changeWeek(1)"
+      >
+        ›
+      </button>
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="goToday()"
+      style="width:100%;margin-bottom:12px"
+    >
+      Vai a oggi
+    </button>
 
     <div id="calendar"></div>
 
   </div>
 
+
   <div class="card">
+
     <h2>Nuovo appuntamento</h2>
 
-    <input id="n" placeholder="Nome cliente">
+    <label>Nome cliente</label>
 
-    <input id="d" type="date">
+    <input
+      id="n"
+      placeholder="Nome cliente"
+    >
 
-    <input id="t" type="time">
+    <label>Data</label>
+
+    <input
+      id="d"
+      type="date"
+    >
+
+    <label>Ora</label>
+
+    <input
+      id="t"
+      type="time"
+      step="1800"
+    >
+
+    <label>Servizio</label>
 
     <select id="appointmentService">
-      <option value="">Seleziona servizio</option>
+      <option value="">
+        Seleziona servizio
+      </option>
     </select>
 
     <button
       class="primary"
-      onclick="addAppointmentFromCalendar()">
+      onclick="addAppointmentFromCalendar()"
+    >
       Salva appuntamento
     </button>
 
-    <p id="appointmentStatus" class="muted"></p>
+    <p
+      id="appointmentStatus"
+      class="status"
+    ></p>
+
   </div>
-</section>
-  <section id="settings" class="page">
+
+
   <div class="card">
+
+    <h2>Appuntamenti salvati</h2>
+
+    <div id="list"></div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================= -->
+<!-- POST -->
+<!-- ========================= -->
+
+<section id="post" class="page">
+
+  <div class="card">
+
+    <h2>Generatore post</h2>
+
+    <p class="muted">
+      Il negoziante può modificare la promozione e
+      l'argomento del post.
+    </p>
+
+    <label>Argomento</label>
+
+    <input
+      id="topic"
+      placeholder="Es. Promozione taglio uomo"
+    >
+
+    <button
+      class="primary"
+      onclick="post()"
+    >
+      Genera post
+    </button>
+
+    <label>Post generato</label>
+
+    <textarea
+      id="out"
+      rows="10"
+      placeholder="Il post apparirà qui..."
+    ></textarea>
+
+  </div>
+
+</section>
+
+
+<!-- ========================= -->
+<!-- IMPOSTAZIONI -->
+<!-- ========================= -->
+
+<section id="settings" class="page">
+
+  <div class="card">
+
     <h2>Impostazioni attività</h2>
 
+
     <label>Nome attività</label>
-    <input id="settingsName" placeholder="Es. Barber Shop Rossi">
+
+    <input
+      id="settingsName"
+      placeholder="Es. Barber Shop Rossi"
+    >
+
 
     <label>Tipo di attività</label>
+
     <select id="settingsType">
-      <option value="Parrucchiere">Parrucchiere</option>
-      <option value="Barbiere">Barbiere</option>
-      <option value="Estetista">Estetista</option>
-      <option value="Altro">Altro</option>
+
+      <option value="Parrucchiere">
+        Parrucchiere
+      </option>
+
+      <option value="Barbiere">
+        Barbiere
+      </option>
+
+      <option value="Estetista">
+        Estetista
+      </option>
+
+      <option value="Altro">
+        Altro
+      </option>
+
     </select>
+
+
+    <label>Descrizione attività</label>
+
+    <textarea
+      id="settingsDescription"
+      rows="4"
+      placeholder="Descrivi l'attività, i servizi e ciò che la rende speciale..."
+    ></textarea>
+
 
     <label>Indirizzo</label>
-    <input id="settingsAddress" placeholder="Via, numero, città">
+
+    <input
+      id="settingsAddress"
+      placeholder="Via, numero, città"
+    >
+
 
     <label>Telefono</label>
-    <input id="settingsPhone" placeholder="Numero di telefono">
+
+    <input
+      id="settingsPhone"
+      placeholder="Numero di telefono"
+    >
+
 
     <label>WhatsApp</label>
-<input id="settingsWhatsapp" placeholder="Numero WhatsApp">
-<label>Orari di apertura</label>
 
-<div id="hoursList">
+    <input
+      id="settingsWhatsapp"
+      placeholder="Numero WhatsApp"
+    >
 
-  <div class="hour-row">
-    <b>Lunedì</b>
-    <select id="monClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="monOpen" type="time" value="09:00">
-    <input id="monBreakStart" type="time" value="13:00">
-    <input id="monBreakEnd" type="time" value="14:00">
-    <input id="monClose" type="time" value="18:00">
+
+    <label>Promozione attiva</label>
+
+    <textarea
+      id="settingsPromotion"
+      rows="4"
+      placeholder="Es. Taglio uomo + shampoo €20 fino al 30 settembre"
+    ></textarea>
+
+
+    <!-- ========================= -->
+    <!-- ORARI -->
+    <!-- ========================= -->
+
+    <h3>Orari di apertura</h3>
+
+    <p class="muted">
+      Imposta apertura, chiusura e pausa per ogni giorno.
+      Il calendario e l'assistente AI utilizzeranno automaticamente questi orari.
+    </p>
+
+
+    <div id="hoursList">
+
+
+      <div class="hour-row">
+
+        <b>Lunedì</b>
+
+        <select id="monClosed">
+
+          <option value="open">
+            Aperto
+          </option>
+
+          <option value="closed">
+            Chiuso
+          </option>
+
+        </select>
+
+        <input
+          id="monOpen"
+          type="time"
+          value="09:00"
+        >
+
+        <input
+          id="monClose"
+          type="time"
+          value="18:00"
+        >
+
+      </div>
+
+
+      <div class="hour-row">
+
+        <b>Martedì</b>
+
+        <select id="tueClosed">
+
+          <option value="open">
+            Aperto
+          </option>
+
+          <option value="closed">
+            Chiuso
+          </option>
+
+        </select>
+
+        <input
+          id="tueOpen"
+          type="time"
+          value="09:00"
+        >
+
+        <input
+          id="tueClose"
+          type="time"
+          value="18:00"
+        >
+
+      </div>
+
+
+      <div class="hour-row">
+
+        <b>Mercoledì</b>
+
+        <select id="wedClosed">
+
+          <option value="open">
+            Aperto
+          </option>
+
+          <option value="closed">
+            Chiuso
+          </option>
+
+        </select>
+
+        <input
+          id="wedOpen"
+          type="time"
+          value="09:00"
+        >
+
+        <input
+          id="wedClose"
+          type="time"
+          value="18:00"
+        >
+
+      </div>
+
+
+      <div class="hour-row">
+
+        <b>Giovedì</b>
+
+        <select id="thuClosed">
+
+          <option value="open">
+            Aperto
+          </option>
+
+          <option value="closed">
+            Chiuso
+          </option>
+
+        </select>
+
+        <input
+          id="thuOpen"
+          type="time"
+          value="09:00"
+        >
+
+        <input
+          id="thuClose"
+          type="time"
+          value="18:00"
+        >
+
+      </div>
+
+
+      <div class="hour-row">
+
+        <b>Venerdì</b>
+
+        <select id="friClosed">
+
+          <option value="open">
+            Aperto
+          </option>
+
+          <option value="closed">
+            Chiuso
+          </option>
+
+        </select>
+
+        <input
+          id="friOpen"
+          type="time"
+          value="09:00"
+        >
+
+        <input
+          id="friClose"
+          type="time"
+          value="18:00"
+        >
+
+      </div>
+
+
+      <div class="hour-row">
+
+        <b>Sabato</b>
+
+        <select id="satClosed">
+
+          <option value="open">
+            Aperto
+          </option>
+
+          <option value="closed">
+            Chiuso
+          </option>
+
+        </select>
+
+        <input
+          id="satOpen"
+          type="time"
+          value="09:00"
+        >
+
+        <input
+          id="satClose"
+          type="time"
+          value="13:00"
+        >
+
+      </div>
+
+
+      <div class="hour-row">
+
+        <b>Domenica</b>
+
+        <select id="sunClosed">
+
+          <option value="closed">
+            Chiuso
+          </option>
+
+          <option value="open">
+            Aperto
+          </option>
+
+        </select>
+
+        <input
+          id="sunOpen"
+          type="time"
+          value="09:00"
+        >
+
+        <input
+          id="sunClose"
+          type="time"
+          value="13:00"
+        >
+
+      </div>
+
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- SERVIZI -->
+    <!-- ========================= -->
+
+    <h3>Servizi</h3>
+
+    <div class="row">
+
+      <input
+        id="serviceName"
+        placeholder="Nome servizio"
+      >
+
+      <input
+        id="servicePrice"
+        type="number"
+        step="0.01"
+        min="0"
+        placeholder="Prezzo €"
+      >
+
+      <input
+        id="serviceDuration"
+        type="number"
+        min="1"
+        placeholder="Durata min"
+      >
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="addService()"
+    >
+      Aggiungi servizio
+    </button>
+
+    <div id="servicesList"></div>
+
+
+    <br>
+
+
+    <button
+      class="primary"
+      onclick="saveSettings()"
+    >
+      Salva impostazioni
+    </button>
+
+    <p
+      id="settingsStatus"
+      class="status"
+    ></p>
+
   </div>
 
-  <div class="hour-row">
-    <b>Martedì</b>
-    <select id="tueClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="tueOpen" type="time" value="09:00">
-    <input id="tueBreakStart" type="time" value="13:00">
-    <input id="tueBreakEnd" type="time" value="14:00">
-    <input id="tueClose" type="time" value="18:00">
-  </div>
+</section>
 
-  <div class="hour-row">
-    <b>Mercoledì</b>
-    <select id="wedClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="wedOpen" type="time" value="09:00">
-    <input id="wedBreakStart" type="time" value="13:00">
-    <input id="wedBreakEnd" type="time" value="14:00">
-    <input id="wedClose" type="time" value="18:00">
-  </div>
-
-  <div class="hour-row">
-    <b>Giovedì</b>
-    <select id="thuClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="thuOpen" type="time" value="09:00">
-    <input id="thuBreakStart" type="time" value="13:00">
-    <input id="thuBreakEnd" type="time" value="14:00">
-    <input id="thuClose" type="time" value="18:00">
-  </div>
-
-  <div class="hour-row">
-    <b>Venerdì</b>
-    <select id="friClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="friOpen" type="time" value="09:00">
-    <input id="friBreakStart" type="time" value="13:00">
-    <input id="friBreakEnd" type="time" value="14:00">
-    <input id="friClose" type="time" value="18:00">
-  </div>
-
-  <div class="hour-row">
-    <b>Sabato</b>
-    <select id="satClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="satOpen" type="time" value="09:00">
-    <input id="satBreakStart" type="time" value="13:00">
-    <input id="satBreakEnd" type="time" value="14:00">
-    <input id="satClose" type="time" value="13:00">
-  </div>
-
-  <div class="hour-row">
-    <b>Domenica</b>
-    <select id="sunClosed">
-      <option value="closed">Chiuso</option>
-      <option value="open">Aperto</option>
-    </select>
-    <input id="sunOpen" type="time" value="09:00">
-    <input id="sunBreakStart" type="time" value="13:00">
-    <input id="sunBreakEnd" type="time" value="14:00">
-    <input id="sunClose" type="time" value="13:00">
-  </div>
-
-</div>
-
-  <div class="hour-row">
-    <b>Martedì</b>
-    <select id="tueClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="tueOpen" type="time" value="09:00">
-    <input id="tueClose" type="time" value="18:00">
-  </div>
-
-  <div class="hour-row">
-    <b>Mercoledì</b>
-    <select id="wedClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="wedOpen" type="time" value="09:00">
-    <input id="wedClose" type="time" value="18:00">
-  </div>
-
-  <div class="hour-row">
-    <b>Giovedì</b>
-    <select id="thuClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="thuOpen" type="time" value="09:00">
-    <input id="thuClose" type="time" value="18:00">
-  </div>
-
-  <div class="hour-row">
-    <b>Venerdì</b>
-    <select id="friClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="friOpen" type="time" value="09:00">
-    <input id="friClose" type="time" value="18:00">
-  </div>
-
-  <div class="hour-row">
-    <b>Sabato</b>
-    <select id="satClosed">
-      <option value="open">Aperto</option>
-      <option value="closed">Chiuso</option>
-    </select>
-    <input id="satOpen" type="time" value="09:00">
-    <input id="satClose" type="time" value="13:00">
-  </div>
-
-  <div class="hour-row">
-    <b>Domenica</b>
-    <select id="sunClosed">
-      <option value="closed">Chiuso</option>
-      <option value="open">Aperto</option>
-    </select>
-    <input id="sunOpen" type="time" value="09:00">
-    <input id="sunClose" type="time" value="13:00">
-  </div>
-
-</div>
-<label>Intervallo appuntamenti</label>
-
-<select id="appointmentInterval">
-  <option value="15">15 minuti</option>
-  <option value="30" selected>30 minuti</option>
-  <option value="60">60 minuti</option>
-</select>
-
-<p class="muted">
-  L'intervallo viene utilizzato dall'assistente per proporre gli orari disponibili.
-</p>
-<label>Servizi</label>
-
-<div class="row">
-  <input id="serviceName" placeholder="Nome servizio">
-  <input id="servicePrice" type="number" step="0.01" placeholder="Prezzo €">
-  <input id="serviceDuration" type="number" placeholder="Durata min">
-</div>
-
-<button class="primary" onclick="addService()">
-  Aggiungi servizio
-</button>
-
-<div id="servicesList"></div>
-
-<br>
-
-<button class="primary" onclick="saveSettings()">
-  Salva impostazioni
-</button>
-
-    <p id="settingsStatus" class="muted"></p>
-  </div>
-  </section>
-<section id="post" class="page"><div class="card"><h2>Generatore post</h2><input id="topic" placeholder="Argomento"><button class="primary" onclick="post()">Genera post</button><textarea id="out" rows="9"></textarea></div></section>
 </main>
+
+
 <script>
-const $=x=>document.getElementById(x);function show(x){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));$(x).classList.add('active')}
-function save(){localStorage.biz=$('biz').value;alert('Salvato')}
+
+/* =========================================
+   UTILITÀ
+========================================= */
+
+const $ = id =>
+  document.getElementById(id);
+
+
+function esc(value){
+
+  return String(value ?? '')
+    .replace(/[&<>"']/g, m => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[m]));
+
+}
+
+
+/* =========================================
+   NAVIGAZIONE
+========================================= */
+
+function show(page, button){
+
+  document
+    .querySelectorAll('.page')
+    .forEach(el =>
+      el.classList.remove('active')
+    );
+
+  const target = $(page);
+
+  if(!target){
+    return;
+  }
+
+  target.classList.add('active');
+
+  document
+    .querySelectorAll('nav button')
+    .forEach(el =>
+      el.classList.remove('active-nav')
+    );
+
+  if(button){
+    button.classList.add('active-nav');
+  }
+
+  if(page === 'app'){
+    loadAppointmentServices();
+    renderCalendar();
+    render();
+  }
+
+}
+
+
+/* =========================================
+   ATTIVITÀ
+========================================= */
+
+function saveBusiness(){
+
+  const name =
+    $('biz').value.trim();
+
+  localStorage.biz =
+    name || 'Attività locale';
+
+  $('homeStatus').textContent =
+    'Attività salvata.';
+
+}
+
+
+/* =========================================
+   IMPOSTAZIONI
+========================================= */
+
 function saveSettings(){
 
-  const settings={
+  const settings = {
 
-    name:$('settingsName').value.trim(),
-    type:$('settingsType').value,
-    address:$('settingsAddress').value.trim(),
-    phone:$('settingsPhone').value.trim(),
-    whatsapp:$('settingsWhatsapp').value.trim(),
+    name:
+      $('settingsName').value.trim(),
+
+    type:
+      $('settingsType').value,
+
+    description:
+      $('settingsDescription').value.trim(),
+
+    address:
+      $('settingsAddress').value.trim(),
+
+    phone:
+      $('settingsPhone').value.trim(),
+
+    whatsapp:
+      $('settingsWhatsapp').value.trim(),
+
+    promotion:
+      $('settingsPromotion').value.trim(),
 
     hours:{
 
       monday:{
         status:$('monClosed').value,
         open:$('monOpen').value,
-        breakStart:$('monBreakStart').value,
-        breakEnd:$('monBreakEnd').value,
         close:$('monClose').value
       },
 
       tuesday:{
         status:$('tueClosed').value,
         open:$('tueOpen').value,
-        breakStart:$('tueBreakStart').value,
-        breakEnd:$('tueBreakEnd').value,
         close:$('tueClose').value
       },
 
       wednesday:{
         status:$('wedClosed').value,
         open:$('wedOpen').value,
-        breakStart:$('wedBreakStart').value,
-        breakEnd:$('wedBreakEnd').value,
         close:$('wedClose').value
       },
 
       thursday:{
         status:$('thuClosed').value,
         open:$('thuOpen').value,
-        breakStart:$('thuBreakStart').value,
-        breakEnd:$('thuBreakEnd').value,
         close:$('thuClose').value
       },
 
       friday:{
         status:$('friClosed').value,
         open:$('friOpen').value,
-        breakStart:$('friBreakStart').value,
-        breakEnd:$('friBreakEnd').value,
         close:$('friClose').value
       },
 
       saturday:{
         status:$('satClosed').value,
         open:$('satOpen').value,
-        breakStart:$('satBreakStart').value,
-        breakEnd:$('satBreakEnd').value,
         close:$('satClose').value
       },
 
       sunday:{
         status:$('sunClosed').value,
         open:$('sunOpen').value,
-        breakStart:$('sunBreakStart').value,
-        breakEnd:$('sunBreakEnd').value,
         close:$('sunClose').value
       }
 
     }
+
   };
+
 
   localStorage.settings =
     JSON.stringify(settings);
 
+
   localStorage.biz =
-    settings.name || 'Attività locale';
+    settings.name ||
+    'Attività locale';
+
 
   $('biz').value =
     localStorage.biz;
 
+
   $('settingsStatus').textContent =
     'Profilo attività salvato.';
 
+
   renderCalendar();
+
 }
 
-function addService(){
-  const name=$('serviceName').value.trim();
-  const price=$('servicePrice').value;
-  const duration=$('serviceDuration').value;
 
-  if(!name){
-    alert('Inserisci il nome del servizio');
-    return;
-  }
+/* =========================================
+   CARICAMENTO IMPOSTAZIONI
+========================================= */
 
-  if(!price){
-    alert('Inserisci il prezzo');
-    return;
-  }
+function loadSettings(){
 
-  if(!duration){
-    alert('Inserisci la durata');
-    return;
-  }
-
-  let services=JSON.parse(localStorage.services||'[]');
-
-  services.push({
-    name:name,
-    price:Number(price),
-    duration:Number(duration)
-  });
-
-  localStorage.services=JSON.stringify(services);
-
-  $('serviceName').value='';
-  $('servicePrice').value='';
-  $('serviceDuration').value='';
-
-  renderServices();
-}
-function renderServices(){
-  const services=JSON.parse(localStorage.services||'[]');
-
-  $('servicesList').innerHTML=services.map((s,i)=>
-    `<p><b>${esc(s.name)}</b> — €${s.price.toFixed(2)} — ${s.duration} min</p>`
-  ).join('');
-}
-let chatHistory = [];
-  
-async function send(){
-  let x=$('q').value.trim();
-  if(!x)return;
-
-  let c=$('chat');
-
-  c.innerHTML+=`<div class="msg user">${esc(x)}</div>`;
-  $('status').textContent='L’assistente sta pensando...';
-  $('q').disabled=true;
+  let settings = {};
 
   try{
-    let r=await fetch('/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-body:JSON.stringify({
-  message:x,
-  business:localStorage.biz||'Attività locale',
-  clientName:$('clientName').value.trim(),
-  settings:JSON.parse(localStorage.settings||'{}'),
-  services:JSON.parse(localStorage.services||'[]'),
-  appointments:JSON.parse(localStorage.a||'[]'),
-  history:chatHistory
-})
-    })
-    let j=await r.json();
 
-    if(!r.ok)throw Error(j.error||'Errore del server');
-
-    chatHistory.push({
-      role:'user',
-      content:x
-    });
-
-    chatHistory.push({
-      role:'assistant',
-      content:j.reply
-    });
-
-    c.innerHTML+=`<div class="msg bot">${esc(j.reply)}</div>`;
-
-    if(j.appointment){
-      let a=JSON.parse(localStorage.a||'[]');
-
-      a.push({
-        n:j.appointment.name||$('clientName').value.trim(),
-        d:j.appointment.date||'',
-        t:j.appointment.time||'',
-        s:j.appointment.service||''
-      });
-
-      localStorage.a=JSON.stringify(a);
-      render();
-    }
+    settings =
+      JSON.parse(
+        localStorage.settings || '{}'
+      );
 
   }catch(e){
-    c.innerHTML+=`<div class="msg bot">Si è verificato un problema: ${esc(e.message)}</div>`;
+
+    settings = {};
+
   }
 
-  $('q').disabled=false;
-  $('status').textContent='';
-  $('q').value='';
-  c.scrollTop=c.scrollHeight;
-}
 
-function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-let calendarDate = new Date();
+  if(settings.name)
+    $('settingsName').value =
+      settings.name;
 
-function dateToString(date){
+  if(settings.type)
+    $('settingsType').value =
+      settings.type;
 
-  const y = date.getFullYear();
-  const m = String(date.getMonth()+1).padStart(2,'0');
-  const d = String(date.getDate()).padStart(2,'0');
+  if(settings.description)
+    $('settingsDescription').value =
+      settings.description;
 
-  return `${y}-${m}-${d}`;
-}
+  if(settings.address)
+    $('settingsAddress').value =
+      settings.address;
 
-function formatCalendarDate(date){
+  if(settings.phone)
+    $('settingsPhone').value =
+      settings.phone;
 
-  return date.toLocaleDateString('it-IT',{
-    weekday:'long',
-    day:'numeric',
-    month:'long',
-    year:'numeric'
-  });
-}
+  if(settings.whatsapp)
+    $('settingsWhatsapp').value =
+      settings.whatsapp;
 
-function changeCalendarDay(days){
+  if(settings.promotion)
+    $('settingsPromotion').value =
+      settings.promotion;
 
-  calendarDate.setDate(
-    calendarDate.getDate() + days
-  );
-
-  renderCalendar();
-}
-
-function goToday(){
-
-  calendarDate = new Date();
-
-  renderCalendar();
-}
-
-function add(){
-
-  const name = $('n').value.trim();
-  const date = $('d').value;
-  const time = $('t').value;
-  const service = $('s').value.trim();
-
-  if(!name || !date || !time || !service){
-
-    alert('Compila tutti i campi');
-
-    return;
-  }
-
-  let appointments =
-    JSON.parse(localStorage.a || '[]');
-
-  appointments.push({
-
-    n:name,
-    d:date,
-    t:time,
-    s:service
-
-  });
-
-  localStorage.a =
-    JSON.stringify(appointments);
-
-  $('n').value='';
-  $('d').value='';
-  $('t').value='';
-  $('s').value='';
-
-  calendarDate =
-    new Date(`${date}T12:00:00`);
-
-  renderCalendar();
-}
-function renderCalendar(){
-
-  const dateString = dateToString(calendarDate);
-
-  $('calendarDate').textContent =
-    formatCalendarDate(calendarDate);
-
-  const appointments =
-    JSON.parse(localStorage.a || '[]');
-
-  const services =
-    JSON.parse(localStorage.services || '[]');
-
-  const settings =
-    JSON.parse(localStorage.settings || '{}');
 
   const hours =
     settings.hours || {};
 
-  const dayName =
-    getCalendarDayName(calendarDate);
 
-  const day =
-    hours[dayName];
+  const days = {
 
-  if(!day || day.status === 'closed'){
+    monday:{
+      closed:'monClosed',
+      open:'monOpen',
+      close:'monClose'
+    },
 
-    $('calendar').innerHTML = `
-      <div style="
-        padding:30px 15px;
-        text-align:center;
-        background:#f8fafc;
-        border-radius:12px;
-        color:#667085;
-      ">
-        <b>Attività chiusa</b>
-        <br>
-        Nessun appuntamento disponibile.
-      </div>
-    `;
+    tuesday:{
+      closed:'tueClosed',
+      open:'tueOpen',
+      close:'tueClose'
+    },
+
+    wednesday:{
+      closed:'wedClosed',
+      open:'wedOpen',
+      close:'wedClose'
+    },
+
+    thursday:{
+      closed:'thuClosed',
+      open:'thuOpen',
+      close:'thuClose'
+    },
+
+    friday:{
+      closed:'friClosed',
+      open:'friOpen',
+      close:'friClose'
+    },
+
+    saturday:{
+      closed:'satClosed',
+      open:'satOpen',
+      close:'satClose'
+    },
+
+    sunday:{
+      closed:'sunClosed',
+      open:'sunOpen',
+      close:'sunClose'
+    }
+
+  };
+
+
+  Object.keys(days).forEach(day => {
+
+    const saved =
+      hours[day];
+
+    if(!saved){
+      return;
+    }
+
+    if(saved.status)
+      $(days[day].closed).value =
+        saved.status;
+
+    if(saved.open)
+      $(days[day].open).value =
+        saved.open;
+
+    if(saved.close)
+      $(days[day].close).value =
+        saved.close;
+
+  });
+
+}
+
+
+/* =========================================
+   SERVIZI
+========================================= */
+
+function addService(){
+
+  const name =
+    $('serviceName').value.trim();
+
+  const price =
+    $('servicePrice').value;
+
+  const duration =
+    $('serviceDuration').value;
+
+
+  if(!name){
+
+    alert(
+      'Inserisci il nome del servizio.'
+    );
 
     return;
   }
 
-  const opening = timeToMinutes(day.open);
-  const closing = timeToMinutes(day.close);
 
-  const breakStart =
-    day.breakStart
-      ? timeToMinutes(day.breakStart)
-      : null;
+  if(price === '' || Number(price) < 0){
 
-  const breakEnd =
-    day.breakEnd
-      ? timeToMinutes(day.breakEnd)
-      : null;
-
-  if(
-    opening === null ||
-    closing === null ||
-    opening >= closing
-  ){
-
-    $('calendar').innerHTML = `
-      <div style="
-        padding:20px;
-        text-align:center;
-        color:#b42318;
-      ">
-        Orari di apertura non configurati correttamente.
-      </div>
-    `;
+    alert(
+      'Inserisci un prezzo valido.'
+    );
 
     return;
   }
 
-  const dayAppointments =
-    appointments
-      .filter(a => a.d === dateString)
-      .sort((a,b) =>
-        String(a.t).localeCompare(String(b.t))
+
+  if(duration === '' || Number(duration) <= 0){
+
+    alert(
+      'Inserisci una durata valida.'
+    );
+
+    return;
+  }
+
+
+  let services = [];
+
+  try{
+
+    services =
+      JSON.parse(
+        localStorage.services || '[]'
       );
 
-  let html = '';
+  }catch(e){
 
-  for(
-    let minutes = opening;
-    minutes < closing;
-    minutes += 30
-  ){
+    services = [];
 
-    const hourString =
-      minutesToTime(minutes);
+  }
 
-    /*
-     * CONTROLLO PAUSA
-     */
 
-    const inBreak =
-      breakStart !== null &&
-      breakEnd !== null &&
-      minutes >= breakStart &&
-      minutes < breakEnd;
+  services.push({
 
-    if(inBreak){
+    name:name,
 
-      html += `
-        <div style="
-          display:flex;
-          min-height:70px;
-          border-bottom:1px solid #e5e7eb;
-          background:#f3f4f6;
-        ">
+    price:Number(price),
 
-          <div style="
-            width:55px;
-            padding:12px 5px;
-            font-weight:700;
-            color:#667085;
-          ">
-            ${hourString}
-          </div>
+    duration:Number(duration)
 
-          <div style="
-            flex:1;
-            padding:10px;
-            color:#667085;
-          ">
-            <b>Pausa</b>
-            <br>
-            <small>Non disponibile</small>
-          </div>
+  });
 
-        </div>
-      `;
 
-      continue;
-    }
+  localStorage.services =
+    JSON.stringify(services);
 
-    const appointment =
-      dayAppointments.find(a => {
 
-        const start =
-          timeToMinutes(a.t);
+  $('serviceName').value = '';
+  $('servicePrice').value = '';
+  $('serviceDuration').value = '';
 
-        if(start === null){
-          return false;
-        }
 
-        const duration =
-          getAppointmentDuration(
-            a,
-            services
-          );
+  renderServices();
 
-        return (
-          start <= minutes &&
-          minutes < start + duration
-        );
+  loadAppointmentServices();
 
-      });
+}
 
-    /*
-     * APPUNTAMENTO
-     */
 
-    if(appointment){
+function deleteService(index){
 
-      const appointmentStart =
-        timeToMinutes(appointment.t);
+  let services =
+    JSON.parse(
+      localStorage.services || '[]'
+    );
 
-      if(appointmentStart !== minutes){
-        continue;
-      }
 
-      html += `
-        <div style="
-          display:flex;
-          min-height:70px;
-          border-bottom:1px solid #e5e7eb;
-        ">
+  services.splice(index,1);
 
-          <div style="
-            width:55px;
-            padding:12px 5px;
-            font-weight:700;
-            color:#667085;
-          ">
-            ${hourString}
-          </div>
 
-          <div style="
-            flex:1;
-            padding:8px;
-          ">
-            ${createAppointmentCard(
-              appointment,
-              services
-            )}
+  localStorage.services =
+    JSON.stringify(services);
+
+
+  renderServices();
+
+  loadAppointmentServices();
+
+}
+
+
+function renderServices(){
+
+  let services = [];
+
+  try{
+
+    services =
+      JSON.parse(
+        localStorage.services || '[]'
+      );
+
+  }catch(e){
+
+    services = [];
+
+  }
+
+
+  if(!services.length){
+
+    $('servicesList').innerHTML =
+      '<p class="muted">Nessun servizio inserito.</p>';
+
+    return;
+  }
+
+
+  $('servicesList').innerHTML =
+    services.map((s,i) => `
+
+      <div class="service-item">
+
+        <div class="service-info">
+
+          <b>${esc(s.name)}</b>
+
+          <div class="muted">
+
+            €${Number(s.price).toFixed(2)}
+            ·
+            ${Number(s.duration)} minuti
+
           </div>
 
         </div>
-      `;
 
-      continue;
-    }
-
-    /*
-     * SLOT LIBERO
-     */
-
-    html += `
-      <div style="
-        display:flex;
-        min-height:70px;
-        border-bottom:1px solid #e5e7eb;
-      ">
-
-        <div style="
-          width:55px;
-          padding:12px 5px;
-          font-weight:700;
-          color:#667085;
-        ">
-          ${hourString}
-        </div>
-
-        <div style="
-          flex:1;
-          padding:8px;
-        ">
+        <div class="service-actions">
 
           <button
-            style="
-              width:100%;
-              height:52px;
-              background:#f8fafc;
-              border:1px dashed #cbd5e1;
-              color:#667085;
-              text-align:left;
-            "
-            onclick="selectCalendarSlot(
-              '${dateString}',
-              '${hourString}'
-            )"
+            class="danger"
+            onclick="deleteService(${i})"
           >
-            + Disponibile
+            Elimina
           </button>
 
         </div>
 
       </div>
-    `;
+
+    `).join('');
+
+}
+
+
+/* =========================================
+   APPUNTAMENTI
+========================================= */
+
+function getAppointments(){
+
+  try{
+
+    return JSON.parse(
+      localStorage.a || '[]'
+    );
+
+  }catch(e){
+
+    return [];
+
   }
 
-  $('calendar').innerHTML = html;
-}
-function getCalendarDayName(date){
-
-  const days = [
-    'sunday',
-    'monday',
-    'tuesday',
-    'wednesday',
-    'thursday',
-    'friday',
-    'saturday'
-  ];
-
-  return days[date.getDay()];
 }
 
 
-function getAppointmentDuration(
-  appointment,
-  services
-){
+function saveAppointments(list){
 
-  const service =
-    services.find(
-      s =>
-        String(s.name).toLowerCase() ===
-        String(appointment.s).toLowerCase()
-    );
+  localStorage.a =
+    JSON.stringify(list);
 
-  return service
-    ? Number(service.duration) || 30
-    : 30;
 }
-function selectCalendarSlot(date, time){
 
-  $('d').value = date;
-  $('t').value = time;
-
-  document.getElementById('n').focus();
-
-  window.scrollTo({
-    top:document.body.scrollHeight,
-    behavior:'smooth'
-  });
-}
-function createAppointmentCard(
-  appointment,
-  services
-){
-
-  const service =
-    services.find(
-      s =>
-        String(s.name).toLowerCase() ===
-        String(appointment.s).toLowerCase()
-    );
-
-  const duration =
-    service
-    ? Number(service.duration) || 30
-    : 30;
-
-  const start =
-    timeToMinutes(appointment.t);
-
-  const end =
-    start + duration;
-
-  return `
-    <div style="
-      background:#dbeafe;
-      border-left:5px solid #2563eb;
-      padding:10px;
-      border-radius:10px;
-    ">
-
-      <b>${esc(appointment.n)}</b>
-
-      <br>
-
-      ${esc(appointment.s)}
-
-      <br>
-
-      <span class="muted">
-        ${appointment.t} → ${minutesToTime(end)}
-        · ${duration} min
-      </span>
-
-    </div>
-  `;
-}
 
 function timeToMinutes(time){
 
+  if(
+    !time ||
+    !/^\d{2}:\d{2}$/.test(time)
+  ){
+    return null;
+  }
+
   const parts =
-    String(time).split(':');
+    time.split(':');
 
   return (
     Number(parts[0]) * 60 +
     Number(parts[1])
   );
+
 }
 
-function minutesToTime(minutes){
-
-  const h =
-    String(Math.floor(minutes / 60))
-      .padStart(2,'0');
-
-  const m =
-    String(minutes % 60)
-      .padStart(2,'0');
-
-  return `${h}:${m}`;
-    }
-function post(){$('out').value=`✨ ${$('topic').value||'Nuova promozione'}!\n\nProfessionalità, attenzione e servizi personalizzati.\n\n📅 Prenota il tuo appuntamento.\n📩 Scrivici per informazioni.`}
-$('biz').value=localStorage.biz||'Salone Bella Linea';
-
-const settings=JSON.parse(localStorage.settings||'{}');
-
-if(settings.name) $('settingsName').value=settings.name;
-if(settings.type) $('settingsType').value=settings.type;
-if(settings.address) $('settingsAddress').value=settings.address;
-if(settings.phone) $('settingsPhone').value=settings.phone;
-if(settings.whatsapp) $('settingsWhatsapp').value=settings.whatsapp;
-if(settings.appointmentInterval) {
-  $('appointmentInterval').value = settings.appointmentInterval;
-}
-if(settings.hours){
-
-  const h = settings.hours;
-
-  if(h.monday){
-    $('monClosed').value = h.monday.status;
-    $('monOpen').value = h.monday.open;
-    $('monClose').value = h.monday.close;
-  }
-
-  if(h.tuesday){
-    $('tueClosed').value = h.tuesday.status;
-    $('tueOpen').value = h.tuesday.open;
-    $('tueClose').value = h.tuesday.close;
-  }
-
-  if(h.wednesday){
-    $('wedClosed').value = h.wednesday.status;
-    $('wedOpen').value = h.wednesday.open;
-    $('wedClose').value = h.wednesday.close;
-  }
-
-  if(h.thursday){
-    $('thuClosed').value = h.thursday.status;
-    $('thuOpen').value = h.thursday.open;
-    $('thuClose').value = h.thursday.close;
-  }
-
-  if(h.friday){
-    $('friClosed').value = h.friday.status;
-    $('friOpen').value = h.friday.open;
-    $('friClose').value = h.friday.close;
-  }
-
-  if(h.saturday){
-    $('satClosed').value = h.saturday.status;
-    $('satOpen').value = h.saturday.open;
-    $('satClose').value = h.saturday.close;
-  }
-
-  if(h.sunday){
-    $('sunClosed').value = h.sunday.status;
-    $('sunOpen').value = h.sunday.open;
-    $('sunClose').value = h.sunday.close;
-  }
-}
-  let calendarDate = new Date();
-
-function pad(n){
-  return String(n).padStart(2,'0');
-}
-
-function dateToString(date){
-
-  return date.getFullYear() +
-    '-' +
-    pad(date.getMonth()+1) +
-    '-' +
-    pad(date.getDate());
-}
-
-function timeToMinutes(time){
-
-  if(!time) return null;
-
-  const parts = time.split(':');
-
-  return Number(parts[0]) * 60 +
-         Number(parts[1]);
-}
 
 function minutesToTime(minutes){
 
@@ -993,12 +1538,32 @@ function minutesToTime(minutes){
   const m =
     minutes % 60;
 
-  return pad(h) + ':' + pad(m);
+  return (
+    String(h).padStart(2,'0') +
+    ':' +
+    String(m).padStart(2,'0')
+  );
+
 }
+
+
+function dateToString(date){
+
+  return (
+    date.getFullYear() +
+    '-' +
+    String(date.getMonth()+1).padStart(2,'0') +
+    '-' +
+    String(date.getDate()).padStart(2,'0')
+  );
+
+}
+
 
 function getDayKey(date){
 
   const days = [
+
     'sunday',
     'monday',
     'tuesday',
@@ -1006,14 +1571,18 @@ function getDayKey(date){
     'thursday',
     'friday',
     'saturday'
+
   ];
 
   return days[date.getDay()];
+
 }
+
 
 function getDayLabel(date){
 
   const days = [
+
     'Domenica',
     'Lunedì',
     'Martedì',
@@ -1021,10 +1590,21 @@ function getDayLabel(date){
     'Giovedì',
     'Venerdì',
     'Sabato'
+
   ];
 
   return days[date.getDay()];
+
 }
+
+
+/* =========================================
+   CALENDARIO
+========================================= */
+
+let calendarDate =
+  new Date();
+
 
 function changeWeek(amount){
 
@@ -1034,14 +1614,19 @@ function changeWeek(amount){
   );
 
   renderCalendar();
+
 }
+
 
 function goToday(){
 
-  calendarDate = new Date();
+  calendarDate =
+    new Date();
 
   renderCalendar();
+
 }
+
 
 function renderCalendar(){
 
@@ -1050,49 +1635,60 @@ function renderCalendar(){
       localStorage.settings || '{}'
     );
 
+
   const hours =
     settings.hours || {};
 
-  const appointments =
-    JSON.parse(
-      localStorage.a || '[]'
-    );
 
   const services =
     JSON.parse(
       localStorage.services || '[]'
     );
 
+
+  const appointments =
+    getAppointments();
+
+
   $('calendarTitle').textContent =
     calendarDate.toLocaleDateString(
       'it-IT',
       {
-        weekday:'long',
         day:'numeric',
         month:'long',
         year:'numeric'
       }
     );
 
+
   const dayKey =
     getDayKey(calendarDate);
+
 
   const day =
     hours[dayKey];
 
+
   if(!day || day.status === 'closed'){
 
     $('calendar').innerHTML = `
-      <div class="card">
+
+      <div class="closed-card">
+
         <b>Attività chiusa</b>
-        <p class="muted">
-          Nessun appuntamento disponibile.
+
+        <p>
+          ${getDayLabel(calendarDate)}
         </p>
+
       </div>
+
     `;
 
     return;
+
   }
+
 
   const opening =
     timeToMinutes(day.open);
@@ -1100,27 +1696,34 @@ function renderCalendar(){
   const closing =
     timeToMinutes(day.close);
 
-  const breakStart =
-    timeToMinutes(day.breakStart);
-
-  const breakEnd =
-    timeToMinutes(day.breakEnd);
 
   if(
     opening === null ||
-    closing === null
+    closing === null ||
+    closing <= opening
   ){
 
-    $('calendar').innerHTML =
-      '<p>Orari non configurati.</p>';
+    $('calendar').innerHTML = `
+
+      <div class="closed-card">
+
+        Orari non configurati correttamente.
+
+      </div>
+
+    `;
 
     return;
+
   }
 
-  let html = '';
 
   const selectedDate =
     dateToString(calendarDate);
+
+
+  let html = '';
+
 
   for(
     let minute = opening;
@@ -1128,12 +1731,21 @@ function renderCalendar(){
     minute += 30
   ){
 
-    const currentTime =
+    const time =
       minutesToTime(minute);
 
+
     /*
-     * PAUSA
-     */
+      Controlla se l'orario
+      appartiene a una pausa.
+    */
+
+    const breakStart =
+      timeToMinutes(day.breakStart);
+
+    const breakEnd =
+      timeToMinutes(day.breakEnd);
+
 
     if(
       breakStart !== null &&
@@ -1143,117 +1755,212 @@ function renderCalendar(){
     ){
 
       html += `
-        <div class="card"
-             style="background:#f2f4f7">
 
-          <b>${currentTime}</b>
+        <div class="break-card">
 
-          <span style="margin-left:15px">
-            Pausa
-          </span>
+          <b>${time}</b>
+          · Pausa
 
         </div>
+
       `;
 
       continue;
+
     }
 
+
     /*
-     * APPUNTAMENTO
-     */
+      Trova eventuale appuntamento
+      che occupa questo intervallo.
+    */
 
     const appointment =
-      appointments.find(a =>
-        a.d === selectedDate &&
-        a.t === currentTime
-      );
+      appointments.find(a => {
+
+        if(
+          a.d !== selectedDate ||
+          !a.t
+        ){
+          return false;
+        }
+
+
+        const start =
+          timeToMinutes(a.t);
+
+
+        const service =
+          services.find(
+            s => s.name === a.s
+          );
+
+
+        const duration =
+          service
+            ? Number(service.duration) || 30
+            : 30;
+
+
+        const end =
+          start + duration;
+
+
+        return (
+          minute >= start &&
+          minute < end
+        );
+
+      });
+
 
     if(appointment){
 
+      /*
+        Mostra l'appuntamento
+        solo quando siamo al suo
+        orario iniziale.
+      */
+
+      const appointmentStart =
+        timeToMinutes(
+          appointment.t
+        );
+
+
+      if(
+        minute !== appointmentStart
+      ){
+
+        continue;
+
+      }
+
+
       const service =
         services.find(
-          s =>
-            s.name === appointment.s
+          s => s.name === appointment.s
         );
+
 
       const duration =
         service
-          ? service.duration
+          ? Number(service.duration) || 30
           : 30;
 
+
       const end =
-        minute + Number(duration);
+        minute + duration;
+
 
       html += `
-        <div class="card">
 
-          <b>${currentTime}</b>
+        <div class="appointment-card">
 
-          <span style="margin-left:15px">
+          <b>
+            ${time}
+          </b>
+
+          ·
+
+          <b>
             ${esc(appointment.n)}
-          </span>
+          </b>
 
           <div class="muted">
+
             ${esc(appointment.s)}
-            · ${duration} min
+            ·
+            ${duration} minuti
             · fino alle ${minutesToTime(end)}
+
           </div>
 
         </div>
+
       `;
 
       continue;
+
     }
 
+
     /*
-     * SLOT LIBERO
-     */
+      Slot libero
+    */
 
     html += `
+
       <button
-        style="
-          width:100%;
-          margin-bottom:8px;
-          text-align:left;
-          background:#f8fafc;
-          border:1px dashed #cbd5e1;
-        "
+        class="calendar-slot"
         onclick="selectCalendarSlot(
           '${selectedDate}',
-          '${currentTime}'
+          '${time}'
         )"
       >
 
-        ${currentTime}
+        <span class="slot-time">
+          ${time}
+        </span>
 
-        <span
-          style="
-            float:right;
-            color:#16a34a;
-          "
-        >
+        <span class="slot-available">
           Disponibile
         </span>
 
       </button>
+
     `;
+
   }
 
-  $('calendar').innerHTML = html;
+
+  $('calendar').innerHTML =
+    html || `
+      <div class="closed-card">
+        Nessuno slot disponibile.
+      </div>
+    `;
+
 }
 
-function selectCalendarSlot(date,time){
 
-  $('d').value = date;
-  $('t').value = time;
+/* =========================================
+   SELEZIONE SLOT
+========================================= */
+
+function selectCalendarSlot(
+  date,
+  time
+){
+
+  $('d').value =
+    date;
+
+  $('t').value =
+    time;
+
+
+  $('appointmentStatus').textContent =
+    `Slot selezionato: ${date} alle ${time}.`;
+
 
   $('n').focus();
 
+
   window.scrollTo({
+
     top:document.body.scrollHeight,
+
     behavior:'smooth'
+
   });
+
 }
+
+
+/* =========================================
+   SERVIZI NEL FORM APPUNTAMENTO
+========================================= */
 
 function loadAppointmentServices(){
 
@@ -1262,26 +1969,44 @@ function loadAppointmentServices(){
       localStorage.services || '[]'
     );
 
+
   const select =
     $('appointmentService');
+
+
+  if(!select){
+    return;
+  }
+
 
   select.innerHTML =
     '<option value="">Seleziona servizio</option>';
 
-  services.forEach(s => {
+
+  services.forEach(service => {
 
     const option =
       document.createElement('option');
 
+
     option.value =
-      s.name;
+      service.name;
+
 
     option.textContent =
-      `${s.name} — €${Number(s.price).toFixed(2)} — ${s.duration} min`;
+      `${service.name} — €${Number(service.price).toFixed(2)} — ${service.duration} min`;
+
 
     select.appendChild(option);
+
   });
+
 }
+
+
+/* =========================================
+   SALVA APPUNTAMENTO MANUALE
+========================================= */
 
 function addAppointmentFromCalendar(){
 
@@ -1294,60 +2019,84 @@ function addAppointmentFromCalendar(){
   const time =
     $('t').value;
 
-  const service =
+  const serviceName =
     $('appointmentService').value;
 
-  if(!name || !date || !time || !service){
+
+  if(
+    !name ||
+    !date ||
+    !time ||
+    !serviceName
+  ){
 
     $('appointmentStatus').textContent =
       'Compila nome, data, ora e servizio.';
 
     return;
+
   }
+
 
   const services =
     JSON.parse(
       localStorage.services || '[]'
     );
 
-  const selectedService =
+
+  const service =
     services.find(
-      s => s.name === service
+      s => s.name === serviceName
     );
 
-  if(!selectedService){
+
+  if(!service){
 
     $('appointmentStatus').textContent =
       'Servizio non trovato.';
 
     return;
+
   }
 
+
   const duration =
-    Number(selectedService.duration);
+    Number(service.duration);
+
 
   const settings =
     JSON.parse(
       localStorage.settings || '{}'
     );
 
+
   const appointmentDate =
-    new Date(date + 'T12:00:00');
+    new Date(
+      date + 'T12:00:00'
+    );
+
 
   const dayKey =
     getDayKey(appointmentDate);
+
 
   const day =
     settings.hours &&
     settings.hours[dayKey];
 
-  if(!day || day.status === 'closed'){
+
+  if(
+    !day ||
+    day.status === 'closed'
+  ){
 
     $('appointmentStatus').textContent =
       'L’attività è chiusa quel giorno.';
 
     return;
+
   }
+
 
   const opening =
     timeToMinutes(day.open);
@@ -1361,22 +2110,29 @@ function addAppointmentFromCalendar(){
   const end =
     start + duration;
 
+
   if(
+    opening === null ||
+    closing === null ||
+    start === null ||
     start < opening ||
     end > closing
   ){
 
     $('appointmentStatus').textContent =
-      'L’orario non rientra negli orari di apertura.';
+      'L’appuntamento supera gli orari di apertura.';
 
     return;
+
   }
+
 
   const breakStart =
     timeToMinutes(day.breakStart);
 
   const breakEnd =
     timeToMinutes(day.breakEnd);
+
 
   if(
     breakStart !== null &&
@@ -1386,19 +2142,16 @@ function addAppointmentFromCalendar(){
   ){
 
     $('appointmentStatus').textContent =
-      'L’appuntamento attraversa una pausa.';
+      'L’appuntamento attraversa la pausa.';
 
     return;
+
   }
 
-  const appointments =
-    JSON.parse(
-      localStorage.a || '[]'
-    );
 
-  /*
-   * CONTROLLO SOVRAPPOSIZIONI
-   */
+  const appointments =
+    getAppointments();
+
 
   const conflict =
     appointments.some(a => {
@@ -1407,28 +2160,35 @@ function addAppointmentFromCalendar(){
         return false;
       }
 
+
       const existingService =
         services.find(
           s => s.name === a.s
         );
 
+
       const existingDuration =
         existingService
-          ? Number(existingService.duration)
+          ? Number(existingService.duration) || 30
           : 30;
+
 
       const existingStart =
         timeToMinutes(a.t);
+
 
       const existingEnd =
         existingStart +
         existingDuration;
 
+
       return (
         start < existingEnd &&
         end > existingStart
       );
+
     });
+
 
   if(conflict){
 
@@ -1436,32 +2196,472 @@ function addAppointmentFromCalendar(){
       'Questo orario è già occupato.';
 
     return;
+
   }
+
 
   appointments.push({
 
     n:name,
+
     d:date,
+
     t:time,
-    s:service
+
+    s:serviceName
 
   });
 
-  localStorage.a =
-    JSON.stringify(appointments);
+
+  saveAppointments(
+    appointments
+  );
+
 
   $('n').value = '';
   $('d').value = '';
   $('t').value = '';
   $('appointmentService').value = '';
 
+
   $('appointmentStatus').textContent =
     'Appuntamento salvato.';
 
+
   renderCalendar();
+  render();
+
+}
+
+
+/* =========================================
+   ELIMINA APPUNTAMENTO
+========================================= */
+
+function deleteAppointment(index){
+
+  const appointments =
+    getAppointments();
+
+
+  appointments.splice(
+    index,
+    1
+  );
+
+
+  saveAppointments(
+    appointments
+  );
+
+
+  renderCalendar();
+  render();
+
+}
+
+
+/* =========================================
+   LISTA APPUNTAMENTI
+========================================= */
+
+function render(){
+
+  const appointments =
+    getAppointments();
+
+
+  if(!appointments.length){
+
+    $('list').innerHTML =
+      '<p class="muted">Nessun appuntamento salvato.</p>';
+
+    return;
+
   }
-render();
-renderServices();
-loadAppointmentServices();
-renderCalendar();
-</script></body></html>
+
+
+  const sorted =
+    [...appointments].sort(
+      (a,b) =>
+        (
+          `${a.d} ${a.t}`
+        ).localeCompare(
+          `${b.d} ${b.t}`
+        )
+    );
+
+
+  $('list').innerHTML =
+    sorted.map((a,index) => `
+
+      <div class="appointment-list-item">
+
+        <div>
+
+          <b>
+            ${esc(a.n)}
+          </b>
+
+          <div class="muted">
+
+            ${esc(a.s)}
+            ·
+            ${esc(a.d)}
+            ·
+            ${esc(a.t)}
+
+          </div>
+
+        </div>
+
+        <button
+          class="danger"
+          onclick="deleteAppointment(${index})"
+        >
+          Elimina
+        </button>
+
+      </div>
+
+    `).join('');
+
+}
+
+
+/* =========================================
+   ASSISTENTE AI
+========================================= */
+
+let chatHistory = [];
+
+
+function handleEnter(event){
+
+  if(
+    event.key === 'Enter' &&
+    !event.shiftKey
+  ){
+
+    event.preventDefault();
+
+    send();
+
+  }
+
+}
+
+
+async function send(){
+
+  const x =
+    $('q').value.trim();
+
+
+  if(!x){
+    return;
+  }
+
+
+  const chat =
+    $('chat');
+
+
+  chat.innerHTML += `
+
+    <div class="msg user">
+      ${esc(x)}
+    </div>
+
+  `;
+
+
+  $('status').textContent =
+    'L’assistente sta pensando...';
+
+
+  $('q').disabled = true;
+
+
+  try{
+
+    let settings = {};
+
+    try{
+
+      settings =
+        JSON.parse(
+          localStorage.settings || '{}'
+        );
+
+    }catch(e){
+
+      settings = {};
+
+    }
+
+
+    const services =
+      JSON.parse(
+        localStorage.services || '[]'
+      );
+
+
+    const appointments =
+      getAppointments();
+
+
+    const response =
+      await fetch(
+        '/api/chat',
+        {
+
+          method:'POST',
+
+          headers:{
+            'Content-Type':
+              'application/json'
+          },
+
+          body:JSON.stringify({
+
+            message:x,
+
+            business:
+              localStorage.biz ||
+              'Attività locale',
+
+            clientName:
+              $('clientName').value.trim(),
+
+            settings:
+
+              settings,
+
+            services:
+
+              services,
+
+            appointments:
+
+              appointments,
+
+            history:
+
+              chatHistory
+
+          })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if(!response.ok){
+
+      throw new Error(
+        data.error ||
+        'Errore del server'
+      );
+
+    }
+
+
+    chatHistory.push({
+
+      role:'user',
+
+      content:x
+
+    });
+
+
+    chatHistory.push({
+
+      role:'assistant',
+
+      content:data.reply
+
+    });
+
+
+    chat.innerHTML += `
+
+      <div class="msg bot">
+        ${esc(data.reply)}
+      </div>
+
+    `;
+
+
+    /*
+      Se l'API ha raccolto
+      un appuntamento valido,
+      lo salviamo localmente.
+    */
+
+    if(data.appointment){
+
+      const appointment =
+        data.appointment;
+
+
+      const appointments =
+        getAppointments();
+
+
+      /*
+        Evita duplicati.
+      */
+
+      const duplicate =
+        appointments.some(a =>
+
+          a.n === appointment.name &&
+          a.d === appointment.date &&
+          a.t === appointment.time &&
+          a.s === appointment.service
+
+        );
+
+
+      if(!duplicate){
+
+        appointments.push({
+
+          n:
+            appointment.name ||
+            $('clientName').value.trim(),
+
+          d:
+            appointment.date || '',
+
+          t:
+            appointment.time || '',
+
+          s:
+            appointment.service || ''
+
+        });
+
+
+        saveAppointments(
+          appointments
+        );
+
+
+        render();
+        renderCalendar();
+
+      }
+
+    }
+
+  }catch(error){
+
+    chat.innerHTML += `
+
+      <div class="msg bot">
+
+        Si è verificato un problema:
+        ${esc(error.message)}
+
+      </div>
+
+    `;
+
+  }
+
+
+  $('q').disabled = false;
+
+  $('status').textContent = '';
+
+  $('q').value = '';
+
+  chat.scrollTop =
+    chat.scrollHeight;
+
+}
+
+
+/* =========================================
+   GENERATORE POST
+========================================= */
+
+function post(){
+
+  const topic =
+    $('topic').value.trim();
+
+
+  const settings =
+    JSON.parse(
+      localStorage.settings || '{}'
+    );
+
+
+  const business =
+    settings.name ||
+    localStorage.biz ||
+    'Attività locale';
+
+
+  const promotion =
+    settings.promotion ||
+    'Nuova promozione';
+
+
+  $('out').value =
+
+`✨ ${topic || promotion}
+
+${business}
+
+${settings.description || 'Professionalità, attenzione e servizi personalizzati.'}
+
+${promotion}
+
+📅 Prenota il tuo appuntamento.
+📩 Contattaci per informazioni.`;
+
+}
+
+
+/* =========================================
+   AVVIO APP
+========================================= */
+
+function initialize(){
+
+  const savedBusiness =
+    localStorage.biz ||
+    'Salone Bella Linea';
+
+
+  $('biz').value =
+    savedBusiness;
+
+
+  loadSettings();
+
+  renderServices();
+
+  loadAppointmentServices();
+
+  render();
+
+  renderCalendar();
+
+}
+
+
+initialize();
+
+</script>
+
+</body>
+</html>
