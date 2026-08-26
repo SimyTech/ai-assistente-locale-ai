@@ -6,29 +6,23 @@ body{margin:0;background:#f5f6fa;color:#17181c;font-family:system-ui,sans-serif}
 <section id="home" class="page active"><div class="card"><h2>Dashboard</h2><p>Versione con assistente AI reale.</p><input id="biz" value="Salone Bella Linea"><button class="primary" onclick="save()">Salva attività</button></div></section>
 <section id="ai" class="page"><div class="card"><h2>Assistente AI reale</h2><div id="chat" class="chat"><div class="msg bot">Ciao! Come posso aiutarti?</div></div><p id="status" class="muted"></p><div class="row"><input id="clientName" placeholder="Nome cliente"><input id="q" placeholder="Scrivi una domanda..."><button class="primary" onclick="send()">Invia</button></div></div></section>
 <section id="app" class="page">
-
   <div class="card">
 
     <h2>Calendario appuntamenti</h2>
 
     <div class="row">
-      <button onclick="changeCalendarDay(-1)">←</button>
-
-      <button class="primary" onclick="goToday()">
-        Oggi
-      </button>
-
-      <button onclick="changeCalendarDay(1)">→</button>
+      <button onclick="changeWeek(-1)">‹</button>
+      <button class="primary" onclick="goToday()">Oggi</button>
+      <button onclick="changeWeek(1)">›</button>
     </div>
 
-    <h3 id="calendarDate"></h3>
+    <h3 id="calendarTitle"></h3>
 
     <div id="calendar"></div>
 
   </div>
 
   <div class="card">
-
     <h2>Nuovo appuntamento</h2>
 
     <input id="n" placeholder="Nome cliente">
@@ -37,14 +31,18 @@ body{margin:0;background:#f5f6fa;color:#17181c;font-family:system-ui,sans-serif}
 
     <input id="t" type="time">
 
-    <input id="s" placeholder="Servizio">
+    <select id="appointmentService">
+      <option value="">Seleziona servizio</option>
+    </select>
 
-    <button class="primary" onclick="add()">
+    <button
+      class="primary"
+      onclick="addAppointmentFromCalendar()">
       Salva appuntamento
     </button>
 
+    <p id="appointmentStatus" class="muted"></p>
   </div>
-
 </section>
   <section id="settings" class="page">
   <div class="card">
