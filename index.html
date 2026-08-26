@@ -960,6 +960,506 @@ if(settings.hours){
     $('sunClose').value = h.sunday.close;
   }
 }
+  let calendarDate = new Date();
+
+function pad(n){
+  return String(n).padStart(2,'0');
+}
+
+function dateToString(date){
+
+  return date.getFullYear() +
+    '-' +
+    pad(date.getMonth()+1) +
+    '-' +
+    pad(date.getDate());
+}
+
+function timeToMinutes(time){
+
+  if(!time) return null;
+
+  const parts = time.split(':');
+
+  return Number(parts[0]) * 60 +
+         Number(parts[1]);
+}
+
+function minutesToTime(minutes){
+
+  const h =
+    Math.floor(minutes / 60);
+
+  const m =
+    minutes % 60;
+
+  return pad(h) + ':' + pad(m);
+}
+
+function getDayKey(date){
+
+  const days = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday'
+  ];
+
+  return days[date.getDay()];
+}
+
+function getDayLabel(date){
+
+  const days = [
+    'Domenica',
+    'Lunedì',
+    'Martedì',
+    'Mercoledì',
+    'Giovedì',
+    'Venerdì',
+    'Sabato'
+  ];
+
+  return days[date.getDay()];
+}
+
+function changeWeek(amount){
+
+  calendarDate.setDate(
+    calendarDate.getDate() +
+    amount * 7
+  );
+
+  renderCalendar();
+}
+
+function goToday(){
+
+  calendarDate = new Date();
+
+  renderCalendar();
+}
+
+function renderCalendar(){
+
+  const settings =
+    JSON.parse(
+      localStorage.settings || '{}'
+    );
+
+  const hours =
+    settings.hours || {};
+
+  const appointments =
+    JSON.parse(
+      localStorage.a || '[]'
+    );
+
+  const services =
+    JSON.parse(
+      localStorage.services || '[]'
+    );
+
+  $('calendarTitle').textContent =
+    calendarDate.toLocaleDateString(
+      'it-IT',
+      {
+        weekday:'long',
+        day:'numeric',
+        month:'long',
+        year:'numeric'
+      }
+    );
+
+  const dayKey =
+    getDayKey(calendarDate);
+
+  const day =
+    hours[dayKey];
+
+  if(!day || day.status === 'closed'){
+
+    $('calendar').innerHTML = `
+      <div class="card">
+        <b>Attività chiusa</b>
+        <p class="muted">
+          Nessun appuntamento disponibile.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+  const opening =
+    timeToMinutes(day.open);
+
+  const closing =
+    timeToMinutes(day.close);
+
+  const breakStart =
+    timeToMinutes(day.breakStart);
+
+  const breakEnd =
+    timeToMinutes(day.breakEnd);
+
+  if(
+    opening === null ||
+    closing === null
+  ){
+
+    $('calendar').innerHTML =
+      '<p>Orari non configurati.</p>';
+
+    return;
+  }
+
+  let html = '';
+
+  const selectedDate =
+    dateToString(calendarDate);
+
+  for(
+    let minute = opening;
+    minute < closing;
+    minute += 30
+  ){
+
+    const currentTime =
+      minutesToTime(minute);
+
+    /*
+     * PAUSA
+     */
+
+    if(
+      breakStart !== null &&
+      breakEnd !== null &&
+      minute >= breakStart &&
+      minute < breakEnd
+    ){
+
+      html += `
+        <div class="card"
+             style="background:#f2f4f7">
+
+          <b>${currentTime}</b>
+
+          <span style="margin-left:15px">
+            Pausa
+          </span>
+
+        </div>
+      `;
+
+      continue;
+    }
+
+    /*
+     * APPUNTAMENTO
+     */
+
+    const appointment =
+      appointments.find(a =>
+        a.d === selectedDate &&
+        a.t === currentTime
+      );
+
+    if(appointment){
+
+      const service =
+        services.find(
+          s =>
+            s.name === appointment.s
+        );
+
+      const duration =
+        service
+          ? service.duration
+          : 30;
+
+      const end =
+        minute + Number(duration);
+
+      html += `
+        <div class="card">
+
+          <b>${currentTime}</b>
+
+          <span style="margin-left:15px">
+            ${esc(appointment.n)}
+          </span>
+
+          <div class="muted">
+            ${esc(appointment.s)}
+            · ${duration} min
+            · fino alle ${minutesToTime(end)}
+          </div>
+
+        </div>
+      `;
+
+      continue;
+    }
+
+    /*
+     * SLOT LIBERO
+     */
+
+    html += `
+      <button
+        style="
+          width:100%;
+          margin-bottom:8px;
+          text-align:left;
+          background:#f8fafc;
+          border:1px dashed #cbd5e1;
+        "
+        onclick="selectCalendarSlot(
+          '${selectedDate}',
+          '${currentTime}'
+        )"
+      >
+
+        ${currentTime}
+
+        <span
+          style="
+            float:right;
+            color:#16a34a;
+          "
+        >
+          Disponibile
+        </span>
+
+      </button>
+    `;
+  }
+
+  $('calendar').innerHTML = html;
+}
+
+function selectCalendarSlot(date,time){
+
+  $('d').value = date;
+  $('t').value = time;
+
+  $('n').focus();
+
+  window.scrollTo({
+    top:document.body.scrollHeight,
+    behavior:'smooth'
+  });
+}
+
+function loadAppointmentServices(){
+
+  const services =
+    JSON.parse(
+      localStorage.services || '[]'
+    );
+
+  const select =
+    $('appointmentService');
+
+  select.innerHTML =
+    '<option value="">Seleziona servizio</option>';
+
+  services.forEach(s => {
+
+    const option =
+      document.createElement('option');
+
+    option.value =
+      s.name;
+
+    option.textContent =
+      `${s.name} — €${Number(s.price).toFixed(2)} — ${s.duration} min`;
+
+    select.appendChild(option);
+  });
+}
+
+function addAppointmentFromCalendar(){
+
+  const name =
+    $('n').value.trim();
+
+  const date =
+    $('d').value;
+
+  const time =
+    $('t').value;
+
+  const service =
+    $('appointmentService').value;
+
+  if(!name || !date || !time || !service){
+
+    $('appointmentStatus').textContent =
+      'Compila nome, data, ora e servizio.';
+
+    return;
+  }
+
+  const services =
+    JSON.parse(
+      localStorage.services || '[]'
+    );
+
+  const selectedService =
+    services.find(
+      s => s.name === service
+    );
+
+  if(!selectedService){
+
+    $('appointmentStatus').textContent =
+      'Servizio non trovato.';
+
+    return;
+  }
+
+  const duration =
+    Number(selectedService.duration);
+
+  const settings =
+    JSON.parse(
+      localStorage.settings || '{}'
+    );
+
+  const appointmentDate =
+    new Date(date + 'T12:00:00');
+
+  const dayKey =
+    getDayKey(appointmentDate);
+
+  const day =
+    settings.hours &&
+    settings.hours[dayKey];
+
+  if(!day || day.status === 'closed'){
+
+    $('appointmentStatus').textContent =
+      'L’attività è chiusa quel giorno.';
+
+    return;
+  }
+
+  const opening =
+    timeToMinutes(day.open);
+
+  const closing =
+    timeToMinutes(day.close);
+
+  const start =
+    timeToMinutes(time);
+
+  const end =
+    start + duration;
+
+  if(
+    start < opening ||
+    end > closing
+  ){
+
+    $('appointmentStatus').textContent =
+      'L’orario non rientra negli orari di apertura.';
+
+    return;
+  }
+
+  const breakStart =
+    timeToMinutes(day.breakStart);
+
+  const breakEnd =
+    timeToMinutes(day.breakEnd);
+
+  if(
+    breakStart !== null &&
+    breakEnd !== null &&
+    start < breakEnd &&
+    end > breakStart
+  ){
+
+    $('appointmentStatus').textContent =
+      'L’appuntamento attraversa una pausa.';
+
+    return;
+  }
+
+  const appointments =
+    JSON.parse(
+      localStorage.a || '[]'
+    );
+
+  /*
+   * CONTROLLO SOVRAPPOSIZIONI
+   */
+
+  const conflict =
+    appointments.some(a => {
+
+      if(a.d !== date){
+        return false;
+      }
+
+      const existingService =
+        services.find(
+          s => s.name === a.s
+        );
+
+      const existingDuration =
+        existingService
+          ? Number(existingService.duration)
+          : 30;
+
+      const existingStart =
+        timeToMinutes(a.t);
+
+      const existingEnd =
+        existingStart +
+        existingDuration;
+
+      return (
+        start < existingEnd &&
+        end > existingStart
+      );
+    });
+
+  if(conflict){
+
+    $('appointmentStatus').textContent =
+      'Questo orario è già occupato.';
+
+    return;
+  }
+
+  appointments.push({
+
+    n:name,
+    d:date,
+    t:time,
+    s:service
+
+  });
+
+  localStorage.a =
+    JSON.stringify(appointments);
+
+  $('n').value = '';
+  $('d').value = '';
+  $('t').value = '';
+  $('appointmentService').value = '';
+
+  $('appointmentStatus').textContent =
+    'Appuntamento salvato.';
+
+  renderCalendar();
+  }
 renderCalendar();
 renderServices();
 </script></body></html>
