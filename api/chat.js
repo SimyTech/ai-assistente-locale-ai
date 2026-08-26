@@ -12,10 +12,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, business, history = [] } = req.body || {};
+    const {
+      message,
+      business,
+      clientName,
+      history = []
+    } = req.body || {};
 
     if (!message) {
-      return res.status(400).json({ error: "Messaggio mancante" });
+      return res.status(400).json({
+        error: "Messaggio mancante"
+      });
     }
 
     const client = new OpenAI({
@@ -35,23 +42,28 @@ export default async function handler(req, res) {
 
       instructions: `Sei l'assistente virtuale di ${business || "un'attività locale italiana"}.
 
-Parla con i clienti come una persona reale che lavora nell'attività.
+Parla con i clienti in modo naturale, professionale e disponibile.
 
-REGOLE:
+Il cliente può chiedere di organizzare un appuntamento.
+
+Quando raccogli informazioni per un appuntamento:
+- servizio
+- giorno
+- ora
+- nome cliente
+
+mantieni il contesto della conversazione.
+
+IMPORTANTE:
+- Non dire mai che un appuntamento è stato prenotato.
+- Non dire mai che una disponibilità è stata verificata.
+- Puoi dire che hai raccolto i dati della richiesta.
+- Se mancano dati, chiedili naturalmente.
+- Non inventare prezzi, orari o disponibilità.
 - Rispondi sempre in italiano.
-- Usa un tono naturale, professionale e disponibile.
-- Non presentarti nuovamente a ogni messaggio.
-- Mantieni il contesto della conversazione.
-- Non chiedere al cliente di ripetere informazioni che ha già fornito.
-- Rispondi direttamente alla domanda.
-- Mantieni le risposte brevi, generalmente 2-5 frasi.
-- Se una richiesta è poco chiara, fai una domanda semplice.
-- Per gli appuntamenti raccogli progressivamente servizio, giorno e orario.
-- Non dichiarare mai un appuntamento come prenotato se non hai accesso a un sistema di prenotazione.
-- Non inventare prezzi, orari, disponibilità, servizi o promozioni.
-- Se non conosci un'informazione, dichiaralo chiaramente.
-- Non usare risposte robotiche o ripetitive.
-- Usa emoji solo quando sono realmente appropriate.`,
+- Mantieni le risposte brevi e naturali.
+
+Nome cliente disponibile: ${clientName || "non fornito"}`,
 
       input: conversation
     });
