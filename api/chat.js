@@ -225,7 +225,16 @@ export default async function handler(req, res) {
         return text;
       })
       .join("\n");
+const today = new Intl.DateTimeFormat("it-IT", {
+  timeZone: "Europe/Rome",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+}).format(new Date());
 
+const clientInfo = clientName
+  ? `Nome cliente già fornito: ${clientName}`
+  : "Nome cliente non ancora fornito.";
     const serviceList = services.length
       ? services
           .map(
