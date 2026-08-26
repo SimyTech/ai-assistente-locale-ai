@@ -20,6 +20,7 @@ export default async function handler(req, res) {
       clientName,
       settings = {},
       services = [],
+      appointments = [],
       history = []
     } = req.body || {};
 
@@ -35,13 +36,13 @@ export default async function handler(req, res) {
 
     const hours = settings.hours || {};
 
-    const formatDay = (name, day) => {
+    function formatDay(name, day) {
       if (!day || day.status === "closed") {
         return `${name}: Chiuso`;
       }
 
       return `${name}: ${day.open || "--:--"} - ${day.close || "--:--"}`;
-    };
+    }
 
     const openingHours = [
       formatDay("Lunedì", hours.monday),
@@ -61,6 +62,15 @@ export default async function handler(req, res) {
           )
           .join("\n")
       : "Nessun servizio inserito nel listino.";
+
+    const appointmentList = appointments.length
+      ? appointments
+          .map(
+            a =>
+              `- ${a.n || "Cliente"} | ${a.s || "Servizio"} | ${a.d || "Data"} | ${a.t || "Ora"}`
+          )
+          .join("\n")
+      : "Nessun appuntamento presente.";
 
     const conversation = [
       ...history,
@@ -95,30 +105,50 @@ ${settings.whatsapp || "Non specificato"}
 ORARI DI APERTURA:
 ${openingHours}
 
-LISTINO DELL'ATTIVITÀ:
+LISTINO:
 ${serviceList}
 
-REGOLE IMPORTANTI:
+APPUNTAMENTI GIÀ PRESENTI:
+${appointmentList}
+
+REGOLE:
 
 1. Rispondi sempre in italiano.
-2. Usa le informazioni dell'attività fornite sopra.
-3. Non inventare servizi, prezzi, orari, indirizzi o contatti.
-4. Quando il cliente chiede il prezzo di un servizio, usa esclusivamente il listino.
-5. Quando il cliente chiede gli orari, usa esclusivamente gli orari sopra.
-6. Se un giorno è indicato come "Chiuso", informa il cliente che l'attività è chiusa quel giorno.
-7. Se non conosci un'informazione, dillo chiaramente invece di inventarla.
-8. Non dichiarare mai che un appuntamento è realmente prenotato.
-9. Puoi raccogliere una richiesta di appuntamento.
-10. Per raccogliere una richiesta servono:
-   - nome cliente
-   - servizio
-   - giorno
-   - ora
+2. Usa esclusivamente le informazioni fornite.
+3. Non inventare prezzi, servizi, orari o disponibilità.
+4. Quando il cliente chiede il prezzo, usa il listino.
+5. Quando il cliente chiede gli orari, usa gli orari dell'attività.
+6. Non proporre appuntamenti quando l'attività è chiusa.
+7. Non accettare un appuntamento se esiste già un appuntamento nello stesso giorno e orario.
+8. Considera la durata del servizio quando valuti la compatibilità dell'orario.
+9. Se l'orario richiesto non è disponibile, chiedi al cliente di scegliere un altro orario.
+10. Non dichiarare mai che una prenotazione è realmente confermata.
+11. Puoi soltanto raccogliere una richiesta di appuntamento.
 
-Quando hai TUTTI questi dati, restituisci JSON valido:
+Per raccogliere una richiesta servono:
+- nome cliente
+- servizio
+- giorno
+- ora
+
+Se manca uno di questi dati, restituisci:
 
 {
   "reply": "testo naturale per il cliente",
+  "appointment": null
+}
+
+Se il giorno è chiuso, l'orario è fuori apertura oppure c'è un conflitto con un appuntamento esistente:
+
+{
+  "reply": "testo naturale che spiega il problema e chiede un altro orario",
+  "appointment": null
+}
+
+Se tutti i dati sono presenti e l'orario è compatibile:
+
+{
+  "reply": "testo naturale che comunica che la richiesta è stata raccolta",
   "appointment": {
     "name": "nome",
     "service": "servizio",
@@ -127,13 +157,7 @@ Quando hai TUTTI questi dati, restituisci JSON valido:
   }
 }
 
-Se manca anche un solo dato:
-
-{
-  "reply": "testo naturale per il cliente",
-  "appointment": null
-}
-
+Restituisci SEMPRE JSON valido.
 Non aggiungere testo fuori dal JSON.`,
 
       input: conversation
