@@ -256,7 +256,7 @@ body:JSON.stringify({
   appointments:JSON.parse(localStorage.a||'[]'),
   history:chatHistory
 })
-
+    })
     let j=await r.json();
 
     if(!r.ok)throw Error(j.error||'Errore del server');
