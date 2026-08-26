@@ -309,7 +309,52 @@ if(settings.type) $('settingsType').value=settings.type;
 if(settings.address) $('settingsAddress').value=settings.address;
 if(settings.phone) $('settingsPhone').value=settings.phone;
 if(settings.whatsapp) $('settingsWhatsapp').value=settings.whatsapp;
+if(settings.hours){
 
+  const h = settings.hours;
+
+  if(h.monday){
+    $('monClosed').value = h.monday.status;
+    $('monOpen').value = h.monday.open;
+    $('monClose').value = h.monday.close;
+  }
+
+  if(h.tuesday){
+    $('tueClosed').value = h.tuesday.status;
+    $('tueOpen').value = h.tuesday.open;
+    $('tueClose').value = h.tuesday.close;
+  }
+
+  if(h.wednesday){
+    $('wedClosed').value = h.wednesday.status;
+    $('wedOpen').value = h.wednesday.open;
+    $('wedClose').value = h.wednesday.close;
+  }
+
+  if(h.thursday){
+    $('thuClosed').value = h.thursday.status;
+    $('thuOpen').value = h.thursday.open;
+    $('thuClose').value = h.thursday.close;
+  }
+
+  if(h.friday){
+    $('friClosed').value = h.friday.status;
+    $('friOpen').value = h.friday.open;
+    $('friClose').value = h.friday.close;
+  }
+
+  if(h.saturday){
+    $('satClosed').value = h.saturday.status;
+    $('satOpen').value = h.saturday.open;
+    $('satClose').value = h.saturday.close;
+  }
+
+  if(h.sunday){
+    $('sunClosed').value = h.sunday.status;
+    $('sunOpen').value = h.sunday.open;
+    $('sunClose').value = h.sunday.close;
+  }
+}
 render();
 renderServices();
 </script></body></html>
