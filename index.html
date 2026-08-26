@@ -72,6 +72,49 @@ function saveSettings(){
 
   $('settingsStatus').textContent='Impostazioni salvate.';
 }
+function addService(){
+  const name=$('serviceName').value.trim();
+  const price=$('servicePrice').value;
+  const duration=$('serviceDuration').value;
+
+  if(!name){
+    alert('Inserisci il nome del servizio');
+    return;
+  }
+
+  if(!price){
+    alert('Inserisci il prezzo');
+    return;
+  }
+
+  if(!duration){
+    alert('Inserisci la durata');
+    return;
+  }
+
+  let services=JSON.parse(localStorage.services||'[]');
+
+  services.push({
+    name:name,
+    price:Number(price),
+    duration:Number(duration)
+  });
+
+  localStorage.services=JSON.stringify(services);
+
+  $('serviceName').value='';
+  $('servicePrice').value='';
+  $('serviceDuration').value='';
+
+  renderServices();
+}
+function renderServices(){
+  const services=JSON.parse(localStorage.services||'[]');
+
+  $('servicesList').innerHTML=services.map((s,i)=>
+    `<p><b>${esc(s.name)}</b> — €${s.price.toFixed(2)} — ${s.duration} min</p>`
+  ).join('');
+}
 let chatHistory = [];
   
 async function send(){
@@ -140,5 +183,16 @@ function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt
 function add(){let a=JSON.parse(localStorage.a||'[]');a.push({n:$('n').value,d:$('d').value,t:$('t').value,s:$('s').value});localStorage.a=JSON.stringify(a);render()}
 function render(){let a=JSON.parse(localStorage.a||'[]');$('list').innerHTML=a.map(x=>`<p><b>${esc(x.n)}</b> — ${esc(x.s)} — ${x.d} ${x.t}</p>`).join('')}
 function post(){$('out').value=`✨ ${$('topic').value||'Nuova promozione'}!\n\nProfessionalità, attenzione e servizi personalizzati.\n\n📅 Prenota il tuo appuntamento.\n📩 Scrivici per informazioni.`}
-$('biz').value=localStorage.biz||'Salone Bella Linea';render();
+$('biz').value=localStorage.biz||'Salone Bella Linea';
+
+const settings=JSON.parse(localStorage.settings||'{}');
+
+if(settings.name) $('settingsName').value=settings.name;
+if(settings.type) $('settingsType').value=settings.type;
+if(settings.address) $('settingsAddress').value=settings.address;
+if(settings.phone) $('settingsPhone').value=settings.phone;
+if(settings.whatsapp) $('settingsWhatsapp').value=settings.whatsapp;
+
+render();
+renderServices();
 </script></body></html>
