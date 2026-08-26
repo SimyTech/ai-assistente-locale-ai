@@ -6,6 +6,37 @@ body{margin:0;background:#f5f6fa;color:#17181c;font-family:system-ui,sans-serif}
 <section id="home" class="page active"><div class="card"><h2>Dashboard</h2><p>Versione con assistente AI reale.</p><input id="biz" value="Salone Bella Linea"><button class="primary" onclick="save()">Salva attività</button></div></section>
 <section id="ai" class="page"><div class="card"><h2>Assistente AI reale</h2><div id="chat" class="chat"><div class="msg bot">Ciao! Come posso aiutarti?</div></div><p id="status" class="muted"></p><div class="row"><input id="clientName" placeholder="Nome cliente"><input id="q" placeholder="Scrivi una domanda..."><button class="primary" onclick="send()">Invia</button></div></div></section>
 <section id="app" class="page"><div class="card"><h2>Appuntamenti</h2><input id="n" placeholder="Nome cliente"><input id="d" type="date"><input id="t" type="time"><input id="s" placeholder="Servizio"><button class="primary" onclick="add()">Salva appuntamento</button><div id="list"></div></div></section>
+  <section id="settings" class="page">
+  <div class="card">
+    <h2>Impostazioni attività</h2>
+
+    <label>Nome attività</label>
+    <input id="settingsName" placeholder="Es. Barber Shop Rossi">
+
+    <label>Tipo di attività</label>
+    <select id="settingsType">
+      <option value="Parrucchiere">Parrucchiere</option>
+      <option value="Barbiere">Barbiere</option>
+      <option value="Estetista">Estetista</option>
+      <option value="Altro">Altro</option>
+    </select>
+
+    <label>Indirizzo</label>
+    <input id="settingsAddress" placeholder="Via, numero, città">
+
+    <label>Telefono</label>
+    <input id="settingsPhone" placeholder="Numero di telefono">
+
+    <label>WhatsApp</label>
+    <input id="settingsWhatsapp" placeholder="Numero WhatsApp">
+
+    <button class="primary" onclick="saveSettings()">
+      Salva impostazioni
+    </button>
+
+    <p id="settingsStatus" class="muted"></p>
+  </div>
+  </section>
 <section id="post" class="page"><div class="card"><h2>Generatore post</h2><input id="topic" placeholder="Argomento"><button class="primary" onclick="post()">Genera post</button><textarea id="out" rows="9"></textarea></div></section>
 </main>
 <script>
