@@ -45,7 +45,92 @@ export default async function handler(req, res) {
       if (!day || day.status === "closed") {
         return `${name}: Chiuso`;
       }
+function findAvailableSlots(date, duration) {
 
+  const requestedDate = new Date(`${date}T12:00:00`);
+
+  const dayIndex = requestedDate.getDay();
+
+  const dayMap = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday"
+  ];
+
+  const dayName = dayMap[dayIndex];
+
+  const dayHours = hours[dayName];
+
+  if (!dayHours || dayHours.status === "closed") {
+    return [];
+  }
+
+  function toMinutes(value) {
+    const [h, m] = value.split(":").map(Number);
+    return h * 60 + m;
+  }
+
+  function formatTime(minutes) {
+    const h = String(Math.floor(minutes / 60)).padStart(2, "0");
+    const m = String(minutes % 60).padStart(2, "0");
+
+    return `${h}:${m}`;
+  }
+
+  const opening = toMinutes(dayHours.open);
+  const closing = toMinutes(dayHours.close);
+
+  const slots = [];
+
+  for (
+    let start = opening;
+    start + duration <= closing;
+    start += appointmentInterval
+  ) {
+
+    const end = start + duration;
+
+    const conflict = appointments.some(a => {
+
+      if (a.d !== date || !a.t) {
+        return false;
+      }
+
+      const existingStart = toMinutes(a.t);
+
+      let existingDuration = 30;
+
+      const existingService = services.find(
+        s =>
+          String(s.name).toLowerCase() ===
+          String(a.s || "").toLowerCase()
+      );
+
+      if (existingService) {
+        existingDuration =
+          Number(existingService.duration) || 30;
+      }
+
+      const existingEnd =
+        existingStart + existingDuration;
+
+      return (
+        start < existingEnd &&
+        end > existingStart
+      );
+    });
+
+    if (!conflict) {
+      slots.push(formatTime(start));
+    }
+  }
+
+  return slots;
+}
       return `${name}: ${day.open || "--:--"} - ${day.close || "--:--"}`;
     }
 
