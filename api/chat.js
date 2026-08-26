@@ -422,12 +422,31 @@ Non scrivere testo fuori dal JSON.`,
 
       if (conflict) {
 
-        return res.status(200).json({
-          reply:
-            `L'orario ${time} non è disponibile perché è già presente un appuntamento. ` +
-            `Scegli un altro orario.`,
-          appointment: null
-        });
+  const availableSlots =
+    findAvailableSlots(date, duration);
+
+  const suggestions =
+    availableSlots
+      .filter(slot => slot !== time)
+      .slice(0, 3);
+
+  if (suggestions.length) {
+
+    return res.status(200).json({
+      reply:
+        `L'orario ${time} non è disponibile. ` +
+        `Gli orari disponibili più vicini sono: ` +
+        `${suggestions.join(", ")}.`,
+      appointment: null
+    });
+
+  }
+
+  return res.status(200).json({
+    reply:
+      `L'orario ${time} non è disponibile e non ci sono altri slot disponibili quel giorno.`,
+    appointment: null
+  });
       }
 
       /*
