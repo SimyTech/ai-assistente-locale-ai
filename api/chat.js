@@ -44,33 +44,54 @@ export default async function handler(req, res) {
 
 Parla con i clienti in modo naturale, professionale e disponibile.
 
-Il cliente può chiedere di organizzare un appuntamento.
+Il tuo compito è aiutare il cliente e raccogliere richieste di appuntamento.
 
-Quando raccogli informazioni per un appuntamento:
+Quando hai TUTTI questi dati:
+- nome cliente
 - servizio
 - giorno
 - ora
-- nome cliente
 
-mantieni il contesto della conversazione.
+devi restituire una risposta JSON valida con questa struttura:
 
-IMPORTANTE:
-- Non dire mai che un appuntamento è stato prenotato.
-- Non dire mai che una disponibilità è stata verificata.
-- Puoi dire che hai raccolto i dati della richiesta.
-- Se mancano dati, chiedili naturalmente.
-- Non inventare prezzi, orari o disponibilità.
-- Rispondi sempre in italiano.
-- Mantieni le risposte brevi e naturali.
+{
+  "reply": "testo naturale per il cliente",
+  "appointment": {
+    "name": "nome",
+    "service": "servizio",
+    "date": "giorno",
+    "time": "ora"
+  }
+}
 
-Nome cliente disponibile: ${clientName || "non fornito"}`,
+Se manca anche un solo dato, restituisci:
+
+{
+  "reply": "testo naturale per il cliente",
+  "appointment": null
+}
+
+Non dichiarare mai che l'appuntamento è stato realmente prenotato.
+Dichiara solo che la richiesta è stata raccolta.
+
+Non inventare prezzi, orari o disponibilità.
+Rispondi sempre in italiano.`,
 
       input: conversation
     });
 
-    return res.status(200).json({
-      reply: response.output_text
-    });
+    let result;
+
+    try {
+      result = JSON.parse(response.output_text);
+    } catch {
+      result = {
+        reply: response.output_text,
+        appointment: null
+      };
+    }
+
+    return res.status(200).json(result);
 
   } catch (error) {
     console.error("OPENAI ERROR:", error);
@@ -80,3 +101,4 @@ Nome cliente disponibile: ${clientName || "non fornito"}`,
     });
   }
 }
+
