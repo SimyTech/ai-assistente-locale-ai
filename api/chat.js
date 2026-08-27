@@ -310,7 +310,104 @@ export default async function handler(req, res) {
           )
           .slice(-20)
       : [];
+/*
+ * CONFERMA APPUNTAMENTO
+ */
 
+const confirmationWords = [
+  "si",
+  "sì",
+  "confermo",
+  "conferma",
+  "ok",
+  "va bene",
+  "procedi",
+  "prenota",
+  "prenotalo",
+  "confermo l'appuntamento",
+  "confermo appuntamento"
+];
+
+const normalizedMessage =
+  String(message || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[!?.,]/g, "");
+
+const isConfirmation =
+  confirmationWords.includes(normalizedMessage);
+
+if (pendingAppointment && isConfirmation) {
+
+  const requested =
+    pendingAppointment;
+
+  const service =
+    getService(requested.service);
+
+  if (!service) {
+    return res.status(200).json({
+      reply:
+        "Il servizio non è più presente nel listino.",
+      appointment: null,
+      confirmed: false
+    });
+  }
+
+  const duration =
+    Number(service.duration);
+
+  if (!duration || duration <= 0) {
+    return res.status(200).json({
+      reply:
+        "La durata del servizio non è configurata correttamente.",
+      appointment: null,
+      confirmed: false
+    });
+  }
+
+  const free =
+    isSlotFree(
+      requested.date,
+      requested.time,
+      duration
+    );
+
+  if (!free) {
+
+    return res.status(200).json({
+      reply:
+        "Mi dispiace, l'orario non è più disponibile. " +
+        "La disponibilità è cambiata.",
+      appointment: null,
+      confirmed: false
+    });
+
+  }
+
+  return res.status(200).json({
+
+    reply:
+      `Appuntamento confermato per ` +
+      `${service.name} il ${requested.date} ` +
+      `alle ${requested.time}.`,
+
+    appointment: {
+      name:
+        requested.name ||
+        clientName ||
+        "",
+      service:
+        service.name,
+      date:
+        requested.date,
+      time:
+        requested.time
+    },
+
+    confirmed: true
+  });
+}
     const response =
       await client.responses.create({
         model: "gpt-5.4-mini",
