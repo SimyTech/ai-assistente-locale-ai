@@ -628,17 +628,22 @@ Non scrivere testo fuori dal JSON.
     const day =
       hours[dayName];
 
-    if (
-      !day ||
-      day.status === "closed"
-    ) {
-      return res.status(200).json({
-        reply:
-          "L'attività è chiusa nel giorno richiesto. Scegli un altro giorno.",
-        appointment: null
-      });
-    }
+    if (!day || day.status === "closed") {
 
+  console.log("DEBUG CALENDARIO:", {
+    date,
+    dayName,
+    day,
+    hours
+  });
+
+  return res.status(200).json({
+    reply:
+      `L'attività risulta chiusa per la data ${date} ` +
+      `(giorno rilevato: ${dayName}).`,
+    appointment: null
+  });
+}
     /*
      * Controllo disponibilità reale.
      */
