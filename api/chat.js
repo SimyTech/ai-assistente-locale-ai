@@ -81,7 +81,7 @@ export default async function handler(req, res) {
       return `${h}:${m}`;
     }
 
-    function getDateRome() {
+    function getTodayRome() {
 
       const parts =
         new Intl.DateTimeFormat(
@@ -97,9 +97,11 @@ export default async function handler(req, res) {
       const map = {};
 
       parts.forEach(part => {
+
         if (part.type !== "literal") {
           map[part.type] = part.value;
         }
+
       });
 
       return `${map.year}-${map.month}-${map.day}`;
@@ -144,6 +146,10 @@ export default async function handler(req, res) {
           `${date}T12:00:00`
         );
 
+      if (Number.isNaN(d.getTime())) {
+        return null;
+      }
+
       return [
         "sunday",
         "monday",
@@ -153,21 +159,6 @@ export default async function handler(req, res) {
         "friday",
         "saturday"
       ][d.getDay()];
-    }
-
-    function getDayLabel(date) {
-
-      const labels = {
-        monday: "lunedì",
-        tuesday: "martedì",
-        wednesday: "mercoledì",
-        thursday: "giovedì",
-        friday: "venerdì",
-        saturday: "sabato",
-        sunday: "domenica"
-      };
-
-      return labels[getDayName(date)] || "";
     }
 
     function formatItalianDate(date) {
@@ -255,6 +246,10 @@ export default async function handler(req, res) {
         end > breakStart
       );
     }
+
+    /* ============================================================
+       CONTROLLO DISPONIBILITÀ
+    ============================================================ */
 
     function isSlotFree(
       date,
@@ -368,7 +363,8 @@ export default async function handler(req, res) {
 
       if (
         opening === null ||
-        closing === null
+        closing === null ||
+        opening >= closing
       ) {
         return [];
       }
@@ -377,7 +373,7 @@ export default async function handler(req, res) {
 
       for (
         let start = opening;
-        start + duration <= closing;
+        start + Number(duration) <= closing;
         start += 30
       ) {
 
@@ -393,20 +389,25 @@ export default async function handler(req, res) {
         ) {
           slots.push(time);
         }
+
       }
 
       return slots;
     }
 
     /* ============================================================
-       RICONOSCIMENTO DATA
+       DATA
     ============================================================ */
 
     const today =
-      getDateRome();
+      getTodayRome();
 
     const normalizedMessage =
       normalizeText(message);
+
+    /* ============================================================
+       RICONOSCIMENTO DATA
+    ============================================================ */
 
     let requestedDate = null;
 
@@ -434,6 +435,7 @@ export default async function handler(req, res) {
     }
 
     const weekdayMap = {
+
       lunedi: 1,
       martedi: 2,
       mercoledi: 3,
@@ -441,9 +443,13 @@ export default async function handler(req, res) {
       venerdi: 5,
       sabato: 6,
       domenica: 0
+
     };
 
-    for (const [name, targetDay] of Object.entries(weekdayMap)) {
+    for (
+      const [name, targetDay]
+      of Object.entries(weekdayMap)
+    ) {
 
       if (
         normalizedMessage.includes(name)
@@ -475,14 +481,14 @@ export default async function handler(req, res) {
     }
 
     /* ============================================================
-       RICONOSCIMENTO ORARIO
+       RICONOSCIMENTO ORA
     ============================================================ */
 
     let requestedTime = null;
 
     const timeMatch =
       normalizedMessage.match(
-        /\b(\d{1,2})(?::|\.|\s+)(\d{2})\b/
+        /\b(\d{1,2})[:.](\d{2})\b/
       );
 
     if (timeMatch) {
@@ -497,7 +503,7 @@ export default async function handler(req, res) {
 
       const hourMatch =
         normalizedMessage.match(
-          /\b(?:alle|ore)\s*(\d{1,2})\b/
+          /\b(?:alle|ore)\s*(\d{1,2})(?!\d)/
         );
 
       if (hourMatch) {
@@ -508,6 +514,7 @@ export default async function handler(req, res) {
           );
 
       }
+
     }
 
     /* ============================================================
@@ -519,43 +526,42 @@ export default async function handler(req, res) {
 
     /* ============================================================
        RICHIESTA DISPONIBILITÀ
-       NON USA OPENAI
+       COMPLETAMENTE LOCALE
     ============================================================ */
 
-    const availabilityKeywords = [
-      "orari disponibili",
-      "orario disponibile",
-      "quando sei disponibile",
-      "quando siete disponibili",
-      "quando posso venire",
-      "che orari hai",
-      "che orario hai",
-      "orari liberi",
-      "orario libero",
-      "quando posso prenotare",
-      "disponibilita",
-      "disponibilita"
-    ];
+    const hasAvailabilityWord =
+      normalizedMessage.includes("orari") ||
+      normalizedMessage.includes("orario") ||
+      normalizedMessage.includes("disponibilita") ||
+      normalizedMessage.includes("disponibile") ||
+      normalizedMessage.includes("disponibili") ||
+      normalizedMessage.includes("libero") ||
+      normalizedMessage.includes("liberi");
+
+    const hasDateWord =
+      normalizedMessage.includes("oggi") ||
+      normalizedMessage.includes("domani") ||
+      normalizedMessage.includes("dopodomani") ||
+      normalizedMessage.includes("lunedi") ||
+      normalizedMessage.includes("martedi") ||
+      normalizedMessage.includes("mercoledi") ||
+      normalizedMessage.includes("giovedi") ||
+      normalizedMessage.includes("venerdi") ||
+      normalizedMessage.includes("sabato") ||
+      normalizedMessage.includes("domenica");
 
     const asksAvailability =
-      availabilityKeywords.some(
-        keyword =>
-          normalizedMessage.includes(
-            normalizeText(keyword)
-          )
-      );
+      hasAvailabilityWord &&
+      hasDateWord;
 
     if (
       asksAvailability &&
       requestedDate
     ) {
 
-      const service =
-        detectedService;
-
       const duration =
-        service
-          ? Number(service.duration) || 30
+        detectedService
+          ? Number(detectedService.duration) || 30
           : 30;
 
       const slots =
@@ -584,15 +590,12 @@ export default async function handler(req, res) {
 
       }
 
-      const shownSlots =
-        slots.slice(0, 12);
-
       return res.status(200).json({
 
         reply:
           `Per ${formatItalianDate(requestedDate)} ` +
           `sono disponibili: ` +
-          `${shownSlots.join(", ")}.` +
+          `${slots.slice(0, 12).join(", ")}.` +
           `\n\nQuale orario preferisci?`,
 
         appointment: null,
@@ -604,10 +607,11 @@ export default async function handler(req, res) {
         confirmed: false
 
       });
+
     }
 
     /* ============================================================
-       CONFERMA PENDENTE
+       CONFERMA / ANNULLAMENTO
     ============================================================ */
 
     const confirmationWords = [
@@ -632,18 +636,20 @@ export default async function handler(req, res) {
     ];
 
     const isConfirmation =
-      confirmationWords.some(
-        word =>
-          normalizedMessage ===
-          normalizeText(word)
+      confirmationWords.some(word =>
+        normalizedMessage ===
+        normalizeText(word)
       );
 
     const isCancellation =
-      cancellationWords.some(
-        word =>
-          normalizedMessage ===
-          normalizeText(word)
+      cancellationWords.some(word =>
+        normalizedMessage ===
+        normalizeText(word)
       );
+
+    /* ============================================================
+       CONFERMA APPUNTAMENTO
+    ============================================================ */
 
     if (
       pendingAppointment &&
@@ -680,14 +686,19 @@ export default async function handler(req, res) {
           pendingAppointment.date || ""
         ).trim();
 
-      const timeMinutes =
-        toMinutes(
-          pendingAppointment.time
-        );
+      const rawTime =
+        String(
+          pendingAppointment.time || ""
+        )
+        .trim()
+        .replace(".", ":");
+
+      const minutes =
+        toMinutes(rawTime);
 
       const time =
-        timeMinutes !== null
-          ? formatTime(timeMinutes)
+        minutes !== null
+          ? formatTime(minutes)
           : "";
 
       const name =
@@ -706,7 +717,7 @@ export default async function handler(req, res) {
         return res.status(200).json({
 
           reply:
-            "Mancano alcuni dati dell'appuntamento.",
+            "Mancano alcuni dati dell'appuntamento. Ripetimi la richiesta.",
 
           appointment: null,
 
@@ -721,7 +732,7 @@ export default async function handler(req, res) {
       }
 
       const duration =
-        Number(service.duration);
+        Number(service.duration) || 30;
 
       if (
         !isSlotFree(
@@ -741,7 +752,7 @@ export default async function handler(req, res) {
 
           reply:
             alternatives.length
-              ? `Nel frattempo ${time} non è più disponibile. ` +
+              ? `Nel frattempo l'orario ${time} non è più disponibile. ` +
                 `Posso proporti: ${alternatives.slice(0, 5).join(", ")}.`
               : "Nel frattempo l'orario richiesto non è più disponibile.",
 
@@ -766,11 +777,8 @@ export default async function handler(req, res) {
         appointment: {
 
           name,
-
           service: service.name,
-
           date,
-
           time
 
         },
@@ -784,6 +792,10 @@ export default async function handler(req, res) {
       });
 
     }
+
+    /* ============================================================
+       ANNULLAMENTO
+    ============================================================ */
 
     if (
       pendingAppointment &&
@@ -809,9 +821,9 @@ export default async function handler(req, res) {
     }
 
     /* ============================================================
-       OTTIMIZZAZIONE:
-       SE ABBIAMO SERVIZIO + DATA + ORA + NOME,
-       POSSIAMO CONTROLLARE DIRETTAMENTE.
+       PRENOTAZIONE COMPLETA:
+       NOME + SERVIZIO + DATA + ORA
+       → NESSUNA CHIAMATA OPENAI
     ============================================================ */
 
     if (
@@ -895,8 +907,7 @@ export default async function handler(req, res) {
     }
 
     /* ============================================================
-       OPENAI
-       VIENE CHIAMATA SOLO QUANDO SERVE
+       DA QUI IN POI SERVE OPENAI
     ============================================================ */
 
     if (!process.env.OPENAI_API_KEY) {
@@ -915,6 +926,10 @@ export default async function handler(req, res) {
         apiKey:
           process.env.OPENAI_API_KEY
       });
+
+    /* ============================================================
+       INFORMAZIONI PER OPENAI
+    ============================================================ */
 
     const openingHours =
       Object.entries({
@@ -979,6 +994,10 @@ export default async function handler(req, res) {
           .slice(-20)
         : [];
 
+    /* ============================================================
+       OPENAI
+    ============================================================ */
+
     const response =
       await client.responses.create({
 
@@ -998,7 +1017,7 @@ Aiuta il cliente con informazioni sull'attività,
 servizi e appuntamenti.
 
 ==================================================
-ATTIVITÀ
+INFORMAZIONI ATTIVITÀ
 ==================================================
 
 Tipo:
@@ -1049,16 +1068,16 @@ REGOLE
 - Rispondi sempre in italiano.
 - Non inventare servizi.
 - Non inventare prezzi.
-- Non inventare orari.
 - Non inventare disponibilità.
-- Usa i dati forniti dal sistema.
-- Mantieni le informazioni già presenti nella conversazione.
-- Non chiedere nuovamente informazioni già fornite.
-- Se manca un dato per una prenotazione, chiedi solamente quel dato.
+- Usa esclusivamente i dati forniti.
+- Usa l'intera conversazione.
+- Non chiedere nuovamente dati già forniti.
+- Se manca un dato per una prenotazione,
+  chiedi solamente quel dato.
 - Quando sono presenti nome, servizio, data e ora,
   prepara una richiesta di conferma.
-- Non considerare mai un appuntamento confermato
-  senza conferma esplicita del cliente.
+- Non dire mai che un appuntamento è confermato
+  prima della conferma esplicita.
 
 ==================================================
 FORMATO
@@ -1090,7 +1109,7 @@ Restituisci SEMPRE esclusivamente JSON valido:
       });
 
     /* ============================================================
-       PARSING OPENAI
+       PARSING RISPOSTA OPENAI
     ============================================================ */
 
     let result;
@@ -1145,7 +1164,7 @@ Restituisci SEMPRE esclusivamente JSON valido:
     }
 
     /* ============================================================
-       PENDING APPOINTMENT
+       NORMALIZZAZIONE PENDING
     ============================================================ */
 
     if (
@@ -1274,29 +1293,7 @@ Restituisci SEMPRE esclusivamente JSON valido:
       }
 
       const duration =
-        Number(service.duration);
-
-      if (
-        !duration ||
-        duration <= 0
-      ) {
-
-        return res.status(200).json({
-
-          reply:
-            "La durata del servizio non è configurata correttamente.",
-
-          appointment: null,
-
-          pendingAppointment: null,
-
-          requiresConfirmation: false,
-
-          confirmed: false
-
-        });
-
-      }
+        Number(service.duration) || 30;
 
       if (
         !isSlotFree(
@@ -1384,6 +1381,10 @@ Restituisci SEMPRE esclusivamente JSON valido:
       error
     );
 
+    /* ============================================================
+       GESTIONE RATE LIMIT
+    ============================================================ */
+
     if (
       error?.status === 429 ||
       error?.code === "rate_limit_exceeded"
@@ -1393,7 +1394,7 @@ Restituisci SEMPRE esclusivamente JSON valido:
 
         reply:
           "L'assistente AI è temporaneamente occupato. " +
-          "Puoi riprovare tra qualche minuto.",
+          "Le funzioni di calendario restano disponibili.",
 
         appointment: null,
 
