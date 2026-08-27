@@ -1063,16 +1063,92 @@ NON scrivere testo fuori dal JSON.
         !!result.confirmed
     });
 
-  } catch (error) {
+    } catch (error) {
     console.error(
       "OPENAI ERROR:",
       error
     );
 
+    /*
+     * ============================================================
+     * GESTIONE ERRORI OPENAI
+     * ============================================================
+     */
+
+    const status =
+      Number(error?.status) ||
+      Number(error?.statusCode) ||
+      500;
+
+    const errorCode =
+      String(
+        error?.code ||
+        ""
+      ).toLowerCase();
+
+    const errorMessage =
+      String(
+        error?.message ||
+        ""
+      ).toLowerCase();
+
+    /*
+     * ------------------------------------------------------------
+     * RATE LIMIT / 429
+     * ------------------------------------------------------------
+     *
+     * Evitiamo di mostrare al cliente:
+     *
+     * - dettagli tecnici
+     * - ID organizzazione
+     * - messaggi interni OpenAI
+     * - informazioni sui rate limit
+     */
+
+    if (
+      status === 429 ||
+      errorCode === "rate_limit_exceeded" ||
+      errorMessage.includes("rate limit") ||
+      errorMessage.includes("too many requests")
+    ) {
+      return res.status(429).json({
+        error:
+          "L'assistente è temporaneamente occupato. " +
+          "Riprova tra qualche minuto."
+      });
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * AUTENTICAZIONE / API KEY
+     * ------------------------------------------------------------
+     */
+
+    if (
+      status === 401 ||
+      errorCode === "invalid_api_key" ||
+      errorMessage.includes("invalid api key") ||
+      errorMessage.includes("incorrect api key")
+    ) {
+      return res.status(500).json({
+        error:
+          "L'assistente AI non è temporaneamente disponibile."
+      });
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * ERRORE GENERICO
+     * ------------------------------------------------------------
+     *
+     * Non mostriamo mai al cliente il messaggio tecnico
+     * completo restituito dal server.
+     */
+
     return res.status(500).json({
       error:
-        error?.message ||
-        "Errore durante la richiesta AI"
+        "Si è verificato un problema con l'assistente. " +
+        "Riprova tra poco."
     });
   }
 }
