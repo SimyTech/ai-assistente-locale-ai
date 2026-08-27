@@ -2043,7 +2043,6 @@ function render(){
 
 let chatHistory = [];
 
-
 async function send(){
 
   const x =
@@ -2057,8 +2056,36 @@ async function send(){
     $('chat');
 
 
+  /*
+   * Mostra immediatamente il messaggio
+   * dell'utente.
+   */
+
   chat.innerHTML +=
     `<div class="msg user">${esc(x)}</div>`;
+
+
+  /*
+   * Salviamo il messaggio nella cronologia
+   * prima della richiesta.
+   */
+
+  chatHistory.push({
+    role:'user',
+    content:x
+  });
+
+
+  /*
+   * Manteniamo una cronologia ragionevole
+   * per evitare di inviare messaggi inutilmente
+   * vecchi all'API.
+   */
+
+  if(chatHistory.length > 20){
+    chatHistory =
+      chatHistory.slice(-20);
+  }
 
 
   $('status').textContent =
@@ -2114,6 +2141,7 @@ async function send(){
 
             history:
               chatHistory
+                .slice(0,-1)
 
           })
 
@@ -2121,81 +2149,105 @@ async function send(){
       );
 
 
-    const data =
-      await response.json();
+    let data;
+
+    try{
+
+      data =
+        await response.json();
+
+    }catch{
+
+      throw new Error(
+        'Il server ha restituito una risposta non valida.'
+      );
+
+    }
 
 
-    if(!response.ok)
+    if(!response.ok){
+
       throw new Error(
         data.error ||
         'Errore del server'
       );
 
+    }
 
-    chatHistory.push({
 
-      role:'user',
+    const reply =
+      data.reply ||
+      'Non ho ricevuto una risposta dall’assistente.';
 
-      content:x
 
-    });
-
+    /*
+     * Salviamo la risposta AI nella cronologia.
+     */
 
     chatHistory.push({
 
       role:'assistant',
 
-      content:data.reply
+      content:reply
 
     });
 
 
+    /*
+     * Mostra la risposta.
+     */
+
     chat.innerHTML +=
       `<div class="msg bot">${esc(
-        data.reply
+        reply
       )}</div>`;
 
 
     /*
-     * SE L'AI HA RACCOLTO
-     * UN APPUNTAMENTO
+     * Se l'API ha verificato un appuntamento
+     * realmente disponibile, lo salviamo.
      */
 
-    if(data.appointment){
-
-      const a =
-        getAppointments();
-
+    if(
+      data.appointment &&
+      data.appointment.name &&
+      data.appointment.service &&
+      data.appointment.date &&
+      data.appointment.time
+    ){
 
       const appointment =
         data.appointment;
 
 
+      const appointmentsNow =
+        getAppointments();
+
+
       /*
-       * Evita duplicati
+       * Controllo ulteriore contro duplicati.
        */
 
       const duplicate =
-        a.some(
+        appointmentsNow.some(
           item =>
             item.d ===
               appointment.date &&
             item.t ===
               appointment.time &&
             item.n ===
-              appointment.name
+              appointment.name &&
+            item.s ===
+              appointment.service
         );
 
 
       if(!duplicate){
 
-        a.push({
+        appointmentsNow.push({
 
           n:
-            appointment.name ||
-            $('clientName')
-              .value
-              .trim(),
+            appointment.name,
 
           d:
             appointment.date,
@@ -2210,19 +2262,56 @@ async function send(){
 
 
         localStorage.a =
-          JSON.stringify(a);
+          JSON.stringify(
+            appointmentsNow
+          );
 
       }
 
 
+      /*
+       * Aggiorna immediatamente:
+       *
+       * - lista appuntamenti
+       * - calendario
+       * - dashboard
+       */
+
       render();
+
       renderCalendar();
+
       updateDashboard();
+
+
+      /*
+       * Manteniamo il nome cliente
+       * già raccolto dall'AI.
+       */
+
+      if(
+        appointment.name &&
+        !$('clientName').value.trim()
+      ){
+
+        $('clientName').value =
+          appointment.name;
+
+      }
 
     }
 
 
   }catch(error){
+
+    /*
+     * Se la richiesta fallisce, eliminiamo
+     * dalla cronologia l'ultimo messaggio utente
+     * perché non è stato elaborato correttamente.
+     */
+
+    chatHistory.pop();
+
 
     chat.innerHTML +=
       `<div class="msg bot">
@@ -2233,17 +2322,17 @@ async function send(){
   }
 
 
-  $('q').disabled=false;
+  $('q').disabled = false;
 
-  $('status').textContent='';
+  $('status').textContent = '';
 
-  $('q').value='';
+  $('q').value = '';
+
 
   chat.scrollTop =
     chat.scrollHeight;
 
 }
-
 
 /* =========================
    POST
