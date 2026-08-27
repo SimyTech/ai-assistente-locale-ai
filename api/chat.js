@@ -87,25 +87,28 @@ export default async function handler(req, res) {
     }
 
     function getDayName(date) {
-      if (!isValidDate(date)) {
-        return null;
-      }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return null;
+  }
 
-      const d = new Date(`${date}T12:00:00`);
+  const [year, month, day] = date.split("-").map(Number);
 
-      const days = [
-        "sunday",
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday"
-      ];
+  const d = new Date(
+    Date.UTC(year, month - 1, day)
+  );
 
-      return days[d.getDay()];
-    }
+  const days = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday"
+  ];
 
+  return days[d.getUTCDay()];
+}
     function getService(name) {
       if (!name) return null;
 
