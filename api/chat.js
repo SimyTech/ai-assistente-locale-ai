@@ -678,4 +678,419 @@ devi identificare, se possibile:
 1. servizio
 2. data
 
-Se manca il servizio
+Se manca il servizio ma è evidente dalla conversazione,
+usalo.
+
+Se manca la data, chiedi la data.
+
+Restituisci:
+
+{
+  "reply": "Controllo gli orari disponibili.",
+  "appointment": null,
+  "pendingAppointment": null,
+  "requiresConfirmation": false,
+  "confirmed": false,
+  "availabilityRequest": {
+    "service": "nome servizio",
+    "date": "YYYY-MM-DD"
+  }
+}
+
+NON inventare gli orari.
+Gli orari reali verranno calcolati dal server.
+
+==================================================
+APPUNTAMENTI
+==================================================
+
+Quando hai raccolto:
+
+- nome
+- servizio
+- data
+- ora
+
+NON confermare ancora.
+
+Restituisci:
+
+{
+  "reply": "Perfetto. Ho verificato la disponibilità per [SERVIZIO] il [DATA] alle [ORA]. Vuoi confermare l'appuntamento?",
+  "appointment": null,
+  "pendingAppointment": {
+    "name": "nome",
+    "service": "servizio",
+    "date": "YYYY-MM-DD",
+    "time": "HH:MM"
+  },
+  "requiresConfirmation": true,
+  "confirmed": false
+}
+
+L'appuntamento viene salvato SOLO dopo la conferma.
+
+==================================================
+FORMATO
+==================================================
+
+Restituisci SEMPRE e SOLO JSON valido.
+
+Se manca un dato:
+
+{
+  "reply": "domanda breve",
+  "appointment": null,
+  "pendingAppointment": null,
+  "requiresConfirmation": false,
+  "confirmed": false,
+  "availabilityRequest": null
+}
+
+Non scrivere testo fuori dal JSON.
+`,
+
+        input: [
+          ...safeHistory,
+          {
+            role: "user",
+            content: message
+          }
+        ]
+      });
+
+    /* ============================================================
+       PARSING
+    ============================================================ */
+
+    let result;
+
+    try {
+      result =
+        JSON.parse(response.output_text);
+    } catch {
+      result = {
+        reply:
+          response.output_text ||
+          "Non ho capito la richiesta.",
+        appointment: null,
+        pendingAppointment: null,
+        requiresConfirmation: false,
+        confirmed: false,
+        availabilityRequest: null
+      };
+    }
+
+    if (
+      !result ||
+      typeof result !== "object"
+    ) {
+      result = {
+        reply:
+          "Non ho capito la richiesta.",
+        appointment: null,
+        pendingAppointment: null,
+        requiresConfirmation: false,
+        confirmed: false,
+        availabilityRequest: null
+      };
+    }
+
+    /* ============================================================
+       RICHIESTA DISPONIBILITÀ
+    ============================================================ */
+
+    if (result.availabilityRequest) {
+      const request =
+        result.availabilityRequest;
+
+      let service =
+        getService(request.service);
+
+      if (!service) {
+        service =
+          findServiceInText(message);
+      }
+
+      if (!service) {
+        return res.status(200).json({
+          reply:
+            "Quale servizio vuoi prenotare?",
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          availableSlots: []
+        });
+      }
+
+      const date =
+        String(
+          request.date || ""
+        ).trim();
+
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(date)
+      ) {
+        return res.status(200).json({
+          reply:
+            "Per quale data vuoi vedere gli orari disponibili?",
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          availableSlots: []
+        });
+      }
+
+      const day =
+        getDaySettings(date);
+
+      if (
+        !day ||
+        day.status === "closed"
+      ) {
+        return res.status(200).json({
+          reply:
+            "L'attività è chiusa nel giorno richiesto.",
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          availableSlots: [],
+          availableDate: date,
+          availableService: service.name
+        });
+      }
+
+      const duration =
+        Number(service.duration) || 30;
+
+      const slots =
+        findAvailableSlots(
+          date,
+          duration
+        );
+
+      if (!slots.length) {
+        return res.status(200).json({
+          reply:
+            `Non ci sono orari disponibili per ${service.name} nella data richiesta.`,
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          availableSlots: [],
+          availableDate: date,
+          availableService: service.name
+        });
+      }
+
+      return res.status(200).json({
+        reply:
+          `Questi sono gli orari disponibili per ${service.name}:`,
+        appointment: null,
+        pendingAppointment: null,
+        requiresConfirmation: false,
+        confirmed: false,
+        availableSlots: slots,
+        availableDate: date,
+        availableService: service.name
+      });
+    }
+
+    /* ============================================================
+       PENDING APPOINTMENT
+    ============================================================ */
+
+    if (result.pendingAppointment) {
+      const pending =
+        result.pendingAppointment;
+
+      let service =
+        getService(pending.service);
+
+      if (!service) {
+        service =
+          findServiceInText(message);
+      }
+
+      if (!service) {
+        return res.status(200).json({
+          reply:
+            "Non trovo questo servizio nel listino dell'attività.",
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          availableSlots: []
+        });
+      }
+
+      let time =
+        String(
+          pending.time || ""
+        )
+          .trim()
+          .replace(".", ":");
+
+      const timeMinutes =
+        toMinutes(time);
+
+      if (timeMinutes !== null) {
+        time =
+          formatTime(timeMinutes);
+      }
+
+      const normalizedPending = {
+        name:
+          String(
+            pending.name ||
+            clientName ||
+            ""
+          ).trim(),
+
+        service:
+          service.name,
+
+        date:
+          String(
+            pending.date || ""
+          ).trim(),
+
+        time
+      };
+
+      const complete =
+        !!(
+          normalizedPending.name &&
+          normalizedPending.service &&
+          /^\d{4}-\d{2}-\d{2}$/.test(
+            normalizedPending.date
+          ) &&
+          toMinutes(
+            normalizedPending.time
+          ) !== null
+        );
+
+      if (!complete) {
+        return res.status(200).json({
+          reply:
+            result.reply,
+          appointment: null,
+          pendingAppointment:
+            normalizedPending,
+          requiresConfirmation: false,
+          confirmed: false,
+          availableSlots: []
+        });
+      }
+
+      const day =
+        getDaySettings(
+          normalizedPending.date
+        );
+
+      if (
+        !day ||
+        day.status === "closed"
+      ) {
+        return res.status(200).json({
+          reply:
+            "L'attività è chiusa nel giorno richiesto. Scegli un altro giorno.",
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          availableSlots: []
+        });
+      }
+
+      const duration =
+        Number(service.duration);
+
+      const free =
+        isSlotFree(
+          normalizedPending.date,
+          normalizedPending.time,
+          duration
+        );
+
+      if (!free) {
+        const alternatives =
+          findAvailableSlots(
+            normalizedPending.date,
+            duration
+          );
+
+        return res.status(200).json({
+          reply:
+            alternatives.length
+              ? `L'orario ${normalizedPending.time} non è disponibile. Posso proporti:`
+              : "Non ci sono altri slot disponibili quel giorno.",
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          availableSlots:
+            alternatives.slice(0, 20),
+          availableDate:
+            normalizedPending.date,
+          availableService:
+            service.name
+        });
+      }
+
+      return res.status(200).json({
+        reply:
+          `Perfetto. Ho verificato la disponibilità per ${service.name} il ${normalizedPending.date} alle ${normalizedPending.time}. Vuoi confermare l'appuntamento?`,
+        appointment: null,
+        pendingAppointment:
+          normalizedPending,
+        requiresConfirmation: true,
+        confirmed: false,
+        availableSlots: []
+      });
+    }
+
+    /* ============================================================
+       RISPOSTA NORMALE
+    ============================================================ */
+
+    return res.status(200).json({
+      reply:
+        result.reply,
+
+      appointment:
+        result.confirmed
+          ? result.appointment || null
+          : null,
+
+      pendingAppointment:
+        result.pendingAppointment || null,
+
+      requiresConfirmation:
+        !!result.requiresConfirmation,
+
+      confirmed:
+        !!result.confirmed,
+
+      availableSlots:
+        Array.isArray(result.availableSlots)
+          ? result.availableSlots
+          : []
+    });
+
+  } catch (error) {
+    console.error(
+      "OPENAI ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      error:
+        error?.message ||
+        "Errore durante la richiesta AI"
+    });
+  }
+}
