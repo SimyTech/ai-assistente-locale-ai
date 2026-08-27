@@ -922,6 +922,23 @@ export default async function handler(req, res) {
      * CONTINUA NORMALMENTE VERSO OPENAI.
      * ------------------------------------------------------------
      */
+        function formatItalianDateLocal(dateString) {
+
+      const date =
+        new Date(
+          `${dateString}T12:00:00`
+        );
+
+      return date.toLocaleDateString(
+        "it-IT",
+        {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        }
+      );
+    }
         /* ============================================================
        PRENOTAZIONI SEMPLICI - MOTORE LOCALE
        Gestisce richieste comuni senza chiamare OpenAI
