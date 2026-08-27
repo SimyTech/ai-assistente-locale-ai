@@ -922,6 +922,411 @@ export default async function handler(req, res) {
      * CONTINUA NORMALMENTE VERSO OPENAI.
      * ------------------------------------------------------------
      */
+        /* ============================================================
+       PRENOTAZIONI SEMPLICI - MOTORE LOCALE
+       Gestisce richieste comuni senza chiamare OpenAI
+    ============================================================ */
+
+    const bookingWords = [
+      "prenota",
+      "prenotare",
+      "prenotazione",
+      "appuntamento",
+      "vorrei",
+      "posso venire",
+      "posso fissare",
+      "posso prendere",
+      "fissare un appuntamento"
+    ];
+
+    const hasBookingIntent =
+      bookingWords.some(word =>
+        localText.includes(normalizeText(word))
+      );
+
+    /*
+     * Cerca il servizio direttamente nel messaggio.
+     */
+
+    const bookingService =
+      findServiceInText(message);
+
+    /*
+     * ------------------------------------------------------------
+     * DATA
+     * ------------------------------------------------------------
+     */
+
+    function getItalyToday() {
+      const parts =
+        new Intl.DateTimeFormat(
+          "en-CA",
+          {
+            timeZone: "Europe/Rome",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+          }
+        ).formatToParts(new Date());
+
+      const map = {};
+
+      parts.forEach(part => {
+        if (part.type !== "literal") {
+          map[part.type] = part.value;
+        }
+      });
+
+      return `${map.year}-${map.month}-${map.day}`;
+    }
+
+    function addDays(dateString, days) {
+      const date =
+        new Date(
+          `${dateString}T12:00:00`
+        );
+
+      date.setDate(
+        date.getDate() + days
+      );
+
+      const y =
+        date.getFullYear();
+
+      const m =
+        String(
+          date.getMonth() + 1
+        ).padStart(2, "0");
+
+      const d =
+        String(
+          date.getDate()
+        ).padStart(2, "0");
+
+      return `${y}-${m}-${d}`;
+    }
+
+    function getDateFromItalianText(text) {
+
+      const normalized =
+        normalizeText(text);
+
+      const today =
+        getItalyToday();
+
+      if (
+        normalized.includes("dopodomani")
+      ) {
+        return addDays(today, 2);
+      }
+
+      if (
+        normalized.includes("domani")
+      ) {
+        return addDays(today, 1);
+      }
+
+      if (
+        normalized.includes("oggi")
+      ) {
+        return today;
+      }
+
+      /*
+       * Giorni della settimana.
+       */
+
+      const days = [
+        "domenica",
+        "lunedi",
+        "martedi",
+        "mercoledi",
+        "giovedi",
+        "venerdi",
+        "sabato"
+      ];
+
+      const wantedIndex =
+        days.findIndex(day =>
+          normalized.includes(day)
+        );
+
+      if (wantedIndex !== -1) {
+
+        const now =
+          new Date(
+            `${today}T12:00:00`
+          );
+
+        const currentDay =
+          now.getDay();
+
+        const targetDay =
+          wantedIndex;
+
+        let difference =
+          targetDay - currentDay;
+
+        /*
+         * Se il giorno è oggi o è già passato,
+         * intendiamo il prossimo giorno della settimana.
+         */
+
+        if (difference <= 0) {
+          difference += 7;
+        }
+
+        return addDays(
+          today,
+          difference
+        );
+      }
+
+      /*
+       * Data già scritta YYYY-MM-DD.
+       */
+
+      const dateMatch =
+        normalized.match(
+          /\b(20\d{2})-(\d{2})-(\d{2})\b/
+        );
+
+      if (dateMatch) {
+        return (
+          `${dateMatch[1]}-` +
+          `${dateMatch[2]}-` +
+          `${dateMatch[3]}`
+        );
+      }
+
+      return null;
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * ORARIO
+     * ------------------------------------------------------------
+     */
+
+    function getTimeFromItalianText(text) {
+
+      const normalized =
+        normalizeText(text);
+
+      /*
+       * 10:00
+       * 10.00
+       * ore 10:00
+       * alle 10:00
+       */
+
+      let match =
+        normalized.match(
+          /\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/
+        );
+
+      if (match) {
+        return (
+          `${String(match[1]).padStart(2, "0")}:` +
+          `${match[2]}`
+        );
+      }
+
+      /*
+       * "alle 10"
+       * "ore 10"
+       * "alle 15"
+       */
+
+      match =
+        normalized.match(
+          /\b(?:alle|ore)\s+([01]?\d|2[0-3])\b/
+        );
+
+      if (match) {
+        return (
+          `${String(match[1]).padStart(2, "0")}:00`
+        );
+      }
+
+      /*
+       * Se la frase contiene esplicitamente
+       * "mattina/pomeriggio/sera", ma non un'ora,
+       * lasciamo che venga gestita dall'AI.
+       */
+
+      return null;
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * GESTIONE PRENOTAZIONE LOCALE
+     * ------------------------------------------------------------
+     */
+
+    if (
+      hasBookingIntent &&
+      bookingService
+    ) {
+
+      const bookingDate =
+        getDateFromItalianText(message);
+
+      const bookingTime =
+        getTimeFromItalianText(message);
+
+      const bookingName =
+        String(
+          clientName || ""
+        ).trim();
+
+      /*
+       * Se manca il nome, chiediamo soltanto il nome.
+       */
+
+      if (!bookingName) {
+
+        return res.status(200).json({
+          reply:
+            "Perfetto. Mi confermi il nome per la prenotazione?",
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          local: true
+        });
+      }
+
+      /*
+       * Se manca la data, chiediamo soltanto la data.
+       */
+
+      if (!bookingDate) {
+
+        return res.status(200).json({
+          reply:
+            `Perfetto. Mi manca solo il giorno per ` +
+            `${bookingService.name}.`,
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          local: true
+        });
+      }
+
+      /*
+       * Se manca l'orario, chiediamo soltanto l'orario.
+       */
+
+      if (!bookingTime) {
+
+        return res.status(200).json({
+          reply:
+            `Perfetto. Mi manca solo l'orario preciso ` +
+            `per ${formatItalianDateLocal(bookingDate)}.`,
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          local: true
+        });
+      }
+
+      /*
+       * Controllo disponibilità.
+       */
+
+      const duration =
+        Number(
+          bookingService.duration
+        ) || 30;
+
+      const available =
+        isSlotFree(
+          bookingDate,
+          bookingTime,
+          duration
+        );
+
+      /*
+       * Se occupato, proponiamo automaticamente
+       * altri orari disponibili.
+       */
+
+      if (!available) {
+
+        const alternatives =
+          findAvailableSlots(
+            bookingDate,
+            duration
+          );
+
+        if (alternatives.length) {
+
+          return res.status(200).json({
+            reply:
+              `L'orario ${bookingTime} non è disponibile. ` +
+              `Posso proporti: ` +
+              `${alternatives.slice(0, 5).join(", ")}.`,
+            appointment: null,
+            pendingAppointment: null,
+            requiresConfirmation: false,
+            confirmed: false,
+            local: true
+          });
+        }
+
+        return res.status(200).json({
+          reply:
+            `L'orario ${bookingTime} non è disponibile ` +
+            `e non risultano altri orari liberi quel giorno.`,
+          appointment: null,
+          pendingAppointment: null,
+          requiresConfirmation: false,
+          confirmed: false,
+          local: true
+        });
+      }
+
+      /*
+       * Orario disponibile.
+       *
+       * NON salviamo ancora l'appuntamento.
+       * Creiamo la richiesta pendente.
+       */
+
+      return res.status(200).json({
+        reply:
+          `Perfetto. Ho verificato la disponibilità per ` +
+          `${bookingService.name} il ${bookingDate} alle ` +
+          `${bookingTime}. Vuoi confermare l'appuntamento?`,
+
+        appointment: null,
+
+        pendingAppointment: {
+          name: bookingName,
+          service: bookingService.name,
+          date: bookingDate,
+          time: bookingTime
+        },
+
+        requiresConfirmation: true,
+
+        confirmed: false,
+
+        local: true
+      });
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * FINE MOTORE LOCALE
+     *
+     * Tutte le richieste che non possono essere gestite
+     * localmente continuano verso OpenAI.
+     * ------------------------------------------------------------
+     */
     /* ============================================================
        OPENAI
     ============================================================ */
