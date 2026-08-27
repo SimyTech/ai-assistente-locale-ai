@@ -105,7 +105,7 @@ textarea{
 }
 
 .chat{
-  height:330px;
+  height:360px;
   overflow:auto;
   background:#fafafa;
   border:1px solid #ddd;
@@ -253,37 +253,37 @@ textarea{
   color:#3730a3
 }
 
-.pending-box{
-  margin-top:12px;
-  padding:14px;
-  border-radius:12px;
-  background:#eff6ff;
-  border:1px solid #93c5fd
-}
-
-.pending-box strong{
-  display:block;
-  margin-bottom:5px
-}
-
-.pending-actions{
+.ai-actions{
   display:flex;
+  flex-wrap:wrap;
   gap:8px;
-  margin-top:10px
+  margin:8px 0 12px;
+  padding-left:4px
 }
 
-.pending-actions button{
-  flex:1
+.ai-slot-button{
+  background:#2563eb;
+  color:white;
+  min-width:78px
 }
 
-.confirm{
+.ai-confirm-button{
   background:#16a34a;
-  color:white
+  color:white;
+  width:100%;
+  margin-top:8px
 }
 
-.cancel{
+.ai-cancel-button{
   background:#fee2e2;
-  color:#991b1b
+  color:#991b1b;
+  width:100%;
+  margin-top:8px
+}
+
+.available-title{
+  font-weight:700;
+  margin:8px 0
 }
 
 @media(max-width:650px){
@@ -302,10 +302,6 @@ textarea{
   .slot{
     grid-template-columns:60px 1fr
   }
-
-  .pending-actions{
-    flex-direction:column
-  }
 }
 </style>
 </head>
@@ -314,6 +310,7 @@ textarea{
 
 <header>
   <h1>AI Assistente Locale</h1>
+
   <div class="muted" style="color:#cbd5e1">
     Assistente AI per attività locali
   </div>
@@ -334,6 +331,7 @@ textarea{
 <section id="home" class="page active">
 
   <div class="card">
+
     <h2>Dashboard</h2>
 
     <p>
@@ -344,12 +342,17 @@ textarea{
 
     <input id="biz" value="Salone Bella Linea">
 
-    <button class="primary" onclick="save()">
+    <button
+      class="primary"
+      onclick="save()"
+    >
       Salva attività
     </button>
+
   </div>
 
   <div class="card">
+
     <h3>Riepilogo</h3>
 
     <p>
@@ -376,20 +379,14 @@ textarea{
     <h2>Assistente AI reale</h2>
 
     <div id="chat" class="chat">
+
       <div class="msg bot">
         Ciao! Come posso aiutarti?
       </div>
+
     </div>
 
     <p id="status" class="muted"></p>
-
-    <!-- APPUNTAMENTO IN ATTESA -->
-
-    <div
-      id="pendingBox"
-      class="pending-box"
-      style="display:none"
-    ></div>
 
     <div class="row">
 
@@ -405,6 +402,7 @@ textarea{
       >
 
       <button
+        id="sendButton"
         class="primary"
         onclick="send()"
       >
@@ -452,7 +450,10 @@ textarea{
 
     <div id="calendarTitle"></div>
 
-    <div id="calendar" class="calendar-grid"></div>
+    <div
+      id="calendar"
+      class="calendar-grid"
+    ></div>
 
   </div>
 
@@ -476,8 +477,13 @@ textarea{
       type="time"
     >
 
-    <select id="s" onchange="renderCalendar()">
-      <option value="">Seleziona servizio</option>
+    <select
+      id="s"
+      onchange="renderCalendar()"
+    >
+      <option value="">
+        Seleziona servizio
+      </option>
     </select>
 
     <button
@@ -487,7 +493,10 @@ textarea{
       Salva appuntamento
     </button>
 
-    <p id="appointmentStatus" class="muted"></p>
+    <p
+      id="appointmentStatus"
+      class="muted"
+    ></p>
 
   </div>
 
@@ -604,8 +613,7 @@ textarea{
     <h3>Orari di apertura</h3>
 
     <p class="muted">
-      Gli orari vengono utilizzati automaticamente dal calendario
-      e dall'assistente AI.
+      Gli orari vengono utilizzati automaticamente dal calendario e dall'assistente AI.
     </p>
 
     <div id="hoursList">
@@ -798,21 +806,18 @@ const $ = x => document.getElementById(x);
 
 
 /* ============================================================
-   STATO AI
+   STATO ASSISTENTE
 ============================================================ */
 
-/*
- * Questa variabile contiene esclusivamente l'appuntamento
- * che l'API ha proposto e che il cliente deve ancora confermare.
- *
- * NON viene salvato in localStorage come appuntamento definitivo.
- */
-
-let pendingAppointment = null;
-
-let requiresConfirmation = false;
-
 let chatHistory = [];
+
+let pendingAppointment =
+  JSON.parse(
+    localStorage.pendingAppointment || "null"
+  );
+
+let requiresConfirmation =
+  localStorage.requiresConfirmation === "true";
 
 
 /* ============================================================
@@ -822,27 +827,26 @@ let chatHistory = [];
 function show(x){
 
   document
-    .querySelectorAll('.page')
+    .querySelectorAll(".page")
     .forEach(e =>
-      e.classList.remove('active')
+      e.classList.remove("active")
     );
 
   const page = $(x);
 
   if(page){
-    page.classList.add('active');
+    page.classList.add("active");
   }
 
-  if(x === 'app'){
+  if(x === "app"){
     renderCalendar();
     render();
   }
 
-  if(x === 'settings'){
+  if(x === "settings"){
     loadSettings();
     renderServices();
   }
-
 }
 
 
@@ -852,68 +856,96 @@ function show(x){
 
 function esc(s){
 
-  return String(s ?? '').replace(
+  return String(s ?? "").replace(
     /[&<>"']/g,
     m => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
     }[m])
   );
-
 }
 
 
 function getServices(){
 
   try{
-
     return JSON.parse(
-      localStorage.services || '[]'
+      localStorage.services || "[]"
     );
-
   }catch{
-
     return [];
-
   }
-
 }
 
 
 function getAppointments(){
 
   try{
-
     return JSON.parse(
-      localStorage.a || '[]'
+      localStorage.a || "[]"
     );
-
   }catch{
-
     return [];
-
   }
-
 }
 
 
 function getSettings(){
 
   try{
-
     return JSON.parse(
-      localStorage.settings || '{}'
+      localStorage.settings || "{}"
     );
-
   }catch{
-
     return {};
+  }
+}
+
+
+/* ============================================================
+   SALVATAGGIO STATO PRENOTAZIONE
+============================================================ */
+
+function savePendingState(){
+
+  if(pendingAppointment){
+
+    localStorage.pendingAppointment =
+      JSON.stringify(
+        pendingAppointment
+      );
+
+  }else{
+
+    localStorage.removeItem(
+      "pendingAppointment"
+    );
 
   }
 
+  localStorage.requiresConfirmation =
+    requiresConfirmation
+      ? "true"
+      : "false";
+}
+
+
+function clearPendingState(){
+
+  pendingAppointment = null;
+
+  requiresConfirmation = false;
+
+  localStorage.removeItem(
+    "pendingAppointment"
+  );
+
+  localStorage.removeItem(
+    "requiresConfirmation"
+  );
 }
 
 
@@ -924,24 +956,22 @@ function getSettings(){
 function save(){
 
   localStorage.biz =
-    $('biz').value.trim() ||
-    'Attività locale';
+    $("biz").value.trim() ||
+    "Attività locale";
 
-  alert('Attività salvata.');
+  alert("Attività salvata.");
 
   updateDashboard();
-
 }
 
 
 function updateDashboard(){
 
-  $('dashboardServices').textContent =
+  $("dashboardServices").textContent =
     getServices().length;
 
-  $('dashboardAppointments').textContent =
+  $("dashboardAppointments").textContent =
     getAppointments().length;
-
 }
 
 
@@ -952,38 +982,38 @@ function updateDashboard(){
 const dayConfig = {
 
   monday:{
-    prefix:'mon',
-    label:'Lunedì'
+    prefix:"mon",
+    label:"Lunedì"
   },
 
   tuesday:{
-    prefix:'tue',
-    label:'Martedì'
+    prefix:"tue",
+    label:"Martedì"
   },
 
   wednesday:{
-    prefix:'wed',
-    label:'Mercoledì'
+    prefix:"wed",
+    label:"Mercoledì"
   },
 
   thursday:{
-    prefix:'thu',
-    label:'Giovedì'
+    prefix:"thu",
+    label:"Giovedì"
   },
 
   friday:{
-    prefix:'fri',
-    label:'Venerdì'
+    prefix:"fri",
+    label:"Venerdì"
   },
 
   saturday:{
-    prefix:'sat',
-    label:'Sabato'
+    prefix:"sat",
+    label:"Sabato"
   },
 
   sunday:{
-    prefix:'sun',
-    label:'Domenica'
+    prefix:"sun",
+    label:"Domenica"
   }
 
 };
@@ -1001,19 +1031,19 @@ function collectHours(){
       hours[day] = {
 
         status:
-          $(p+'Closed').value,
+          $(p+"Closed").value,
 
         open:
-          $(p+'Open').value,
+          $(p+"Open").value,
 
         close:
-          $(p+'Close').value,
+          $(p+"Close").value,
 
         breakStart:
-          $(p+'BreakStart').value,
+          $(p+"BreakStart").value,
 
         breakEnd:
-          $(p+'BreakEnd').value
+          $(p+"BreakEnd").value
 
       };
 
@@ -1021,7 +1051,6 @@ function collectHours(){
   );
 
   return hours;
-
 }
 
 
@@ -1030,51 +1059,45 @@ function saveSettings(){
   const settings = {
 
     name:
-      $('settingsName').value.trim(),
+      $("settingsName").value.trim(),
 
     type:
-      $('settingsType').value,
+      $("settingsType").value,
 
     description:
-      $('settingsDescription').value.trim(),
+      $("settingsDescription").value.trim(),
 
     address:
-      $('settingsAddress').value.trim(),
+      $("settingsAddress").value.trim(),
 
     phone:
-      $('settingsPhone').value.trim(),
+      $("settingsPhone").value.trim(),
 
     whatsapp:
-      $('settingsWhatsapp').value.trim(),
+      $("settingsWhatsapp").value.trim(),
 
     promotion:
-      $('settingsPromotion').value.trim(),
+      $("settingsPromotion").value.trim(),
 
     hours:
       collectHours()
 
   };
 
-
   localStorage.settings =
     JSON.stringify(settings);
 
-
   localStorage.biz =
     settings.name ||
-    'Attività locale';
+    "Attività locale";
 
-
-  $('biz').value =
+  $("biz").value =
     localStorage.biz;
 
-
-  $('settingsStatus').textContent =
-    'Profilo attività salvato.';
-
+  $("settingsStatus").textContent =
+    "Profilo attività salvato.";
 
   renderCalendar();
-
 }
 
 
@@ -1083,38 +1106,36 @@ function loadSettings(){
   const settings =
     getSettings();
 
+  if(settings.name)
+    $("settingsName").value =
+      settings.name;
 
-  $('settingsName').value =
-    settings.name || '';
+  if(settings.type)
+    $("settingsType").value =
+      settings.type;
 
+  if(settings.description)
+    $("settingsDescription").value =
+      settings.description;
 
-  $('settingsType').value =
-    settings.type || 'Parrucchiere';
+  if(settings.address)
+    $("settingsAddress").value =
+      settings.address;
 
+  if(settings.phone)
+    $("settingsPhone").value =
+      settings.phone;
 
-  $('settingsDescription').value =
-    settings.description || '';
+  if(settings.whatsapp)
+    $("settingsWhatsapp").value =
+      settings.whatsapp;
 
-
-  $('settingsAddress').value =
-    settings.address || '';
-
-
-  $('settingsPhone').value =
-    settings.phone || '';
-
-
-  $('settingsWhatsapp').value =
-    settings.whatsapp || '';
-
-
-  $('settingsPromotion').value =
-    settings.promotion || '';
-
+  if(settings.promotion)
+    $("settingsPromotion").value =
+      settings.promotion;
 
   const hours =
     settings.hours || {};
-
 
   Object.entries(dayConfig).forEach(
     ([day,cfg]) => {
@@ -1124,38 +1145,28 @@ function loadSettings(){
 
       if(!d) return;
 
-
       if(d.status)
-        $(p+'Closed').value =
+        $(p+"Closed").value =
           d.status;
 
-
       if(d.open)
-        $(p+'Open').value =
+        $(p+"Open").value =
           d.open;
 
-
       if(d.close)
-        $(p+'Close').value =
+        $(p+"Close").value =
           d.close;
 
-
-      if(
-        d.breakStart !== undefined
-      )
-        $(p+'BreakStart').value =
+      if(d.breakStart)
+        $(p+"BreakStart").value =
           d.breakStart;
 
-
-      if(
-        d.breakEnd !== undefined
-      )
-        $(p+'BreakEnd').value =
+      if(d.breakEnd)
+        $(p+"BreakEnd").value =
           d.breakEnd;
 
     }
   );
-
 }
 
 
@@ -1166,51 +1177,31 @@ function loadSettings(){
 function addService(){
 
   const name =
-    $('serviceName').value.trim();
+    $("serviceName").value.trim();
 
   const price =
-    $('servicePrice').value;
+    $("servicePrice").value;
 
   const duration =
-    $('serviceDuration').value;
-
+    $("serviceDuration").value;
 
   if(!name){
-
-    alert(
-      'Inserisci il nome del servizio.'
-    );
-
+    alert("Inserisci il nome del servizio.");
     return;
-
   }
 
-
-  if(price === ''){
-
-    alert(
-      'Inserisci il prezzo.'
-    );
-
+  if(price === ""){
+    alert("Inserisci il prezzo.");
     return;
-
   }
 
-
-  if(duration === ''){
-
-    alert(
-      'Inserisci la durata.'
-    );
-
+  if(duration === ""){
+    alert("Inserisci la durata.");
     return;
-
   }
-
 
   const services =
     getServices();
-
 
   services.push({
 
@@ -1222,22 +1213,16 @@ function addService(){
 
   });
 
-
   localStorage.services =
     JSON.stringify(services);
 
-
-  $('serviceName').value='';
-  $('servicePrice').value='';
-  $('serviceDuration').value='';
-
+  $("serviceName").value="";
+  $("servicePrice").value="";
+  $("serviceDuration").value="";
 
   renderServices();
-
   populateServiceSelect();
-
   updateDashboard();
-
 }
 
 
@@ -1246,20 +1231,14 @@ function deleteService(index){
   const services =
     getServices();
 
-
   services.splice(index,1);
-
 
   localStorage.services =
     JSON.stringify(services);
 
-
   renderServices();
-
   populateServiceSelect();
-
   updateDashboard();
-
 }
 
 
@@ -1268,8 +1247,7 @@ function renderServices(){
   const services =
     getServices();
 
-
-  $('servicesList').innerHTML =
+  $("servicesList").innerHTML =
     services.map((s,i) => `
 
       <div class="service-item">
@@ -1295,11 +1273,9 @@ function renderServices(){
 
       </div>
 
-    `).join('');
-
+    `).join("");
 
   populateServiceSelect();
-
 }
 
 
@@ -1308,14 +1284,11 @@ function populateServiceSelect(){
   const services =
     getServices();
 
-
   const select =
-    $('s');
-
+    $("s");
 
   const current =
     select.value;
-
 
   select.innerHTML =
     '<option value="">Seleziona servizio</option>' +
@@ -1328,20 +1301,15 @@ function populateServiceSelect(){
         — ${Number(s.duration)} min
       </option>
 
-    `).join('');
-
+    `).join("");
 
   if(
     services.some(
       s => s.name === current
     )
   ){
-
-    select.value =
-      current;
-
+    select.value = current;
   }
-
 }
 
 
@@ -1349,57 +1317,20 @@ function populateServiceSelect(){
    CALENDARIO
 ============================================================ */
 
-function getDateFromInput(){
-
-  return $('calendarDate').value;
-
-}
-
-
 function getDayName(date){
 
   const d =
-    new Date(
-      date + 'T12:00:00'
-    );
+    new Date(date + "T12:00:00");
 
-
-  const days = [
-
-    'sunday',
-    'monday',
-    'tuesday',
-    'wednesday',
-    'thursday',
-    'friday',
-    'saturday'
-
-  ];
-
-
-  return days[d.getDay()];
-
-}
-
-
-function formatItalianDate(date){
-
-  const d =
-    new Date(
-      date + 'T12:00:00'
-    );
-
-
-  return d.toLocaleDateString(
-    'it-IT',
-    {
-      weekday:'long',
-      day:'numeric',
-      month:'long',
-      year:'numeric'
-    }
-  );
-
+  return [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday"
+  ][d.getDay()];
 }
 
 
@@ -1409,21 +1340,13 @@ function toMinutes(time){
     !time ||
     !/^\d{2}:\d{2}$/.test(time)
   ){
-
     return null;
-
   }
 
-
   const parts =
-    time.split(':').map(Number);
+    time.split(":").map(Number);
 
-
-  return (
-    parts[0] * 60 +
-    parts[1]
-  );
-
+  return parts[0] * 60 + parts[1];
 }
 
 
@@ -1432,17 +1355,13 @@ function formatTime(minutes){
   const h =
     String(
       Math.floor(minutes / 60)
-    ).padStart(2,'0');
-
+    ).padStart(2,"0");
 
   const m =
-    String(
-      minutes % 60
-    ).padStart(2,'0');
+    String(minutes % 60)
+      .padStart(2,"0");
 
-
-  return h + ':' + m;
-
+  return h + ":" + m;
 }
 
 
@@ -1457,7 +1376,6 @@ function getService(name){
         .trim()
         .toLowerCase()
   );
-
 }
 
 
@@ -1466,27 +1384,21 @@ function isBreak(day,start,end){
   const breakStart =
     toMinutes(day.breakStart);
 
-
   const breakEnd =
     toMinutes(day.breakEnd);
-
 
   if(
     breakStart === null ||
     breakEnd === null ||
     breakStart >= breakEnd
   ){
-
     return false;
-
   }
-
 
   return (
     start < breakEnd &&
     end > breakStart
   );
-
 }
 
 
@@ -1499,65 +1411,48 @@ function isAppointmentFree(
   const settings =
     getSettings();
 
-
   const hours =
     settings.hours || {};
-
 
   const dayName =
     getDayName(date);
 
-
   const day =
     hours[dayName];
 
-
   if(
     !day ||
-    day.status === 'closed'
+    day.status === "closed"
   ){
-
     return false;
-
   }
-
 
   const opening =
     toMinutes(day.open);
 
-
   const closing =
     toMinutes(day.close);
 
-
   const startMinutes =
     toMinutes(start);
-
 
   if(
     opening === null ||
     closing === null ||
     startMinutes === null
   ){
-
     return false;
-
   }
-
 
   const end =
     startMinutes + duration;
-
 
   if(
     startMinutes < opening ||
     end > closing
   ){
-
     return false;
-
   }
-
 
   if(
     isBreak(
@@ -1566,50 +1461,34 @@ function isAppointmentFree(
       end
     )
   ){
-
     return false;
-
   }
 
-
-  const appointments =
-    getAppointments();
-
-
-  return !appointments.some(a => {
+  return !getAppointments().some(a => {
 
     if(
       a.d !== date ||
       !a.t
     ){
-
       return false;
-
     }
-
 
     const existingStart =
       toMinutes(a.t);
 
-
     if(existingStart === null)
       return false;
 
-
     const existingService =
       getService(a.s);
-
 
     const existingDuration =
       existingService
         ? Number(existingService.duration) || 30
         : 30;
 
-
     const existingEnd =
-      existingStart +
-      existingDuration;
-
+      existingStart + existingDuration;
 
     return (
       startMinutes < existingEnd &&
@@ -1617,84 +1496,75 @@ function isAppointmentFree(
     );
 
   });
-
 }
 
 
 function renderCalendar(){
 
   const input =
-    $('calendarDate');
-
+    $("calendarDate");
 
   if(!input.value){
 
     const today =
       new Date();
 
-
     const y =
       today.getFullYear();
-
 
     const m =
       String(
         today.getMonth()+1
-      ).padStart(2,'0');
-
+      ).padStart(2,"0");
 
     const d =
       String(
         today.getDate()
-      ).padStart(2,'0');
-
+      ).padStart(2,"0");
 
     input.value =
       `${y}-${m}-${d}`;
-
   }
 
-
-  $('d').value =
+  $("d").value =
     input.value;
-
 
   const date =
     input.value;
 
+  const d =
+    new Date(date + "T12:00:00");
 
-  $('calendarTitle').innerHTML =
+  $("calendarTitle").innerHTML =
     `<p><b>${esc(
-      formatItalianDate(date)
+      d.toLocaleDateString(
+        "it-IT",
+        {
+          weekday:"long",
+          day:"numeric",
+          month:"long",
+          year:"numeric"
+        }
+      )
     )}</b></p>`;
-
 
   const settings =
     getSettings();
 
-
   const hours =
     settings.hours || {};
 
-
-  const dayName =
-    getDayName(date);
-
-
   const day =
-    hours[dayName];
-
+    hours[getDayName(date)];
 
   const calendar =
-    $('calendar');
+    $("calendar");
 
-
-  calendar.innerHTML = '';
-
+  calendar.innerHTML = "";
 
   if(
     !day ||
-    day.status === 'closed'
+    day.status === "closed"
   ){
 
     calendar.innerHTML = `
@@ -1704,17 +1574,13 @@ function renderCalendar(){
     `;
 
     return;
-
   }
-
 
   const opening =
     toMinutes(day.open);
 
-
   const closing =
     toMinutes(day.close);
-
 
   if(
     opening === null ||
@@ -1724,92 +1590,69 @@ function renderCalendar(){
 
     calendar.innerHTML = `
       <div class="calendar-empty">
-        Imposta correttamente gli orari
-        nelle Impostazioni.
+        Imposta correttamente gli orari nelle Impostazioni.
       </div>
     `;
 
     return;
-
   }
-
 
   const appointments =
     getAppointments();
 
-
-  const selectedServiceName =
-    $('s').value;
-
-
   const selectedService =
-    selectedServiceName
-      ? getService(selectedServiceName)
+    $("s").value
+      ? getService($("s").value)
       : null;
-
 
   const selectedDuration =
     selectedService
       ? Number(selectedService.duration) || 30
       : 30;
 
-
-  const interval =
-    30;
-
-
   for(
     let minutes = opening;
     minutes < closing;
-    minutes += interval
+    minutes += 30
   ){
 
     const time =
       formatTime(minutes);
 
-
     const slot =
-      document.createElement('div');
-
+      document.createElement("div");
 
     slot.className =
-      'slot';
-
+      "slot";
 
     const timeElement =
-      document.createElement('div');
-
+      document.createElement("div");
 
     timeElement.className =
-      'slot-time';
-
+      "slot-time";
 
     timeElement.textContent =
       time;
 
-
     const box =
-      document.createElement('div');
-
+      document.createElement("div");
 
     box.className =
-      'slot-box';
-
+      "slot-box";
 
     if(
       isBreak(
         day,
         minutes,
-        minutes + interval
+        minutes + 30
       )
     ){
 
       box.className =
-        'slot-box break';
-
+        "slot-box break";
 
       box.textContent =
-        'Pausa';
+        "Pausa";
 
     }else{
 
@@ -1820,47 +1663,34 @@ function renderCalendar(){
             a.d !== date ||
             !a.t
           ){
-
             return false;
-
           }
-
 
           const start =
             toMinutes(a.t);
 
-
           if(start === null)
             return false;
 
-
           const service =
             getService(a.s);
-
 
           const duration =
             service
               ? Number(service.duration) || 30
               : 30;
 
-
-          const end =
-            start + duration;
-
-
           return (
             minutes >= start &&
-            minutes < end
+            minutes < start + duration
           );
 
         });
 
-
       if(appointment){
 
         box.className =
-          'slot-box busy';
-
+          "slot-box busy";
 
         box.innerHTML = `
           <b>${esc(appointment.n)}</b>
@@ -1877,16 +1707,13 @@ function renderCalendar(){
             selectedDuration
           );
 
-
         if(canBook){
 
           box.className =
-            'slot-box free';
-
+            "slot-box free";
 
           box.innerHTML =
             '<span class="badge">Libero</span>';
-
 
           box.onclick =
             () => selectSlot(time);
@@ -1894,148 +1721,78 @@ function renderCalendar(){
         }else{
 
           box.className =
-            'slot-box closed';
+            "slot-box closed";
 
-
-          if(selectedService){
-
-            box.textContent =
-              'Non disponibile';
-
-          }else{
-
-            if(
-              isAppointmentFree(
-                date,
-                time,
-                30
-              )
-            ){
-
-              box.className =
-                'slot-box free';
-
-
-              box.innerHTML =
-                '<span class="badge">Libero</span>';
-
-
-              box.onclick =
-                () => selectSlot(time);
-
-            }else{
-
-              box.textContent =
-                'Non disponibile';
-
-            }
-
-          }
-
+          box.textContent =
+            "Non disponibile";
         }
-
       }
-
     }
 
+    slot.appendChild(timeElement);
+    slot.appendChild(box);
 
-    slot.appendChild(
-      timeElement
-    );
-
-
-    slot.appendChild(
-      box
-    );
-
-
-    calendar.appendChild(
-      slot
-    );
-
+    calendar.appendChild(slot);
   }
-
 }
 
-
-/* ============================================================
-   SELEZIONE SLOT
-============================================================ */
 
 function selectSlot(time){
 
   const date =
-    $('calendarDate').value;
+    $("calendarDate").value;
 
-
-  $('d').value =
+  $("d").value =
     date;
 
-
-  $('t').value =
+  $("t").value =
     time;
 
-
-  $('appointmentStatus').textContent =
+  $("appointmentStatus").textContent =
     `Orario selezionato: ${time}.`;
 
-
-  $('n').scrollIntoView({
-    behavior:'smooth',
-    block:'center'
+  $("n").scrollIntoView({
+    behavior:"smooth",
+    block:"center"
   });
-
 }
 
-
-/* ============================================================
-   CAMBIO GIORNO
-============================================================ */
 
 function changeDay(amount){
 
   const input =
-    $('calendarDate');
-
+    $("calendarDate");
 
   if(!input.value)
     return;
 
-
   const date =
     new Date(
       input.value +
-      'T12:00:00'
+      "T12:00:00"
     );
-
 
   date.setDate(
     date.getDate() + amount
   );
 
-
   const y =
     date.getFullYear();
-
 
   const m =
     String(
       date.getMonth()+1
-    ).padStart(2,'0');
-
+    ).padStart(2,"0");
 
   const d =
     String(
       date.getDate()
-    ).padStart(2,'0');
-
+    ).padStart(2,"0");
 
   input.value =
     `${y}-${m}-${d}`;
 
-
   renderCalendar();
-
 }
 
 
@@ -2046,91 +1803,61 @@ function changeDay(amount){
 function add(){
 
   const name =
-    $('n').value.trim();
-
+    $("n").value.trim();
 
   const date =
-    $('d').value;
-
+    $("d").value;
 
   const time =
-    $('t').value;
-
+    $("t").value;
 
   const serviceName =
-    $('s').value;
-
+    $("s").value;
 
   if(!name){
-
-    $('appointmentStatus').textContent =
-      'Inserisci il nome del cliente.';
-
+    $("appointmentStatus").textContent =
+      "Inserisci il nome del cliente.";
     return;
-
   }
-
 
   if(!date){
-
-    $('appointmentStatus').textContent =
-      'Seleziona una data.';
-
+    $("appointmentStatus").textContent =
+      "Seleziona una data.";
     return;
-
   }
-
 
   if(!time){
-
-    $('appointmentStatus').textContent =
-      'Seleziona un orario.';
-
+    $("appointmentStatus").textContent =
+      "Seleziona un orario.";
     return;
-
   }
-
 
   if(!serviceName){
-
-    $('appointmentStatus').textContent =
-      'Seleziona un servizio.';
-
+    $("appointmentStatus").textContent =
+      "Seleziona un servizio.";
     return;
-
   }
-
 
   const service =
     getService(serviceName);
 
-
   if(!service){
-
-    $('appointmentStatus').textContent =
-      'Servizio non trovato.';
-
+    $("appointmentStatus").textContent =
+      "Servizio non trovato.";
     return;
-
   }
-
 
   const duration =
     Number(service.duration);
-
 
   if(
     !duration ||
     duration <= 0
   ){
-
-    $('appointmentStatus').textContent =
-      'La durata del servizio non è valida.';
-
+    $("appointmentStatus").textContent =
+      "La durata del servizio non è valida.";
     return;
-
   }
-
 
   if(
     !isAppointmentFree(
@@ -2140,19 +1867,16 @@ function add(){
     )
   ){
 
-    $('appointmentStatus').textContent =
-      'Questo orario non è disponibile.';
+    $("appointmentStatus").textContent =
+      "Questo orario non è disponibile.";
 
     renderCalendar();
 
     return;
-
   }
-
 
   const appointments =
     getAppointments();
-
 
   appointments.push({
 
@@ -2166,28 +1890,21 @@ function add(){
 
   });
 
-
   localStorage.a =
     JSON.stringify(
       appointments
     );
 
+  $("n").value="";
+  $("t").value="";
+  $("s").value="";
 
-  $('n').value='';
-  $('t').value='';
-  $('s').value='';
-
-
-  $('appointmentStatus').textContent =
-    'Appuntamento salvato.';
-
+  $("appointmentStatus").textContent =
+    "Appuntamento salvato.";
 
   renderCalendar();
-
   render();
-
   updateDashboard();
-
 }
 
 
@@ -2200,16 +1917,13 @@ function render(){
   const appointments =
     getAppointments();
 
-
   if(!appointments.length){
 
-    $('list').innerHTML =
+    $("list").innerHTML =
       '<p class="muted">Nessun appuntamento.</p>';
 
     return;
-
   }
-
 
   const sorted =
     [...appointments].sort(
@@ -2220,10 +1934,8 @@ function render(){
           )
     );
 
-
-  $('list').innerHTML =
-    sorted.map(
-      x => `
+  $("list").innerHTML =
+    sorted.map(x => `
 
       <div class="appointment-item">
 
@@ -2241,291 +1953,294 @@ function render(){
 
       </div>
 
-    `
-    ).join('');
+    `).join("");
+}
+
+
+/* ============================================================
+   AI - MOSTRA ORARI
+============================================================ */
+
+function showAvailableSlots(
+  slots,
+  date,
+  service
+){
+
+  if(
+    !Array.isArray(slots) ||
+    !slots.length
+  ){
+    return;
+  }
+
+  const container =
+    document.createElement("div");
+
+  container.className =
+    "ai-actions";
+
+  const title =
+    document.createElement("div");
+
+  title.className =
+    "available-title";
+
+  title.textContent =
+    service
+      ? `${service} — orari disponibili`
+      : "Orari disponibili";
+
+  container.appendChild(title);
+
+  slots.forEach(time => {
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "ai-slot-button";
+
+    button.textContent =
+      time;
+
+    button.onclick =
+      () => selectAISlot(
+        time,
+        date,
+        service
+      );
+
+    container.appendChild(button);
+
+  });
+
+  $("chat").appendChild(container);
+}
+
+
+function selectAISlot(
+  time,
+  date,
+  service
+){
+
+  $("d").value =
+    date || $("calendarDate").value;
+
+  $("t").value =
+    time;
+
+  if(service){
+
+    const select =
+      $("s");
+
+    const found =
+      getServices().find(
+        s =>
+          String(s.name).toLowerCase() ===
+          String(service).toLowerCase()
+      );
+
+    if(found){
+      select.value =
+        found.name;
+    }
+  }
+
+  $("appointmentStatus").textContent =
+    `Orario ${time} selezionato.`;
+
+  const msg =
+    document.createElement("div");
+
+  msg.className =
+    "msg user";
+
+  msg.textContent =
+    `Scelgo le ${time}`;
+
+  $("chat").appendChild(msg);
+
+  $("q").value =
+    `Scelgo le ${time}`;
+
+  send();
 
 }
 
 
 /* ============================================================
-   VISUALIZZAZIONE APPUNTAMENTO PENDENTE
+   AI - CONFERMA
 ============================================================ */
 
-function renderPendingAppointment(){
+function showConfirmationButtons(){
 
-  const box =
-    $('pendingBox');
+  const existing =
+    document.getElementById(
+      "confirmationActions"
+    );
 
+  if(existing)
+    existing.remove();
+
+  const container =
+    document.createElement("div");
+
+  container.id =
+    "confirmationActions";
+
+  container.className =
+    "ai-actions";
+
+  const confirm =
+    document.createElement("button");
+
+  confirm.className =
+    "ai-confirm-button";
+
+  confirm.textContent =
+    "Conferma appuntamento";
+
+  confirm.onclick =
+    () => confirmAppointment();
+
+  const cancel =
+    document.createElement("button");
+
+  cancel.className =
+    "ai-cancel-button";
+
+  cancel.textContent =
+    "Annulla";
+
+  cancel.onclick =
+    () => cancelAppointment();
+
+  container.appendChild(confirm);
+  container.appendChild(cancel);
+
+  $("chat").appendChild(container);
+}
+
+
+function confirmAppointment(){
 
   if(
     !pendingAppointment ||
     !requiresConfirmation
   ){
-
-    box.style.display =
-      'none';
-
-    box.innerHTML =
-      '';
-
     return;
-
   }
 
+  $("q").value =
+    "Confermo l'appuntamento";
 
-  box.style.display =
-    'block';
-
-
-  box.innerHTML = `
-
-    <strong>Appuntamento in attesa di conferma</strong>
-
-    <div>
-      ${esc(pendingAppointment.name)}
-      ·
-      ${esc(pendingAppointment.service)}
-    </div>
-
-    <div>
-      ${esc(pendingAppointment.date)}
-      ·
-      ${esc(pendingAppointment.time)}
-    </div>
-
-    <div class="pending-actions">
-
-      <button
-        class="confirm"
-        onclick="confirmPendingAppointment()"
-      >
-        Conferma appuntamento
-      </button>
-
-      <button
-        class="cancel"
-        onclick="cancelPendingAppointment()"
-      >
-        Annulla
-      </button>
-
-    </div>
-
-  `;
-
+  send();
 }
 
 
-/* ============================================================
-   CONFERMA APPUNTAMENTO
-============================================================ */
-
-async function confirmPendingAppointment(){
+function cancelAppointment(){
 
   if(
     !pendingAppointment ||
     !requiresConfirmation
   ){
-
     return;
-
   }
 
+  $("q").value =
+    "Annulla";
 
-  const confirmationMessage =
-    'Confermo';
-
-
-  await sendMessageToAI(
-    confirmationMessage,
-    true
-  );
-
+  send();
 }
 
 
 /* ============================================================
-   ANNULLAMENTO APPUNTAMENTO
-============================================================ */
-
-async function cancelPendingAppointment(){
-
-  if(
-    !pendingAppointment ||
-    !requiresConfirmation
-  ){
-
-    return;
-
-  }
-
-
-  const cancellationMessage =
-    'Annulla';
-
-
-  await sendMessageToAI(
-    cancellationMessage,
-    true
-  );
-
-}
-
-
-/* ============================================================
-   INVIO AI
+   AI
 ============================================================ */
 
 async function send(){
 
   const x =
-    $('q').value.trim();
-
+    $("q").value.trim();
 
   if(!x)
     return;
 
-
-  await sendMessageToAI(
-    x,
-    false
-  );
-
-}
-
-
-/* ============================================================
-   FUNZIONE CENTRALE AI
-============================================================ */
-
-async function sendMessageToAI(
-  message,
-  isAction
-){
-
-  if(!message)
-    return;
-
-
-  const chat =
-    $('chat');
-
-
-  /*
-   * Mostra il messaggio solo quando proviene
-   * realmente dal campo di testo.
-   *
-   * I pulsanti Conferma/Annulla non aggiungono
-   * automaticamente una seconda riga visibile.
-   */
-
-  if(!isAction){
-
-    chat.innerHTML +=
-      `<div class="msg user">${esc(message)}</div>`;
-
-  }
-
-
-  /*
-   * La conferma/annullamento deve comunque entrare
-   * nella cronologia della conversazione.
-   */
+  $("chat").innerHTML +=
+    `<div class="msg user">${esc(x)}</div>`;
 
   chatHistory.push({
-
-    role:'user',
-
-    content:message
-
+    role:"user",
+    content:x
   });
 
-
-  if(chatHistory.length > 30){
-
+  if(chatHistory.length > 20){
     chatHistory =
-      chatHistory.slice(-30);
-
+      chatHistory.slice(-20);
   }
 
+  $("status").textContent =
+    "L'assistente sta pensando...";
 
-  $('status').textContent =
-    'L’assistente sta pensando...';
-
-
-  $('q').disabled = true;
-
+  $("q").disabled = true;
+  $("sendButton").disabled = true;
 
   try{
 
     const settings =
       getSettings();
 
-
     const appointments =
       getAppointments();
-
 
     const services =
       getServices();
 
-
     const response =
       await fetch(
-        '/api/chat',
+        "/api/chat",
         {
-          method:'POST',
+          method:"POST",
 
           headers:{
-            'Content-Type':
-              'application/json'
+            "Content-Type":
+              "application/json"
           },
 
           body:JSON.stringify({
 
-            message:message,
+            message:x,
 
             business:
               localStorage.biz ||
-              'Attività locale',
+              "Attività locale",
 
             clientName:
-              $('clientName')
+              $("clientName")
                 .value
                 .trim(),
 
-            settings:
-              settings,
+            settings,
 
-            services:
-              services,
+            services,
 
-            appointments:
-              appointments,
+            appointments,
 
             history:
-              chatHistory
-                .slice(0,-1),
+              chatHistory.slice(0,-1),
 
-            /*
-             * QUESTI DUE CAMPI SONO QUELLI CHE
-             * MANCAVANO NEL VECCHIO INDEX.
-             */
+            pendingAppointment,
 
-            pendingAppointment:
-              pendingAppointment,
-
-            requiresConfirmation:
-              requiresConfirmation
+            requiresConfirmation
 
           })
-
         }
       );
 
-
     let data;
-
 
     try{
 
@@ -2535,105 +2250,85 @@ async function sendMessageToAI(
     }catch{
 
       throw new Error(
-        'Il server ha restituito una risposta non valida.'
+        "Il server ha restituito una risposta non valida."
       );
-
     }
-
 
     if(!response.ok){
 
       throw new Error(
         data.error ||
-        'Errore del server'
+        "Errore del server"
       );
-
     }
-
 
     const reply =
       data.reply ||
-      'Non ho ricevuto una risposta dall’assistente.';
-
-
-    /*
-     * Salviamo la risposta AI nella cronologia.
-     */
+      "Non ho ricevuto una risposta dall'assistente.";
 
     chatHistory.push({
-
-      role:'assistant',
-
+      role:"assistant",
       content:reply
-
     });
 
-
-    /*
-     * Mostra la risposta.
-     */
-
-    chat.innerHTML +=
+    $("chat").innerHTML +=
       `<div class="msg bot">${esc(reply)}</div>`;
 
 
     /* ========================================================
-       GESTIONE PENDING APPOINTMENT
+       DISPONIBILITÀ
     ======================================================== */
 
     if(
-      data.pendingAppointment &&
-      data.requiresConfirmation
+      Array.isArray(data.availableSlots) &&
+      data.availableSlots.length
     ){
 
-      /*
-       * L'API ha trovato tutti i dati,
-       * ha verificato la disponibilità
-       * e chiede la conferma.
-       */
+      showAvailableSlots(
+        data.availableSlots,
+        data.availableDate,
+        data.availableService
+      );
+    }
+
+
+    /* ========================================================
+       PENDING APPOINTMENT
+    ======================================================== */
+
+    if(
+      data.pendingAppointment
+    ){
 
       pendingAppointment =
         data.pendingAppointment;
 
-
       requiresConfirmation =
-        true;
+        !!data.requiresConfirmation;
 
+      savePendingState();
 
-      /*
-       * Se il nome è disponibile, lo riportiamo
-       * anche nel campo cliente.
-       */
+      if(requiresConfirmation){
 
-      if(
-        pendingAppointment.name &&
-        !$('clientName').value.trim()
-      ){
-
-        $('clientName').value =
-          pendingAppointment.name;
+        showConfirmationButtons();
 
       }
 
+    }else if(
+      data.confirmed ||
+      data.requiresConfirmation === false
+    ){
 
-      renderPendingAppointment();
+      if(
+        data.confirmed ||
+        data.reply?.includes(
+          "non è stato prenotato"
+        )
+      ){
 
-    }else{
+        clearPendingState();
 
-      /*
-       * Se l'API non restituisce una richiesta pendente,
-       * la vecchia richiesta viene cancellata.
-       */
-
-      pendingAppointment =
-        null;
-
-
-      requiresConfirmation =
-        false;
-
-
-      renderPendingAppointment();
+      }
 
     }
 
@@ -2643,7 +2338,6 @@ async function sendMessageToAI(
     ======================================================== */
 
     if(
-      data.confirmed === true &&
       data.appointment &&
       data.appointment.name &&
       data.appointment.service &&
@@ -2654,14 +2348,8 @@ async function sendMessageToAI(
       const appointment =
         data.appointment;
 
-
       const appointmentsNow =
         getAppointments();
-
-
-      /*
-       * Controllo duplicato.
-       */
 
       const duplicate =
         appointmentsNow.some(
@@ -2675,7 +2363,6 @@ async function sendMessageToAI(
             item.s ===
               appointment.service
         );
-
 
       if(!duplicate){
 
@@ -2695,72 +2382,42 @@ async function sendMessageToAI(
 
         });
 
-
         localStorage.a =
           JSON.stringify(
             appointmentsNow
           );
-
       }
 
+      clearPendingState();
 
-      /*
-       * La richiesta pendente viene eliminata
-       * SOLO dopo la conferma effettiva.
-       */
+      const confirmation =
+        document.getElementById(
+          "confirmationActions"
+        );
 
-      pendingAppointment =
-        null;
-
-
-      requiresConfirmation =
-        false;
-
-
-      renderPendingAppointment();
-
-      renderCalendar();
+      if(confirmation)
+        confirmation.remove();
 
       render();
-
+      renderCalendar();
       updateDashboard();
 
-
-      /*
-       * Manteniamo il nome cliente.
-       */
-
       if(
-        appointment.name
+        appointment.name &&
+        !$("clientName").value.trim()
       ){
 
-        $('clientName').value =
+        $("clientName").value =
           appointment.name;
 
       }
-
-
-      /*
-       * Pulizia campi appuntamento manuale.
-       */
-
-      $('n').value =
-        appointment.name;
-
     }
-
 
   }catch(error){
 
-    /*
-     * In caso di errore non distruggiamo una eventuale
-     * richiesta pendente già presente.
-     */
-
     chatHistory.pop();
 
-
-    chat.innerHTML +=
+    $("chat").innerHTML +=
       `<div class="msg bot">
         Si è verificato un problema:
         ${esc(error.message)}
@@ -2768,24 +2425,14 @@ async function sendMessageToAI(
 
   }
 
+  $("q").disabled = false;
+  $("sendButton").disabled = false;
 
-  $('q').disabled = false;
+  $("status").textContent = "";
+  $("q").value = "";
 
-
-  $('status').textContent =
-    '';
-
-
-  if(!isAction){
-
-    $('q').value = '';
-
-  }
-
-
-  chat.scrollTop =
-    chat.scrollHeight;
-
+  $("chat").scrollTop =
+    $("chat").scrollHeight;
 }
 
 
@@ -2798,24 +2445,20 @@ function post(){
   const settings =
     getSettings();
 
-
   const business =
     settings.name ||
     localStorage.biz ||
-    'Attività locale';
-
+    "Attività locale";
 
   const topic =
-    $('topic').value.trim() ||
-    'Nuova promozione';
-
+    $("topic").value.trim() ||
+    "Nuova promozione";
 
   const promotion =
     settings.promotion ||
-    'Contattaci per conoscere le nostre promozioni.';
+    "Contattaci per conoscere le nostre promozioni.";
 
-
-  $('out').value =
+  $("out").value =
 `✨ ${topic}!
 
 ${business}
@@ -2826,18 +2469,16 @@ Professionalità, attenzione e servizi personalizzati.
 
 📅 Prenota il tuo appuntamento.
 📩 Scrivici per informazioni.`;
-
 }
 
 
 /* ============================================================
-   AVVIO APP
+   AVVIO
 ============================================================ */
 
-$('biz').value =
+$("biz").value =
   localStorage.biz ||
-  'Salone Bella Linea';
-
+  "Salone Bella Linea";
 
 loadSettings();
 
@@ -2849,48 +2490,31 @@ render();
 
 updateDashboard();
 
-
-/*
- * Imposta il giorno corrente.
- */
-
 (function(){
 
   const today =
     new Date();
 
-
   const y =
     today.getFullYear();
-
 
   const m =
     String(
       today.getMonth()+1
-    ).padStart(2,'0');
-
+    ).padStart(2,"0");
 
   const d =
     String(
       today.getDate()
-    ).padStart(2,'0');
+    ).padStart(2,"0");
 
-
-  $('calendarDate').value =
+  $("calendarDate").value =
     `${y}-${m}-${d}`;
 
-
-  $('d').value =
-    $('calendarDate').value;
+  $("d").value =
+    $("calendarDate").value;
 
 })();
-
-
-/*
- * Visualizza eventuale appuntamento pendente.
- */
-
-renderPendingAppointment();
 
 </script>
 
