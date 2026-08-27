@@ -46,6 +46,11 @@ button{
   cursor:pointer
 }
 
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed
+}
+
 nav button{
   background:#eef2ff;
   white-space:nowrap
@@ -267,6 +272,11 @@ textarea{
   min-width:78px
 }
 
+.ai-slot-button.selected{
+  background:#16a34a;
+  transform:scale(.98)
+}
+
 .ai-confirm-button{
   background:#16a34a;
   color:white;
@@ -284,6 +294,15 @@ textarea{
 .available-title{
   font-weight:700;
   margin:8px 0
+}
+
+.confirmation-box{
+  width:100%;
+  background:#f0fdf4;
+  border:1px solid #86efac;
+  border-radius:12px;
+  padding:12px;
+  box-sizing:border-box
 }
 
 @media(max-width:650px){
@@ -326,8 +345,6 @@ textarea{
 
 <main>
 
-<!-- HOME -->
-
 <section id="home" class="page active">
 
   <div class="card">
@@ -342,10 +359,7 @@ textarea{
 
     <input id="biz" value="Salone Bella Linea">
 
-    <button
-      class="primary"
-      onclick="save()"
-    >
+    <button class="primary" onclick="save()">
       Salva attività
     </button>
 
@@ -368,9 +382,6 @@ textarea{
   </div>
 
 </section>
-
-
-<!-- AI -->
 
 <section id="ai" class="page">
 
@@ -415,9 +426,6 @@ textarea{
 
 </section>
 
-
-<!-- CALENDARIO -->
-
 <section id="app" class="page">
 
   <div class="card">
@@ -426,10 +434,7 @@ textarea{
 
     <div class="calendar-header">
 
-      <button
-        class="secondary"
-        onclick="changeDay(-1)"
-      >
+      <button class="secondary" onclick="changeDay(-1)">
         ‹
       </button>
 
@@ -439,10 +444,7 @@ textarea{
         onchange="renderCalendar()"
       >
 
-      <button
-        class="secondary"
-        onclick="changeDay(1)"
-      >
+      <button class="secondary" onclick="changeDay(1)">
         ›
       </button>
 
@@ -450,56 +452,37 @@ textarea{
 
     <div id="calendarTitle"></div>
 
-    <div
-      id="calendar"
-      class="calendar-grid"
-    ></div>
+    <div id="calendar" class="calendar-grid"></div>
 
   </div>
-
 
   <div class="card">
 
     <h3>Nuovo appuntamento</h3>
 
-    <input
-      id="n"
-      placeholder="Nome cliente"
-    >
+    <input id="n" placeholder="Nome cliente">
 
-    <input
-      id="d"
-      type="date"
-    >
+    <input id="d" type="date">
 
-    <input
-      id="t"
-      type="time"
-    >
+    <input id="t" type="time">
 
-    <select
-      id="s"
-      onchange="renderCalendar()"
-    >
+    <select id="s" onchange="renderCalendar()">
       <option value="">
         Seleziona servizio
       </option>
     </select>
 
     <button
+      id="manualAppointmentButton"
       class="primary"
       onclick="add()"
     >
       Salva appuntamento
     </button>
 
-    <p
-      id="appointmentStatus"
-      class="muted"
-    ></p>
+    <p id="appointmentStatus" class="muted"></p>
 
   </div>
-
 
   <div class="card">
 
@@ -510,9 +493,6 @@ textarea{
   </div>
 
 </section>
-
-
-<!-- POST -->
 
 <section id="post" class="page">
 
@@ -527,24 +507,15 @@ textarea{
       placeholder="Es. promozione taglio uomo"
     >
 
-    <button
-      class="primary"
-      onclick="post()"
-    >
+    <button class="primary" onclick="post()">
       Genera post
     </button>
 
-    <textarea
-      id="out"
-      rows="10"
-    ></textarea>
+    <textarea id="out" rows="10"></textarea>
 
   </div>
 
 </section>
-
-
-<!-- IMPOSTAZIONI -->
 
 <section id="settings" class="page">
 
@@ -762,10 +733,7 @@ textarea{
 
     </div>
 
-    <button
-      class="primary"
-      onclick="addService()"
-    >
+    <button class="primary" onclick="addService()">
       Aggiungi servizio
     </button>
 
@@ -781,17 +749,11 @@ textarea{
 
     <br>
 
-    <button
-      class="primary"
-      onclick="saveSettings()"
-    >
+    <button class="primary" onclick="saveSettings()">
       Salva impostazioni
     </button>
 
-    <p
-      id="settingsStatus"
-      class="muted"
-    ></p>
+    <p id="settingsStatus" class="muted"></p>
 
   </div>
 
@@ -799,15 +761,9 @@ textarea{
 
 </main>
 
-
 <script>
 
 const $ = x => document.getElementById(x);
-
-
-/* ============================================================
-   STATO ASSISTENTE
-============================================================ */
 
 let chatHistory = [];
 
@@ -818,6 +774,10 @@ let pendingAppointment =
 
 let requiresConfirmation =
   localStorage.requiresConfirmation === "true";
+
+let requestInProgress = false;
+
+let confirmationInProgress = false;
 
 
 /* ============================================================
@@ -906,7 +866,7 @@ function getSettings(){
 
 
 /* ============================================================
-   SALVATAGGIO STATO PRENOTAZIONE
+   STATO PRENOTAZIONE
 ============================================================ */
 
 function savePendingState(){
@@ -939,6 +899,8 @@ function clearPendingState(){
 
   requiresConfirmation = false;
 
+  confirmationInProgress = false;
+
   localStorage.removeItem(
     "pendingAppointment"
   );
@@ -946,6 +908,14 @@ function clearPendingState(){
   localStorage.removeItem(
     "requiresConfirmation"
   );
+
+  const confirmation =
+    document.getElementById(
+      "confirmationActions"
+    );
+
+  if(confirmation)
+    confirmation.remove();
 }
 
 
@@ -1802,6 +1772,12 @@ function changeDay(amount){
 
 function add(){
 
+  if(requestInProgress)
+    return;
+
+  const button =
+    $("manualAppointmentButton");
+
   const name =
     $("n").value.trim();
 
@@ -1875,25 +1851,43 @@ function add(){
     return;
   }
 
+  requestInProgress = true;
+
+  button.disabled = true;
+  button.textContent =
+    "Salvataggio...";
+
   const appointments =
     getAppointments();
 
-  appointments.push({
-
-    n:name,
-
-    d:date,
-
-    t:time,
-
-    s:service.name
-
-  });
-
-  localStorage.a =
-    JSON.stringify(
-      appointments
+  const duplicate =
+    appointments.some(
+      a =>
+        a.n === name &&
+        a.d === date &&
+        a.t === time &&
+        a.s === service.name
     );
+
+  if(!duplicate){
+
+    appointments.push({
+
+      n:name,
+
+      d:date,
+
+      t:time,
+
+      s:service.name
+
+    });
+
+    localStorage.a =
+      JSON.stringify(
+        appointments
+      );
+  }
 
   $("n").value="";
   $("t").value="";
@@ -1905,6 +1899,16 @@ function add(){
   renderCalendar();
   render();
   updateDashboard();
+
+  setTimeout(() => {
+
+    requestInProgress = false;
+
+    button.disabled = false;
+    button.textContent =
+      "Salva appuntamento";
+
+  },500);
 }
 
 
@@ -2004,18 +2008,40 @@ function showAvailableSlots(
     button.textContent =
       time;
 
-    button.onclick =
-      () => selectAISlot(
+    let clicked = false;
+
+    button.onclick = () => {
+
+      if(clicked)
+        return;
+
+      clicked = true;
+
+      button.disabled = true;
+      button.classList.add("selected");
+
+      container
+        .querySelectorAll("button")
+        .forEach(other => {
+          if(other !== button)
+            other.disabled = true;
+        });
+
+      selectAISlot(
         time,
         date,
         service
       );
+    };
 
     container.appendChild(button);
 
   });
 
   $("chat").appendChild(container);
+
+  $("chat").scrollTop =
+    $("chat").scrollHeight;
 }
 
 
@@ -2024,6 +2050,9 @@ function selectAISlot(
   date,
   service
 ){
+
+  if(requestInProgress)
+    return;
 
   $("d").value =
     date || $("calendarDate").value;
@@ -2052,16 +2081,11 @@ function selectAISlot(
   $("appointmentStatus").textContent =
     `Orario ${time} selezionato.`;
 
-  const msg =
-    document.createElement("div");
-
-  msg.className =
-    "msg user";
-
-  msg.textContent =
-    `Scelgo le ${time}`;
-
-  $("chat").appendChild(msg);
+  /*
+   * Evita il vecchio comportamento:
+   * prima veniva aggiunto manualmente "Scelgo..."
+   * e poi send() aggiungeva di nuovo lo stesso messaggio.
+   */
 
   $("q").value =
     `Scelgo le ${time}`;
@@ -2094,6 +2118,15 @@ function showConfirmationButtons(){
   container.className =
     "ai-actions";
 
+  const box =
+    document.createElement("div");
+
+  box.className =
+    "confirmation-box";
+
+  box.innerHTML =
+    "<b>Vuoi confermare questo appuntamento?</b>";
+
   const confirm =
     document.createElement("button");
 
@@ -2104,7 +2137,7 @@ function showConfirmationButtons(){
     "Conferma appuntamento";
 
   confirm.onclick =
-    () => confirmAppointment();
+    () => confirmAppointment(confirm);
 
   const cancel =
     document.createElement("button");
@@ -2116,34 +2149,44 @@ function showConfirmationButtons(){
     "Annulla";
 
   cancel.onclick =
-    () => cancelAppointment();
+    () => cancelAppointment(cancel);
 
-  container.appendChild(confirm);
-  container.appendChild(cancel);
+  box.appendChild(confirm);
+  box.appendChild(cancel);
+
+  container.appendChild(box);
 
   $("chat").appendChild(container);
+
+  $("chat").scrollTop =
+    $("chat").scrollHeight;
 }
 
-function confirmAppointment(){
+
+function confirmAppointment(button){
 
   if(
     !pendingAppointment ||
-    !requiresConfirmation
+    !requiresConfirmation ||
+    confirmationInProgress ||
+    requestInProgress
   ){
     return;
   }
 
-  const confirmation =
-    document.getElementById(
-      "confirmationActions"
+  confirmationInProgress = true;
+
+  button.disabled = true;
+  button.textContent =
+    "Conferma in corso...";
+
+  const cancel =
+    document.querySelector(
+      "#confirmationActions .ai-cancel-button"
     );
 
-  if(confirmation){
-    confirmation.remove();
-  }
-
-  $("status").textContent =
-    "Conferma appuntamento in corso...";
+  if(cancel)
+    cancel.disabled = true;
 
   $("q").value =
     "Confermo l'appuntamento";
@@ -2151,14 +2194,31 @@ function confirmAppointment(){
   send();
 }
 
-function cancelAppointment(){
+
+function cancelAppointment(button){
 
   if(
     !pendingAppointment ||
-    !requiresConfirmation
+    !requiresConfirmation ||
+    confirmationInProgress ||
+    requestInProgress
   ){
     return;
   }
+
+  confirmationInProgress = true;
+
+  button.disabled = true;
+  button.textContent =
+    "Annullamento...";
+
+  const confirm =
+    document.querySelector(
+      "#confirmationActions .ai-confirm-button"
+    );
+
+  if(confirm)
+    confirm.disabled = true;
 
   $("q").value =
     "Annulla";
@@ -2173,11 +2233,16 @@ function cancelAppointment(){
 
 async function send(){
 
+  if(requestInProgress)
+    return;
+
   const x =
     $("q").value.trim();
 
   if(!x)
     return;
+
+  requestInProgress = true;
 
   $("chat").innerHTML +=
     `<div class="msg user">${esc(x)}</div>`;
@@ -2400,14 +2465,6 @@ async function send(){
 
       clearPendingState();
 
-      const confirmation =
-        document.getElementById(
-          "confirmationActions"
-        );
-
-      if(confirmation)
-        confirmation.remove();
-
       render();
       renderCalendar();
       updateDashboard();
@@ -2433,10 +2490,14 @@ async function send(){
         ${esc(error.message)}
       </div>`;
 
+    confirmationInProgress = false;
+
   }
 
   $("q").disabled = false;
   $("sendButton").disabled = false;
+
+  requestInProgress = false;
 
   $("status").textContent = "";
   $("q").value = "";
