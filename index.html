@@ -2124,7 +2124,6 @@ function showConfirmationButtons(){
   $("chat").appendChild(container);
 }
 
-
 function confirmAppointment(){
 
   if(
@@ -2134,12 +2133,23 @@ function confirmAppointment(){
     return;
   }
 
+  const confirmation =
+    document.getElementById(
+      "confirmationActions"
+    );
+
+  if(confirmation){
+    confirmation.remove();
+  }
+
+  $("status").textContent =
+    "Conferma appuntamento in corso...";
+
   $("q").value =
     "Confermo l'appuntamento";
 
   send();
 }
-
 
 function cancelAppointment(){
 
