@@ -614,7 +614,314 @@ export default async function handler(req, res) {
         confirmed: false
       });
     }
+    /* ============================================================
+       MOTORE LOCALE
+       Risponde alle richieste semplici senza usare OpenAI
+    ============================================================ */
 
+    const localText = normalizeText(message);
+
+    function localReply(reply) {
+      return res.status(200).json({
+        reply,
+        appointment: null,
+        pendingAppointment: null,
+        requiresConfirmation: false,
+        confirmed: false,
+        local: true
+      });
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * LISTINO SERVIZI
+     * ------------------------------------------------------------
+     */
+
+    const asksServices =
+      localText.includes("servizi") ||
+      localText.includes("cosa fate") ||
+      localText.includes("cosa offrite") ||
+      localText.includes("che servizi") ||
+      localText.includes("quali servizi") ||
+      localText.includes("listino");
+
+    if (asksServices && services.length) {
+
+      const text =
+        services
+          .map(service =>
+            `• ${service.name}: €${Number(service.price).toFixed(2)} ` +
+            `(${Number(service.duration)} minuti)`
+          )
+          .join("\n");
+
+      return localReply(
+        `Questi sono i nostri servizi:\n\n${text}`
+      );
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * PREZZO DI UN SERVIZIO
+     * ------------------------------------------------------------
+     */
+
+    const mentionedService =
+      findServiceInText(message);
+
+    const asksPrice =
+      localText.includes("quanto costa") ||
+      localText.includes("prezzo") ||
+      localText.includes("costo") ||
+      localText.includes("quanto viene") ||
+      localText.includes("quanto pago");
+
+    if (
+      asksPrice &&
+      mentionedService
+    ) {
+
+      return localReply(
+        `${mentionedService.name} costa ` +
+        `€${Number(mentionedService.price).toFixed(2)} ` +
+        `e dura circa ${Number(mentionedService.duration)} minuti.`
+      );
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * DURATA DI UN SERVIZIO
+     * ------------------------------------------------------------
+     */
+
+    const asksDuration =
+      localText.includes("quanto dura") ||
+      localText.includes("durata") ||
+      localText.includes("quanto tempo");
+
+    if (
+      asksDuration &&
+      mentionedService
+    ) {
+
+      return localReply(
+        `${mentionedService.name} dura circa ` +
+        `${Number(mentionedService.duration)} minuti.`
+      );
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * ORARI DI APERTURA
+     * ------------------------------------------------------------
+     */
+
+    const asksHours =
+      localText.includes("orari") ||
+      localText.includes("orario") ||
+      localText.includes("quando siete aperti") ||
+      localText.includes("quando siete aperte") ||
+      localText.includes("siete aperti") ||
+      localText.includes("siete aperte") ||
+      localText.includes("apertura");
+
+    if (asksHours) {
+
+      return localReply(
+        `I nostri orari sono:\n\n${openingHours}`
+      );
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * INDIRIZZO
+     * ------------------------------------------------------------
+     */
+
+    const asksAddress =
+      localText.includes("indirizzo") ||
+      localText.includes("dove siete") ||
+      localText.includes("dove vi trovate") ||
+      localText.includes("dove siete situati");
+
+    if (
+      asksAddress &&
+      settings.address
+    ) {
+
+      return localReply(
+        `Ci troviamo in ${settings.address}.`
+      );
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * TELEFONO
+     * ------------------------------------------------------------
+     */
+
+    const asksPhone =
+      localText.includes("telefono") ||
+      localText.includes("numero di telefono") ||
+      localText.includes("numero");
+
+    if (
+      asksPhone &&
+      settings.phone
+    ) {
+
+      return localReply(
+        `Il nostro numero di telefono è ${settings.phone}.`
+      );
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * WHATSAPP
+     * ------------------------------------------------------------
+     */
+
+    const asksWhatsapp =
+      localText.includes("whatsapp") ||
+      localText.includes("numero whatsapp");
+
+    if (
+      asksWhatsapp &&
+      settings.whatsapp
+    ) {
+
+      return localReply(
+        `Puoi contattarci su WhatsApp al numero ${settings.whatsapp}.`
+      );
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * PROMOZIONI
+     * ------------------------------------------------------------
+     */
+
+    const asksPromotion =
+      localText.includes("promozioni") ||
+      localText.includes("promozione") ||
+      localText.includes("offerte") ||
+      localText.includes("offerta") ||
+      localText.includes("sconti") ||
+      localText.includes("sconto");
+
+    if (
+      asksPromotion &&
+      settings.promotion
+    ) {
+
+      return localReply(
+        `Le promozioni attive sono:\n\n${settings.promotion}`
+      );
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * VERIFICA ORARIO SPECIFICO
+     *
+     * Esempi:
+     *
+     * "domani alle 15 è libero?"
+     * "venerdì alle 10 posso venire?"
+     *
+     * Per ora gestiamo la verifica locale quando
+     * la data arriva già nel formato YYYY-MM-DD.
+     * Le richieste naturali più complesse continueranno
+     * a essere gestite dall'AI.
+     * ------------------------------------------------------------
+     */
+
+    const dateMatch =
+      localText.match(
+        /\b(20\d{2})-(\d{2})-(\d{2})\b/
+      );
+
+    const timeMatch =
+      localText.match(
+        /\b([01]?\d|2[0-3])(?::|\.)([0-5]\d)\b/
+      );
+
+    const asksAvailability =
+      localText.includes("disponibile") ||
+      localText.includes("disponibilita") ||
+      localText.includes("libero") ||
+      localText.includes("libera") ||
+      localText.includes("posso venire") ||
+      localText.includes("posso prenotare");
+
+    if (
+      asksAvailability &&
+      dateMatch &&
+      timeMatch
+    ) {
+
+      const requestedDate =
+        `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`;
+
+      const requestedTime =
+        `${timeMatch[1].padStart(2, "0")}:${timeMatch[2]}`;
+
+      const serviceForAvailability =
+        mentionedService;
+
+      if (serviceForAvailability) {
+
+        const duration =
+          Number(
+            serviceForAvailability.duration
+          ) || 30;
+
+        const available =
+          isSlotFree(
+            requestedDate,
+            requestedTime,
+            duration
+          );
+
+        if (available) {
+
+          return localReply(
+            `Sì, ${requestedTime} è disponibile ` +
+            `per ${serviceForAvailability.name} ` +
+            `il ${requestedDate}.`
+          );
+
+        }
+
+        const alternatives =
+          findAvailableSlots(
+            requestedDate,
+            duration
+          );
+
+        if (alternatives.length) {
+
+          return localReply(
+            `L'orario ${requestedTime} non è disponibile. ` +
+            `Per ${serviceForAvailability.name} posso proporti: ` +
+            `${alternatives.slice(0, 5).join(", ")}.`
+          );
+
+        }
+
+        return localReply(
+          `L'orario ${requestedTime} non è disponibile ` +
+          `e non risultano altri orari liberi quel giorno.`
+        );
+      }
+    }
+
+    /*
+     * ------------------------------------------------------------
+     * SE LA RICHIESTA NON È SEMPLICE,
+     * CONTINUA NORMALMENTE VERSO OPENAI.
+     * ------------------------------------------------------------
+     */
     /* ============================================================
        OPENAI
     ============================================================ */
