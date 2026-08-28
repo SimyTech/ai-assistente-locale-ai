@@ -9,503 +9,157 @@
 
 <style>
 *{box-sizing:border-box}
-
 body{
-  margin:0;
-  background:#f5f6fa;
-  color:#17181c;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+ margin:0;background:#f5f6fa;color:#17181c;
+ font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
 }
-
-header{
-  background:#111827;
-  color:white;
-  padding:18px
-}
-
-header h1{
-  margin:0;
-  font-size:21px
-}
-
-.muted{
-  color:#667085;
-  font-size:13px
-}
-
+header{background:#111827;color:#fff;padding:18px}
+header h1{margin:0;font-size:21px}
+.muted{color:#667085;font-size:13px}
 nav{
-  display:flex;
-  gap:6px;
-  overflow:auto;
-  background:white;
-  padding:10px;
-  position:sticky;
-  top:0;
-  z-index:20;
-  border-bottom:1px solid #e5e7eb
+ display:flex;gap:6px;overflow:auto;background:#fff;padding:10px;
+ position:sticky;top:0;z-index:20;border-bottom:1px solid #e5e7eb
 }
-
-nav button,
 button{
-  padding:10px 14px;
-  border:0;
-  border-radius:10px;
-  font-weight:700;
-  cursor:pointer;
-  font:inherit
+ padding:10px 14px;border:0;border-radius:10px;font-weight:700;
+ cursor:pointer;font:inherit
 }
-
-button:disabled{
-  opacity:.55;
-  cursor:not-allowed
-}
-
-nav button{
-  background:#eef2ff;
-  white-space:nowrap
-}
-
-main{
-  max-width:950px;
-  margin:auto;
-  padding:16px
-}
-
-.page{
-  display:none
-}
-
-.page.active{
-  display:block
-}
-
+button:disabled{opacity:.55;cursor:not-allowed}
+nav button{background:#eef2ff;white-space:nowrap}
+main{max-width:950px;margin:auto;padding:16px}
+.page{display:none}
+.page.active{display:block}
 .card{
-  background:white;
-  padding:17px;
-  border-radius:16px;
-  margin-bottom:13px;
-  border:1px solid #e5e7eb;
-  box-shadow:0 2px 8px rgba(0,0,0,.03)
+ background:#fff;padding:17px;border-radius:16px;margin-bottom:13px;
+ border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,.03)
 }
-
 .grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:12px
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px
 }
-
-.stat{
-  font-size:28px;
-  font-weight:800
+.stat{font-size:28px;font-weight:800}
+input,textarea,select{
+ width:100%;padding:12px;margin:7px 0 12px;
+ border:1px solid #d0d5dd;border-radius:10px;font:inherit;background:#fff
 }
-
-input,
-textarea,
-select{
-  width:100%;
-  padding:12px;
-  margin:7px 0 12px;
-  border:1px solid #d0d5dd;
-  border-radius:10px;
-  font:inherit;
-  background:white
-}
-
-textarea{
-  resize:vertical
-}
-
-.primary{
-  background:#2563eb;
-  color:white
-}
-
-.secondary{
-  background:#eef2ff;
-  color:#111827
-}
-
-.danger{
-  background:#fee2e2;
-  color:#991b1b
-}
-
-.success{
-  background:#dcfce7;
-  color:#166534
-}
-
-.warning{
-  background:#fef3c7;
-  color:#92400e
-}
-
-.row{
-  display:flex;
-  gap:8px
-}
-
-.row>*{
-  flex:1
-}
-
+textarea{resize:vertical}
+.primary{background:#2563eb;color:#fff}
+.secondary{background:#eef2ff;color:#111827}
+.danger{background:#fee2e2;color:#991b1b}
+.success{background:#dcfce7;color:#166534}
+.warning{background:#fef3c7;color:#92400e}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
 .chat{
-  height:360px;
-  overflow:auto;
-  background:#fafafa;
-  border:1px solid #ddd;
-  border-radius:12px;
-  padding:10px
+ height:360px;overflow:auto;background:#fafafa;
+ border:1px solid #ddd;border-radius:12px;padding:10px
 }
-
 .msg{
-  padding:10px 12px;
-  border-radius:12px;
-  margin:7px 0;
-  max-width:86%;
-  white-space:pre-wrap;
-  line-height:1.45
+ padding:10px 12px;border-radius:12px;margin:7px 0;
+ max-width:86%;white-space:pre-wrap;line-height:1.45
 }
-
-.bot{
-  background:#e5e7eb
-}
-
-.user{
-  background:#dbeafe;
-  margin-left:auto
-}
-
+.bot{background:#e5e7eb}
+.user{background:#dbeafe;margin-left:auto}
 .ai-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin:8px 0 12px;
-  padding-left:4px
+ display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px;padding-left:4px
 }
-
-.ai-slot-button{
-  background:#2563eb;
-  color:white;
-  min-width:78px
-}
-
+.ai-slot-button{background:#2563eb;color:#fff;min-width:78px}
 .ai-confirm-button{
-  background:#16a34a;
-  color:white;
-  width:100%;
-  margin-top:8px
+ background:#16a34a;color:#fff;width:100%;margin-top:8px
 }
-
 .ai-cancel-button{
-  background:#fee2e2;
-  color:#991b1b;
-  width:100%;
-  margin-top:8px
+ background:#fee2e2;color:#991b1b;width:100%;margin-top:8px
 }
-
-.available-title{
-  width:100%;
-  font-weight:700;
-  margin:8px 0
-}
-
-.ai-busy{
-  opacity:.7;
-  pointer-events:none
-}
-
+.ai-busy{opacity:.7;pointer-events:none}
+.available-title{width:100%;font-weight:700;margin:8px 0}
 .hour-row{
-  display:grid;
-  grid-template-columns:100px 110px 1fr 1fr;
-  gap:8px;
-  align-items:center;
-  margin-bottom:8px
+ display:grid;grid-template-columns:100px 110px 1fr 1fr;
+ gap:8px;align-items:center;margin-bottom:8px
 }
-
-.hour-row input,
-.hour-row select{
-  margin:0
+.hour-row input,.hour-row select{margin:0}
+.service-item,.promotion-item,.appointment-item,.client-item{
+ background:#f8fafc;border:1px solid #e2e8f0;
+ border-radius:12px;padding:12px;margin:8px 0
 }
-
-.service-item,
-.promotion-item,
-.appointment-item,
-.client-item,
-.reminder-item{
-  background:#f8fafc;
-  border:1px solid #e2e8f0;
-  border-radius:12px;
-  padding:12px;
-  margin:8px 0
+.service-actions,.promotion-actions,.client-actions,.appointment-actions{
+ display:flex;flex-wrap:wrap;gap:6px;margin-top:10px
 }
-
-.service-actions,
-.promotion-actions,
-.client-actions,
-.appointment-actions,
-.reminder-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:10px
-}
-
 .calendar-header{
-  display:flex;
-  gap:8px;
-  align-items:center;
-  margin-bottom:15px
+ display:flex;gap:8px;align-items:center;margin-bottom:15px
 }
-
-.calendar-header input{
-  margin:0
-}
-
-.calendar-grid{
-  display:flex;
-  flex-direction:column;
-  gap:6px
-}
-
+.calendar-header input{margin:0}
+.calendar-grid{display:flex;flex-direction:column;gap:6px}
 .slot{
-  display:grid;
-  grid-template-columns:70px 1fr;
-  gap:8px;
-  align-items:stretch
+ display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:stretch
 }
-
 .slot-time{
-  padding:12px 5px;
-  font-weight:700;
-  color:#475467;
-  text-align:center
+ padding:12px 5px;font-weight:700;color:#475467;text-align:center
 }
-
 .slot-box{
-  min-height:44px;
-  border:1px solid #d0d5dd;
-  border-radius:10px;
-  background:#f8fafc;
-  padding:8px
+ min-height:44px;border:1px solid #d0d5dd;border-radius:10px;
+ background:#f8fafc;padding:8px
 }
-
-.slot-box.free{
-  cursor:pointer
+.slot-box.free{cursor:pointer}
+.slot-box.free:hover{background:#eff6ff}
+.slot-box.busy{background:#dbeafe;border-color:#93c5fd}
+.slot-box.closed{background:#f1f5f9;color:#94a3b8}
+.calendar-empty,.empty-state{
+ padding:18px;text-align:center;background:#f8fafc;
+ border-radius:12px;color:#667085
 }
-
-.slot-box.free:hover{
-  background:#eff6ff
-}
-
-.slot-box.busy{
-  background:#dbeafe;
-  border-color:#93c5fd;
-  cursor:default
-}
-
-.slot-box.closed{
-  background:#f1f5f9;
-  color:#94a3b8
-}
-
-.calendar-empty,
-.empty-state{
-  padding:18px;
-  text-align:center;
-  color:#667085;
-  background:#f8fafc;
-  border-radius:12px
-}
-
 .badge{
-  display:inline-block;
-  padding:4px 8px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  background:#e0e7ff;
-  color:#3730a3
+ display:inline-block;padding:4px 8px;border-radius:999px;
+ font-size:12px;font-weight:700;background:#e0e7ff;color:#3730a3
 }
-
-.status-confirmed{
-  background:#dcfce7;
-  color:#166534
-}
-
-.status-completed{
-  background:#dbeafe;
-  color:#1d4ed8
-}
-
-.status-cancelled{
-  background:#fee2e2;
-  color:#991b1b
-}
-
-.reminder-pending{
-  background:#fef3c7;
-  color:#92400e
-}
-
-.reminder-sent{
-  background:#dcfce7;
-  color:#166534
-}
-
-.reminder-disabled{
-  background:#e5e7eb;
-  color:#475467
-}
-
-.form-title{
-  margin-top:18px;
-  margin-bottom:6px
-}
-
-.divider{
-  border:0;
-  border-top:1px solid #e5e7eb;
-  margin:18px 0
-}
-
+.status-confirmed{background:#dcfce7;color:#166534}
+.status-completed{background:#dbeafe;color:#1d4ed8}
+.status-cancelled{background:#fee2e2;color:#991b1b}
+.form-title{margin-top:18px;margin-bottom:6px}
 .pending-box{
-  background:#fff7ed;
-  border:1px solid #fed7aa;
-  color:#9a3412;
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:10px
+ background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;
+ padding:12px;border-radius:12px;margin-bottom:10px
 }
-
 .storage-box{
-  background:#f0fdf4;
-  border:1px solid #bbf7d0;
-  color:#166534;
-  padding:10px 12px;
-  border-radius:10px;
-  margin-top:12px;
-  font-size:13px
+ background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;
+ padding:10px 12px;border-radius:10px;margin-top:12px;font-size:13px
 }
-
-.reminder-box{
-  background:#eff6ff;
-  border:1px solid #bfdbfe;
-  color:#1e40af;
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:12px
-}
-
-.small-button{
-  padding:7px 10px;
-  font-size:13px
-}
-
-.client-stat{
-  font-weight:700;
-  margin-top:7px
-}
-
+.small-button{padding:7px 10px;font-size:13px}
 .client-history{
-  margin-top:10px;
-  padding-top:10px;
-  border-top:1px solid #e5e7eb
+ margin-top:10px;padding-top:10px;border-top:1px solid #e5e7eb
 }
-
+.client-stat{font-weight:700}
 .search-box{
-  background:#f8fafc;
-  border:1px solid #e2e8f0;
-  border-radius:12px;
-  padding:12px;
-  margin-bottom:12px
+ background:#f8fafc;border:1px solid #e2e8f0;
+ border-radius:12px;padding:12px;margin-bottom:12px
 }
-
-.day-summary{
-  background:#eff6ff;
-  border:1px solid #bfdbfe;
-  border-radius:12px;
-  padding:12px;
-  margin-bottom:12px
-}
-
 .modal-backdrop{
-  position:fixed;
-  inset:0;
-  background:rgba(15,23,42,.55);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:15px;
-  z-index:100
+ position:fixed;inset:0;background:rgba(15,23,42,.55);
+ display:none;align-items:center;justify-content:center;
+ padding:15px;z-index:100
 }
-
-.modal-backdrop.open{
-  display:flex
-}
-
+.modal-backdrop.open{display:flex}
 .modal{
-  width:min(600px,100%);
-  max-height:90vh;
-  overflow:auto;
-  background:white;
-  border-radius:18px;
-  padding:18px;
-  box-shadow:0 20px 50px rgba(0,0,0,.25)
+ width:min(600px,100%);max-height:90vh;overflow:auto;
+ background:#fff;border-radius:18px;padding:18px;
+ box-shadow:0 20px 50px rgba(0,0,0,.25)
 }
-
 .modal-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  margin-bottom:10px
+ display:flex;justify-content:space-between;align-items:center;
+ gap:10px;margin-bottom:10px
 }
-
-.modal-header h3{
-  margin:0
-}
-
-.close-button{
-  background:#f1f5f9;
-  color:#334155;
-  padding:7px 11px
-}
-
+.modal-header h3{margin:0}
+.close-button{background:#f1f5f9;color:#334155;padding:7px 11px}
 .form-error{
-  color:#991b1b;
-  background:#fee2e2;
-  border-radius:10px;
-  padding:10px;
-  margin:8px 0;
-  display:none
+ color:#991b1b;background:#fee2e2;border-radius:10px;
+ padding:10px;margin:8px 0;display:none
 }
-
-.form-error.show{
-  display:block
-}
+.form-error.show{display:block}
 
 @media(max-width:650px){
-  .hour-row{
-    grid-template-columns:1fr 1fr
-  }
-
-  .hour-row b{
-    grid-column:1/-1
-  }
-
-  .row{
-    flex-direction:column
-  }
-
-  .slot{
-    grid-template-columns:60px 1fr
-  }
-
-  .appointment-actions button,
-  .reminder-actions button{
-    flex:1 1 45%
-  }
+ .hour-row{grid-template-columns:1fr 1fr}
+ .hour-row b{grid-column:1/-1}
+ .row{flex-direction:column}
+ .slot{grid-template-columns:60px 1fr}
+ .appointment-actions button{flex:1 1 45%}
 }
 </style>
 </head>
@@ -513,6663 +167,3813 @@ textarea{
 <body>
 
 <header>
-  <h1>AI Assistente Locale</h1>
-  <div class="muted" style="color:#cbd5e1">
-    Assistente AI per attività locali
-  </div>
+<h1>AI Assistente Locale</h1>
+<div class="muted" style="color:#cbd5e1">
+Assistente AI per attività locali
+</div>
 </header>
 
 <nav>
-  <button onclick="showPage('home')">Home</button>
-  <button onclick="showPage('ai')">AI</button>
-  <button onclick="showPage('app')">Calendario</button>
-  <button onclick="showPage('clients')">Clienti</button>
-  <button onclick="showPage('post')">Post AI</button>
-  <button onclick="showPage('settings')">Impostazioni</button>
+<button onclick="showPage('home')">Home</button>
+<button onclick="showPage('ai')">AI</button>
+<button onclick="showPage('app')">Calendario</button>
+<button onclick="showPage('clients')">Clienti</button>
+<button onclick="showPage('post')">Post AI</button>
+<button onclick="showPage('settings')">Impostazioni</button>
 </nav>
 
 <main>
 
+<!-- HOME -->
 <section id="home" class="page active">
 
-  <div class="card">
-    <h2>Dashboard</h2>
+<div class="card">
+<h2>Dashboard</h2>
+<p>
+Gestisci attività, servizi, promozioni, appuntamenti,
+clienti e assistente AI.
+</p>
 
-    <p>
-      Gestisci attività, servizi, promozioni, appuntamenti,
-      clienti e assistente AI.
-    </p>
+<label>Nome attività</label>
+<input id="biz" value="Salone Bella Linea">
 
-    <label>Nome attività</label>
-    <input id="biz" value="Salone Bella Linea">
+<button class="primary" onclick="saveBusiness()">
+Salva attività
+</button>
 
-    <button class="primary" onclick="saveBusiness()">
-      Salva attività
-    </button>
+<div id="storageStatus" class="storage-box">
+Archivio dati protetto con doppio salvataggio.
+</div>
+</div>
 
-    <button
-      class="secondary"
-      onclick="requestNotificationPermission()"
-      style="margin-left:6px"
-    >
-      Attiva notifiche
-    </button>
+<div class="card">
+<h3>Riepilogo</h3>
 
-    <div id="storageStatus" class="storage-box">
-      Archivio dati protetto con doppio salvataggio.
-    </div>
+<div class="grid">
 
-    <div id="notificationStatus" class="reminder-box">
-      Stato notifiche: verifica in corso...
-    </div>
-  </div>
+<div class="card">
+<div class="stat" id="dashboardServices">0</div>
+<div class="muted">Servizi</div>
+</div>
 
-  <div class="card">
+<div class="card">
+<div class="stat" id="dashboardPromotions">0</div>
+<div class="muted">Promozioni</div>
+</div>
 
-    <h3>Riepilogo</h3>
+<div class="card">
+<div class="stat" id="dashboardAppointments">0</div>
+<div class="muted">Appuntamenti attivi</div>
+</div>
 
-    <div class="grid">
+<div class="card">
+<div class="stat" id="dashboardClients">0</div>
+<div class="muted">Clienti</div>
+</div>
 
-      <div class="card">
-        <div class="stat" id="dashboardServices">0</div>
-        <div class="muted">Servizi</div>
-      </div>
-
-      <div class="card">
-        <div class="stat" id="dashboardPromotions">0</div>
-        <div class="muted">Promozioni</div>
-      </div>
-
-      <div class="card">
-        <div class="stat" id="dashboardAppointments">0</div>
-        <div class="muted">Appuntamenti attivi</div>
-      </div>
-
-      <div class="card">
-        <div class="stat" id="dashboardClients">0</div>
-        <div class="muted">Clienti</div>
-      </div>
-
-      <div class="card">
-        <div class="stat" id="dashboardReminders">0</div>
-        <div class="muted">Promemoria imminenti</div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="card">
-
-    <h3>Promemoria</h3>
-
-    <div id="dashboardRemindersList">
-      <div class="empty-state">
-        Nessun promemoria.
-      </div>
-    </div>
-
-  </div>
+</div>
+</div>
 
 </section>
 
 
+<!-- AI -->
 <section id="ai" class="page">
 
-  <div class="card">
+<div class="card">
 
-    <h2>Assistente AI reale</h2>
+<h2>Assistente AI reale</h2>
 
-    <div id="pendingBox"></div>
+<div id="pendingBox"></div>
 
-    <div id="chat" class="chat">
-      <div class="msg bot">
-        Ciao! Come posso aiutarti?
-      </div>
-    </div>
+<div id="chat" class="chat">
+<div class="msg bot">
+Ciao! Come posso aiutarti?
+</div>
+</div>
 
-    <p id="status" class="muted"></p>
+<p id="status" class="muted"></p>
 
-    <div class="row">
+<div class="row">
+<input id="clientName" placeholder="Nome cliente">
 
-      <input
-        id="clientName"
-        placeholder="Nome cliente"
-      >
+<input
+id="q"
+placeholder="Scrivi una domanda..."
+onkeydown="if(event.key==='Enter')send()"
+>
 
-      <input
-        id="q"
-        placeholder="Scrivi una domanda..."
-        onkeydown="if(event.key==='Enter')send()"
-      >
+<button
+id="sendButton"
+class="primary"
+onclick="send()">
+Invia
+</button>
+</div>
 
-      <button
-        id="sendButton"
-        class="primary"
-        onclick="send()"
-      >
-        Invia
-      </button>
-
-    </div>
-
-  </div>
+</div>
 
 </section>
 
 
+<!-- CALENDARIO -->
 <section id="app" class="page">
 
-  <div class="card">
+<div class="card">
 
-    <h2>Calendario appuntamenti</h2>
+<h2>Calendario appuntamenti</h2>
 
-    <div class="calendar-header">
+<div class="calendar-header">
 
-      <button
-        class="secondary"
-        onclick="changeDay(-1)"
-      >
-        ‹
-      </button>
+<button
+class="secondary"
+onclick="changeDay(-1)">
+‹
+</button>
 
-      <input
-        id="calendarDate"
-        type="date"
-        onchange="renderCalendar();renderDayAppointments()"
-      >
+<input
+id="calendarDate"
+type="date"
+onchange="renderCalendar();renderDayAppointments()"
+>
 
-      <button
-        class="secondary"
-        onclick="changeDay(1)"
-      >
-        ›
-      </button>
+<button
+class="secondary"
+onclick="changeDay(1)">
+›
+</button>
 
-    </div>
+</div>
 
-    <div id="calendarTitle"></div>
+<div id="calendarTitle"></div>
 
-    <div
-      id="calendar"
-      class="calendar-grid"
-    ></div>
+<div id="calendar" class="calendar-grid"></div>
 
-  </div>
+</div>
 
 
-  <div class="card">
+<div class="card">
 
-    <h3>Appuntamenti del giorno</h3>
+<h3>Appuntamenti del giorno</h3>
 
-    <div id="dayAppointments"></div>
+<div id="dayAppointments"></div>
 
-  </div>
-
-
-  <div class="card">
-
-    <h3>Ricerca appuntamenti</h3>
-
-    <div class="search-box">
-
-      <input
-        id="appointmentSearch"
-        placeholder="Cerca per nome cliente..."
-        oninput="renderAppointments()"
-      >
-
-    </div>
-
-    <div id="searchResults"></div>
-
-  </div>
+</div>
 
 
-  <div class="card">
+<div class="card">
 
-    <h3>Nuovo appuntamento</h3>
+<h3>Ricerca appuntamenti</h3>
 
-    <input
-      id="n"
-      placeholder="Nome cliente"
-    >
+<div class="search-box">
 
-    <input
-      id="d"
-      type="date"
-    >
+<input
+id="appointmentSearch"
+placeholder="Cerca per nome cliente..."
+oninput="renderAppointments()"
+>
 
-    <input
-      id="t"
-      type="time"
-    >
+</div>
 
-    <select id="s">
-      <option value="">
-        Seleziona servizio
-      </option>
-    </select>
+<div id="searchResults"></div>
 
-    <label>
-      Promemoria
-    </label>
-
-    <select id="appointmentReminder">
-      <option value="24h">
-        24 ore prima
-      </option>
-
-      <option value="2h">
-        2 ore prima
-      </option>
-
-      <option value="both">
-        24 ore + 2 ore prima
-      </option>
-
-      <option value="none">
-        Nessun promemoria
-      </option>
-    </select>
-
-    <button
-      class="primary"
-      id="manualSaveButton"
-      onclick="addAppointment()"
-    >
-      Salva appuntamento
-    </button>
-
-    <p
-      id="appointmentStatus"
-      class="muted"
-    ></p>
-
-  </div>
+</div>
 
 
-  <div class="card">
+<div class="card">
 
-    <h3>Appuntamenti salvati</h3>
+<h3>Nuovo appuntamento</h3>
 
-    <div id="list"></div>
+<input id="n" placeholder="Nome cliente">
 
-  </div>
+<input id="d" type="date">
+
+<input id="t" type="time">
+
+<select id="s">
+<option value="">Seleziona servizio</option>
+</select>
+
+<button
+class="primary"
+onclick="addAppointment()">
+Salva appuntamento
+</button>
+
+<p id="appointmentStatus" class="muted"></p>
+
+</div>
+
+
+<div class="card">
+
+<h3>Appuntamenti salvati</h3>
+
+<div id="list"></div>
+
+</div>
 
 </section>
 
 
+<!-- CLIENTI -->
 <section id="clients" class="page">
 
-  <div class="card">
+<div class="card">
 
-    <h2>Scheda Cliente</h2>
+<h2>Scheda Cliente</h2>
 
-    <p class="muted">
-      Archivio clienti collegato agli appuntamenti.
-    </p>
+<p class="muted">
+Archivio clienti collegato agli appuntamenti.
+</p>
 
-    <input
-      id="clientSearch"
-      placeholder="Cerca per nome, telefono o email..."
-      oninput="renderClients()"
-    >
+<input
+id="clientSearch"
+placeholder="Cerca per nome, telefono o email..."
+oninput="renderClients()"
+>
 
-    <div id="clientsList"></div>
+<div id="clientsList"></div>
 
-  </div>
+</div>
 
 
-  <div class="card">
+<div class="card">
 
-    <h3>Nuovo cliente</h3>
+<h3>Nuovo cliente</h3>
 
-    <input
-      id="newClientName"
-      placeholder="Nome e cognome"
-    >
+<input
+id="newClientName"
+placeholder="Nome e cognome"
+>
 
-    <input
-      id="newClientPhone"
-      type="tel"
-      placeholder="Telefono / WhatsApp"
-    >
+<input
+id="newClientPhone"
+type="tel"
+placeholder="Telefono"
+>
 
-    <input
-      id="newClientEmail"
-      type="email"
-      placeholder="Email"
-    >
+<input
+id="newClientEmail"
+type="email"
+placeholder="Email"
+>
 
-    <textarea
-      id="newClientNotes"
-      rows="3"
-      placeholder="Note cliente"
-    ></textarea>
+<textarea
+id="newClientNotes"
+rows="3"
+placeholder="Note cliente">
+</textarea>
 
-    <button
-      class="primary"
-      onclick="saveClient()"
-    >
-      Salva cliente
-    </button>
+<button
+class="primary"
+onclick="saveClient()">
+Salva cliente
+</button>
 
-    <p
-      id="clientStatus"
-      class="muted"
-    ></p>
+<p id="clientStatus" class="muted"></p>
 
-  </div>
+</div>
 
 </section>
 
 
+<!-- POST -->
 <section id="post" class="page">
 
-  <div class="card">
+<div class="card">
 
-    <h2>Gestione Post AI</h2>
+<h2>Gestione Post AI</h2>
 
-    <label>Argomento del post</label>
+<label>Argomento del post</label>
 
-    <input
-      id="topic"
-      placeholder="Es. promozione taglio uomo"
-    >
+<input
+id="topic"
+placeholder="Es. promozione taglio uomo"
+>
 
-    <button
-      class="primary"
-      onclick="generatePost()"
-    >
-      Genera post con AI
-    </button>
+<button
+class="primary"
+onclick="generatePost()">
+Genera post con AI
+</button>
 
-    <textarea
-      id="out"
-      rows="12"
-      placeholder="Il post generato apparirà qui..."
-    ></textarea>
+<textarea
+id="out"
+rows="12"
+placeholder="Il post generato apparirà qui...">
+</textarea>
 
-    <p
-      id="postStatus"
-      class="muted"
-    ></p>
+<p id="postStatus" class="muted"></p>
 
-  </div>
+</div>
 
 </section>
 
 
+<!-- IMPOSTAZIONI -->
 <section id="settings" class="page">
 
-  <div class="card">
+<div class="card">
 
-    <h2>Impostazioni attività</h2>
+<h2>Impostazioni attività</h2>
 
-    <label>Nome attività</label>
-    <input id="settingsName">
+<label>Nome attività</label>
+<input id="settingsName">
 
-    <label>Tipo di attività</label>
-    <input id="settingsType">
+<label>Tipo di attività</label>
+<input
+id="settingsType"
+placeholder="Es. Parrucchiere, estetista, barbiere"
+>
 
-    <label>Descrizione</label>
-    <textarea
-      id="settingsDescription"
-      rows="3"
-    ></textarea>
+<label>Descrizione</label>
 
-    <label>Indirizzo</label>
-    <input id="settingsAddress">
+<textarea
+id="settingsDescription"
+rows="3">
+</textarea>
 
-    <label>Telefono</label>
-    <input
-      id="settingsPhone"
-      type="tel"
-    >
+<label>Indirizzo</label>
+<input id="settingsAddress">
 
-    <label>WhatsApp</label>
-    <input
-      id="settingsWhatsapp"
-      type="tel"
-    >
+<label>Telefono</label>
+<input id="settingsPhone" type="tel">
 
-    <h3 class="form-title">
-      Orari apertura
-    </h3>
+<label>WhatsApp</label>
+<input id="settingsWhatsapp" type="tel">
 
-    <div id="hours"></div>
+<h3 class="form-title">
+Orari apertura
+</h3>
 
-    <button
-      class="primary"
-      onclick="saveSettings()"
-    >
-      Salva impostazioni
-    </button>
+<div id="hours"></div>
 
-    <p
-      id="settingsStatus"
-      class="muted"
-    ></p>
+<button
+class="primary"
+onclick="saveSettings()">
+Salva impostazioni
+</button>
 
-  </div>
+<p id="settingsStatus" class="muted"></p>
+
+</div>
 
 
-  <div class="card">
+<div class="card">
 
-    <h2>Impostazioni promemoria</h2>
+<h2>Servizi</h2>
 
-    <label>
-      Promemoria predefinito per nuovi appuntamenti
-    </label>
+<input
+id="serviceName"
+placeholder="Nome servizio"
+>
 
-    <select id="defaultReminder">
-      <option value="24h">
-        24 ore prima
-      </option>
+<input
+id="serviceDuration"
+type="number"
+min="5"
+step="5"
+placeholder="Durata in minuti"
+>
 
-      <option value="2h">
-        2 ore prima
-      </option>
+<input
+id="servicePrice"
+type="number"
+min="0"
+step="0.01"
+placeholder="Prezzo"
+>
 
-      <option value="both">
-        24 ore + 2 ore prima
-      </option>
+<textarea
+id="serviceDescription"
+rows="2"
+placeholder="Descrizione servizio">
+</textarea>
 
-      <option value="none">
-        Nessun promemoria
-      </option>
-    </select>
+<button
+class="primary"
+onclick="saveService()">
+Salva servizio
+</button>
 
-    <button
-      class="primary"
-      onclick="saveReminderSettings()"
-    >
-      Salva impostazioni promemoria
-    </button>
+<div id="services"></div>
 
-    <p
-      id="reminderSettingsStatus"
-      class="muted"
-    ></p>
-
-  </div>
-
-
-  <div class="card">
-
-    <h2>Servizi</h2>
-
-    <input
-      id="serviceName"
-      placeholder="Nome servizio"
-    >
-
-    <input
-      id="serviceDuration"
-      type="number"
-      min="5"
-      step="5"
-      placeholder="Durata in minuti"
-    >
-
-    <input
-      id="servicePrice"
-      type="number"
-      min="0"
-      step="0.01"
-      placeholder="Prezzo"
-    >
-
-    <textarea
-      id="serviceDescription"
-      rows="2"
-      placeholder="Descrizione servizio"
-    ></textarea>
-
-    <button
-      class="primary"
-      onclick="saveService()"
-    >
-      Salva servizio
-    </button>
-
-    <div id="services"></div>
-
-  </div>
+</div>
 
 
-  <div class="card">
+<div class="card">
 
-    <h2>Promozioni</h2>
+<h2>Promozioni</h2>
 
-    <input
-      id="promotionTitle"
-      placeholder="Titolo promozione"
-    >
+<input
+id="promotionTitle"
+placeholder="Titolo promozione"
+>
 
-    <textarea
-      id="promotionDescription"
-      rows="2"
-      placeholder="Descrizione promozione"
-    ></textarea>
+<textarea
+id="promotionDescription"
+rows="2"
+placeholder="Descrizione promozione">
+</textarea>
 
-    <input
-      id="promotionStart"
-      type="date"
-    >
+<input id="promotionStart" type="date">
 
-    <input
-      id="promotionEnd"
-      type="date"
-    >
+<input id="promotionEnd" type="date">
 
-    <button
-      class="primary"
-      onclick="savePromotion()"
-    >
-      Salva promozione
-    </button>
+<button
+class="primary"
+onclick="savePromotion()">
+Salva promozione
+</button>
 
-    <div id="promotions"></div>
+<div id="promotions"></div>
 
-  </div>
+</div>
 
 </section>
 
 </main>
 
 
+<!-- MODALE APPUNTAMENTO -->
+
 <div
-  id="appointmentModal"
-  class="modal-backdrop"
+id="appointmentModal"
+class="modal-backdrop">
+
+<div class="modal">
+
+<div class="modal-header">
+
+<h3>Modifica appuntamento</h3>
+
+<button
+class="close-button"
+onclick="closeAppointmentModal()">
+✕
+</button>
+
+</div>
+
+<input
+type="hidden"
+id="editAppointmentId"
 >
 
-  <div class="modal">
+<label>Nome cliente</label>
+<input id="editAppointmentName">
 
-    <div class="modal-header">
+<label>Data</label>
+<input id="editAppointmentDate" type="date">
 
-      <h3>
-        Modifica appuntamento
-      </h3>
+<label>Orario</label>
+<input id="editAppointmentTime" type="time">
 
-      <button
-        class="close-button"
-        onclick="closeAppointmentModal()"
-      >
-        ✕
-      </button>
+<label>Servizio</label>
 
-    </div>
+<select id="editAppointmentService">
+<option value="">
+Seleziona servizio
+</option>
+</select>
 
-    <input
-      type="hidden"
-      id="editAppointmentId"
-    >
+<label>Stato</label>
 
-    <label>Nome cliente</label>
+<select id="editAppointmentStatus">
 
-    <input
-      id="editAppointmentName"
-      placeholder="Nome cliente"
-    >
+<option value="confermato">
+Confermato
+</option>
 
-    <label>Data</label>
+<option value="completato">
+Completato
+</option>
 
-    <input
-      id="editAppointmentDate"
-      type="date"
-    >
+<option value="cancellato">
+Cancellato
+</option>
 
-    <label>Orario</label>
+</select>
 
-    <input
-      id="editAppointmentTime"
-      type="time"
-    >
+<div
+id="editAppointmentError"
+class="form-error">
+</div>
 
-    <label>Servizio</label>
+<div class="row">
 
-    <select id="editAppointmentService">
-      <option value="">
-        Seleziona servizio
-      </option>
-    </select>
+<button
+class="secondary"
+onclick="closeAppointmentModal()">
+Annulla
+</button>
 
-    <label>Stato</label>
+<button
+class="primary"
+onclick="saveEditedAppointment()">
+Salva modifiche
+</button>
 
-    <select id="editAppointmentStatus">
-      <option value="confermato">
-        Confermato
-      </option>
+</div>
 
-      <option value="completato">
-        Completato
-      </option>
-
-      <option value="cancellato">
-        Cancellato
-      </option>
-    </select>
-
-    <label>
-      Promemoria
-    </label>
-
-    <select id="editAppointmentReminder">
-      <option value="24h">
-        24 ore prima
-      </option>
-
-      <option value="2h">
-        2 ore prima
-      </option>
-
-      <option value="both">
-        24 ore + 2 ore prima
-      </option>
-
-      <option value="none">
-        Nessun promemoria
-      </option>
-    </select>
-
-    <div
-      id="editAppointmentError"
-      class="form-error"
-    ></div>
-
-    <div class="row">
-
-      <button
-        class="secondary"
-        onclick="closeAppointmentModal()"
-      >
-        Annulla
-      </button>
-
-      <button
-        class="primary"
-        onclick="saveEditedAppointment()"
-      >
-        Salva modifiche
-      </button>
-
-    </div>
-
-  </div>
-
+</div>
 </div>
 
 
 <script>
 
-const STORAGE_PRIMARY = "appData";
-const STORAGE_BACKUP = "appData_backup";
-const STORAGE_VERSION = 4;
+const STORAGE_PRIMARY="appData";
+const STORAGE_BACKUP="appData_backup";
+const STORAGE_VERSION=4;
 
-let appData = null;
-let chatHistory = [];
+let appData=null;
+let chatHistory=[];
+let pendingAppointment=readJSON(
+ localStorage.getItem("pendingAppointment"),
+ null
+);
+let requiresConfirmation=
+ localStorage.getItem("requiresConfirmation")==="true";
 
-let pendingAppointment =
-  readJSON(
-    localStorage.getItem("pendingAppointment"),
-    null
-  );
+let requestInProgress=false;
 
-let requiresConfirmation =
-  localStorage.getItem(
-    "requiresConfirmation"
-  ) === "true";
-
-let requestInProgress = false;
-
-
-/* ============================================================
-   UTILITY
-============================================================ */
-
-const $ = id =>
-  document.getElementById(id);
+const $=id=>document.getElementById(id);
 
 
 function readJSON(value,fallback){
 
-  try{
+ try{
 
-    if(
-      value === undefined ||
-      value === null ||
-      value === ""
-    ){
-      return fallback;
-    }
+  if(
+   value===undefined||
+   value===null||
+   value===""
+  )return fallback;
 
-    return JSON.parse(value);
+  return JSON.parse(value);
 
-  }catch{
+ }catch{
 
-    return fallback;
+  return fallback;
 
-  }
+ }
 
 }
 
-
-function esc(value){
-
-  return String(value ?? "")
-    .replace(
-      /[&<>"']/g,
-      char => ({
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#39;"
-      }[char])
-    );
-
-}
-
-
-/* ============================================================
-   STRUTTURA DATI
-============================================================ */
 
 function createEmptyAppData(){
 
-  return {
+ return{
 
-    version:STORAGE_VERSION,
+  version:STORAGE_VERSION,
+  revision:0,
+  updatedAt:null,
 
-    revision:0,
+  business:{
+   name:"Salone Bella Linea"
+  },
 
-    updatedAt:null,
+  settings:{
+   name:"Salone Bella Linea",
+   type:"Parrucchiere",
+   description:"",
+   address:"",
+   phone:"",
+   whatsapp:"",
+   hours:{}
+  },
 
-    business:{
-      name:"Salone Bella Linea"
-    },
+  services:[],
+  promotions:[],
+  appointments:[],
+  clients:[]
 
-    settings:{
-      name:"Salone Bella Linea",
-      type:"Parrucchiere",
-      description:"",
-      address:"",
-      phone:"",
-      whatsapp:"",
-
-      hours:{},
-
-      defaultReminder:"24h"
-    },
-
-    services:[],
-
-    promotions:[],
-
-    appointments:[],
-
-    clients:[]
-
-  };
+ };
 
 }
 
 
 function isValidAppData(data){
 
-  if(
-    !data ||
-    typeof data !== "object" ||
-    typeof data.business !== "object" ||
-    typeof data.settings !== "object" ||
-    !Array.isArray(data.services) ||
-    !Array.isArray(data.promotions) ||
-    !Array.isArray(data.appointments)
-  ){
+ if(
+  !data||
+  typeof data!=="object"||
+  typeof data.business!=="object"||
+  typeof data.settings!=="object"||
+  !Array.isArray(data.services)||
+  !Array.isArray(data.promotions)||
+  !Array.isArray(data.appointments)
+ )return false;
 
-    return false;
+ if(!Array.isArray(data.clients))
+  data.clients=[];
 
-  }
-
-  if(!Array.isArray(data.clients)){
-
-    data.clients = [];
-
-  }
-
-  return true;
+ return true;
 
 }
 
-
-/* ============================================================
-   MIGRAZIONE
-============================================================ */
 
 function migrateLegacyData(){
 
-  const data =
-    createEmptyAppData();
+ const data=createEmptyAppData();
 
-  const oldSettings =
-    readJSON(
-      localStorage.getItem("settings"),
-      {}
-    );
+ const oldSettings=
+  readJSON(localStorage.getItem("settings"),{});
 
-  const oldServices =
-    readJSON(
-      localStorage.getItem("services"),
-      []
-    );
+ const oldServices=
+  readJSON(localStorage.getItem("services"),[]);
 
-  const oldPromotions =
-    readJSON(
-      localStorage.getItem("promotions"),
-      []
-    );
+ const oldPromotions=
+  readJSON(localStorage.getItem("promotions"),[]);
 
-  const oldAppointments =
-    readJSON(
-      localStorage.getItem("a"),
-      []
-    );
+ const oldAppointments=
+  readJSON(localStorage.getItem("a"),[]);
 
-  const oldBackupAppointments =
-    readJSON(
-      localStorage.getItem("a_backup"),
-      []
-    );
+ const oldBackupAppointments=
+  readJSON(localStorage.getItem("a_backup"),[]);
 
-  const oldBusiness =
-    localStorage.getItem("biz");
+ const oldBusiness=
+  localStorage.getItem("biz");
 
 
-  if(
-    oldSettings &&
-    typeof oldSettings === "object"
-  ){
-
-    data.settings = {
-      ...data.settings,
-      ...oldSettings
-    };
-
-  }
-
-
-  if(oldBusiness){
-
-    data.business.name =
-      oldBusiness;
-
-    if(!data.settings.name){
-
-      data.settings.name =
-        oldBusiness;
-
-    }
-
-  }
-
-
-  if(Array.isArray(oldServices)){
-
-    data.services =
-      oldServices;
-
-  }
-
-
-  if(Array.isArray(oldPromotions)){
-
-    data.promotions =
-      oldPromotions;
-
-  }
-
-
-  if(
-    Array.isArray(oldAppointments) &&
-    oldAppointments.length
-  ){
-
-    data.appointments =
-      oldAppointments;
-
-  }else if(
-    Array.isArray(oldBackupAppointments)
-  ){
-
-    data.appointments =
-      oldBackupAppointments;
-
-  }
-
-
-  return data;
-
-}
-
-
-/* ============================================================
-   NORMALIZZAZIONE
-============================================================ */
-
-function normalizeAppointmentStatus(status){
-
-  const value =
-    String(status || "")
-      .trim()
-      .toLowerCase();
-
-  if(
-    value === "cancellato" ||
-    value === "cancelled" ||
-    value === "canceled"
-  ){
-
-    return "cancellato";
-
-  }
-
-  if(
-    value === "completato" ||
-    value === "completed"
-  ){
-
-    return "completato";
-
-  }
-
-  return "confermato";
-
-}
-
-
-function normalizeReminder(reminder){
-
-  const value =
-    String(reminder || "")
-      .trim()
-      .toLowerCase();
-
-  if(
-    value === "2h" ||
-    value === "both" ||
-    value === "none"
-  ){
-
-    return value;
-
-  }
-
-  return "24h";
-
-}
-
-
-function normalizeAppointment(
-  appointment,
-  index
-){
-
-  const now =
-    new Date().toISOString();
-
-  return {
-
-    id:
-      appointment?.id ||
-      "apt_migrated_" +
-      Date.now() +
-      "_" +
-      index,
-
-    n:
-      String(
-        appointment?.n ||
-        appointment?.name ||
-        ""
-      ).trim(),
-
-    d:
-      appointment?.d ||
-      appointment?.date ||
-      "",
-
-    t:
-      appointment?.t ||
-      appointment?.time ||
-      "",
-
-    s:
-      appointment?.s ||
-      appointment?.service ||
-      "",
-
-    clientId:
-      appointment?.clientId ||
-      "",
-
-    status:
-      normalizeAppointmentStatus(
-        appointment?.status
-      ),
-
-    reminder:
-      normalizeReminder(
-        appointment?.reminder ||
-        "24h"
-      ),
-
-    reminder24SentAt:
-      appointment?.reminder24SentAt ||
-      null,
-
-    reminder2SentAt:
-      appointment?.reminder2SentAt ||
-      null,
-
-    reminderLastCheckedAt:
-      appointment?.reminderLastCheckedAt ||
-      null,
-
-    createdAt:
-      appointment?.createdAt ||
-      now,
-
-    updatedAt:
-      appointment?.updatedAt ||
-      now
-
+ if(oldSettings&&typeof oldSettings==="object")
+  data.settings={
+   ...data.settings,
+   ...oldSettings
   };
 
+ if(oldBusiness)
+  data.business.name=oldBusiness;
+
+ if(Array.isArray(oldServices))
+  data.services=oldServices;
+
+ if(Array.isArray(oldPromotions))
+  data.promotions=oldPromotions;
+
+ if(
+  Array.isArray(oldAppointments)&&
+  oldAppointments.length
+ )
+  data.appointments=oldAppointments;
+ else if(Array.isArray(oldBackupAppointments))
+  data.appointments=oldBackupAppointments;
+
+ if(!data.settings.name)
+  data.settings.name=data.business.name;
+
+ return data;
+
 }
 
 
-function normalizeClient(
-  client,
-  index
-){
+function normalizeAppointment(a,index){
 
-  const now =
-    new Date().toISOString();
+ const now=new Date().toISOString();
 
-  return {
+ return{
 
-    id:
-      String(
-        client?.id ||
-        "cli_migrated_" +
-        Date.now() +
-        "_" +
-        index
-      ),
+  id:
+   a?.id||
+   "apt_"+Date.now()+"_"+index,
 
-    name:
-      String(
-        client?.name ||
-        client?.n ||
-        ""
-      ).trim(),
+  n:String(
+   a?.n||
+   a?.name||
+   ""
+  ).trim(),
 
-    phone:
-      String(
-        client?.phone ||
-        ""
-      ).trim(),
+  d:
+   a?.d||
+   a?.date||
+   "",
 
-    email:
-      String(
-        client?.email ||
-        ""
-      ).trim(),
+  t:
+   a?.t||
+   a?.time||
+   "",
 
-    notes:
-      String(
-        client?.notes ||
-        ""
-      ).trim(),
+  s:
+   a?.s||
+   a?.service||
+   "",
 
-    createdAt:
-      client?.createdAt ||
-      now,
+  clientId:a?.clientId||"",
 
-    updatedAt:
-      client?.updatedAt ||
-      now
+  status:normalizeStatus(a?.status),
 
-  };
+  createdAt:a?.createdAt||now,
+  updatedAt:a?.updatedAt||now
+
+ };
+
+}
+
+
+function normalizeStatus(status){
+
+ const v=String(status||"")
+  .trim()
+  .toLowerCase();
+
+ if(
+  v==="cancellato"||
+  v==="cancelled"||
+  v==="canceled"
+ )return"cancellato";
+
+ if(
+  v==="completato"||
+  v==="completed"
+ )return"completato";
+
+ return"confermato";
+
+}
+
+
+function normalizeClient(c,index){
+
+ const now=new Date().toISOString();
+
+ return{
+
+  id:
+   String(
+    c?.id||
+    "cli_"+Date.now()+"_"+index
+   ),
+
+  name:String(
+   c?.name||
+   c?.n||
+   ""
+  ).trim(),
+
+  phone:String(c?.phone||"").trim(),
+
+  email:String(c?.email||"").trim(),
+
+  notes:String(c?.notes||"").trim(),
+
+  createdAt:c?.createdAt||now,
+
+  updatedAt:c?.updatedAt||now
+
+ };
 
 }
 
 
 function normalizeAppData(data){
 
-  const base =
-    createEmptyAppData();
+ const base=createEmptyAppData();
 
-  const normalized = {
+ const result={
 
-    ...base,
+  ...base,
+  ...data,
 
-    ...data,
+  business:{
+   ...base.business,
+   ...(data.business||{})
+  },
 
-    business:{
-      ...base.business,
-      ...(data.business || {})
-    },
+  settings:{
+   ...base.settings,
+   ...(data.settings||{}),
+   hours:{
+    ...(data.settings?.hours||{})
+   }
+  },
 
-    settings:{
-      ...base.settings,
-      ...(data.settings || {}),
+  services:
+   Array.isArray(data.services)?
+   data.services:[],
 
-      hours:{
-        ...(data.settings?.hours || {})
-      }
-    },
+  promotions:
+   Array.isArray(data.promotions)?
+   data.promotions:[],
 
-    services:
-      Array.isArray(data.services)
-        ? data.services
-        : [],
+  appointments:
+   Array.isArray(data.appointments)?
+   data.appointments.map(normalizeAppointment):[],
 
-    promotions:
-      Array.isArray(data.promotions)
-        ? data.promotions
-        : [],
+  clients:
+   Array.isArray(data.clients)?
+   data.clients.map(normalizeClient):[]
 
-    appointments:
-      Array.isArray(data.appointments)
-        ? data.appointments.map(
-            normalizeAppointment
-          )
-        : [],
+ };
 
-    clients:
-      Array.isArray(data.clients)
-        ? data.clients.map(
-            normalizeClient
-          )
-        : []
+ const clientMap=new Map();
 
-  };
+ result.clients.forEach(c=>{
+  if(c.name)
+   clientMap.set(
+    c.name.toLowerCase(),
+    c
+   );
+ });
 
+ result.appointments.forEach(a=>{
 
-  const clientMap =
-    new Map(
-      normalized.clients.map(
-        c => [
-          c.name.toLowerCase(),
-          c
-        ]
-      )
+  if(!a.clientId&&a.n){
+
+   const key=a.n.toLowerCase();
+
+   let c=clientMap.get(key);
+
+   if(!c){
+
+    c=normalizeClient(
+     {name:a.n},
+     result.clients.length
     );
 
+    result.clients.push(c);
+    clientMap.set(key,c);
 
-  normalized.appointments.forEach(
-    appointment => {
+   }
 
-      if(
-        !appointment.clientId &&
-        appointment.n
-      ){
-
-        const key =
-          appointment.n
-            .trim()
-            .toLowerCase();
-
-        let client =
-          clientMap.get(key);
-
-
-        if(!client){
-
-          client =
-            normalizeClient(
-              {
-                name:
-                  appointment.n
-              },
-              normalized.clients.length
-            );
-
-          normalized.clients.push(
-            client
-          );
-
-          clientMap.set(
-            key,
-            client
-          );
-
-        }
-
-
-        appointment.clientId =
-          client.id;
-
-      }
-
-    }
-  );
-
-
-  if(
-    !normalized.settings.name &&
-    normalized.business.name
-  ){
-
-    normalized.settings.name =
-      normalized.business.name;
+   a.clientId=c.id;
 
   }
 
+ });
 
-  if(
-    !normalized.business.name &&
-    normalized.settings.name
-  ){
+ if(!result.settings.name)
+  result.settings.name=
+   result.business.name;
 
-    normalized.business.name =
-      normalized.settings.name;
+ if(!result.business.name)
+  result.business.name=
+   result.settings.name;
 
-  }
+ result.version=STORAGE_VERSION;
 
-
-  normalized.settings.defaultReminder =
-    normalizeReminder(
-      normalized.settings.defaultReminder
-    );
-
-
-  normalized.version =
-    STORAGE_VERSION;
-
-  return normalized;
+ return result;
 
 }
 
 
-/* ============================================================
-   CARICAMENTO / SALVATAGGIO
-============================================================ */
-
 function loadAppData(){
 
-  const primary =
-    readJSON(
-      localStorage.getItem(
-        STORAGE_PRIMARY
-      ),
-      null
-    );
+ const primary=readJSON(
+  localStorage.getItem(STORAGE_PRIMARY),
+  null
+ );
 
-  const backup =
-    readJSON(
-      localStorage.getItem(
-        STORAGE_BACKUP
-      ),
-      null
-    );
+ const backup=readJSON(
+  localStorage.getItem(STORAGE_BACKUP),
+  null
+ );
 
 
-  if(isValidAppData(primary)){
+ if(isValidAppData(primary)){
 
-    appData =
-      normalizeAppData(primary);
+  appData=normalizeAppData(primary);
+  return appData;
 
-    return appData;
-
-  }
+ }
 
 
-  if(isValidAppData(backup)){
+ if(isValidAppData(backup)){
 
-    appData =
-      normalizeAppData(backup);
+  appData=normalizeAppData(backup);
 
-    try{
+  try{
 
-      localStorage.setItem(
-        STORAGE_PRIMARY,
-        JSON.stringify(appData)
-      );
+   localStorage.setItem(
+    STORAGE_PRIMARY,
+    JSON.stringify(appData)
+   );
 
-    }catch{}
-
-    return appData;
-
-  }
-
-
-  appData =
-    normalizeAppData(
-      migrateLegacyData()
-    );
-
-  saveAppDataSafely(appData);
+  }catch{}
 
   return appData;
+
+ }
+
+
+ appData=normalizeAppData(
+  migrateLegacyData()
+ );
+
+ saveAppDataSafely(appData);
+
+ return appData;
 
 }
 
 
 function saveAppDataSafely(data){
 
-  const normalized =
-    normalizeAppData(data);
+ const normalized=normalizeAppData(data);
 
-  normalized.version =
-    STORAGE_VERSION;
+ normalized.revision=
+  Number(normalized.revision||0)+1;
 
-  normalized.revision =
-    Number(
-      normalized.revision || 0
-    ) + 1;
+ normalized.updatedAt=
+  new Date().toISOString();
 
-  normalized.updatedAt =
-    new Date().toISOString();
+ const value=
+  JSON.stringify(normalized);
 
-  const value =
-    JSON.stringify(normalized);
+ try{
 
+  localStorage.setItem(
+   STORAGE_BACKUP,
+   value
+  );
 
-  try{
+  localStorage.setItem(
+   STORAGE_PRIMARY,
+   value
+  );
 
-    localStorage.setItem(
-      STORAGE_BACKUP,
-      value
-    );
+ }catch(error){
 
-    localStorage.setItem(
-      STORAGE_PRIMARY,
-      value
-    );
+  console.error(error);
+  alert("Impossibile salvare i dati.");
 
-  }catch(error){
+  return;
 
-    console.error(
-      "Errore salvataggio:",
-      error
-    );
+ }
 
-  }
+ appData=normalized;
 
-
-  appData =
-    normalized;
-
-  updateStorageStatus();
+ updateStorageStatus();
 
 }
 
 
 function getAppData(){
 
-  if(!isValidAppData(appData)){
+ if(!isValidAppData(appData))
+  appData=loadAppData();
 
-    appData =
-      loadAppData();
-
-  }
-
-  return appData;
+ return appData;
 
 }
 
 
 function updateAppData(mutator){
 
-  const data =
-    getAppData();
+ const data=getAppData();
 
-  mutator(data);
+ mutator(data);
 
-  saveAppDataSafely(data);
+ saveAppDataSafely(data);
 
-  return data;
+ return data;
 
 }
 
-
-/* ============================================================
-   ACCESSO DATI
-============================================================ */
 
 function getServices(){
-  return getAppData().services;
+ return getAppData().services;
 }
+
 
 function getPromotions(){
-  return getAppData().promotions;
+ return getAppData().promotions;
 }
+
 
 function getAppointments(){
-  return getAppData().appointments;
+ return getAppData().appointments;
 }
+
 
 function getSettings(){
-  return getAppData().settings;
+ return getAppData().settings;
 }
+
 
 function getClients(){
-  return getAppData().clients;
+ return getAppData().clients;
 }
 
 
-/* ============================================================
-   CLIENTI
-============================================================ */
+function esc(value){
 
-function upsertClient(
-  name,
-  extra={}
-){
+ return String(value??"")
+ .replace(
+  /[&<>"']/g,
+  char=>({
 
-  name =
-    String(name || "").trim();
+   "&":"&amp;",
+   "<":"&lt;",
+   ">":"&gt;",
+   '"':"&quot;",
+   "'":"&#39;"
 
-  if(!name)return null;
-
-  let result = null;
-
-  updateAppData(data => {
-
-    let client =
-      data.clients.find(
-        item =>
-          item.name
-            .trim()
-            .toLowerCase() ===
-          name.toLowerCase()
-      );
-
-    const now =
-      new Date().toISOString();
-
-
-    if(!client){
-
-      client = {
-
-        id:
-          "cli_" +
-          Date.now() +
-          "_" +
-          Math.random()
-            .toString(36)
-            .slice(2,7),
-
-        name,
-
-        phone:"",
-
-        email:"",
-
-        notes:"",
-
-        createdAt:now,
-
-        updatedAt:now
-
-      };
-
-      data.clients.push(
-        client
-      );
-
-    }
-
-
-    Object.keys(extra).forEach(
-      key => {
-
-        if(
-          extra[key] !== undefined
-        ){
-
-          client[key] =
-            String(
-              extra[key] || ""
-            ).trim();
-
-        }
-
-      }
-    );
-
-
-    client.updatedAt =
-      now;
-
-    result =
-      client;
-
-  });
-
-  return result;
+  }[char])
+ );
 
 }
 
 
-/* ============================================================
-   COMPATIBILITÀ LEGACY
-============================================================ */
+function showPage(page){
 
-function syncLegacyKeys(){
+ document
+ .querySelectorAll(".page")
+ .forEach(e=>e.classList.remove("active"));
 
-  const data =
-    getAppData();
+ const target=$(page);
 
-  try{
+ if(target)
+  target.classList.add("active");
 
-    localStorage.setItem(
-      "biz",
-      data.business.name ||
-      data.settings.name ||
-      "Attività locale"
-    );
+ if(page==="app"){
 
-    localStorage.setItem(
-      "settings",
-      JSON.stringify(
-        data.settings
-      )
-    );
+  renderCalendar();
+  renderDayAppointments();
+  renderAppointments();
 
-    localStorage.setItem(
-      "services",
-      JSON.stringify(
-        data.services
-      )
-    );
+ }
 
-    localStorage.setItem(
-      "promotions",
-      JSON.stringify(
-        data.promotions
-      )
-    );
+ if(page==="settings"){
 
-    localStorage.setItem(
-      "a",
-      JSON.stringify(
-        data.appointments
-      )
-    );
+  loadSettings();
+  renderServices();
+  renderPromotions();
 
-    localStorage.setItem(
-      "a_backup",
-      JSON.stringify(
-        data.appointments
-      )
-    );
+ }
 
-  }catch{}
+ if(page==="ai")
+  renderPendingBox();
+
+ if(page==="clients")
+  renderClients();
+
+ updateDashboard();
+
+}
+
+
+function updateDashboard(){
+
+ $("dashboardServices").textContent=
+  getServices().length;
+
+ $("dashboardPromotions").textContent=
+  getPromotions().length;
+
+ $("dashboardAppointments").textContent=
+  getAppointments()
+   .filter(a=>a.status!=="cancellato")
+   .length;
+
+ $("dashboardClients").textContent=
+  getClients().length;
 
 }
 
 
 function updateStorageStatus(){
 
-  const element =
-    $("storageStatus");
+ const e=$("storageStatus");
 
-  if(
-    !element ||
-    !isValidAppData(appData)
-  ){
+ if(!e||!appData)return;
 
-    return;
-
-  }
-
-  element.innerHTML =
-    `Archivio dati protetto con doppio salvataggio. Revisione ${esc(appData.revision)}.`;
+ e.textContent=
+  "Archivio dati protetto con doppio salvataggio. Revisione "+
+  appData.revision+".";
 
 }
 
-
-/* ============================================================
-   NAVIGAZIONE
-============================================================ */
-
-function showPage(page){
-
-  document
-    .querySelectorAll(".page")
-    .forEach(
-      element =>
-        element.classList.remove(
-          "active"
-        )
-    );
-
-
-  const target =
-    $(page);
-
-  if(target){
-
-    target.classList.add(
-      "active"
-    );
-
-  }
-
-
-  if(page === "app"){
-
-    renderCalendar();
-
-    renderDayAppointments();
-
-    renderAppointments();
-
-  }
-
-
-  if(page === "settings"){
-
-    loadSettings();
-
-    renderServices();
-
-    renderPromotions();
-
-  }
-
-
-  if(page === "ai"){
-
-    renderPendingBox();
-
-  }
-
-
-  if(page === "clients"){
-
-    renderClients();
-
-  }
-
-
-  if(page === "home"){
-
-    checkLocalReminders();
-
-  }
-
-
-  updateDashboard();
-
-}
-
-
-/* ============================================================
-   DASHBOARD
-============================================================ */
-
-function updateDashboard(){
-
-  $("dashboardServices").textContent =
-    getServices().length;
-
-  $("dashboardPromotions").textContent =
-    getPromotions().length;
-
-  $("dashboardAppointments").textContent =
-    getAppointments()
-      .filter(
-        a =>
-          a.status !==
-          "cancellato"
-      )
-      .length;
-
-  $("dashboardClients").textContent =
-    getClients().length;
-
-
-  const reminders =
-    getUpcomingReminderAppointments();
-
-  $("dashboardReminders").textContent =
-    reminders.length;
-
-  renderDashboardReminders();
-
-}
-
-
-/* ============================================================
-   ATTIVITÀ
-============================================================ */
 
 function saveBusiness(){
 
-  const name =
-    $("biz")
-      .value
-      .trim();
+ const name=$("biz").value.trim();
 
-  if(!name){
+ if(!name){
 
-    $("storageStatus").textContent =
-      "Inserisci il nome dell'attività.";
+  $("storageStatus").textContent=
+   "Inserisci il nome dell'attività.";
 
-    return;
+  return;
 
-  }
+ }
 
+ updateAppData(data=>{
 
-  updateAppData(
-    data => {
+  data.business.name=name;
+  data.settings.name=name;
 
-      data.business.name =
-        name;
+ });
 
-      data.settings.name =
-        name;
+ syncLegacyKeys();
 
-    }
-  );
-
-
-  syncLegacyKeys();
-
-  $("storageStatus").textContent =
-    "Attività salvata.";
+ $("storageStatus").textContent=
+  "Attività salvata.";
 
 }
 
 
-/* ============================================================
-   IMPOSTAZIONI
-============================================================ */
+const dayConfig={
+
+ monday:{
+  prefix:"mon",
+  label:"Lunedì"
+ },
+
+ tuesday:{
+  prefix:"tue",
+  label:"Martedì"
+ },
+
+ wednesday:{
+  prefix:"wed",
+  label:"Mercoledì"
+ },
+
+ thursday:{
+  prefix:"thu",
+  label:"Giovedì"
+ },
+
+ friday:{
+  prefix:"fri",
+  label:"Venerdì"
+ },
+
+ saturday:{
+  prefix:"sat",
+  label:"Sabato"
+ },
+
+ sunday:{
+  prefix:"sun",
+  label:"Domenica"
+ }
+
+};
+
 
 function loadSettings(){
 
-  const settings =
-    getSettings();
+ const s=getSettings();
 
-  $("settingsName").value =
-    settings.name || "";
+ $("settingsName").value=s.name||"";
+ $("settingsType").value=s.type||"";
+ $("settingsDescription").value=
+  s.description||"";
+ $("settingsAddress").value=
+  s.address||"";
+ $("settingsPhone").value=
+  s.phone||"";
+ $("settingsWhatsapp").value=
+  s.whatsapp||"";
 
-  $("settingsType").value =
-    settings.type || "";
-
-  $("settingsDescription").value =
-    settings.description || "";
-
-  $("settingsAddress").value =
-    settings.address || "";
-
-  $("settingsPhone").value =
-    settings.phone || "";
-
-  $("settingsWhatsapp").value =
-    settings.whatsapp || "";
-
-  $("defaultReminder").value =
-    normalizeReminder(
-      settings.defaultReminder
-    );
-
-  setupBreakRows();
+ setupBreakRows();
 
 }
 
 
 function setupBreakRows(){
 
-  const box =
-    $("hours");
+ const box=$("hours");
 
-  if(!box)return;
+ if(!box)return;
 
-  box.innerHTML =
-    Object.entries(
-      dayConfig
-    )
-    .map(
-      ([key,c]) => {
+ box.innerHTML=
+  Object.entries(dayConfig)
+  .map(([key,c])=>{
 
-        const h =
-          getSettings()
-            .hours?.[key] || {};
+   const h=
+    getSettings().hours?.[key]||{};
 
-        return `
+   return`
 
-        <div class="hour-row">
+    <div class="hour-row">
 
-          <b>${c.label}</b>
+    <b>${c.label}</b>
 
-          <select id="${c.prefix}Open">
+    <select id="${c.prefix}Open">
 
-            <option
-              value="true"
-              ${h.closed !== true ? "selected":""}
-            >
-              Aperto
-            </option>
+    <option value="true"
+    ${h.closed!==true?"selected":""}>
+    Aperto
+    </option>
 
-            <option
-              value="false"
-              ${h.closed === true ? "selected":""}
-            >
-              Chiuso
-            </option>
+    <option value="false"
+    ${h.closed===true?"selected":""}>
+    Chiuso
+    </option>
 
-          </select>
+    </select>
 
-          <input
-            id="${c.prefix}Start"
-            type="time"
-            value="${esc(h.start || "09:00")}"
-          >
+    <input
+    id="${c.prefix}Start"
+    type="time"
+    value="${esc(h.start||"09:00")}"
+    >
 
-          <input
-            id="${c.prefix}End"
-            type="time"
-            value="${esc(h.end || "19:00")}"
-          >
+    <input
+    id="${c.prefix}End"
+    type="time"
+    value="${esc(h.end||"19:00")}"
+    >
 
-        </div>
+    </div>
 
-        `;
+   `;
 
-      }
-    )
-    .join("");
+  })
+  .join("");
 
 }
 
 
 function saveSettings(){
 
-  const hours = {};
+ const hours={};
+
+ Object.entries(dayConfig)
+ .forEach(([key,c])=>{
+
+  hours[key]={
+
+   closed:
+    $(c.prefix+"Open").value!=="true",
+
+   start:
+    $(c.prefix+"Start").value,
+
+   end:
+    $(c.prefix+"End").value
+
+  };
+
+ });
 
 
-  Object.entries(
-    dayConfig
-  )
-  .forEach(
-    ([key,c]) => {
+ updateAppData(data=>{
 
-      hours[key] = {
+  data.settings.name=
+   $("settingsName").value.trim()||
+   data.business.name;
 
-        closed:
-          $(c.prefix+"Open")
-            .value !== "true",
+  data.business.name=
+   data.settings.name;
 
-        start:
-          $(c.prefix+"Start")
-            .value,
+  data.settings.type=
+   $("settingsType").value.trim();
 
-        end:
-          $(c.prefix+"End")
-            .value
+  data.settings.description=
+   $("settingsDescription").value.trim();
 
-      };
+  data.settings.address=
+   $("settingsAddress").value.trim();
 
-    }
-  );
+  data.settings.phone=
+   $("settingsPhone").value.trim();
 
+  data.settings.whatsapp=
+   $("settingsWhatsapp").value.trim();
 
-  updateAppData(
-    data => {
+  data.settings.hours=hours;
 
-      data.settings.name =
-        $("settingsName")
-          .value
-          .trim() ||
-        data.business.name;
+ });
 
-      data.business.name =
-        data.settings.name;
+ syncLegacyKeys();
 
-      data.settings.type =
-        $("settingsType")
-          .value
-          .trim();
+ $("biz").value=
+  getAppData().business.name;
 
-      data.settings.description =
-        $("settingsDescription")
-          .value
-          .trim();
+ $("settingsStatus").textContent=
+  "Impostazioni salvate.";
 
-      data.settings.address =
-        $("settingsAddress")
-          .value
-          .trim();
-
-      data.settings.phone =
-        $("settingsPhone")
-          .value
-          .trim();
-
-      data.settings.whatsapp =
-        $("settingsWhatsapp")
-          .value
-          .trim();
-
-      data.settings.hours =
-        hours;
-
-    }
-  );
-
-
-  syncLegacyKeys();
-
-  $("biz").value =
-    getAppData()
-      .business
-      .name;
-
-  $("settingsStatus").textContent =
-    "Impostazioni salvate.";
+ renderCalendar();
 
 }
 
-
-function saveReminderSettings(){
-
-  const value =
-    normalizeReminder(
-      $("defaultReminder")
-        .value
-    );
-
-
-  updateAppData(
-    data => {
-
-      data.settings.defaultReminder =
-        value;
-
-    }
-  );
-
-
-  syncLegacyKeys();
-
-  $("reminderSettingsStatus")
-    .textContent =
-      "Impostazioni promemoria salvate.";
-
-}
-
-
-/* ============================================================
-   SERVIZI
-============================================================ */
 
 function serviceDuration(service){
 
-  return Number(
-    service?.duration
-  ) || 30;
+ return Number(service?.duration)||30;
 
 }
 
 
 function getService(name){
 
-  return getServices().find(
-    service =>
-      String(
-        service.name || ""
-      ).toLowerCase() ===
-      String(
-        name || ""
-      ).toLowerCase()
-  );
+ return getServices().find(
+  s=>
+   String(s.name||"").toLowerCase()===
+   String(name||"").toLowerCase()
+ );
 
 }
 
 
 function renderServices(){
 
-  const box =
-    $("services");
+ const box=$("services");
 
-  if(!box)return;
+ if(!box)return;
 
-  const list =
-    getServices();
+ const list=getServices();
 
+ box.innerHTML=list.length?
 
-  box.innerHTML =
-    list.length
+ list.map((s,i)=>`
 
-      ? list.map(
-          (s,i) => `
+ <div class="service-item">
 
-          <div class="service-item">
+ <b>${esc(s.name)}</b>
 
-            <b>${esc(s.name)}</b>
+ <div>
+ ${serviceDuration(s)} minuti
+ ${s.price!==""&&s.price!==undefined?
+ ` · € ${esc(s.price)}`:""}
+ </div>
 
-            <div>
-              ${serviceDuration(s)}
-              minuti
-              ${
-                s.price !== "" &&
-                s.price !== undefined
-                  ? ` · € ${esc(s.price)}`
-                  : ""
-              }
-            </div>
+ ${
+  s.description?
+  `<div class="muted">${esc(s.description)}</div>`:
+  ""
+ }
 
-            ${
-              s.description
-                ? `<div class="muted">
-                    ${esc(s.description)}
-                   </div>`
-                : ""
-            }
+ <div class="service-actions">
 
-            <div class="service-actions">
+ <button
+ class="secondary small-button"
+ onclick="editService(${i})">
+ Modifica
+ </button>
 
-              <button
-                class="secondary small-button"
-                onclick="editService(${i})"
-              >
-                Modifica
-              </button>
+ <button
+ class="danger small-button"
+ onclick="deleteService(${i})">
+ Elimina
+ </button>
 
-              <button
-                class="danger small-button"
-                onclick="deleteService(${i})"
-              >
-                Elimina
-              </button>
+ </div>
 
-            </div>
+ </div>
 
-          </div>
+ `).join("")
 
-          `
-        ).join("")
+ :
 
-      : `
-        <div class="empty-state">
-          Nessun servizio.
-        </div>
-      `;
+ `<div class="empty-state">
+ Nessun servizio.
+ </div>`;
+
+ updateServiceSelects();
 
 }
 
 
-function fillServiceSelects(){
+function updateServiceSelects(){
 
-  const selects = [
-    $("s"),
-    $("editAppointmentService")
-  ];
+ const options=
+  '<option value="">Seleziona servizio</option>'+
+  getServices()
+  .map(s=>
+   `<option value="${esc(s.name)}">
+   ${esc(s.name)}
+   </option>`
+  ).join("");
 
-  selects.forEach(
-    select => {
+ ["s","editAppointmentService"]
+ .forEach(id=>{
 
-      if(!select)return;
+  const e=$(id);
 
-      const current =
-        select.value;
+  if(!e)return;
 
-      select.innerHTML =
-        `
-        <option value="">
-          Seleziona servizio
-        </option>
-        ` +
-        getServices()
-          .map(
-            service =>
-              `
-              <option
-                value="${esc(service.name)}"
-              >
-                ${esc(service.name)}
-              </option>
-              `
-          )
-          .join("");
+  const current=e.value;
 
-      if(
-        getServices()
-          .some(
-            s =>
-              s.name ===
-              current
-          )
-      ){
+  e.innerHTML=options;
 
-        select.value =
-          current;
+  e.value=current;
 
-      }
-
-    }
-  );
+ });
 
 }
 
 
 function saveService(){
 
-  const name =
-    $("serviceName")
-      .value
-      .trim();
+ const name=
+  $("serviceName").value.trim();
 
-  if(!name)return;
+ if(!name)return;
 
-  const duration =
-    Number(
-      $("serviceDuration")
-        .value
-    ) || 30;
+ const duration=
+  Number($("serviceDuration").value)||30;
 
-  const price =
-    $("servicePrice")
-      .value;
+ const price=
+  $("servicePrice").value;
 
-  const description =
-    $("serviceDescription")
-      .value
-      .trim();
+ const description=
+  $("serviceDescription").value.trim();
 
 
-  updateAppData(
-    data =>
-      data.services.push({
+ updateAppData(data=>{
 
-        id:
-          "srv_" +
-          Date.now(),
+  data.services.push({
 
-        name,
+   id:"srv_"+Date.now(),
+   name,
+   duration,
+   price,
+   description
 
-        duration,
+  });
 
-        price,
-
-        description
-
-      })
-  );
+ });
 
 
-  [
-    "serviceName",
-    "serviceDuration",
-    "servicePrice",
-    "serviceDescription"
-  ]
-  .forEach(
-    id =>
-      $(id).value = ""
-  );
+ [
+  "serviceName",
+  "serviceDuration",
+  "servicePrice",
+  "serviceDescription"
+ ].forEach(id=>$(id).value="");
 
-
-  renderServices();
-
-  fillServiceSelects();
-
-  renderAppointments();
-
-  updateDashboard();
-
-  syncLegacyKeys();
+ renderServices();
+ syncLegacyKeys();
+ updateDashboard();
 
 }
 
 
 function editService(i){
 
-  const service =
-    getServices()[i];
+ const s=getServices()[i];
 
-  if(!service)return;
+ if(!s)return;
 
+ const name=
+  prompt("Nome servizio",s.name);
 
-  const name =
-    prompt(
-      "Nome servizio",
-      service.name
-    );
+ if(name===null)return;
 
-  if(name === null)return;
+ const duration=
+  prompt("Durata in minuti",s.duration);
 
+ if(duration===null)return;
 
-  const duration =
-    prompt(
-      "Durata in minuti",
-      service.duration
-    );
+ const price=
+  prompt("Prezzo",s.price??"");
 
-  if(duration === null)return;
+ if(price===null)return;
 
+ const description=
+  prompt("Descrizione",s.description||"");
 
-  const price =
-    prompt(
-      "Prezzo",
-      service.price ?? ""
-    );
-
-  if(price === null)return;
+ if(description===null)return;
 
 
-  const description =
-    prompt(
-      "Descrizione",
-      service.description || ""
-    );
+ updateAppData(data=>{
 
-  if(description === null)return;
+  const x=data.services[i];
 
+  if(x){
 
-  updateAppData(
-    data => {
+   x.name=
+    name.trim()||x.name;
 
-      const item =
-        data.services[i];
+   x.duration=
+    Number(duration)||30;
 
-      if(item){
+   x.price=price;
 
-        item.name =
-          name.trim() ||
-          item.name;
+   x.description=
+    description.trim();
 
-        item.duration =
-          Number(duration) ||
-          30;
+  }
 
-        item.price =
-          price;
+ });
 
-        item.description =
-          description.trim();
-
-      }
-
-    }
-  );
-
-
-  renderServices();
-
-  fillServiceSelects();
-
-  renderAppointments();
-
-  syncLegacyKeys();
+ renderServices();
+ syncLegacyKeys();
 
 }
 
 
 function deleteService(i){
 
-  const service =
-    getServices()[i];
+ const s=getServices()[i];
 
-  if(
-    !service ||
-    !confirm(
-      `Eliminare il servizio ${service.name}?`
-    )
-  ){
+ if(
+  !s||
+  !confirm(
+   `Eliminare il servizio ${s.name}?`
+  )
+ )return;
 
-    return;
+ updateAppData(data=>
+  data.services.splice(i,1)
+ );
 
-  }
-
-
-  updateAppData(
-    data =>
-      data.services.splice(i,1)
-  );
-
-
-  renderServices();
-
-  fillServiceSelects();
-
-  renderAppointments();
-
-  syncLegacyKeys();
+ renderServices();
+ syncLegacyKeys();
+ updateDashboard();
 
 }
 
 
-/* ============================================================
-   PROMOZIONI
-============================================================ */
-
 function renderPromotions(){
 
-  const box =
-    $("promotions");
+ const box=$("promotions");
 
-  if(!box)return;
+ if(!box)return;
 
-  const list =
-    getPromotions();
+ const list=getPromotions();
 
+ box.innerHTML=list.length?
 
-  box.innerHTML =
-    list.length
+ list.map((p,i)=>`
 
-      ? list.map(
-          (p,i) => `
+ <div class="promotion-item">
 
-          <div class="promotion-item">
+ <b>${esc(p.title)}</b>
 
-            <b>${esc(p.title)}</b>
+ ${
+  p.start||p.end?
+  `<div>
+   ${esc(p.start||"")}
+   ${p.end?" → "+esc(p.end):""}
+  </div>`:""
+ }
 
-            ${
-              p.start || p.end
-                ? `
-                  <div>
-                    ${esc(p.start || "")}
-                    ${
-                      p.end
-                        ? " → " +
-                          esc(p.end)
-                        : ""
-                    }
-                  </div>
-                `
-                : ""
-            }
+ ${
+  p.description?
+  `<div class="muted">
+   ${esc(p.description)}
+   </div>`:""
+ }
 
-            ${
-              p.description
-                ? `
-                  <div class="muted">
-                    ${esc(p.description)}
-                  </div>
-                `
-                : ""
-            }
+ <div class="promotion-actions">
 
-            <div class="promotion-actions">
+ <button
+ class="secondary small-button"
+ onclick="editPromotion(${i})">
+ Modifica
+ </button>
 
-              <button
-                class="secondary small-button"
-                onclick="editPromotion(${i})"
-              >
-                Modifica
-              </button>
+ <button
+ class="danger small-button"
+ onclick="deletePromotion(${i})">
+ Elimina
+ </button>
 
-              <button
-                class="danger small-button"
-                onclick="deletePromotion(${i})"
-              >
-                Elimina
-              </button>
+ </div>
 
-            </div>
+ </div>
 
-          </div>
+ `).join("")
 
-          `
-        ).join("")
+ :
 
-      : `
-        <div class="empty-state">
-          Nessuna promozione.
-        </div>
-      `;
+ `<div class="empty-state">
+ Nessuna promozione.
+ </div>`;
 
 }
 
 
 function savePromotion(){
 
-  const title =
-    $("promotionTitle")
-      .value
-      .trim();
+ const title=
+  $("promotionTitle").value.trim();
 
-  if(!title)return;
+ if(!title)return;
 
+ updateAppData(data=>{
 
-  updateAppData(
-    data =>
-      data.promotions.push({
+  data.promotions.push({
 
-        id:
-          "pro_" +
-          Date.now(),
+   id:"pro_"+Date.now(),
 
-        title,
+   title,
 
-        description:
-          $("promotionDescription")
-            .value
-            .trim(),
+   description:
+    $("promotionDescription").value.trim(),
 
-        start:
-          $("promotionStart")
-            .value,
+   start:$("promotionStart").value,
 
-        end:
-          $("promotionEnd")
-            .value
+   end:$("promotionEnd").value
 
-      })
-  );
+  });
 
+ });
 
-  [
-    "promotionTitle",
-    "promotionDescription",
-    "promotionStart",
-    "promotionEnd"
-  ]
-  .forEach(
-    id =>
-      $(id).value = ""
-  );
+ [
+  "promotionTitle",
+  "promotionDescription",
+  "promotionStart",
+  "promotionEnd"
+ ].forEach(id=>$(id).value="");
 
-
-  renderPromotions();
-
-  updateDashboard();
-
-  syncLegacyKeys();
+ renderPromotions();
+ syncLegacyKeys();
+ updateDashboard();
 
 }
 
 
 function editPromotion(i){
 
-  const promotion =
-    getPromotions()[i];
+ const p=getPromotions()[i];
 
-  if(!promotion)return;
+ if(!p)return;
 
+ const title=
+  prompt("Titolo",p.title);
 
-  const title =
-    prompt(
-      "Titolo",
-      promotion.title
-    );
+ if(title===null)return;
 
-  if(title === null)return;
-
-
-  const description =
-    prompt(
-      "Descrizione",
-      promotion.description || ""
-    );
-
-  if(description === null)return;
-
-
-  updateAppData(
-    data => {
-
-      const item =
-        data.promotions[i];
-
-      if(item){
-
-        item.title =
-          title.trim() ||
-          item.title;
-
-        item.description =
-          description.trim();
-
-      }
-
-    }
+ const description=
+  prompt(
+   "Descrizione",
+   p.description||""
   );
 
+ if(description===null)return;
 
-  renderPromotions();
 
-  syncLegacyKeys();
+ updateAppData(data=>{
+
+  const x=data.promotions[i];
+
+  if(x){
+
+   x.title=
+    title.trim()||x.title;
+
+   x.description=
+    description.trim();
+
+  }
+
+ });
+
+ renderPromotions();
+ syncLegacyKeys();
 
 }
 
 
 function deletePromotion(i){
 
-  const promotion =
-    getPromotions()[i];
+ const p=getPromotions()[i];
 
-  if(
-    !promotion ||
-    !confirm(
-      `Eliminare la promozione ${promotion.title}?`
-    )
-  ){
+ if(
+  !p||
+  !confirm(
+   `Eliminare la promozione ${p.title}?`
+  )
+ )return;
 
-    return;
+ updateAppData(data=>
+  data.promotions.splice(i,1)
+ );
 
-  }
-
-
-  updateAppData(
-    data =>
-      data.promotions.splice(i,1)
-  );
-
-
-  renderPromotions();
-
-  updateDashboard();
-
-  syncLegacyKeys();
+ renderPromotions();
+ syncLegacyKeys();
+ updateDashboard();
 
 }
 
 
-/* ============================================================
-   CALENDARIO
-============================================================ */
-
-const dayConfig = {
-
-  monday:{
-    prefix:"mon",
-    label:"Lunedì"
-  },
-
-  tuesday:{
-    prefix:"tue",
-    label:"Martedì"
-  },
-
-  wednesday:{
-    prefix:"wed",
-    label:"Mercoledì"
-  },
-
-  thursday:{
-    prefix:"thu",
-    label:"Giovedì"
-  },
-
-  friday:{
-    prefix:"fri",
-    label:"Venerdì"
-  },
-
-  saturday:{
-    prefix:"sat",
-    label:"Sabato"
-  },
-
-  sunday:{
-    prefix:"sun",
-    label:"Domenica"
-  }
-
-};
-
-
 function dateKey(date){
 
-  return date instanceof Date
-    ? date.toISOString()
-        .slice(0,10)
-    : String(date || "")
-        .slice(0,10);
+ return date instanceof Date?
+  date.toISOString().slice(0,10):
+  String(date||"").slice(0,10);
 
 }
 
 
 function formatAppointmentDate(date){
 
-  if(!date)return "";
+ if(!date)return"";
 
-  const d =
-    new Date(
-      date +
-      "T12:00:00"
-    );
+ const d=
+  new Date(date+"T12:00:00");
 
-  return d.toLocaleDateString(
-    "it-IT",
-    {
-      weekday:"short",
-      day:"2-digit",
-      month:"2-digit",
-      year:"numeric"
-    }
-  );
+ return d.toLocaleDateString(
+  "it-IT",
+  {
+   weekday:"short",
+   day:"2-digit",
+   month:"2-digit",
+   year:"numeric"
+  }
+ );
 
 }
 
 
 function toMinutes(time){
 
-  if(
-    !time ||
-    !/^\d{2}:\d{2}$/.test(time)
-  ){
+ if(
+  !time||
+  !/^\d{2}:\d{2}$/.test(time)
+ )return null;
 
-    return null;
+ const p=
+  time.split(":").map(Number);
 
-  }
-
-
-  const parts =
-    time
-      .split(":")
-      .map(Number);
-
-
-  return (
-    parts[0] * 60 +
-    parts[1]
-  );
+ return p[0]*60+p[1];
 
 }
 
 
 function getDayKey(date){
 
-  const day =
-    new Date(
-      date +
-      "T12:00:00"
-    ).getDay();
+ const day=
+  new Date(date+"T12:00:00").getDay();
 
-  return [
-    "sunday",
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday"
-  ][day];
+ return[
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday"
+ ][day];
 
 }
 
 
 function getHoursForDate(date){
 
-  const key =
-    getDayKey(date);
+ const key=getDayKey(date);
 
-  return getSettings()
-    .hours?.[key] || {
-      closed:false,
-      start:"09:00",
-      end:"19:00"
-    };
+ return getSettings().hours?.[key]||
+ {
+  closed:false,
+  start:"09:00",
+  end:"19:00"
+ };
 
 }
 
 
 function isWithinHours(
-  date,
-  time,
-  duration
+ date,
+ time,
+ duration
 ){
 
-  const h =
-    getHoursForDate(date);
+ const h=getHoursForDate(date);
 
-  if(h.closed)return false;
+ if(h.closed)return false;
 
+ const start=toMinutes(h.start);
+ const end=toMinutes(h.end);
+ const t=toMinutes(time);
 
-  const start =
-    toMinutes(h.start);
-
-  const end =
-    toMinutes(h.end);
-
-  const t =
-    toMinutes(time);
-
-
-  return (
-    start !== null &&
-    end !== null &&
-    t !== null &&
-    t >= start &&
-    t + duration <= end
-  );
+ return(
+  start!==null&&
+  end!==null&&
+  t!==null&&
+  t>=start&&
+  t+duration<=end
+ );
 
 }
 
 
 function isAppointmentFree(
-  date,
-  time,
-  duration,
-  ignoreId=""
+ date,
+ time,
+ duration,
+ ignoreId=""
 ){
 
+ if(
+  !isWithinHours(
+   date,
+   time,
+   duration
+  )
+ )return false;
+
+ const start=toMinutes(time);
+
+ const end=start+duration;
+
+ return !getAppointments().some(a=>{
+
   if(
-    !isWithinHours(
-      date,
-      time,
-      duration
-    )
-  ){
+   a.id===ignoreId||
+   a.status==="cancellato"||
+   a.d!==date
+  )return false;
 
-    return false;
+  const s=toMinutes(a.t);
 
-  }
+  if(s===null)return false;
 
+  const e=
+   s+
+   serviceDuration(
+    getService(a.s)
+   );
 
-  const start =
-    toMinutes(time);
+  return start<e&&end>s;
 
-  const end =
-    start + duration;
-
-
-  return !getAppointments()
-    .some(
-      appointment => {
-
-        if(
-          appointment.id ===
-          ignoreId
-        ){
-
-          return false;
-
-        }
-
-        if(
-          appointment.status ===
-          "cancellato"
-        ){
-
-          return false;
-
-        }
-
-        if(
-          appointment.d !==
-          date
-        ){
-
-          return false;
-
-        }
-
-
-        const appointmentStart =
-          toMinutes(
-            appointment.t
-          );
-
-        if(
-          appointmentStart ===
-          null
-        ){
-
-          return false;
-
-        }
-
-
-        const appointmentEnd =
-          appointmentStart +
-          serviceDuration(
-            getService(
-              appointment.s
-            )
-          );
-
-
-        return (
-          start <
-          appointmentEnd &&
-          end >
-          appointmentStart
-        );
-
-      }
-    );
+ });
 
 }
 
 
 function renderCalendar(){
 
-  const date =
-    $("calendarDate").value ||
-    dateKey(new Date());
+ const date=
+  $("calendarDate").value||
+  dateKey(new Date());
 
-  const box =
-    $("calendar");
+ const box=$("calendar");
 
-  const title =
-    $("calendarTitle");
+ if(!box)return;
 
-  if(!box)return;
+ $("calendarTitle").textContent=
+  formatAppointmentDate(date);
 
+ const h=getHoursForDate(date);
 
-  title.textContent =
-    formatAppointmentDate(
-      date
-    );
+ if(h.closed){
 
+  box.innerHTML=
+   '<div class="calendar-empty">Attività chiusa.</div>';
 
-  const hours =
-    getHoursForDate(date);
+  return;
 
+ }
 
-  if(hours.closed){
+ const start=toMinutes(h.start);
+ const end=toMinutes(h.end);
 
-    box.innerHTML =
-      `
-      <div class="calendar-empty">
-        Attività chiusa.
-      </div>
-      `;
+ if(
+  start===null||
+  end===null
+ ){
 
-    return;
+  box.innerHTML=
+   '<div class="calendar-empty">Configura gli orari nelle impostazioni.</div>';
 
-  }
+  return;
 
+ }
 
-  const start =
-    toMinutes(hours.start);
+ let html="";
 
-  const end =
-    toMinutes(hours.end);
+ for(
+  let m=start;
+  m<end;
+  m+=30
+ ){
 
+  const t=
+   String(
+    Math.floor(m/60)
+   ).padStart(2,"0")+
+   ":"+
+   String(m%60).padStart(2,"0");
 
-  if(
-    start === null ||
-    end === null
-  ){
+  const a=
+   getAppointments().find(
+    x=>
+     x.d===date&&
+     x.t===t&&
+     x.status!=="cancellato"
+   );
 
-    box.innerHTML =
-      `
-      <div class="calendar-empty">
-        Configura gli orari nelle impostazioni.
-      </div>
-      `;
+  html+=`
 
-    return;
+   <div class="slot">
 
-  }
+   <div class="slot-time">
+   ${t}
+   </div>
 
+   <div
+   class="slot-box ${a?"busy":"free"}"
+   ${
+    a?
+    "":
+    `onclick="selectCalendarSlot('${t}')"`
+   }>
 
-  let html = "";
+   ${
+    a?
+    `<b>${esc(a.n)}</b>
+     <br>
+     <span class="muted">
+     ${esc(a.s)}
+     </span>`:
+    "Disponibile"
+   }
 
+   </div>
 
-  for(
-    let minutes=start;
-    minutes<end;
-    minutes+=30
-  ){
+   </div>
 
-    const time =
-      String(
-        Math.floor(
-          minutes / 60
-        )
-      ).padStart(2,"0") +
-      ":" +
-      String(
-        minutes % 60
-      ).padStart(2,"0");
+  `;
 
+ }
 
-    const appointment =
-      getAppointments()
-        .find(
-          item =>
-            item.d === date &&
-            item.t === time &&
-            item.status !==
-              "cancellato"
-        );
-
-
-    html += `
-
-      <div class="slot">
-
-        <div class="slot-time">
-          ${time}
-        </div>
-
-        <div
-          class="slot-box ${
-            appointment
-              ? "busy"
-              : "free"
-          }"
-          ${
-            appointment
-              ? ""
-              : `onclick="selectCalendarSlot('${time}')"`
-          }
-        >
-
-          ${
-            appointment
-              ? `
-                <b>
-                  ${esc(appointment.n)}
-                </b>
-                <br>
-                <span class="muted">
-                  ${esc(appointment.s)}
-                </span>
-              `
-              : "Disponibile"
-          }
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  box.innerHTML =
-    html ||
-    `
-    <div class="calendar-empty">
-      Nessun orario.
-    </div>
-    `;
+ box.innerHTML=
+  html||
+  '<div class="calendar-empty">Nessun orario.</div>';
 
 }
 
 
 function selectCalendarSlot(time){
 
-  const date =
-    $("calendarDate").value;
+ const date=$("calendarDate").value;
 
-  if(!date)return;
+ if(!date)return;
 
+ $("d").value=date;
+ $("t").value=time;
 
-  $("d").value =
-    date;
+ $("appointmentStatus").textContent=
+  `Orario ${time} selezionato.`;
 
-  $("t").value =
-    time;
-
-  $("appointmentStatus")
-    .textContent =
-      `Orario ${time} selezionato.`;
-
-  $("n").focus();
-
-}
-
-
-/* ============================================================
-   APPUNTAMENTI
-============================================================ */
-
-function createAppointmentRecord(
-  name,
-  date,
-  time,
-  service,
-  status="confermato",
-  reminder=null
-){
-
-  const client =
-    upsertClient(name);
-
-  const selectedReminder =
-    normalizeReminder(
-      reminder ||
-      getSettings()
-        .defaultReminder
-    );
-
-
-  return {
-
-    id:
-      "apt_" +
-      Date.now() +
-      "_" +
-      Math.random()
-        .toString(36)
-        .slice(2,6),
-
-    n:name,
-
-    d:date,
-
-    t:time,
-
-    s:service,
-
-    clientId:
-      client?.id || "",
-
-    status,
-
-    reminder:
-      selectedReminder,
-
-    reminder24SentAt:null,
-
-    reminder2SentAt:null,
-
-    reminderLastCheckedAt:null,
-
-    createdAt:
-      new Date().toISOString(),
-
-    updatedAt:
-      new Date().toISOString()
-
-  };
-
-}
-
-
-function addAppointment(){
-
-  const name =
-    $("n").value.trim();
-
-  const date =
-    $("d").value;
-
-  const time =
-    $("t").value;
-
-  const service =
-    $("s").value;
-
-  const reminder =
-    normalizeReminder(
-      $("appointmentReminder")
-        .value
-    );
-
-
-  if(
-    !name ||
-    !date ||
-    !time ||
-    !service
-  ){
-
-    $("appointmentStatus")
-      .textContent =
-        "Compila nome, data, orario e servizio.";
-
-    return;
-
-  }
-
-
-  const duration =
-    serviceDuration(
-      getService(service)
-    );
-
-
-  if(
-    !isAppointmentFree(
-      date,
-      time,
-      duration
-    )
-  ){
-
-    $("appointmentStatus")
-      .textContent =
-        "L'orario non è disponibile.";
-
-    return;
-
-  }
-
-
-  updateAppData(
-    data =>
-      data.appointments.push(
-        createAppointmentRecord(
-          name,
-          date,
-          time,
-          service,
-          "confermato",
-          reminder
-        )
-      )
-  );
-
-
-  syncLegacyKeys();
-
-
-  [
-    "n",
-    "d",
-    "t"
-  ]
-  .forEach(
-    id =>
-      $(id).value = ""
-  );
-
-
-  $("s").value = "";
-
-
-  $("appointmentStatus")
-    .textContent =
-      "Appuntamento salvato.";
-
-
-  renderAppointments();
-
-  renderDayAppointments();
-
-  renderCalendar();
-
-  renderClients();
-
-  updateDashboard();
-
-  checkLocalReminders();
-
-}
-
-
-/* ============================================================
-   VISUALIZZAZIONE APPUNTAMENTI
-============================================================ */
-
-function statusLabel(status){
-
-  if(status === "completato")
-    return "Completato";
-
-  if(status === "cancellato")
-    return "Cancellato";
-
-  return "Confermato";
-
-}
-
-
-function reminderLabel(reminder){
-
-  if(reminder === "2h")
-    return "2 ore prima";
-
-  if(reminder === "both")
-    return "24 ore + 2 ore";
-
-  if(reminder === "none")
-    return "Disattivato";
-
-  return "24 ore prima";
-
-}
-
-
-function getReminderStatusClass(
-  appointment
-){
-
-  if(
-    appointment.reminder ===
-    "none"
-  ){
-
-    return "reminder-disabled";
-
-  }
-
-
-  if(
-    appointment.reminder24SentAt ||
-    appointment.reminder2SentAt
-  ){
-
-    return "reminder-sent";
-
-  }
-
-
-  return "reminder-pending";
-
-}
-
-
-function getReminderStatusText(
-  appointment
-){
-
-  if(
-    appointment.reminder ===
-    "none"
-  ){
-
-    return "Promemoria disattivato";
-
-  }
-
-
-  if(
-    appointment.reminder24SentAt ||
-    appointment.reminder2SentAt
-  ){
-
-    return "Promemoria già notificato";
-
-  }
-
-
-  return "Promemoria programmato";
-
-}
-
-
-function appointmentHTML(
-  appointment,
-  history=false
-){
-
-  const cls =
-    appointment.status ===
-      "completato"
-
-      ? "status-completed"
-
-      : appointment.status ===
-        "cancellato"
-
-        ? "status-cancelled"
-
-        : "status-confirmed";
-
-
-  return `
-
-    <div class="appointment-item">
-
-      <b>
-        ${esc(appointment.n)}
-      </b>
-
-      <div>
-        ${esc(
-          formatAppointmentDate(
-            appointment.d
-          )
-        )}
-        ·
-        ${esc(appointment.t)}
-      </div>
-
-      <div>
-        ${esc(appointment.s)}
-      </div>
-
-      <span
-        class="badge ${cls}"
-      >
-        ${statusLabel(
-          appointment.status
-        )}
-      </span>
-
-      ${
-        !history
-          ? `
-            <div style="margin-top:7px">
-
-              <span
-                class="badge ${getReminderStatusClass(
-                  appointment
-                )}"
-              >
-                ${reminderLabel(
-                  appointment.reminder
-                )}
-              </span>
-
-            </div>
-          `
-          : ""
-      }
-
-      ${
-        history
-          ? ""
-          : `
-
-            <div class="appointment-actions">
-
-              ${
-                appointment.status !==
-                  "completato" &&
-                appointment.status !==
-                  "cancellato"
-
-                  ? `
-                    <button
-                      class="success small-button"
-                      onclick="completeAppointment('${esc(appointment.id)}')"
-                    >
-                      Completa
-                    </button>
-                  `
-                  : ""
-              }
-
-              <button
-                class="secondary small-button"
-                onclick="moveAppointment('${esc(appointment.id)}')"
-              >
-                Modifica
-              </button>
-
-              ${
-                appointment.status ===
-                  "cancellato"
-
-                  ? `
-                    <button
-                      class="warning small-button"
-                      onclick="restoreAppointment('${esc(appointment.id)}')"
-                    >
-                      Ripristina
-                    </button>
-                  `
-
-                  : `
-                    <button
-                      class="danger small-button"
-                      onclick="cancelAppointmentRecord('${esc(appointment.id)}')"
-                    >
-                      Cancella
-                    </button>
-                  `
-              }
-
-              ${
-                appointment.status !==
-                  "cancellato"
-
-                  ? `
-                    <button
-                      class="secondary small-button"
-                      onclick="sendAppointmentWhatsApp('${esc(appointment.id)}')"
-                    >
-                      WhatsApp
-                    </button>
-                  `
-                  : ""
-              }
-
-            </div>
-
-          `
-      }
-
-    </div>
-
-  `;
-
-}
-
-
-function renderDayAppointments(){
-
-  const date =
-    $("calendarDate").value;
-
-  const box =
-    $("dayAppointments");
-
-  if(!box)return;
-
-
-  const list =
-    getAppointments()
-      .filter(
-        a =>
-          a.d === date
-      )
-      .sort(
-        (a,b) =>
-          a.t.localeCompare(
-            b.t
-          )
-      );
-
-
-  box.innerHTML =
-    list.length
-
-      ? list
-          .map(
-            a =>
-              appointmentHTML(a)
-          )
-          .join("")
-
-      : `
-        <div class="empty-state">
-          Nessun appuntamento per questa giornata.
-        </div>
-      `;
-
-}
-
-
-function renderAppointments(){
-
-  const box =
-    $("list");
-
-  const searchBox =
-    $("searchResults");
-
-  const query =
-    (
-      $("appointmentSearch")
-        ?.value || ""
-    )
-    .trim()
-    .toLowerCase();
-
-
-  const list =
-    getAppointments()
-      .filter(
-        a =>
-          !query ||
-          a.n
-            .toLowerCase()
-            .includes(query)
-      )
-      .sort(
-        (a,b) =>
-          `${b.d}${b.t}`
-            .localeCompare(
-              `${a.d}${a.t}`
-            )
-      );
-
-
-  if(box){
-
-    box.innerHTML =
-      list.length
-
-        ? list
-            .map(
-              a =>
-                appointmentHTML(a)
-            )
-            .join("")
-
-        : `
-          <div class="empty-state">
-            Nessun appuntamento.
-          </div>
-        `;
-
-  }
-
-
-  if(searchBox){
-
-    searchBox.innerHTML =
-      query
-
-        ? (
-            list.length
-
-              ? list
-                  .map(
-                    a =>
-                      appointmentHTML(a)
-                  )
-                  .join("")
-
-              : `
-                <div class="empty-state">
-                  Nessun risultato.
-                </div>
-              `
-          )
-
-        : "";
-
-  }
-
-}
-
-
-/* ============================================================
-   MODIFICA APPUNTAMENTO
-============================================================ */
-
-function openEditAppointment(id){
-
-  const appointment =
-    getAppointments()
-      .find(
-        a =>
-          a.id === id
-      );
-
-  if(!appointment)return;
-
-
-  $("editAppointmentId")
-    .value =
-      appointment.id;
-
-  $("editAppointmentName")
-    .value =
-      appointment.n;
-
-  $("editAppointmentDate")
-    .value =
-      appointment.d;
-
-  $("editAppointmentTime")
-    .value =
-      appointment.t;
-
-  $("editAppointmentStatus")
-    .value =
-      appointment.status;
-
-
-  fillServiceSelects();
-
-
-  $("editAppointmentService")
-    .value =
-      appointment.s;
-
-
-  $("editAppointmentReminder")
-    .value =
-      normalizeReminder(
-        appointment.reminder
-      );
-
-
-  $("editAppointmentError")
-    .classList
-    .remove("show");
-
-
-  $("appointmentModal")
-    .classList
-    .add("open");
-
-}
-
-
-function closeAppointmentModal(){
-
-  $("appointmentModal")
-    .classList
-    .remove("open");
-
-}
-
-
-function saveEditedAppointment(){
-
-  const id =
-    $("editAppointmentId")
-      .value;
-
-  const name =
-    $("editAppointmentName")
-      .value
-      .trim();
-
-  const date =
-    $("editAppointmentDate")
-      .value;
-
-  const time =
-    $("editAppointmentTime")
-      .value;
-
-  const service =
-    $("editAppointmentService")
-      .value;
-
-  const status =
-    $("editAppointmentStatus")
-      .value;
-
-  const reminder =
-    normalizeReminder(
-      $("editAppointmentReminder")
-        .value
-    );
-
-  const error =
-    $("editAppointmentError");
-
-
-  if(
-    !name ||
-    !date ||
-    !time ||
-    !service
-  ){
-
-    error.textContent =
-      "Compila tutti i campi.";
-
-    error.classList.add(
-      "show"
-    );
-
-    return;
-
-  }
-
-
-  const duration =
-    serviceDuration(
-      getService(service)
-    );
-
-
-  if(
-    status !== "cancellato" &&
-    !isAppointmentFree(
-      date,
-      time,
-      duration,
-      id
-    )
-  ){
-
-    error.textContent =
-      "L'orario scelto non è disponibile.";
-
-    error.classList.add(
-      "show"
-    );
-
-    return;
-
-  }
-
-
-  const client =
-    upsertClient(name);
-
-
-  updateAppData(
-    data => {
-
-      const appointment =
-        data.appointments
-          .find(
-            a =>
-              a.id === id
-          );
-
-
-      if(appointment){
-
-        const oldDate =
-          appointment.d;
-
-        const oldTime =
-          appointment.t;
-
-
-        appointment.n =
-          name;
-
-        appointment.d =
-          date;
-
-        appointment.t =
-          time;
-
-        appointment.s =
-          service;
-
-        appointment.clientId =
-          client?.id ||
-          appointment.clientId;
-
-        appointment.status =
-          status;
-
-        appointment.reminder =
-          reminder;
-
-
-        if(
-          oldDate !== date ||
-          oldTime !== time
-        ){
-
-          appointment.reminder24SentAt =
-            null;
-
-          appointment.reminder2SentAt =
-            null;
-
-        }
-
-
-        if(
-          reminder ===
-          "none"
-        ){
-
-          appointment.reminder24SentAt =
-            null;
-
-          appointment.reminder2SentAt =
-            null;
-
-        }
-
-
-        appointment.updatedAt =
-          new Date()
-            .toISOString();
-
-      }
-
-    }
-  );
-
-
-  syncLegacyKeys();
-
-  closeAppointmentModal();
-
-  renderAppointments();
-
-  renderDayAppointments();
-
-  renderCalendar();
-
-  renderClients();
-
-  updateDashboard();
-
-  checkLocalReminders();
-
-}
-
-
-function completeAppointment(id){
-
-  updateAppData(
-    data => {
-
-      const appointment =
-        data.appointments
-          .find(
-            a =>
-              a.id === id
-          );
-
-      if(appointment){
-
-        appointment.status =
-          "completato";
-
-        appointment.updatedAt =
-          new Date()
-            .toISOString();
-
-      }
-
-    }
-  );
-
-
-  syncLegacyKeys();
-
-  renderAppointments();
-
-  renderDayAppointments();
-
-  renderCalendar();
-
-  updateDashboard();
-
-}
-
-
-function cancelAppointmentRecord(id){
-
-  const appointment =
-    getAppointments()
-      .find(
-        item =>
-          item.id === id
-      );
-
-  if(
-    !appointment ||
-    appointment.status ===
-      "cancellato"
-  ){
-
-    return;
-
-  }
-
-
-  if(
-    !confirm(
-      `Cancellare l'appuntamento di ${appointment.n} del ${formatAppointmentDate(appointment.d)} alle ${appointment.t}?`
-    )
-  ){
-
-    return;
-
-  }
-
-
-  updateAppData(
-    data => {
-
-      const item =
-        data.appointments
-          .find(
-            a =>
-              a.id === id
-          );
-
-      if(item){
-
-        item.status =
-          "cancellato";
-
-        item.updatedAt =
-          new Date()
-            .toISOString();
-
-      }
-
-    }
-  );
-
-
-  syncLegacyKeys();
-
-  renderCalendar();
-
-  renderDayAppointments();
-
-  renderAppointments();
-
-  updateDashboard();
-
-  $("appointmentStatus")
-    .textContent =
-      "Appuntamento cancellato.";
-
-}
-
-
-function restoreAppointment(id){
-
-  const appointment =
-    getAppointments()
-      .find(
-        item =>
-          item.id === id
-      );
-
-  if(!appointment)return;
-
-
-  const service =
-    getService(
-      appointment.s
-    );
-
-  const duration =
-    service
-      ? Number(
-          service.duration
-        ) || 30
-      : 30;
-
-
-  if(
-    !isAppointmentFree(
-      appointment.d,
-      appointment.t,
-      duration,
-      id
-    )
-  ){
-
-    alert(
-      "Non è possibile ripristinare l'appuntamento: lo stesso orario non è più disponibile."
-    );
-
-    return;
-
-  }
-
-
-  if(
-    !confirm(
-      `Ripristinare l'appuntamento di ${appointment.n}?`
-    )
-  ){
-
-    return;
-
-  }
-
-
-  updateAppData(
-    data => {
-
-      const item =
-        data.appointments
-          .find(
-            a =>
-              a.id === id
-          );
-
-      if(item){
-
-        item.status =
-          "confermato";
-
-        item.updatedAt =
-          new Date()
-            .toISOString();
-
-      }
-
-    }
-  );
-
-
-  syncLegacyKeys();
-
-  renderCalendar();
-
-  renderDayAppointments();
-
-  renderAppointments();
-
-  updateDashboard();
-
-}
-
-
-function moveAppointment(id){
-
-  openEditAppointment(id);
+ $("n").focus();
 
 }
 
 
 function changeDay(offset){
 
-  const input =
-    $("calendarDate");
+ const input=$("calendarDate");
 
-  const date =
-    new Date(
-      (
-        input.value ||
-        dateKey(new Date())
-      ) +
-      "T12:00:00"
-    );
-
-
-  date.setDate(
-    date.getDate() +
-    offset
+ const d=
+  new Date(
+   (
+    input.value||
+    dateKey(new Date())
+   )+"T12:00:00"
   );
 
+ d.setDate(
+  d.getDate()+offset
+ );
 
-  input.value =
-    dateKey(date);
+ input.value=dateKey(d);
 
-  $("d").value =
-    input.value;
+ $("d").value=input.value;
 
-  renderCalendar();
-
-  renderDayAppointments();
+ renderCalendar();
+ renderDayAppointments();
 
 }
 
 
-/* ============================================================
-   CLIENTI
-============================================================ */
+function createAppointmentRecord(
+ name,
+ date,
+ time,
+ service,
+ status="confermato"
+){
+
+ const client=upsertClient(name);
+
+ const now=
+  new Date().toISOString();
+
+ return{
+
+  id:
+   "apt_"+
+   Date.now()+
+   "_"+
+   Math.random().toString(36).slice(2,6),
+
+  n:name,
+  d:date,
+  t:time,
+  s:service,
+
+  clientId:
+   client?.id||"",
+
+  status,
+
+  createdAt:now,
+  updatedAt:now
+
+ };
+
+}
+
+
+function addAppointment(){
+
+ const name=$("n").value.trim();
+ const date=$("d").value;
+ const time=$("t").value;
+ const service=$("s").value;
+
+ if(
+  !name||
+  !date||
+  !time||
+  !service
+ ){
+
+  $("appointmentStatus").textContent=
+   "Compila nome, data, orario e servizio.";
+
+  return;
+
+ }
+
+ const duration=
+  serviceDuration(
+   getService(service)
+  );
+
+ if(
+  !isAppointmentFree(
+   date,
+   time,
+   duration
+  )
+ ){
+
+  $("appointmentStatus").textContent=
+   "L'orario non è disponibile.";
+
+  return;
+
+ }
+
+ updateAppData(data=>
+  data.appointments.push(
+   createAppointmentRecord(
+    name,
+    date,
+    time,
+    service
+   )
+  )
+ );
+
+ syncLegacyKeys();
+
+ ["n","d","t"].forEach(
+  id=>$(id).value=""
+ );
+
+ $("s").value="";
+
+ $("appointmentStatus").textContent=
+  "Appuntamento salvato.";
+
+ renderAppointments();
+ renderDayAppointments();
+ renderCalendar();
+ updateDashboard();
+
+}
+
+
+function statusLabel(status){
+
+ if(status==="completato")
+  return"Completato";
+
+ if(status==="cancellato")
+  return"Cancellato";
+
+ return"Confermato";
+
+}
+
+
+function appointmentHTML(
+ a,
+ history=false
+){
+
+ const cls=
+  a.status==="completato"?
+  "status-completed":
+  a.status==="cancellato"?
+  "status-cancelled":
+  "status-confirmed";
+
+ return`
+
+ <div class="appointment-item">
+
+ <b>${esc(a.n)}</b>
+
+ <div>
+ ${esc(formatAppointmentDate(a.d))}
+ · ${esc(a.t)}
+ </div>
+
+ <div>
+ ${esc(a.s)}
+ </div>
+
+ <span class="badge ${cls}">
+ ${statusLabel(a.status)}
+ </span>
+
+ ${
+  history?
+  "":
+  `<div class="appointment-actions">
+
+  ${
+   a.status!=="completato"&&
+   a.status!=="cancellato"?
+
+   `<button
+    class="success small-button"
+    onclick="completeAppointment('${esc(a.id)}')">
+    Completa
+    </button>`:""
+  }
+
+  <button
+  class="secondary small-button"
+  onclick="openEditAppointment('${esc(a.id)}')">
+  Modifica
+  </button>
+
+  ${
+   a.status==="cancellato"?
+
+   `<button
+    class="warning small-button"
+    onclick="restoreAppointment('${esc(a.id)}')">
+    Ripristina
+    </button>`:
+
+   `<button
+    class="danger small-button"
+    onclick="cancelAppointmentRecord('${esc(a.id)}')">
+    Cancella
+    </button>`
+  }
+
+  </div>`
+ }
+
+ </div>
+
+ `;
+
+}
+
+
+function renderDayAppointments(){
+
+ const date=$("calendarDate").value;
+ const box=$("dayAppointments");
+
+ if(!box)return;
+
+ const list=
+  getAppointments()
+  .filter(a=>a.d===date)
+  .sort((a,b)=>
+   a.t.localeCompare(b.t)
+  );
+
+ box.innerHTML=
+  list.length?
+  list.map(a=>
+   appointmentHTML(a)
+  ).join(""):
+  '<div class="empty-state">Nessun appuntamento per questa giornata.</div>';
+
+}
+
+
+function renderAppointments(){
+
+ const box=$("list");
+ const searchBox=$("searchResults");
+
+ const q=
+  ($("appointmentSearch")?.value||"")
+  .trim()
+  .toLowerCase();
+
+ const list=
+  getAppointments()
+  .filter(
+   a=>
+    !q||
+    a.n.toLowerCase().includes(q)
+  )
+  .sort((a,b)=>
+   `${b.d}${b.t}`.localeCompare(
+    `${a.d}${a.t}`
+   )
+  );
+
+ if(box){
+
+  box.innerHTML=
+   list.length?
+   list.map(a=>
+    appointmentHTML(a)
+   ).join(""):
+   '<div class="empty-state">Nessun appuntamento.</div>';
+
+ }
+
+ if(searchBox){
+
+  searchBox.innerHTML=
+   q?
+   (
+    list.length?
+    list.map(a=>
+     appointmentHTML(a)
+    ).join(""):
+    '<div class="empty-state">Nessun risultato.</div>'
+   ):
+   "";
+
+ }
+
+}
+
+
+function openEditAppointment(id){
+
+ const a=
+  getAppointments().find(
+   x=>x.id===id
+  );
+
+ if(!a)return;
+
+ $("editAppointmentId").value=a.id;
+ $("editAppointmentName").value=a.n;
+ $("editAppointmentDate").value=a.d;
+ $("editAppointmentTime").value=a.t;
+ $("editAppointmentStatus").value=a.status;
+
+ updateServiceSelects();
+
+ $("editAppointmentService").value=
+  a.s;
+
+ $("editAppointmentError")
+  .classList.remove("show");
+
+ $("appointmentModal")
+  .classList.add("open");
+
+}
+
+
+function closeAppointmentModal(){
+
+ $("appointmentModal")
+  .classList.remove("open");
+
+}
+
+
+function saveEditedAppointment(){
+
+ const id=
+  $("editAppointmentId").value;
+
+ const name=
+  $("editAppointmentName").value.trim();
+
+ const date=
+  $("editAppointmentDate").value;
+
+ const time=
+  $("editAppointmentTime").value;
+
+ const service=
+  $("editAppointmentService").value;
+
+ const status=
+  $("editAppointmentStatus").value;
+
+ const error=
+  $("editAppointmentError");
+
+ if(
+  !name||
+  !date||
+  !time||
+  !service
+ ){
+
+  error.textContent=
+   "Compila tutti i campi.";
+
+  error.classList.add("show");
+
+  return;
+
+ }
+
+ const duration=
+  serviceDuration(
+   getService(service)
+  );
+
+ if(
+  status!=="cancellato"&&
+  !isAppointmentFree(
+   date,
+   time,
+   duration,
+   id
+  )
+ ){
+
+  error.textContent=
+   "L'orario scelto non è disponibile.";
+
+  error.classList.add("show");
+
+  return;
+
+ }
+
+ const client=upsertClient(name);
+
+ updateAppData(data=>{
+
+  const a=
+   data.appointments.find(
+    x=>x.id===id
+   );
+
+  if(a){
+
+   a.n=name;
+   a.d=date;
+   a.t=time;
+   a.s=service;
+
+   a.clientId=
+    client?.id||
+    a.clientId;
+
+   a.status=status;
+
+   a.updatedAt=
+    new Date().toISOString();
+
+  }
+
+ });
+
+ syncLegacyKeys();
+
+ closeAppointmentModal();
+
+ renderAppointments();
+ renderDayAppointments();
+ renderCalendar();
+ renderClients();
+ updateDashboard();
+
+}
+
+
+function completeAppointment(id){
+
+ updateAppData(data=>{
+
+  const a=
+   data.appointments.find(
+    x=>x.id===id
+   );
+
+  if(a){
+
+   a.status="completato";
+
+   a.updatedAt=
+    new Date().toISOString();
+
+  }
+
+ });
+
+ syncLegacyKeys();
+
+ renderAppointments();
+ renderDayAppointments();
+ renderCalendar();
+ renderClients();
+ updateDashboard();
+
+}
+
+
+function cancelAppointmentRecord(id){
+
+ const a=
+  getAppointments().find(
+   x=>x.id===id
+  );
+
+ if(
+  !a||
+  a.status==="cancellato"
+ )return;
+
+ if(
+  !confirm(
+   `Cancellare l'appuntamento di ${a.n} del ${formatAppointmentDate(a.d)} alle ${a.t}?`
+  )
+ )return;
+
+ updateAppData(data=>{
+
+  const item=
+   data.appointments.find(
+    x=>x.id===id
+   );
+
+  if(item){
+
+   item.status="cancellato";
+
+   item.updatedAt=
+    new Date().toISOString();
+
+  }
+
+ });
+
+ syncLegacyKeys();
+
+ renderCalendar();
+ renderDayAppointments();
+ renderAppointments();
+ updateDashboard();
+
+}
+
+
+function restoreAppointment(id){
+
+ const a=
+  getAppointments().find(
+   x=>x.id===id
+  );
+
+ if(!a)return;
+
+ const duration=
+  serviceDuration(
+   getService(a.s)
+  );
+
+ if(
+  !isAppointmentFree(
+   a.d,
+   a.t,
+   duration,
+   id
+  )
+ ){
+
+  alert(
+   "Non è possibile ripristinare l'appuntamento: l'orario non è più disponibile."
+  );
+
+  return;
+
+ }
+
+ if(
+  !confirm(
+   `Ripristinare l'appuntamento di ${a.n}?`
+  )
+ )return;
+
+ updateAppData(data=>{
+
+  const item=
+   data.appointments.find(
+    x=>x.id===id
+   );
+
+  if(item){
+
+   item.status="confermato";
+
+   item.updatedAt=
+    new Date().toISOString();
+
+  }
+
+ });
+
+ syncLegacyKeys();
+
+ renderCalendar();
+ renderDayAppointments();
+ renderAppointments();
+ updateDashboard();
+
+}
+
+
+function upsertClient(
+ name,
+ extra={}
+){
+
+ name=String(name||"").trim();
+
+ if(!name)return null;
+
+ let result=null;
+
+ updateAppData(data=>{
+
+  let c=
+   data.clients.find(
+    x=>
+     x.name.trim().toLowerCase()===
+     name.toLowerCase()
+   );
+
+  const now=
+   new Date().toISOString();
+
+  if(!c){
+
+   c={
+
+    id:
+     "cli_"+
+     Date.now()+
+     "_"+
+     Math.random()
+      .toString(36)
+      .slice(2,7),
+
+    name,
+
+    phone:"",
+    email:"",
+    notes:"",
+
+    createdAt:now,
+    updatedAt:now
+
+   };
+
+   data.clients.push(c);
+
+  }
+
+  Object.keys(extra).forEach(k=>{
+
+   if(extra[k]!==undefined)
+    c[k]=String(extra[k]||"").trim();
+
+  });
+
+  c.updatedAt=now;
+
+  result=c;
+
+ });
+
+ return result;
+
+}
+
 
 function clientAppointments(id){
 
-  return getAppointments()
-    .filter(
-      appointment =>
-        appointment.clientId ===
-        id
-    );
+ return getAppointments()
+  .filter(a=>a.clientId===id);
 
 }
 
 
 function renderClients(){
 
-  const box =
-    $("clientsList");
+ const box=$("clientsList");
 
-  if(!box)return;
+ if(!box)return;
 
+ const q=
+  $("clientSearch")?.value
+  .trim()
+  .toLowerCase()||"";
 
-  const query =
-    (
-      $("clientSearch")
-        ?.value || ""
-    )
-    .trim()
-    .toLowerCase();
+ const list=
+  getClients().filter(c=>
+   !q||
+   [
+    c.name,
+    c.phone,
+    c.email
+   ].some(v=>
+    String(v||"")
+    .toLowerCase()
+    .includes(q)
+   )
+  );
 
+ box.innerHTML=
+  list.length?
 
-  const list =
-    getClients()
-      .filter(
-        client =>
-          !query ||
-          [
-            client.name,
-            client.phone,
-            client.email
-          ]
-          .some(
-            value =>
-              String(
-                value || ""
-              )
-              .toLowerCase()
-              .includes(query)
-          )
-      );
+  list.map(c=>{
 
+   const n=
+    clientAppointments(c.id)
+    .length;
 
-  box.innerHTML =
-    list.length
+   return`
 
-      ? list
-          .map(
-            client => {
+   <div class="client-item">
 
-              const count =
-                clientAppointments(
-                  client.id
-                ).length;
+   <b>${esc(c.name)}</b>
 
+   ${
+    c.phone?
+    `<div class="muted">
+     ${esc(c.phone)}
+     </div>`:""
+   }
 
-              return `
+   ${
+    c.email?
+    `<div class="muted">
+     ${esc(c.email)}
+     </div>`:""
+   }
 
-                <div class="client-item">
+   <div class="client-stat">
+   ${n}
+   ${n===1?"appuntamento":"appuntamenti"}
+   </div>
 
-                  <b>
-                    ${esc(client.name)}
-                  </b>
+   <div class="client-actions">
 
-                  ${
-                    client.phone
-                      ? `
-                        <div class="muted">
-                          ${esc(client.phone)}
-                        </div>
-                      `
-                      : ""
-                  }
+   <button
+   class="primary small-button"
+   onclick="openClient('${esc(c.id)}')">
+   Apri scheda
+   </button>
 
-                  ${
-                    client.email
-                      ? `
-                        <div class="muted">
-                          ${esc(client.email)}
-                        </div>
-                      `
-                      : ""
-                  }
+   <button
+   class="secondary small-button"
+   onclick="editClient('${esc(c.id)}')">
+   Modifica
+   </button>
 
-                  <div class="client-stat">
-                    ${count}
-                    ${
-                      count === 1
-                        ? "appuntamento"
-                        : "appuntamenti"
-                    }
-                  </div>
+   </div>
 
-                  <div class="client-actions">
+   </div>
 
-                    <button
-                      class="primary small-button"
-                      onclick="openClient('${esc(client.id)}')"
-                    >
-                      Apri scheda
-                    </button>
+   `;
 
-                    <button
-                      class="secondary small-button"
-                      onclick="editClient('${esc(client.id)}')"
-                    >
-                      Modifica
-                    </button>
+  }).join("")
 
-                    ${
-                      client.phone
-                        ? `
-                          <button
-                            class="secondary small-button"
-                            onclick="openClientWhatsApp('${esc(client.id)}')"
-                          >
-                            WhatsApp
-                          </button>
-                        `
-                        : ""
-                    }
+  :
 
-                  </div>
-
-                </div>
-
-              `;
-
-            }
-          )
-          .join("")
-
-      : `
-        <div class="empty-state">
-          Nessun cliente trovato.
-        </div>
-      `;
+  '<div class="empty-state">Nessun cliente trovato.</div>';
 
 }
 
 
 function openClient(id){
 
-  const client =
-    getClients()
-      .find(
-        c =>
-          c.id === id
-      );
+ const c=
+  getClients().find(
+   x=>x.id===id
+  );
 
-  if(!client)return;
+ if(!c)return;
 
+ const a=
+  clientAppointments(id)
+  .sort((x,y)=>
+   `${y.d}${y.t}`.localeCompare(
+    `${x.d}${x.t}`
+   )
+  );
 
-  const appointments =
-    clientAppointments(
-      id
-    )
-    .sort(
-      (a,b) =>
-        `${b.d}${b.t}`
-          .localeCompare(
-            `${a.d}${a.t}`
-          )
-    );
+ $("clientsList").innerHTML=`
 
+ <div class="client-item">
 
-  $("clientsList")
-    .innerHTML = `
+ <b>${esc(c.name)}</b>
 
-      <div class="client-item">
+ ${
+  c.phone?
+  `<div>
+   Telefono: ${esc(c.phone)}
+   </div>`:""
+ }
 
-        <h3>
-          ${esc(client.name)}
-        </h3>
+ ${
+  c.email?
+  `<div>
+   Email: ${esc(c.email)}
+   </div>`:""
+ }
 
-        ${
-          client.phone
-            ? `
-              <div>
-                Telefono:
-                ${esc(client.phone)}
-              </div>
-            `
-            : ""
-        }
+ ${
+  c.notes?
+  `<p class="muted">
+   ${esc(c.notes)}
+   </p>`:""
+ }
 
-        ${
-          client.email
-            ? `
-              <div>
-                Email:
-                ${esc(client.email)}
-              </div>
-            `
-            : ""
-        }
+ <div class="client-stat">
+ ${a.length} appuntamenti
+ </div>
 
-        ${
-          client.notes
-            ? `
-              <p class="muted">
-                ${esc(client.notes)}
-              </p>
-            `
-            : ""
-        }
+ <div class="client-history">
 
-        <div class="client-stat">
+ ${
+  a.length?
+  a.map(x=>
+   appointmentHTML(x,true)
+  ).join(""):
+  '<p class="muted">Nessun appuntamento.</p>'
+ }
 
-          ${appointments.length}
-          ${
-            appointments.length === 1
-              ? "appuntamento"
-              : "appuntamenti"
-          }
+ </div>
 
-        </div>
+ <div class="client-actions">
 
-        <div class="client-history">
+ <button
+ class="secondary small-button"
+ onclick="editClient('${esc(c.id)}')">
+ Modifica dati
+ </button>
 
-          ${
-            appointments.length
+ <button
+ class="secondary small-button"
+ onclick="renderClients()">
+ Torna all'elenco
+ </button>
 
-              ? appointments
-                  .map(
-                    appointment =>
-                      appointmentHTML(
-                        appointment,
-                        true
-                      )
-                  )
-                  .join("")
+ <button
+ class="danger small-button"
+ onclick="deleteClient('${esc(c.id)}')">
+ Elimina cliente
+ </button>
 
-              : `
-                <p class="muted">
-                  Nessun appuntamento.
-                </p>
-              `
-          }
+ </div>
 
-        </div>
+ </div>
 
-        <div class="client-actions">
-
-          <button
-            class="secondary small-button"
-            onclick="editClient('${esc(client.id)}')"
-          >
-            Modifica dati
-          </button>
-
-          ${
-            client.phone
-              ? `
-                <button
-                  class="secondary small-button"
-                  onclick="openClientWhatsApp('${esc(client.id)}')"
-                >
-                  WhatsApp
-                </button>
-              `
-              : ""
-          }
-
-          <button
-            class="danger small-button"
-            onclick="deleteClient('${esc(client.id)}')"
-          >
-            Elimina cliente
-          </button>
-
-          <button
-            class="secondary small-button"
-            onclick="renderClients()"
-          >
-            Torna all'elenco
-          </button>
-
-        </div>
-
-      </div>
-
-    `;
+ `;
 
 }
 
 
 function saveClient(){
 
-  const name =
-    $("newClientName")
-      .value
-      .trim();
+ const name=
+  $("newClientName").value.trim();
 
-  if(!name){
+ if(!name){
 
-    $("clientStatus")
-      .textContent =
-        "Inserisci il nome del cliente.";
+  $("clientStatus").textContent=
+   "Inserisci il nome del cliente.";
 
-    return;
+  return;
 
+ }
+
+ upsertClient(
+  name,
+  {
+   phone:$("newClientPhone").value,
+   email:$("newClientEmail").value,
+   notes:$("newClientNotes").value
   }
+ );
 
+ [
+  "newClientName",
+  "newClientPhone",
+  "newClientEmail",
+  "newClientNotes"
+ ].forEach(
+  id=>$(id).value=""
+ );
 
-  upsertClient(
-    name,
-    {
-      phone:
-        $("newClientPhone")
-          .value,
+ $("clientStatus").textContent=
+  "Cliente salvato.";
 
-      email:
-        $("newClientEmail")
-          .value,
-
-      notes:
-        $("newClientNotes")
-          .value
-    }
-  );
-
-
-  [
-    "newClientName",
-    "newClientPhone",
-    "newClientEmail",
-    "newClientNotes"
-  ]
-  .forEach(
-    id =>
-      $(id).value = ""
-  );
-
-
-  $("clientStatus")
-    .textContent =
-      "Cliente salvato.";
-
-  renderClients();
-
-  updateDashboard();
+ renderClients();
+ updateDashboard();
 
 }
 
 
 function editClient(id){
 
-  const client =
-    getClients()
-      .find(
-        c =>
-          c.id === id
-      );
-
-  if(!client)return;
-
-
-  const name =
-    prompt(
-      "Nome e cognome",
-      client.name
-    );
-
-  if(name === null)return;
-
-
-  const phone =
-    prompt(
-      "Telefono / WhatsApp",
-      client.phone || ""
-    );
-
-  if(phone === null)return;
-
-
-  const email =
-    prompt(
-      "Email",
-      client.email || ""
-    );
-
-  if(email === null)return;
-
-
-  const notes =
-    prompt(
-      "Note cliente",
-      client.notes || ""
-    );
-
-  if(notes === null)return;
-
-
-  updateAppData(
-    data => {
-
-      const item =
-        data.clients
-          .find(
-            c =>
-              c.id === id
-          );
-
-      if(item){
-
-        item.name =
-          name.trim() ||
-          item.name;
-
-        item.phone =
-          phone.trim();
-
-        item.email =
-          email.trim();
-
-        item.notes =
-          notes.trim();
-
-        item.updatedAt =
-          new Date()
-            .toISOString();
-
-
-        data.appointments
-          .forEach(
-            appointment => {
-
-              if(
-                appointment.clientId ===
-                id
-              ){
-
-                appointment.n =
-                  item.name;
-
-              }
-
-            }
-          );
-
-      }
-
-    }
+ const c=
+  getClients().find(
+   x=>x.id===id
   );
 
+ if(!c)return;
 
-  renderClients();
+ const name=
+  prompt(
+   "Nome e cognome",
+   c.name
+  );
 
-  renderAppointments();
+ if(name===null)return;
 
-  updateDashboard();
+ const phone=
+  prompt(
+   "Telefono",
+   c.phone||""
+  );
 
-  syncLegacyKeys();
+ if(phone===null)return;
+
+ const email=
+  prompt(
+   "Email",
+   c.email||""
+  );
+
+ if(email===null)return;
+
+ const notes=
+  prompt(
+   "Note",
+   c.notes||""
+  );
+
+ if(notes===null)return;
+
+
+ updateAppData(data=>{
+
+  const x=
+   data.clients.find(
+    v=>v.id===id
+   );
+
+  if(x){
+
+   x.name=
+    name.trim()||x.name;
+
+   x.phone=
+    phone.trim();
+
+   x.email=
+    email.trim();
+
+   x.notes=
+    notes.trim();
+
+   x.updatedAt=
+    new Date().toISOString();
+
+   data.appointments.forEach(a=>{
+
+    if(a.clientId===id)
+     a.n=x.name;
+
+   });
+
+  }
+
+ });
+
+ syncLegacyKeys();
+
+ renderClients();
+ renderAppointments();
+ renderDayAppointments();
+ updateDashboard();
 
 }
 
 
 function deleteClient(id){
 
-  const client =
-    getClients()
-      .find(
-        c =>
-          c.id === id
-      );
-
-  if(!client)return;
-
-
-  if(
-    !confirm(
-      `Eliminare la scheda di ${client.name}? Gli appuntamenti resteranno archiviati.`
-    )
-  ){
-
-    return;
-
-  }
-
-
-  updateAppData(
-    data => {
-
-      data.clients =
-        data.clients.filter(
-          c =>
-            c.id !== id
-        );
-
-      data.appointments
-        .forEach(
-          appointment => {
-
-            if(
-              appointment.clientId ===
-              id
-            ){
-
-              appointment.clientId =
-                "";
-
-            }
-
-          }
-        );
-
-    }
+ const c=
+  getClients().find(
+   x=>x.id===id
   );
 
+ if(!c)return;
 
-  renderClients();
-
-  renderAppointments();
-
-  updateDashboard();
-
-  syncLegacyKeys();
-
-}
-
-
-/* ============================================================
-   WHATSAPP
-============================================================ */
-
-function normalizePhone(phone){
-
-  return String(
-    phone || ""
+ if(
+  !confirm(
+   `Eliminare la scheda di ${c.name}? Gli appuntamenti resteranno archiviati.`
   )
-  .replace(
-    /[^\d+]/g,
-    ""
-  );
+ )return;
 
-}
+ updateAppData(data=>{
 
+  data.clients=
+   data.clients.filter(
+    x=>x.id!==id
+   );
 
-function sendAppointmentWhatsApp(
-  appointmentId
-){
+  data.appointments.forEach(a=>{
 
-  const appointment =
-    getAppointments()
-      .find(
-        a =>
-          a.id ===
-          appointmentId
-      );
+   if(a.clientId===id)
+    a.clientId="";
 
-  if(!appointment)return;
+  });
 
+ });
 
-  const client =
-    getClients()
-      .find(
-        c =>
-          c.id ===
-          appointment.clientId
-      );
+ syncLegacyKeys();
 
-
-  const phone =
-    normalizePhone(
-      client?.phone
-    );
-
-
-  if(!phone){
-
-    alert(
-      "Il cliente non ha un numero di telefono/WhatsApp nella scheda."
-    );
-
-    return;
-
-  }
-
-
-  const business =
-    getAppData()
-      .business
-      .name ||
-    "Attività locale";
-
-
-  const message =
-    `Ciao ${appointment.n}, ti ricordiamo il tuo appuntamento presso ${business} per ${formatAppointmentDate(appointment.d)} alle ${appointment.t}, servizio ${appointment.s}. Ti aspettiamo!`;
-
-
-  window.open(
-    "https://wa.me/" +
-    phone.replace(
-      /^\+/,
-      ""
-    ) +
-    "?text=" +
-    encodeURIComponent(
-      message
-    ),
-    "_blank"
-  );
-
-}
-
-
-function openClientWhatsApp(id){
-
-  const client =
-    getClients()
-      .find(
-        c =>
-          c.id === id
-      );
-
-  if(!client)return;
-
-
-  const phone =
-    normalizePhone(
-      client.phone
-    );
-
-
-  if(!phone){
-
-    alert(
-      "Nella scheda cliente non è presente un numero."
-    );
-
-    return;
-
-  }
-
-
-  const business =
-    getAppData()
-      .business
-      .name ||
-    "Attività locale";
-
-
-  const message =
-    `Ciao ${client.name}, ti contattiamo da ${business}.`;
-
-
-  window.open(
-    "https://wa.me/" +
-    phone.replace(
-      /^\+/,
-      ""
-    ) +
-    "?text=" +
-    encodeURIComponent(
-      message
-    ),
-    "_blank"
-  );
-
-}
-
-
-/* ============================================================
-   PROMEMORIA LOCALI
-============================================================ */
-
-function getAppointmentDateTime(
-  appointment
-){
-
-  if(
-    !appointment?.d ||
-    !appointment?.t
-  ){
-
-    return null;
-
-  }
-
-
-  const date =
-    new Date(
-      appointment.d +
-      "T" +
-      appointment.t +
-      ":00"
-    );
-
-
-  if(
-    Number.isNaN(
-      date.getTime()
-    )
-  ){
-
-    return null;
-
-  }
-
-
-  return date;
-
-}
-
-
-function getUpcomingReminderAppointments(){
-
-  const now =
-    Date.now();
-
-
-  return getAppointments()
-    .filter(
-      appointment => {
-
-        if(
-          appointment.status ===
-          "cancellato"
-        ){
-
-          return false;
-
-        }
-
-        if(
-          appointment.status ===
-          "completato"
-        ){
-
-          return false;
-
-        }
-
-        if(
-          appointment.reminder ===
-          "none"
-        ){
-
-          return false;
-
-        }
-
-
-        const date =
-          getAppointmentDateTime(
-            appointment
-          );
-
-        if(!date)return false;
-
-
-        const diff =
-          date.getTime() -
-          now;
-
-
-        return (
-          diff >=
-            -2 * 60 * 60 * 1000 &&
-          diff <=
-            48 * 60 * 60 * 1000
-        );
-
-      }
-    )
-    .sort(
-      (a,b) =>
-        getAppointmentDateTime(a)
-          .getTime() -
-        getAppointmentDateTime(b)
-          .getTime()
-    );
-
-}
-
-
-function getReminderTargets(
-  appointment
-){
-
-  const result = [];
-
-  const appointmentDate =
-    getAppointmentDateTime(
-      appointment
-    );
-
-  if(!appointmentDate)return result;
-
-
-  const now =
-    Date.now();
-
-  const appointmentTime =
-    appointmentDate.getTime();
-
-
-  if(
-    appointment.reminder ===
-      "24h" ||
-    appointment.reminder ===
-      "both"
-  ){
-
-    const target =
-      appointmentTime -
-      24 * 60 * 60 * 1000;
-
-    result.push({
-      type:"24h",
-      target
-    });
-
-  }
-
-
-  if(
-    appointment.reminder ===
-      "2h" ||
-    appointment.reminder ===
-      "both"
-  ){
-
-    const target =
-      appointmentTime -
-      2 * 60 * 60 * 1000;
-
-    result.push({
-      type:"2h",
-      target
-    });
-
-  }
-
-
-  return result;
-
-}
-
-
-function getClientForAppointment(
-  appointment
-){
-
-  return getClients()
-    .find(
-      client =>
-        client.id ===
-        appointment.clientId
-    );
-
-}
-
-
-function createReminderNotification(
-  appointment,
-  reminderType
-){
-
-  const client =
-    getClientForAppointment(
-      appointment
-    );
-
-
-  const business =
-    getAppData()
-      .business
-      .name ||
-    "Attività locale";
-
-
-  const timing =
-    reminderType ===
-      "24h"
-      ? "domani"
-      : "tra circa 2 ore";
-
-
-  const title =
-    "Promemoria appuntamento";
-
-
-  const body =
-    `${appointment.n} — ${appointment.t}. ${appointment.s} presso ${business}, ${timing}.`;
-
-
-  if(
-    "Notification" in window &&
-    Notification.permission ===
-      "granted"
-  ){
-
-    try{
-
-      new Notification(
-        title,
-        {
-          body,
-          tag:
-            "appointment-" +
-            appointment.id +
-            "-" +
-            reminderType,
-          renotify:false
-        }
-      );
-
-    }catch(error){
-
-      console.warn(
-        "Notifica non disponibile:",
-        error
-      );
-
-    }
-
-  }
-
-
-  showReminderInApp(
-    appointment,
-    reminderType
-  );
-
-}
-
-
-function showReminderInApp(
-  appointment,
-  reminderType
-){
-
-  const chat =
-    $("chat");
-
-  if(!chat)return;
-
-
-  const text =
-    reminderType === "24h"
-
-      ? `Promemoria: ${appointment.n} ha un appuntamento domani alle ${appointment.t} per ${appointment.s}.`
-
-      : `Promemoria: ${appointment.n} ha un appuntamento tra circa 2 ore, alle ${appointment.t}, per ${appointment.s}.`;
-
-
-  chat.innerHTML +=
-    `
-    <div class="msg bot">
-      ${esc(text)}
-    </div>
-    `;
-
-
-  if(
-    document
-      .visibilityState ===
-    "visible"
-  ){
-
-    chat.scrollTop =
-      chat.scrollHeight;
-
-  }
-
-}
-
-
-function markReminderSent(
-  appointmentId,
-  type
-){
-
-  updateAppData(
-    data => {
-
-      const appointment =
-        data.appointments
-          .find(
-            a =>
-              a.id ===
-              appointmentId
-          );
-
-      if(!appointment)return;
-
-
-      const now =
-        new Date()
-          .toISOString();
-
-
-      if(type === "24h"){
-
-        appointment.reminder24SentAt =
-          now;
-
-      }
-
-
-      if(type === "2h"){
-
-        appointment.reminder2SentAt =
-          now;
-
-      }
-
-
-      appointment.reminderLastCheckedAt =
-        now;
-
-      appointment.updatedAt =
-        now;
-
-    }
-  );
-
-
-  syncLegacyKeys();
-
-}
-
-
-function checkLocalReminders(){
-
-  const now =
-    Date.now();
-
-
-  const appointments =
-    getAppointments()
-      .filter(
-        appointment =>
-          appointment.status !==
-            "cancellato" &&
-          appointment.status !==
-            "completato" &&
-          appointment.reminder !==
-            "none"
-      );
-
-
-  appointments.forEach(
-    appointment => {
-
-      const targets =
-        getReminderTargets(
-          appointment
-        );
-
-
-      targets.forEach(
-        target => {
-
-          let alreadySent =
-            false;
-
-
-          if(
-            target.type ===
-            "24h"
-          ){
-
-            alreadySent =
-              Boolean(
-                appointment
-                  .reminder24SentAt
-              );
-
-          }
-
-
-          if(
-            target.type ===
-            "2h"
-          ){
-
-            alreadySent =
-              Boolean(
-                appointment
-                  .reminder2SentAt
-              );
-
-          }
-
-
-          if(
-            alreadySent
-          ){
-
-            return;
-
-          }
-
-
-          /*
-             Finestra di tolleranza:
-             il promemoria viene considerato
-             valido se l'app viene aperta
-             dopo l'orario teorico del promemoria
-             ma prima dell'appuntamento.
-          */
-
-          if(
-            now >= target.target &&
-            now <
-              getAppointmentDateTime(
-                appointment
-              ).getTime()
-          ){
-
-            createReminderNotification(
-              appointment,
-              target.type
-            );
-
-            markReminderSent(
-              appointment.id,
-              target.type
-            );
-
-          }
-
-        }
-      );
-
-    }
-  );
-
-
-  renderDashboardReminders();
-
-  updateDashboardCountersOnly();
-
-}
-
-
-function updateDashboardCountersOnly(){
-
-  const reminders =
-    getUpcomingReminderAppointments();
-
-  $("dashboardReminders")
-    .textContent =
-      reminders.length;
-
-}
-
-
-function renderDashboardReminders(){
-
-  const box =
-    $("dashboardRemindersList");
-
-  if(!box)return;
-
-
-  const list =
-    getUpcomingReminderAppointments();
-
-
-  if(!list.length){
-
-    box.innerHTML =
-      `
-      <div class="empty-state">
-        Nessun promemoria imminente.
-      </div>
-      `;
-
-    return;
-
-  }
-
-
-  box.innerHTML =
-    list.map(
-      appointment => `
-
-        <div class="reminder-item">
-
-          <b>
-            ${esc(appointment.n)}
-          </b>
-
-          <div>
-            ${esc(
-              formatAppointmentDate(
-                appointment.d
-              )
-            )}
-            ·
-            ${esc(appointment.t)}
-          </div>
-
-          <div>
-            ${esc(appointment.s)}
-          </div>
-
-          <div style="margin-top:7px">
-
-            <span
-              class="badge ${getReminderStatusClass(
-                appointment
-              )}"
-            >
-              ${getReminderStatusText(
-                appointment
-              )}
-            </span>
-
-          </div>
-
-          <div class="reminder-actions">
-
-            ${
-              appointment.clientId &&
-              getClientForAppointment(
-                appointment
-              )?.phone
-
-                ? `
-                  <button
-                    class="secondary small-button"
-                    onclick="sendAppointmentWhatsApp('${esc(appointment.id)}')"
-                  >
-                    WhatsApp
-                  </button>
-                `
-                : ""
-            }
-
-            <button
-              class="secondary small-button"
-              onclick="openEditAppointment('${esc(appointment.id)}')"
-            >
-              Modifica
-            </button>
-
-          </div>
-
-        </div>
-
-      `
-    )
-    .join("");
-
-}
-
-
-/* ============================================================
-   NOTIFICHE
-============================================================ */
-
-function updateNotificationStatus(){
-
-  const box =
-    $("notificationStatus");
-
-  if(!box)return;
-
-
-  if(
-    !("Notification" in window)
-  ){
-
-    box.innerHTML =
-      "Le notifiche locali non sono supportate da questo browser.";
-
-    return;
-
-  }
-
-
-  if(
-    Notification.permission ===
-    "granted"
-  ){
-
-    box.innerHTML =
-      "Notifiche locali attive. L'app controllerà i promemoria quando viene aperta o torna in primo piano.";
-
-    return;
-
-  }
-
-
-  if(
-    Notification.permission ===
-    "denied"
-  ){
-
-    box.innerHTML =
-      "Notifiche bloccate dal dispositivo/browser. Riattivale dalle impostazioni del browser.";
-
-    return;
-
-  }
-
-
-  box.innerHTML =
-    "Notifiche non ancora autorizzate. Premi «Attiva notifiche».";
-
-}
-
-
-async function requestNotificationPermission(){
-
-  if(
-    !("Notification" in window)
-  ){
-
-    updateNotificationStatus();
-
-    return;
-
-  }
-
-
-  try{
-
-    const permission =
-      await Notification.requestPermission();
-
-    updateNotificationStatus();
-
-
-    if(
-      permission ===
-      "granted"
-    ){
-
-      checkLocalReminders();
-
-    }
-
-  }catch(error){
-
-    console.error(
-      error
-    );
-
-  }
-
-}
-
-
-/* ============================================================
-   AI
-============================================================ */
-
-function savePendingState(){
-
-  if(pendingAppointment){
-
-    localStorage.setItem(
-      "pendingAppointment",
-      JSON.stringify(
-        pendingAppointment
-      )
-    );
-
-  }else{
-
-    localStorage.removeItem(
-      "pendingAppointment"
-    );
-
-  }
-
-
-  if(requiresConfirmation){
-
-    localStorage.setItem(
-      "requiresConfirmation",
-      "true"
-    );
-
-  }else{
-
-    localStorage.removeItem(
-      "requiresConfirmation"
-    );
-
-  }
-
-}
-
-
-function clearPendingState(){
-
-  pendingAppointment =
-    null;
-
-  requiresConfirmation =
-    false;
-
-
-  localStorage.removeItem(
-    "pendingAppointment"
-  );
-
-  localStorage.removeItem(
-    "requiresConfirmation"
-  );
-
-
-  const actions =
-    $("confirmationActions");
-
-  if(actions){
-
-    actions.remove();
-
-  }
-
-
-  renderPendingBox();
-
-}
-
-
-function showAvailableSlots(
-  slots,
-  date,
-  service
-){
-
-  if(
-    !Array.isArray(slots) ||
-    !slots.length
-  ){
-
-    return;
-
-  }
-
-
-  document
-    .querySelectorAll(
-      ".available-slot-actions"
-    )
-    .forEach(
-      element =>
-        element.remove()
-    );
-
-
-  const container =
-    document.createElement(
-      "div"
-    );
-
-  container.className =
-    "ai-actions available-slot-actions";
-
-
-  const title =
-    document.createElement(
-      "div"
-    );
-
-  title.className =
-    "available-title";
-
-  title.textContent =
-    service
-      ? `${service} — orari disponibili`
-      : "Orari disponibili";
-
-
-  container.appendChild(
-    title
-  );
-
-
-  slots.forEach(
-    time => {
-
-      const button =
-        document.createElement(
-          "button"
-        );
-
-      button.className =
-        "ai-slot-button";
-
-      button.textContent =
-        time;
-
-      button.onclick =
-        () =>
-          selectAISlot(
-            button,
-            time,
-            date,
-            service
-          );
-
-
-      container.appendChild(
-        button
-      );
-
-    }
-  );
-
-
-  $("chat")
-    .appendChild(
-      container
-    );
-
-  $("chat").scrollTop =
-    $("chat").scrollHeight;
-
-}
-
-
-function selectAISlot(
-  button,
-  time,
-  date,
-  service
-){
-
-  if(
-    requestInProgress ||
-    button.disabled
-  ){
-
-    return;
-
-  }
-
-
-  document
-    .querySelectorAll(
-      ".ai-slot-button"
-    )
-    .forEach(
-      b =>
-        b.disabled = true
-    );
-
-
-  let selectedService =
-    service ||
-    pendingAppointment?.service ||
-    $("s").value ||
-    "";
-
-
-  const selectedDate =
-    date ||
-    pendingAppointment?.date ||
-    $("d").value ||
-    $("calendarDate").value;
-
-
-  const selectedName =
-    pendingAppointment?.name ||
-    $("clientName")
-      .value
-      .trim() ||
-    $("n")
-      .value
-      .trim() ||
-    "";
-
-
-  const serviceObject =
-    getService(
-      selectedService
-    );
-
-
-  if(serviceObject){
-
-    selectedService =
-      serviceObject.name;
-
-    $("s").value =
-      serviceObject.name;
-
-  }
-
-
-  pendingAppointment = {
-
-    name:
-      selectedName,
-
-    date:
-      selectedDate,
-
-    time,
-
-    service:
-      selectedService
-
-  };
-
-
-  requiresConfirmation =
-    false;
-
-
-  savePendingState();
-
-
-  $("d").value =
-    selectedDate;
-
-  $("t").value =
-    time;
-
-
-  $("appointmentStatus")
-    .textContent =
-      `Orario ${time} selezionato per ${selectedService || "il servizio"}.`;
-
-
-  $("q").value =
-    `Scelgo le ${time}`;
-
-
-  send();
+ renderClients();
+ renderAppointments();
+ updateDashboard();
 
 }
 
 
 function renderPendingBox(){
 
-  const box =
-    $("pendingBox");
+ const box=$("pendingBox");
 
-  if(!box)return;
+ if(!box)return;
+
+ if(!pendingAppointment){
+
+  box.innerHTML="";
+
+  return;
+
+ }
+
+ const p=pendingAppointment;
+
+ box.innerHTML=`
+
+ <div class="pending-box">
+
+ <b>Prenotazione in corso</b>
+
+ <br>
+
+ ${esc(p.service||"Servizio")}
+
+ ${
+  p.date?
+  `<br>${esc(formatAppointmentDate(p.date))}`:
+  ""
+ }
+
+ ${
+  p.time?
+  ` · ${esc(p.time)}`:
+  ""
+ }
+
+ ${
+  p.name?
+  `<br>Cliente: ${esc(p.name)}`:
+  ""
+ }
+
+ </div>
+
+ `;
+
+}
 
 
-  if(!pendingAppointment){
+function savePendingState(){
 
-    box.innerHTML =
-      "";
+ if(pendingAppointment)
+  localStorage.setItem(
+   "pendingAppointment",
+   JSON.stringify(pendingAppointment)
+  );
+ else
+  localStorage.removeItem(
+   "pendingAppointment"
+  );
 
-    return;
+ if(requiresConfirmation)
+  localStorage.setItem(
+   "requiresConfirmation",
+   "true"
+  );
+ else
+  localStorage.removeItem(
+   "requiresConfirmation"
+  );
 
-  }
-
-
-  const service =
-    pendingAppointment.service ||
-    "Servizio";
-
-  const date =
-    pendingAppointment.date ||
-    "";
-
-  const time =
-    pendingAppointment.time ||
-    "";
-
-  const name =
-    pendingAppointment.name ||
-    "";
+}
 
 
-  box.innerHTML = `
+function clearPendingState(){
 
-    <div class="pending-box">
+ pendingAppointment=null;
+ requiresConfirmation=false;
 
-      <b>
-        Prenotazione in corso
-      </b>
+ localStorage.removeItem(
+  "pendingAppointment"
+ );
 
-      <br>
+ localStorage.removeItem(
+  "requiresConfirmation"
+ );
 
-      ${esc(service)}
+ const actions=
+  $("confirmationActions");
 
-      ${
-        date
-          ? `
-            <br>
-            ${esc(
-              formatAppointmentDate(
-                date
-              )
-            )}
-          `
-          : ""
-      }
+ if(actions)
+  actions.remove();
 
-      ${
-        time
-          ? `
-            · ${esc(time)}
-          `
-          : ""
-      }
-
-      ${
-        name
-          ? `
-            <br>
-            Cliente: ${esc(name)}
-          `
-          : ""
-      }
-
-    </div>
-
-  `;
+ renderPendingBox();
 
 }
 
 
 function showConfirmationButtons(){
 
-  document
-    .getElementById(
-      "confirmationActions"
-    )
-    ?.remove();
+ document
+ .getElementById("confirmationActions")
+ ?.remove();
+
+ const container=
+  document.createElement("div");
+
+ container.id="confirmationActions";
+ container.className="ai-actions";
+
+ const confirm=
+  document.createElement("button");
+
+ confirm.className=
+  "ai-confirm-button";
+
+ confirm.textContent=
+  "Conferma appuntamento";
+
+ confirm.onclick=
+  ()=>confirmAppointment(confirm);
 
 
-  const container =
-    document.createElement(
-      "div"
-    );
+ const cancel=
+  document.createElement("button");
 
-  container.id =
-    "confirmationActions";
+ cancel.className=
+  "ai-cancel-button";
 
-  container.className =
-    "ai-actions";
+ cancel.textContent="Annulla";
 
+ cancel.onclick=
+  ()=>cancelAIAppointment(cancel);
 
-  const confirm =
-    document.createElement(
-      "button"
-    );
+ container.append(
+  confirm,
+  cancel
+ );
 
-  confirm.className =
-    "ai-confirm-button";
+ $("chat").appendChild(container);
 
-  confirm.textContent =
-    "Conferma appuntamento";
-
-  confirm.onclick =
-    () =>
-      confirmAppointment(
-        confirm
-      );
-
-
-  const cancel =
-    document.createElement(
-      "button"
-    );
-
-  cancel.className =
-    "ai-cancel-button";
-
-  cancel.textContent =
-    "Annulla";
-
-  cancel.onclick =
-    () =>
-      cancelAppointment(
-        cancel
-      );
-
-
-  container.append(
-    confirm,
-    cancel
-  );
-
-
-  $("chat")
-    .appendChild(
-      container
-    );
-
-  $("chat").scrollTop =
-    $("chat").scrollHeight;
+ $("chat").scrollTop=
+  $("chat").scrollHeight;
 
 }
 
 
-function confirmAppointment(
-  button
+function confirmAppointment(button){
+
+ if(
+  requestInProgress||
+  !pendingAppointment||
+  !requiresConfirmation
+ )return;
+
+ button.disabled=true;
+
+ button.textContent=
+  "Conferma in corso...";
+
+ $("q").value=
+  "Confermo l'appuntamento";
+
+ send();
+
+}
+
+
+function cancelAIAppointment(button){
+
+ if(
+  requestInProgress||
+  !pendingAppointment||
+  !requiresConfirmation
+ )return;
+
+ button.disabled=true;
+
+ button.textContent=
+  "Annullamento...";
+
+ $("q").value="Annulla";
+
+ send();
+
+}
+
+
+function showAvailableSlots(
+ slots,
+ date,
+ service
 ){
 
-  if(
-    requestInProgress ||
-    !pendingAppointment ||
-    !requiresConfirmation
-  ){
+ if(
+  !Array.isArray(slots)||
+  !slots.length
+ )return;
 
-    return;
+ document
+ .querySelectorAll(".available-slot-actions")
+ .forEach(e=>e.remove());
 
-  }
+ const container=
+  document.createElement("div");
 
+ container.className=
+  "ai-actions available-slot-actions";
 
-  button.disabled =
-    true;
+ const title=
+  document.createElement("div");
 
-  button.textContent =
-    "Conferma in corso...";
+ title.className="available-title";
 
+ title.textContent=
+  service?
+  `${service} — orari disponibili`:
+  "Orari disponibili";
 
-  $("q").value =
-    "Confermo l'appuntamento";
+ container.appendChild(title);
 
+ slots.forEach(time=>{
 
-  send();
+  const button=
+   document.createElement("button");
+
+  button.className=
+   "ai-slot-button";
+
+  button.textContent=time;
+
+  button.onclick=
+   ()=>selectAISlot(
+    button,
+    time,
+    date,
+    service
+   );
+
+  container.appendChild(button);
+
+ });
+
+ $("chat").appendChild(container);
+
+ $("chat").scrollTop=
+  $("chat").scrollHeight;
 
 }
 
 
-function cancelAppointment(
-  button
+function selectAISlot(
+ button,
+ time,
+ date,
+ service
 ){
 
-  if(
-    requestInProgress ||
-    !pendingAppointment ||
-    !requiresConfirmation
-  ){
+ if(
+  requestInProgress||
+  button.disabled
+ )return;
 
-    return;
+ document
+ .querySelectorAll(".ai-slot-button")
+ .forEach(
+  b=>b.disabled=true
+ );
 
-  }
+ let selectedService=
+  service||
+  pendingAppointment?.service||
+  $("s").value||
+  "";
 
+ const selectedDate=
+  date||
+  pendingAppointment?.date||
+  $("d").value||
+  $("calendarDate").value;
 
-  button.disabled =
-    true;
+ const selectedName=
+  pendingAppointment?.name||
+  $("clientName").value.trim()||
+  $("n").value.trim()||
+  "";
 
-  button.textContent =
-    "Annullamento...";
+ const serviceObject=
+  getService(selectedService);
 
+ if(serviceObject){
 
-  $("q").value =
-    "Annulla";
+  selectedService=
+   serviceObject.name;
 
+  $("s").value=
+   serviceObject.name;
 
-  send();
+ }
+
+ pendingAppointment={
+
+  name:selectedName,
+
+  date:selectedDate,
+
+  time,
+
+  service:selectedService
+
+ };
+
+ requiresConfirmation=false;
+
+ savePendingState();
+
+ $("d").value=selectedDate;
+ $("t").value=time;
+
+ $("appointmentStatus").textContent=
+  `Orario ${time} selezionato per ${selectedService||"il servizio"}.`;
+
+ $("q").value=
+  `Scelgo le ${time}`;
+
+ send();
 
 }
 
-
-/* ============================================================
-   INVIO AI
-============================================================ */
 
 async function send(){
 
-  if(requestInProgress)return;
+ if(requestInProgress)return;
+
+ const message=
+  $("q").value.trim();
+
+ if(!message)return;
+
+ requestInProgress=true;
+
+ $("q").disabled=true;
+ $("sendButton").disabled=true;
+
+ $("chat")
+  .classList.add("ai-busy");
+
+ $("chat").innerHTML+=
+  `<div class="msg user">
+  ${esc(message)}
+  </div>`;
+
+ chatHistory.push({
+  role:"user",
+  content:message
+ });
+
+ chatHistory=
+  chatHistory.slice(-20);
+
+ $("status").textContent=
+  "L'assistente sta verificando i dati...";
 
 
-  const message =
-    $("q")
-      .value
-      .trim();
+ try{
 
-  if(!message)return;
+  const settings=getSettings();
+
+  const payload={
+
+   message,
+
+   business:
+    getAppData().business.name||
+    settings.name||
+    "Attività locale",
+
+   clientName:
+    $("clientName").value.trim(),
+
+   settings,
+
+   services:getServices(),
+
+   appointments:getAppointments(),
+
+   promotions:getPromotions(),
+
+   clients:getClients(),
+
+   history:
+    chatHistory.slice(0,-1),
+
+   pendingAppointment:
+    pendingAppointment?
+    {
+     name:pendingAppointment.name||"",
+     date:pendingAppointment.date||"",
+     time:pendingAppointment.time||"",
+     service:pendingAppointment.service||""
+    }:
+    null,
+
+   requiresConfirmation:
+    Boolean(requiresConfirmation)
+
+  };
 
 
-  requestInProgress =
-    true;
+  const response=
+   await fetch(
+    "/api/chat",
+    {
+     method:"POST",
+     headers:{
+      "Content-Type":
+       "application/json"
+     },
+     body:
+      JSON.stringify(payload)
+    }
+   );
 
 
-  $("q").disabled =
-    true;
+  let data;
 
-  $("sendButton").disabled =
-    true;
+  try{
+
+   data=await response.json();
+
+  }catch{
+
+   throw new Error(
+    "Il server ha restituito una risposta non valida."
+   );
+
+  }
 
 
-  $("chat")
-    .classList
-    .add("ai-busy");
+  if(!response.ok)
+   throw new Error(
+    data.error||
+    "Errore del server."
+   );
 
 
-  $("chat").innerHTML +=
-    `
-    <div class="msg user">
-      ${esc(message)}
-    </div>
-    `;
+  const reply=
+   data.reply||
+   "Non ho ricevuto una risposta dall'assistente.";
 
 
   chatHistory.push({
-    role:"user",
-    content:message
+   role:"assistant",
+   content:reply
   });
 
 
-  chatHistory =
-    chatHistory.slice(-20);
+  $("chat").innerHTML+=
+   `<div class="msg bot">
+   ${esc(reply)}
+   </div>`;
 
 
-  $("status")
-    .textContent =
-      "L'assistente sta verificando i dati...";
+  if(
+   Array.isArray(data.availableSlots)&&
+   data.availableSlots.length
+  ){
 
+   const alternativeDate=
+    data.availableDate||
+    pendingAppointment?.date||
+    "";
 
-  try{
+   const alternativeService=
+    data.availableService||
+    pendingAppointment?.service||
+    "";
 
-    const settings =
-      getSettings();
+   pendingAppointment={
 
+    name:
+     pendingAppointment?.name||
+     $("clientName").value.trim()||
+     "",
 
-    const payload = {
+    date:alternativeDate,
 
-      message,
+    time:
+     pendingAppointment?.time||
+     "",
 
-      business:
-        getAppData()
-          .business
-          .name ||
-        settings.name ||
-        "Attività locale",
+    service:alternativeService
 
-      clientName:
-        $("clientName")
-          .value
-          .trim(),
+   };
 
-      settings,
+   requiresConfirmation=false;
 
-      services:
-        getServices(),
+   savePendingState();
 
-      appointments:
-        getAppointments(),
+   renderPendingBox();
 
-      promotions:
-        getPromotions(),
-
-      clients:
-        getClients(),
-
-      history:
-        chatHistory.slice(0,-1),
-
-      pendingAppointment:
-        pendingAppointment
-          ? {
-
-              name:
-                pendingAppointment.name ||
-                "",
-
-              date:
-                pendingAppointment.date ||
-                "",
-
-              time:
-                pendingAppointment.time ||
-                "",
-
-              service:
-                pendingAppointment.service ||
-                ""
-
-            }
-          : null,
-
-      requiresConfirmation:
-        Boolean(
-          requiresConfirmation
-        )
-
-    };
-
-
-    const response =
-      await fetch(
-        "/api/chat",
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify(
-              payload
-            )
-        }
-      );
-
-
-    let data;
-
-
-    try{
-
-      data =
-        await response.json();
-
-    }catch{
-
-      throw new Error(
-        "Il server ha restituito una risposta non valida."
-      );
-
-    }
-
-
-    if(!response.ok){
-
-      throw new Error(
-        data.error ||
-        "Errore del server."
-      );
-
-    }
-
-
-    const reply =
-      data.reply ||
-      "Non ho ricevuto una risposta dall'assistente.";
-
-
-    chatHistory.push({
-      role:"assistant",
-      content:reply
-    });
-
-
-    $("chat").innerHTML +=
-      `
-      <div class="msg bot">
-        ${esc(reply)}
-      </div>
-      `;
-
-
-    if(
-      Array.isArray(
-        data.availableSlots
-      ) &&
-      data.availableSlots.length
-    ){
-
-      const alternativeDate =
-        data.availableDate ||
-        pendingAppointment?.date ||
-        "";
-
-
-      const alternativeService =
-        data.availableService ||
-        pendingAppointment?.service ||
-        "";
-
-
-      pendingAppointment = {
-
-        name:
-          pendingAppointment?.name ||
-          $("clientName")
-            .value
-            .trim() ||
-          "",
-
-        date:
-          alternativeDate,
-
-        time:
-          pendingAppointment?.time ||
-          "",
-
-        service:
-          alternativeService
-
-      };
-
-
-      requiresConfirmation =
-        false;
-
-
-      savePendingState();
-
-      renderPendingBox();
-
-
-      showAvailableSlots(
-        data.availableSlots,
-        alternativeDate,
-        alternativeService
-      );
-
-    }
-
-
-    if(data.pendingAppointment){
-
-      pendingAppointment = {
-
-        name:
-          data.pendingAppointment.name ||
-          pendingAppointment?.name ||
-          $("clientName")
-            .value
-            .trim() ||
-          "",
-
-        date:
-          data.pendingAppointment.date ||
-          pendingAppointment?.date ||
-          "",
-
-        time:
-          data.pendingAppointment.time ||
-          pendingAppointment?.time ||
-          "",
-
-        service:
-          data.pendingAppointment.service ||
-          pendingAppointment?.service ||
-          ""
-
-      };
-
-
-      requiresConfirmation =
-        Boolean(
-          data.requiresConfirmation
-        );
-
-
-      savePendingState();
-
-      renderPendingBox();
-
-
-      if(
-        requiresConfirmation
-      ){
-
-        showConfirmationButtons();
-
-      }
-
-    }
-
-
-    if(
-      data.confirmed === true &&
-      data.appointment
-    ){
-
-      const appointment =
-        data.appointment;
-
-
-      const appointments =
-        getAppointments();
-
-
-      const duplicate =
-        appointments.some(
-          existing =>
-            existing.status !==
-              "cancellato" &&
-            existing.d ===
-              appointment.date &&
-            existing.t ===
-              appointment.time
-        );
-
-
-      if(!duplicate){
-
-        const client =
-          upsertClient(
-            appointment.name
-          );
-
-
-        updateAppData(
-          dataStore => {
-
-            dataStore.appointments
-              .push({
-
-                id:
-                  appointment.bookingKey ||
-                  "apt_" +
-                  Date.now(),
-
-                n:
-                  appointment.name,
-
-                d:
-                  appointment.date,
-
-                t:
-                  appointment.time,
-
-                s:
-                  appointment.service,
-
-                clientId:
-                  client?.id ||
-                  "",
-
-                status:
-                  "confermato",
-
-                reminder:
-                  normalizeReminder(
-                    data.reminder ||
-                    data.appointment.reminder ||
-                    getSettings()
-                      .defaultReminder
-                  ),
-
-                reminder24SentAt:null,
-
-                reminder2SentAt:null,
-
-                reminderLastCheckedAt:null,
-
-                createdAt:
-                  new Date()
-                    .toISOString(),
-
-                updatedAt:
-                  new Date()
-                    .toISOString()
-
-              });
-
-          }
-        );
-
-      }
-
-
-      syncLegacyKeys();
-
-      clearPendingState();
-
-      renderAppointments();
-
-      renderDayAppointments();
-
-      renderCalendar();
-
-      renderClients();
-
-      updateDashboard();
-
-      checkLocalReminders();
-
-
-      if(
-        !$("clientName")
-          .value
-          .trim()
-      ){
-
-        $("clientName")
-          .value =
-            appointment.name ||
-            "";
-
-      }
-
-    }
-
-
-    if(
-      data.confirmed === false &&
-      data.requiresConfirmation === false &&
-      !data.pendingAppointment &&
-      message
-        .toLowerCase()
-        .includes("annulla")
-    ){
-
-      clearPendingState();
-
-    }
-
-
-  }catch(error){
-
-    chatHistory.pop();
-
-
-    $("chat").innerHTML +=
-      `
-      <div class="msg bot">
-        Si è verificato un problema:
-        ${esc(error.message)}
-      </div>
-      `;
-
-  }finally{
-
-    requestInProgress =
-      false;
-
-    $("q").disabled =
-      false;
-
-    $("sendButton").disabled =
-      false;
-
-    $("chat")
-      .classList
-      .remove("ai-busy");
-
-    $("status")
-      .textContent =
-        "";
-
-    $("q").value =
-      "";
-
-    $("chat").scrollTop =
-      $("chat").scrollHeight;
-
-
-    document
-      .querySelectorAll(
-        ".ai-slot-button"
-      )
-      .forEach(
-        button =>
-          button.disabled =
-            false
-      );
+   showAvailableSlots(
+    data.availableSlots,
+    alternativeDate,
+    alternativeService
+   );
 
   }
 
+
+  if(data.pendingAppointment){
+
+   pendingAppointment={
+
+    name:
+     data.pendingAppointment.name||
+     pendingAppointment?.name||
+     $("clientName").value.trim()||
+     "",
+
+    date:
+     data.pendingAppointment.date||
+     pendingAppointment?.date||
+     "",
+
+    time:
+     data.pendingAppointment.time||
+     pendingAppointment?.time||
+     "",
+
+    service:
+     data.pendingAppointment.service||
+     pendingAppointment?.service||
+     ""
+
+   };
+
+   requiresConfirmation=
+    Boolean(
+     data.requiresConfirmation
+    );
+
+   savePendingState();
+
+   renderPendingBox();
+
+   if(requiresConfirmation)
+    showConfirmationButtons();
+
+  }
+
+
+  if(
+   data.confirmed===true&&
+   data.appointment
+  ){
+
+   const appointment=
+    data.appointment;
+
+   const appointments=
+    getAppointments();
+
+   const duplicate=
+    appointments.some(existing=>
+
+     existing.status!=="cancellato"&&
+     existing.d===appointment.date&&
+     existing.t===appointment.time
+
+    );
+
+
+   if(!duplicate){
+
+    const client=
+     upsertClient(
+      appointment.name
+     );
+
+    updateAppData(dataStore=>{
+
+     dataStore.appointments.push({
+
+      id:
+       appointment.bookingKey||
+       "apt_"+Date.now(),
+
+      n:appointment.name,
+
+      d:appointment.date,
+
+      t:appointment.time,
+
+      s:appointment.service,
+
+      clientId:
+       client?.id||"",
+
+      status:"confermato",
+
+      createdAt:
+       new Date().toISOString(),
+
+      updatedAt:
+       new Date().toISOString()
+
+     });
+
+    });
+
+   }
+
+
+   syncLegacyKeys();
+
+   clearPendingState();
+
+   renderAppointments();
+   renderDayAppointments();
+   renderCalendar();
+   renderClients();
+   updateDashboard();
+
+   if(!$("clientName").value.trim())
+    $("clientName").value=
+     appointment.name||"";
+
+  }
+
+
+  if(
+   data.confirmed===false&&
+   data.requiresConfirmation===false&&
+   !data.pendingAppointment&&
+   message.toLowerCase().includes("annulla")
+  ){
+
+   clearPendingState();
+
+  }
+
+
+ }catch(error){
+
+  chatHistory.pop();
+
+  $("chat").innerHTML+=
+   `<div class="msg bot">
+   Si è verificato un problema:
+   ${esc(error.message)}
+   </div>`;
+
+ }finally{
+
+  requestInProgress=false;
+
+  $("q").disabled=false;
+  $("sendButton").disabled=false;
+
+  $("chat")
+   .classList.remove("ai-busy");
+
+  $("status").textContent="";
+
+  $("q").value="";
+
+  $("chat").scrollTop=
+   $("chat").scrollHeight;
+
+  document
+   .querySelectorAll(".ai-slot-button")
+   .forEach(
+    button=>button.disabled=false
+   );
+
+ }
+
 }
 
-
-/* ============================================================
-   POST AI
-============================================================ */
 
 async function generatePost(){
 
-  const topic =
-    $("topic")
-      .value
-      .trim() ||
-    "Nuova promozione";
+ const topic=
+  $("topic").value.trim()||
+  "Nuova promozione";
+
+ $("postStatus").textContent=
+  "Generazione del post in corso...";
 
 
-  $("postStatus")
-    .textContent =
-      "Generazione del post in corso...";
+ try{
 
+  const settings=getSettings();
 
-  try{
+  const response=
+   await fetch(
+    "/api/chat",
+    {
+     method:"POST",
+     headers:{
+      "Content-Type":
+       "application/json"
+     },
+     body:
+      JSON.stringify({
 
-    const settings =
-      getSettings();
+       action:"post",
 
+       topic,
 
-    const response =
-      await fetch(
-        "/api/chat",
-        {
+       business:
+        getAppData().business.name||
+        settings.name||
+        "Attività locale",
 
-          method:"POST",
+       settings,
 
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
+       services:getServices(),
 
-          body:
-            JSON.stringify({
+       promotions:getPromotions(),
 
-              action:"post",
+       appointments:getAppointments()
 
-              topic,
-
-              business:
-                getAppData()
-                  .business
-                  .name ||
-                settings.name ||
-                "Attività locale",
-
-              settings,
-
-              services:
-                getServices(),
-
-              promotions:
-                getPromotions(),
-
-              appointments:
-                getAppointments(),
-
-              clients:
-                getClients()
-
-            })
-
-        }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    if(!response.ok){
-
-      throw new Error(
-        data.error ||
-        "Errore nella generazione."
-      );
-
+      })
     }
+   );
 
 
-    $("out").value =
-      data.reply || "";
+  const data=
+   await response.json();
 
+  if(!response.ok)
+   throw new Error(
+    data.error||
+    "Errore nella generazione."
+   );
 
-    $("postStatus")
-      .textContent =
-        "Post generato.";
+  $("out").value=
+   data.reply||"";
 
+  $("postStatus").textContent=
+   "Post generato.";
 
-  }catch(error){
+ }catch(error){
 
-    $("postStatus")
-      .textContent =
-        "Errore: " +
-        error.message;
+  $("postStatus").textContent=
+   "Errore: "+error.message;
 
-  }
+ }
 
 }
 
 
-/* ============================================================
-   SINCRONIZZAZIONE TRA SCHEDE
-============================================================ */
+function syncLegacyKeys(){
 
-window.addEventListener(
-  "storage",
-  event => {
+ const data=getAppData();
 
-    if(
-      event.key ===
-        STORAGE_PRIMARY ||
-      event.key ===
-        STORAGE_BACKUP
-    ){
+ try{
 
-      appData =
-        loadAppData();
-
-      fillServiceSelects();
-
-      renderServices();
-
-      renderPromotions();
-
-      renderAppointments();
-
-      renderDayAppointments();
-
-      renderCalendar();
-
-      renderClients();
-
-      updateDashboard();
-
-      loadSettings();
-
-      checkLocalReminders();
-
-    }
-
-  }
-);
-
-
-/* ============================================================
-   APP RIPRESA / VISIBILITÀ
-============================================================ */
-
-document.addEventListener(
-  "visibilitychange",
-  () => {
-
-    if(
-      document.visibilityState ===
-      "visible"
-    ){
-
-      loadAppData();
-
-      updateNotificationStatus();
-
-      checkLocalReminders();
-
-      renderCalendar();
-
-      renderDayAppointments();
-
-      renderAppointments();
-
-      renderClients();
-
-      updateDashboard();
-
-    }
-
-  }
-);
-
-
-window.addEventListener(
-  "focus",
-  () => {
-
-    checkLocalReminders();
-
-    updateDashboard();
-
-  }
-);
-
-
-/* ============================================================
-   CHIUSURA MODALE
-============================================================ */
-
-$("appointmentModal")
-  .addEventListener(
-    "click",
-    event => {
-
-      if(
-        event.target ===
-        $("appointmentModal")
-      ){
-
-        closeAppointmentModal();
-
-      }
-
-    }
+  localStorage.setItem(
+   "biz",
+   data.business.name||
+   data.settings.name||
+   "Attività locale"
   );
 
+  localStorage.setItem(
+   "settings",
+   JSON.stringify(data.settings)
+  );
 
-/* ============================================================
-   INIZIALIZZAZIONE
-============================================================ */
+  localStorage.setItem(
+   "services",
+   JSON.stringify(data.services)
+  );
+
+  localStorage.setItem(
+   "promotions",
+   JSON.stringify(data.promotions)
+  );
+
+  localStorage.setItem(
+   "a",
+   JSON.stringify(data.appointments)
+  );
+
+  localStorage.setItem(
+   "a_backup",
+   JSON.stringify(data.appointments)
+  );
+
+ }catch(error){
+
+  console.error(
+   "Errore sincronizzazione:",
+   error
+  );
+
+ }
+
+}
+
+
+window.addEventListener(
+ "storage",
+ event=>{
+
+  if(
+   event.key===STORAGE_PRIMARY||
+   event.key===STORAGE_BACKUP
+  ){
+
+   appData=loadAppData();
+
+   renderServices();
+   renderPromotions();
+   renderAppointments();
+   renderDayAppointments();
+   renderCalendar();
+   renderClients();
+   updateDashboard();
+   loadSettings();
+
+  }
+
+ }
+);
+
+
+$("appointmentModal")
+ .addEventListener(
+  "click",
+  event=>{
+
+   if(
+    event.target===
+    $("appointmentModal")
+   )
+    closeAppointmentModal();
+
+  }
+ );
+
 
 loadAppData();
 
 syncLegacyKeys();
 
-
-$("biz").value =
-  getAppData()
-    .business
-    .name ||
-  "Salone Bella Linea";
-
+$("biz").value=
+ getAppData().business.name||
+ "Salone Bella Linea";
 
 loadSettings();
-
-fillServiceSelects();
 
 renderServices();
 
@@ -7180,33 +3984,18 @@ renderAppointments();
 
 (function(){
 
-  const today =
-    new Date();
+ const today=new Date();
 
-  const date =
-    today
-      .toISOString()
-      .slice(0,10);
+ const date=
+  today.toISOString().slice(0,10);
 
+ $("calendarDate").value=date;
 
-  $("calendarDate")
-    .value =
-      date;
+ $("d").value=date;
 
-  $("d").value =
-    date;
+ renderCalendar();
 
-
-  $("appointmentReminder")
-    .value =
-      getSettings()
-        .defaultReminder ||
-      "24h";
-
-
-  renderCalendar();
-
-  renderDayAppointments();
+ renderDayAppointments();
 
 })();
 
@@ -7214,40 +4003,6 @@ renderAppointments();
 updateDashboard();
 
 renderPendingBox();
-
-updateNotificationStatus();
-
-checkLocalReminders();
-
-
-/*
-============================================================
-  CONTROLLO PERIODICO
-  Finché l'app è aperta viene effettuato
-  un controllo periodico dei promemoria.
-============================================================
-*/
-
-setInterval(
-  () => {
-
-    checkLocalReminders();
-
-    updateNotificationStatus();
-
-  },
-  60 * 1000
-);
-
-
-/*
-============================================================
-  RICHIESTA NOTIFICHE
-  Non viene chiesto automaticamente al caricamento:
-  il negoziante deve premere "Attiva notifiche".
-============================================================
-*/
-
 
 </script>
 
