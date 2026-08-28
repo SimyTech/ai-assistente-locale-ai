@@ -1,18 +1,19 @@
 <!doctype html>
+
 <html lang="it">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="manifest.json">
-<title>AI Assistente Locale</title>
+<title>AI Assistente Locale</title><style>
+*{box-sizing:border-box}
 
-<style>
 body{
   margin:0;
   background:#f5f6fa;
   color:#17181c;
-  font-family:system-ui,sans-serif
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
 }
 
 header{
@@ -26,6 +27,10 @@ h1{
   font-size:21px
 }
 
+h2,h3{
+  margin-top:0
+}
+
 nav{
   display:flex;
   gap:6px;
@@ -34,10 +39,12 @@ nav{
   padding:10px;
   position:sticky;
   top:0;
-  z-index:20
+  z-index:20;
+  border-bottom:1px solid #e5e7eb
 }
 
-nav button,button{
+nav button,
+button{
   padding:10px 14px;
   border:0;
   border-radius:10px;
@@ -56,7 +63,7 @@ nav button{
 }
 
 main{
-  max-width:950px;
+  max-width:900px;
   margin:auto;
   padding:16px
 }
@@ -74,7 +81,30 @@ main{
   padding:17px;
   border-radius:16px;
   margin-bottom:13px;
-  border:1px solid #e5e7eb
+  border:1px solid #e5e7eb;
+  box-shadow:0 2px 8px rgba(0,0,0,.03)
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px
+}
+
+.stat{
+  font-size:28px;
+  font-weight:800
+}
+
+.muted{
+  color:#667085;
+  font-size:13px
+}
+
+label{
+  display:block;
+  font-weight:700;
+  margin-top:8px
 }
 
 input,
@@ -86,7 +116,8 @@ select{
   border:1px solid #d0d5dd;
   border-radius:10px;
   font:inherit;
-  box-sizing:border-box
+  box-sizing:border-box;
+  background:white
 }
 
 textarea{
@@ -103,14 +134,28 @@ textarea{
   color:#111827
 }
 
+.success{
+  background:#16a34a;
+  color:white
+}
+
 .danger{
   background:#fee2e2;
   color:#991b1b
 }
 
-.success{
-  background:#16a34a;
-  color:white
+.warning{
+  background:#fef3c7;
+  color:#92400e
+}
+
+.row{
+  display:flex;
+  gap:8px
+}
+
+.row>*{
+  flex:1
 }
 
 .chat{
@@ -127,7 +172,8 @@ textarea{
   border-radius:12px;
   margin:7px 0;
   max-width:86%;
-  white-space:pre-wrap
+  white-space:pre-wrap;
+  overflow-wrap:anywhere
 }
 
 .bot{
@@ -139,23 +185,9 @@ textarea{
   margin-left:auto
 }
 
-.row{
-  display:flex;
-  gap:8px
-}
-
-.row>*{
-  flex:1
-}
-
-.muted{
-  color:#667085;
-  font-size:13px
-}
-
 .hour-row{
   display:grid;
-  grid-template-columns:110px 110px 1fr 1fr;
+  grid-template-columns:100px 110px 1fr 1fr;
   gap:8px;
   align-items:center;
   margin-bottom:8px
@@ -167,8 +199,8 @@ textarea{
 }
 
 .service-item,
-.appointment-item,
-.promotion-item{
+.promotion-item,
+.appointment-item{
   background:#f8fafc;
   border:1px solid #e2e8f0;
   border-radius:12px;
@@ -220,7 +252,10 @@ textarea{
   border-radius:10px;
   background:#f8fafc;
   padding:8px;
-  box-sizing:border-box;
+  box-sizing:border-box
+}
+
+.slot-box.free{
   cursor:pointer
 }
 
@@ -230,20 +265,17 @@ textarea{
 
 .slot-box.busy{
   background:#dbeafe;
-  border-color:#93c5fd;
-  cursor:default
+  border-color:#93c5fd
 }
 
 .slot-box.closed{
   background:#f1f5f9;
-  color:#94a3b8;
-  cursor:default
+  color:#94a3b8
 }
 
 .slot-box.break{
   background:#fef3c7;
-  color:#92400e;
-  cursor:default
+  color:#92400e
 }
 
 .calendar-empty{
@@ -293,7 +325,6 @@ textarea{
 }
 
 .available-title{
-  width:100%;
   font-weight:700;
   margin:8px 0
 }
@@ -303,31 +334,42 @@ textarea{
   pointer-events:none
 }
 
-.stat-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px
-}
-
-.stat-card{
-  background:#f8fafc;
-  border:1px solid #e2e8f0;
+.confirmation-box{
+  margin-top:10px;
+  padding:12px;
   border-radius:12px;
-  padding:14px;
-  text-align:center
+  background:#ecfdf3;
+  border:1px solid #86efac
 }
 
-.stat{
-  font-size:28px;
-  font-weight:800
+.success-message{
+  margin-top:10px;
+  padding:12px;
+  border-radius:12px;
+  background:#ecfdf3;
+  color:#166534;
+  font-weight:700
+}
+
+.info-box{
+  padding:12px;
+  border-radius:12px;
+  background:#eff6ff;
+  color:#1e40af;
+  margin-bottom:12px
 }
 
 .small{
   font-size:12px
 }
 
-@media(max-width:650px){
+hr{
+  border:0;
+  border-top:1px solid #e5e7eb;
+  margin:18px 0
+}
 
+@media(max-width:650px){
   .hour-row{
     grid-template-columns:1fr 1fr
   }
@@ -343,728 +385,537 @@ textarea{
   .slot{
     grid-template-columns:60px 1fr
   }
-
-  .stat-grid{
-    grid-template-columns:1fr
-  }
 }
-</style>
-</head>
-
-<body>
-
-<header>
+</style></head><body><header>
   <h1>AI Assistente Locale</h1>
-
   <div class="muted" style="color:#cbd5e1">
-    Gestione attività, calendario e assistente AI
+    Assistente AI per attività locali
   </div>
-</header>
-
-<nav>
+</header><nav>
   <button onclick="show('home')">Home</button>
   <button onclick="show('ai')">AI</button>
   <button onclick="show('app')">Calendario</button>
   <button onclick="show('post')">Post AI</button>
-  <button onclick="show('settings')">Attività</button>
-</nav>
-
-<main>
-
-<!-- =========================================================
+  <button onclick="show('settings')">Impostazioni</button>
+</nav><main><!-- =========================================================
      HOME
-========================================================= -->
+========================================================= --><section id="home" class="page active">  <div class="card">
+    <h2>Dashboard</h2><p>
+  Gestisci la tua attività, gli appuntamenti,
+  i servizi, le promozioni e l'assistente AI.
+</p>
 
-<section id="home" class="page active">
+<label>Nome attività</label>
+<input id="biz" placeholder="Nome attività">
 
-  <div class="card">
+<button class="primary" onclick="saveBusiness()">
+  Salva attività
+</button>
 
-    <h2>Home</h2>
+<p id="businessStatus" class="muted"></p>
 
-    <p>
-      Gestisci attività, servizi, promozioni,
-      appuntamenti e assistente AI.
-    </p>
+  </div>  <div class="grid"><div class="card">
+  <div class="stat" id="dashboardServices">0</div>
+  <div class="muted">Servizi</div>
+</div>
 
+<div class="card">
+  <div class="stat" id="dashboardPromotions">0</div>
+  <div class="muted">Promozioni</div>
+</div>
+
+<div class="card">
+  <div class="stat" id="dashboardAppointments">0</div>
+  <div class="muted">Appuntamenti</div>
+</div>
+
+  </div></section><!-- =========================================================
+     AI
+========================================================= --><section id="ai" class="page">  <div class="card"><h2>Assistente AI reale</h2>
+
+<div id="chat" class="chat">
+  <div class="msg bot">
+    Ciao! Come posso aiutarti?
   </div>
+</div>
 
-  <div class="card">
+<p id="status" class="muted"></p>
 
-    <h3>Riepilogo</h3>
+<div id="bookingSuccess"></div>
 
-    <div class="stat-grid">
+<label>Nome cliente</label>
+<input
+  id="clientName"
+  placeholder="Nome cliente"
+  autocomplete="name"
+>
 
-      <div class="stat-card">
+<div class="row">
 
-        <div
-          class="stat"
-          id="dashboardServices">
-          0
-        </div>
+  <input
+    id="q"
+    placeholder="Scrivi una domanda..."
+    onkeydown="if(event.key==='Enter') send()"
+  >
 
-        <div class="muted">
-          Servizi
-        </div>
+  <button
+    id="sendButton"
+    class="primary"
+    onclick="send()"
+  >
+    Invia
+  </button>
 
-      </div>
+</div>
 
-      <div class="stat-card">
-
-        <div
-          class="stat"
-          id="dashboardAppointments">
-          0
-        </div>
-
-        <div class="muted">
-          Appuntamenti
-        </div>
-
-      </div>
-
-      <div class="stat-card">
-
-        <div
-          class="stat"
-          id="dashboardPromotions">
-          0
-        </div>
-
-        <div class="muted">
-          Promozioni
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="card">
-
-    <h3>Attività</h3>
-
-    <input
-      id="biz"
-      placeholder="Nome attività">
-
-    <button
-      class="primary"
-      id="saveBusinessButton"
-      onclick="saveBusiness()">
-      Salva attività
-    </button>
-
-    <p
-      id="homeStatus"
-      class="muted">
-    </p>
-
-  </div>
-
-</section>
-
-
-<!-- =========================================================
-     ASSISTENTE AI
-========================================================= -->
-
-<section id="ai" class="page">
-
-  <div class="card">
-
-    <h2>Assistente AI</h2>
-
-    <div
-      id="chat"
-      class="chat">
-
-      <div class="msg bot">
-        Ciao! Come posso aiutarti?
-      </div>
-
-    </div>
-
-    <p
-      id="status"
-      class="muted">
-    </p>
-
-    <div class="row">
-
-      <input
-        id="clientName"
-        placeholder="Nome cliente">
-
-      <input
-        id="q"
-        placeholder="Scrivi una domanda..."
-        onkeydown="if(event.key==='Enter')send()">
-
-      <button
-        id="sendButton"
-        class="primary"
-        onclick="send()">
-        Invia
-      </button>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =========================================================
+  </div></section><!-- =========================================================
      CALENDARIO
-========================================================= -->
+========================================================= --><section id="app" class="page">  <div class="card"><h2>Calendario appuntamenti</h2>
 
-<section id="app" class="page">
+<div class="calendar-header">
 
-  <div class="card">
+  <button
+    class="secondary"
+    onclick="changeDay(-1)"
+  >
+    ‹
+  </button>
 
-    <h2>Calendario appuntamenti</h2>
+  <input
+    id="calendarDate"
+    type="date"
+    onchange="renderCalendar()"
+  >
 
-    <div class="calendar-header">
+  <button
+    class="secondary"
+    onclick="changeDay(1)"
+  >
+    ›
+  </button>
 
-      <button
-        class="secondary"
-        onclick="changeDay(-1)">
-        ‹
-      </button>
+</div>
 
-      <input
-        id="calendarDate"
-        type="date"
-        onchange="renderCalendar()">
+<div id="calendarTitle"></div>
 
-      <button
-        class="secondary"
-        onclick="changeDay(1)">
-        ›
-      </button>
+<div id="calendar" class="calendar-grid"></div>
 
-    </div>
+  </div>  <div class="card"><h3>Nuovo appuntamento</h3>
 
-    <div id="calendarTitle"></div>
+<input
+  id="n"
+  placeholder="Nome cliente"
+>
 
-    <div
-      id="calendar"
-      class="calendar-grid">
-    </div>
+<input
+  id="d"
+  type="date"
+>
 
-  </div>
+<input
+  id="t"
+  type="time"
+>
 
+<select id="s" onchange="renderCalendar()">
+  <option value="">
+    Seleziona servizio
+  </option>
+</select>
 
-  <div class="card">
+<button
+  class="primary"
+  id="manualSaveButton"
+  onclick="add()"
+>
+  Salva appuntamento
+</button>
 
-    <h3>Nuovo appuntamento</h3>
+<p
+  id="appointmentStatus"
+  class="muted"
+></p>
 
-    <input
-      id="n"
-      placeholder="Nome cliente">
+  </div>  <div class="card"><h3>Appuntamenti salvati</h3>
 
-    <input
-      id="d"
-      type="date">
+<div id="list"></div>
 
-    <input
-      id="t"
-      type="time">
-
-    <select
-      id="s"
-      onchange="renderCalendar()">
-
-      <option value="">
-        Seleziona servizio
-      </option>
-
-    </select>
-
-    <button
-      class="primary"
-      id="manualSaveButton"
-      onclick="add()">
-      Salva appuntamento
-    </button>
-
-    <p
-      id="appointmentStatus"
-      class="muted">
-    </p>
-
-  </div>
-
-
-  <div class="card">
-
-    <h3>Appuntamenti salvati</h3>
-
-    <div id="list"></div>
-
-  </div>
-
-</section>
-
-
-<!-- =========================================================
+  </div></section><!-- =========================================================
      POST AI
-========================================================= -->
+========================================================= --><section id="post" class="page">  <div class="card"><h2>Gestione post AI</h2>
 
-<section id="post" class="page">
+<p class="muted">
+  Crea un post utilizzando i dati reali dell'attività,
+  dei servizi e delle promozioni.
+</p>
 
-  <div class="card">
+<label>Argomento del post</label>
 
-    <h2>Gestione Post AI</h2>
+<input
+  id="topic"
+  placeholder="Es. promozione taglio uomo"
+>
 
-    <p class="muted">
-      I dati dell'attività, i servizi e le promozioni
-      vengono utilizzati come base per il contenuto.
-    </p>
+<button
+  class="primary"
+  id="postButton"
+  onclick="generatePost()"
+>
+  Genera post con AI
+</button>
 
-    <label>
-      Argomento
-    </label>
+<textarea
+  id="out"
+  rows="12"
+  placeholder="Il post generato apparirà qui..."
+></textarea>
 
-    <input
-      id="topic"
-      placeholder="Es. promozione taglio uomo">
+<p id="postStatus" class="muted"></p>
 
-    <button
-      class="primary"
-      id="postButton"
-      onclick="generatePost()">
-      Genera post AI
-    </button>
+  </div></section><!-- =========================================================
+     IMPOSTAZIONI
+========================================================= --><section id="settings" class="page">  <div class="card"><h2>Impostazioni attività</h2>
 
-    <p
-      id="postStatus"
-      class="muted">
-    </p>
+<label>Nome attività</label>
+<input
+  id="settingsName"
+  placeholder="Es. Barber Shop Rossi"
+>
 
-    <textarea
-      id="out"
-      rows="12"
-      placeholder="Il post apparirà qui...">
-    </textarea>
+<label>Tipo di attività</label>
 
-  </div>
+<select id="settingsType">
 
-</section>
-
-
-<!-- =========================================================
-     DATI ATTIVITÀ
-========================================================= -->
-
-<section id="settings" class="page">
-
-  <div class="card">
-
-    <h2>Dati attività</h2>
-
-    <label>
-      Nome attività
-    </label>
-
-    <input
-      id="settingsName"
-      placeholder="Es. Salone Bella Linea">
-
-    <label>
-      Tipo attività
-    </label>
-
-    <select id="settingsType">
-
-      <option value="Parrucchiere">
-        Parrucchiere
-      </option>
-
-      <option value="Barbiere">
-        Barbiere
-      </option>
-
-      <option value="Estetista">
-        Estetista
-      </option>
-
-      <option value="Altro">
-        Altro
-      </option>
-
-    </select>
-
-    <label>
-      Descrizione attività
-    </label>
-
-    <textarea
-      id="settingsDescription"
-      rows="4"
-      placeholder="Descrizione dell'attività">
-    </textarea>
-
-    <label>
-      Indirizzo
-    </label>
-
-    <input
-      id="settingsAddress"
-      placeholder="Via, numero, città">
-
-    <label>
-      Telefono
-    </label>
-
-    <input
-      id="settingsPhone"
-      placeholder="Numero di telefono">
-
-    <label>
-      WhatsApp
-    </label>
-
-    <input
-      id="settingsWhatsapp"
-      placeholder="Numero WhatsApp">
-
-  </div>
-
-
-  <!-- =======================================================
-       ORARI
-  ======================================================= -->
-
-  <div class="card">
-
-    <h3>Orari di apertura</h3>
-
-    <p class="muted">
-      Gli orari vengono utilizzati dal calendario
-      e dall'assistente AI.
-    </p>
-
-    <div class="hour-row">
-
-      <b>Lunedì</b>
-
-      <select id="monClosed">
-        <option value="open">Aperto</option>
-        <option value="closed">Chiuso</option>
-      </select>
-
-      <input
-        id="monOpen"
-        type="time"
-        value="09:00">
-
-      <input
-        id="monClose"
-        type="time"
-        value="18:00">
-
-    </div>
-
-
-    <div class="hour-row">
-
-      <b>Martedì</b>
-
-      <select id="tueClosed">
-        <option value="open">Aperto</option>
-        <option value="closed">Chiuso</option>
-      </select>
-
-      <input
-        id="tueOpen"
-        type="time"
-        value="09:00">
-
-      <input
-        id="tueClose"
-        type="time"
-        value="18:00">
-
-    </div>
-
-
-    <div class="hour-row">
-
-      <b>Mercoledì</b>
-
-      <select id="wedClosed">
-        <option value="open">Aperto</option>
-        <option value="closed">Chiuso</option>
-      </select>
-
-      <input
-        id="wedOpen"
-        type="time"
-        value="09:00">
-
-      <input
-        id="wedClose"
-        type="time"
-        value="18:00">
-
-    </div>
-
-
-    <div class="hour-row">
-
-      <b>Giovedì</b>
-
-      <select id="thuClosed">
-        <option value="open">Aperto</option>
-        <option value="closed">Chiuso</option>
-      </select>
-
-      <input
-        id="thuOpen"
-        type="time"
-        value="09:00">
-
-      <input
-        id="thuClose"
-        type="time"
-        value="18:00">
-
-    </div>
-
-
-    <div class="hour-row">
-
-      <b>Venerdì</b>
-
-      <select id="friClosed">
-        <option value="open">Aperto</option>
-        <option value="closed">Chiuso</option>
-      </select>
-
-      <input
-        id="friOpen"
-        type="time"
-        value="09:00">
-
-      <input
-        id="friClose"
-        type="time"
-        value="18:00">
-
-    </div>
-
-
-    <div class="hour-row">
-
-      <b>Sabato</b>
-
-      <select id="satClosed">
-        <option value="open">Aperto</option>
-        <option value="closed">Chiuso</option>
-      </select>
-
-      <input
-        id="satOpen"
-        type="time"
-        value="09:00">
-
-      <input
-        id="satClose"
-        type="time"
-        value="13:00">
-
-    </div>
-
-
-    <div class="hour-row">
-
-      <b>Domenica</b>
-
-      <select id="sunClosed">
-        <option value="closed">Chiuso</option>
-        <option value="open">Aperto</option>
-      </select>
-
-      <input
-        id="sunOpen"
-        type="time"
-        value="09:00">
-
-      <input
-        id="sunClose"
-        type="time"
-        value="13:00">
-
-    </div>
-
-
-    <h3>Pausa</h3>
-
-    <p class="muted">
-      Facoltativa.
-    </p>
-
-    <div id="breakRows"></div>
-
-  </div>
-
-
-  <!-- =======================================================
-       SERVIZI
-  ======================================================= -->
-
-  <div class="card">
-
-    <h3>Servizi e trattamenti</h3>
-
-    <p class="muted">
-      Inserisci anche categoria e descrizione avanzata:
-      saranno disponibili all'assistente AI.
-    </p>
-
-    <input
-      id="serviceName"
-      placeholder="Nome servizio">
-
-    <input
-      id="serviceCategory"
-      placeholder="Categoria">
-
+  <option value="Parrucchiere">
+    Parrucchiere
+  </option>
+
+  <option value="Barbiere">
+    Barbiere
+  </option>
+
+  <option value="Estetista">
+    Estetista
+  </option>
+
+  <option value="Altro">
+    Altro
+  </option>
+
+</select>
+
+
+<label>Descrizione attività</label>
+
+<textarea
+  id="settingsDescription"
+  rows="4"
+  placeholder="Descrizione dell'attività..."
+></textarea>
+
+
+<label>Indirizzo</label>
+
+<input
+  id="settingsAddress"
+  placeholder="Via, numero, città"
+>
+
+
+<label>Telefono</label>
+
+<input
+  id="settingsPhone"
+  placeholder="Numero di telefono"
+>
+
+
+<label>WhatsApp</label>
+
+<input
+  id="settingsWhatsapp"
+  placeholder="Numero WhatsApp"
+>
+
+
+<!-- =====================================================
+     ORARI
+====================================================== -->
+
+<hr>
+
+<h3>Orari di apertura</h3>
+
+<p class="muted">
+  Gli orari vengono utilizzati dal calendario
+  e dall'assistente AI.
+</p>
+
+<div class="hour-row">
+  <b>Lunedì</b>
+  <select id="monClosed">
+    <option value="open">Aperto</option>
+    <option value="closed">Chiuso</option>
+  </select>
+  <input id="monOpen" type="time" value="09:00">
+  <input id="monClose" type="time" value="18:00">
+</div>
+
+<div class="hour-row">
+  <b>Martedì</b>
+  <select id="tueClosed">
+    <option value="open">Aperto</option>
+    <option value="closed">Chiuso</option>
+  </select>
+  <input id="tueOpen" type="time" value="09:00">
+  <input id="tueClose" type="time" value="18:00">
+</div>
+
+<div class="hour-row">
+  <b>Mercoledì</b>
+  <select id="wedClosed">
+    <option value="open">Aperto</option>
+    <option value="closed">Chiuso</option>
+  </select>
+  <input id="wedOpen" type="time" value="09:00">
+  <input id="wedClose" type="time" value="18:00">
+</div>
+
+<div class="hour-row">
+  <b>Giovedì</b>
+  <select id="thuClosed">
+    <option value="open">Aperto</option>
+    <option value="closed">Chiuso</option>
+  </select>
+  <input id="thuOpen" type="time" value="09:00">
+  <input id="thuClose" type="time" value="18:00">
+</div>
+
+<div class="hour-row">
+  <b>Venerdì</b>
+  <select id="friClosed">
+    <option value="open">Aperto</option>
+    <option value="closed">Chiuso</option>
+  </select>
+  <input id="friOpen" type="time" value="09:00">
+  <input id="friClose" type="time" value="18:00">
+</div>
+
+<div class="hour-row">
+  <b>Sabato</b>
+  <select id="satClosed">
+    <option value="open">Aperto</option>
+    <option value="closed">Chiuso</option>
+  </select>
+  <input id="satOpen" type="time" value="09:00">
+  <input id="satClose" type="time" value="13:00">
+</div>
+
+<div class="hour-row">
+  <b>Domenica</b>
+  <select id="sunClosed">
+    <option value="closed">Chiuso</option>
+    <option value="open">Aperto</option>
+  </select>
+  <input id="sunOpen" type="time" value="09:00">
+  <input id="sunClose" type="time" value="13:00">
+</div>
+
+
+<!-- =====================================================
+     PAUSE
+====================================================== -->
+
+<h3>Pausa</h3>
+
+<p class="muted">
+  Facoltativa. Lascia vuoto se non c'è pausa.
+</p>
+
+<div id="breakRows"></div>
+
+
+<!-- =====================================================
+     SERVIZI
+====================================================== -->
+
+<hr>
+
+<h3>Servizi / Trattamenti</h3>
+
+<div class="info-box">
+  Inserisci ogni servizio con categoria,
+  descrizione, prezzo e durata.
+</div>
+
+<label>Nome servizio</label>
+
+<input
+  id="serviceName"
+  placeholder="Es. Taglio uomo"
+>
+
+<label>Categoria</label>
+
+<input
+  id="serviceCategory"
+  placeholder="Es. Taglio"
+>
+
+<label>Descrizione</label>
+
+<textarea
+  id="serviceDescription"
+  rows="3"
+  placeholder="Descrizione del trattamento..."
+></textarea>
+
+<div class="row">
+
+  <div>
+    <label>Prezzo €</label>
     <input
       id="servicePrice"
       type="number"
       step="0.01"
-      placeholder="Prezzo €">
+      min="0"
+      placeholder="20"
+    >
+  </div>
 
+  <div>
+    <label>Durata minuti</label>
     <input
       id="serviceDuration"
       type="number"
-      placeholder="Durata in minuti">
-
-    <textarea
-      id="serviceDescription"
-      rows="3"
-      placeholder="Descrizione avanzata del servizio">
-    </textarea>
-
-    <button
-      class="primary"
-      id="addServiceButton"
-      onclick="addService()">
-      Aggiungi servizio
-    </button>
-
-    <div id="servicesList"></div>
-
+      min="1"
+      placeholder="30"
+    >
   </div>
 
+</div>
 
-  <!-- =======================================================
-       PROMOZIONI
-  ======================================================= -->
+<button
+  class="primary"
+  onclick="addService()"
+>
+  Aggiungi servizio
+</button>
 
-  <div class="card">
+<div id="servicesList"></div>
 
-    <h3>Promozioni</h3>
 
-    <p class="muted">
-      Le promozioni vengono utilizzate dall'assistente AI
-      e dal generatore di Post AI.
-    </p>
+<!-- =====================================================
+     PROMOZIONI
+====================================================== -->
 
-    <input
-      id="promotionTitle"
-      placeholder="Titolo promozione">
+<hr>
 
-    <input
-      id="promotionCategory"
-      placeholder="Categoria">
+<h3>Promozioni</h3>
 
-    <textarea
-      id="promotionDescription"
-      rows="3"
-      placeholder="Descrizione della promozione">
-    </textarea>
+<div class="info-box">
+  Le promozioni vengono inviate all'assistente AI
+  separatamente dai servizi.
+</div>
+
+<label>Titolo promozione</label>
+
+<input
+  id="promotionTitle"
+  placeholder="Es. Taglio bimbo"
+>
+
+<label>Categoria</label>
+
+<input
+  id="promotionCategory"
+  placeholder="Es. Offerta famiglia"
+>
+
+<label>Descrizione</label>
+
+<textarea
+  id="promotionDescription"
+  rows="3"
+  placeholder="Descrizione della promozione..."
+></textarea>
+
+<div class="row">
+
+  <div>
+    <label>Prezzo promozionale €</label>
 
     <input
       id="promotionPrice"
       type="number"
       step="0.01"
-      placeholder="Prezzo promozionale €">
+      min="0"
+      placeholder="10"
+    >
+  </div>
+
+  <div>
+    <label>Scadenza</label>
 
     <input
       id="promotionExpiry"
-      type="date">
-
-    <button
-      class="primary"
-      id="addPromotionButton"
-      onclick="addPromotion()">
-      Aggiungi promozione
-    </button>
-
-    <div id="promotionsList"></div>
-
+      type="date"
+    >
   </div>
 
+</div>
 
-  <!-- =======================================================
-       SALVA
-  ======================================================= -->
+<button
+  class="primary"
+  onclick="addPromotion()"
+>
+  Aggiungi promozione
+</button>
 
-  <div class="card">
-
-    <button
-      class="primary"
-      id="saveSettingsButton"
-      onclick="saveSettings()">
-      Salva impostazioni
-    </button>
-
-    <p
-      id="settingsStatus"
-      class="muted">
-    </p>
-
-  </div>
-
-</section>
-
-</main>
+<div id="promotionsList"></div>
 
 
-<script>
+<hr>
 
-/* =========================================================
+<button
+  class="primary"
+  onclick="saveSettings()"
+>
+  Salva tutte le impostazioni
+</button>
+
+<p
+  id="settingsStatus"
+  class="muted"
+></p>
+
+  </div></section></main><script>
+
+/* ============================================================
    UTILITÀ
-========================================================= */
+============================================================ */
 
-const $ = id =>
-  document.getElementById(id);
-
+const $ = id => document.getElementById(id);
 
 let chatHistory = [];
 
-
 let pendingAppointment =
-  loadJSON(
-    "pendingAppointment",
+  readJSON(
+    localStorage.getItem("pendingAppointment"),
     null
   );
 
-
 let requiresConfirmation =
-  localStorage.requiresConfirmation === "true";
-
+  localStorage.getItem("requiresConfirmation") === "true";
 
 let requestInProgress = false;
 
-let manualSaveInProgress = false;
+let bookingSaveInProgress = false;
 
-let postRequestInProgress = false;
 
+/* ============================================================
+   CONFIGURAZIONE GIORNI
+============================================================ */
 
 const dayConfig = {
 
@@ -1106,19 +957,13 @@ const dayConfig = {
 };
 
 
-/* =========================================================
+/* ============================================================
    JSON SICURO
-========================================================= */
+============================================================ */
 
-function loadJSON(
-  key,
-  fallback
-){
+function readJSON(value,fallback){
 
   try{
-
-    const value =
-      localStorage.getItem(key);
 
     if(!value){
       return fallback;
@@ -1135,60 +980,9 @@ function loadJSON(
 }
 
 
-/* =========================================================
-   NAVIGAZIONE
-========================================================= */
-
-function show(id){
-
-  document
-    .querySelectorAll(".page")
-    .forEach(page =>
-      page.classList.remove("active")
-    );
-
-  const page =
-    $(id);
-
-  if(page){
-    page.classList.add("active");
-  }
-
-
-  if(id === "app"){
-
-    populateServiceSelect();
-
-    renderCalendar();
-
-    render();
-
-  }
-
-
-  if(id === "settings"){
-
-    loadSettings();
-
-    renderServices();
-
-    renderPromotions();
-
-  }
-
-
-  if(id === "home"){
-
-    updateDashboard();
-
-  }
-
-}
-
-
-/* =========================================================
-   SICUREZZA HTML
-========================================================= */
+/* ============================================================
+   ESCAPE HTML
+============================================================ */
 
 function esc(value){
 
@@ -1207,74 +1001,186 @@ function esc(value){
 }
 
 
-/* =========================================================
-   STORAGE
-========================================================= */
+/* ============================================================
+   NAVIGAZIONE
+============================================================ */
 
-function getServices(){
+function show(page){
 
-  const result =
-    loadJSON(
-      "services",
-      []
+  document
+    .querySelectorAll(".page")
+    .forEach(
+      element =>
+        element.classList.remove("active")
     );
 
-  return Array.isArray(result)
-    ? result
-    : [];
+  $(page)?.classList.add("active");
+
+  if(page === "app"){
+
+    populateServiceSelect();
+    renderCalendar();
+    render();
+
+  }
+
+  if(page === "settings"){
+
+    loadSettings();
+    renderServices();
+    renderPromotions();
+
+  }
+
+  if(page === "home"){
+
+    updateDashboard();
+
+  }
 
 }
 
 
-function getAppointments(){
+/* ============================================================
+   STORAGE
+============================================================ */
 
-  const result =
-    loadJSON(
-      "a",
-      []
-    );
+function getServices(){
 
-  return Array.isArray(result)
-    ? result
-    : [];
+  return readJSON(
+    localStorage.getItem("services"),
+    []
+  );
+
+}
+
+
+function setServices(services){
+
+  localStorage.setItem(
+    "services",
+    JSON.stringify(
+      Array.isArray(services)
+        ? services
+        : []
+    )
+  );
 
 }
 
 
 function getPromotions(){
 
-  const result =
-    loadJSON(
-      "promotions",
-      []
-    );
+  return readJSON(
+    localStorage.getItem("promotions"),
+    []
+  );
 
-  return Array.isArray(result)
-    ? result
-    : [];
+}
+
+
+function setPromotions(promotions){
+
+  localStorage.setItem(
+    "promotions",
+    JSON.stringify(
+      Array.isArray(promotions)
+        ? promotions
+        : []
+    )
+  );
+
+}
+
+
+function getAppointments(){
+
+  return readJSON(
+    localStorage.getItem("a"),
+    []
+  );
+
+}
+
+
+function setAppointments(appointments){
+
+  localStorage.setItem(
+    "a",
+    JSON.stringify(
+      Array.isArray(appointments)
+        ? appointments
+        : []
+    )
+  );
 
 }
 
 
 function getSettings(){
 
-  const result =
-    loadJSON(
-      "settings",
-      {}
-    );
-
-  return result &&
-    typeof result === "object"
-      ? result
-      : {};
+  return readJSON(
+    localStorage.getItem("settings"),
+    {}
+  );
 
 }
 
 
-/* =========================================================
-   STATO PRENOTAZIONE AI
-========================================================= */
+/* ============================================================
+   ATTIVITÀ
+============================================================ */
+
+function saveBusiness(){
+
+  const name =
+    $("biz").value.trim() ||
+    "Attività locale";
+
+  localStorage.setItem(
+    "biz",
+    name
+  );
+
+  const settings =
+    getSettings();
+
+  settings.name = name;
+
+  localStorage.setItem(
+    "settings",
+    JSON.stringify(settings)
+  );
+
+  $("businessStatus").textContent =
+    "Attività salvata.";
+
+  updateDashboard();
+
+}
+
+
+/* ============================================================
+   DASHBOARD
+============================================================ */
+
+function updateDashboard(){
+
+  $("dashboardServices").textContent =
+    getServices().length;
+
+  $("dashboardPromotions").textContent =
+    getPromotions().length;
+
+  $("dashboardAppointments").textContent =
+    getAppointments().length;
+
+}
+
+
+/* ============================================================
+   PENDING APPOINTMENT
+============================================================ */
 
 function savePendingState(){
 
@@ -1294,7 +1200,6 @@ function savePendingState(){
     );
 
   }
-
 
   if(requiresConfirmation){
 
@@ -1320,7 +1225,6 @@ function clearPendingState(){
 
   requiresConfirmation = false;
 
-
   localStorage.removeItem(
     "pendingAppointment"
   );
@@ -1329,222 +1233,89 @@ function clearPendingState(){
     "requiresConfirmation"
   );
 
-
-  $("confirmationActions")
-    ?.remove();
+  $("confirmationActions")?.remove();
 
 }
 
 
-/* =========================================================
-   HOME
-========================================================= */
-
-function saveBusiness(){
-
-  const button =
-    $("saveBusinessButton");
-
-  if(button.disabled){
-    return;
-  }
-
-
-  const name =
-    $("biz")
-      .value
-      .trim();
-
-
-  const finalName =
-    name ||
-    "Attività locale";
-
-
-  button.disabled = true;
-
-  button.textContent =
-    "Salvataggio...";
-
-
-  const settings =
-    getSettings();
-
-
-  settings.name =
-    finalName;
-
-
-  localStorage.setItem(
-    "biz",
-    finalName
-  );
-
-
-  localStorage.setItem(
-    "settings",
-    JSON.stringify(settings)
-  );
-
-
-  $("homeStatus").textContent =
-    "Attività salvata.";
-
-
-  updateDashboard();
-
-
-  setTimeout(() => {
-
-    button.disabled = false;
-
-    button.textContent =
-      "Salva attività";
-
-  },700);
-
-}
-
-
-function updateDashboard(){
-
-  $("dashboardServices").textContent =
-    getServices().length;
-
-  $("dashboardAppointments").textContent =
-    getAppointments().length;
-
-  $("dashboardPromotions").textContent =
-    getPromotions().length;
-
-}
-
-
-/* =========================================================
+/* ============================================================
    ORARI
-========================================================= */
+============================================================ */
 
 function collectHours(){
 
   const hours = {};
 
+  Object.entries(
+    dayConfig
+  ).forEach(
+    ([day,cfg]) => {
 
-  Object.entries(dayConfig)
-    .forEach(([day,cfg]) => {
-
-      const prefix =
+      const p =
         cfg.prefix;
-
 
       hours[day] = {
 
         status:
-          $(prefix+"Closed").value,
+          $(p+"Closed").value,
 
         open:
-          $(prefix+"Open").value,
+          $(p+"Open").value,
 
         close:
-          $(prefix+"Close").value,
+          $(p+"Close").value,
 
         breakStart:
-          $(prefix+"BreakStart")?.value || "",
+          $(p+"BreakStart")?.value || "",
 
         breakEnd:
-          $(prefix+"BreakEnd")?.value || ""
+          $(p+"BreakEnd")?.value || ""
 
       };
 
-    });
-
+    }
+  );
 
   return hours;
 
 }
 
 
-/* =========================================================
-   SETTINGS
-========================================================= */
+/* ============================================================
+   SALVATAGGIO IMPOSTAZIONI
+============================================================ */
 
 function saveSettings(){
-
-  const button =
-    $("saveSettingsButton");
-
-
-  if(button.disabled){
-    return;
-  }
-
-
-  button.disabled = true;
-
-  button.textContent =
-    "Salvataggio...";
-
 
   const settings = {
 
     name:
-      $("settingsName")
-        .value
-        .trim(),
+      $("settingsName").value.trim(),
 
     type:
-      $("settingsType")
-        .value,
+      $("settingsType").value,
 
     description:
-      $("settingsDescription")
-        .value
-        .trim(),
+      $("settingsDescription").value.trim(),
 
     address:
-      $("settingsAddress")
-        .value
-        .trim(),
+      $("settingsAddress").value.trim(),
 
     phone:
-      $("settingsPhone")
-        .value
-        .trim(),
+      $("settingsPhone").value.trim(),
 
     whatsapp:
-      $("settingsWhatsapp")
-        .value
-        .trim(),
+      $("settingsWhatsapp").value.trim(),
 
     hours:
-      collectHours(),
-
-    promotion:
-      getPromotions()
-        .map(p =>
-          [
-            p.title || "",
-            p.category || "",
-            p.description || "",
-            p.price !== null &&
-            p.price !== undefined
-              ? `€${Number(p.price).toFixed(2)}`
-              : "",
-            p.expiry || ""
-          ]
-          .filter(Boolean)
-          .join(" — ")
-        )
-        .filter(Boolean)
-        .join("\n")
+      collectHours()
 
   };
-
 
   localStorage.setItem(
     "settings",
     JSON.stringify(settings)
   );
-
 
   localStorage.setItem(
     "biz",
@@ -1552,164 +1323,154 @@ function saveSettings(){
     "Attività locale"
   );
 
-
   $("biz").value =
-    settings.name ||
-    "Attività locale";
-
+    localStorage.getItem("biz");
 
   $("settingsStatus").textContent =
-    "Dati dell'attività salvati.";
-
+    "Impostazioni salvate.";
 
   renderCalendar();
-
   updateDashboard();
-
-
-  setTimeout(() => {
-
-    button.disabled = false;
-
-    button.textContent =
-      "Salva impostazioni";
-
-  },700);
 
 }
 
+
+/* ============================================================
+   CARICAMENTO IMPOSTAZIONI
+============================================================ */
 
 function loadSettings(){
 
   const settings =
     getSettings();
 
-
   $("settingsName").value =
     settings.name || "";
-
 
   $("settingsType").value =
     settings.type ||
     "Parrucchiere";
 
-
   $("settingsDescription").value =
     settings.description || "";
-
 
   $("settingsAddress").value =
     settings.address || "";
 
-
   $("settingsPhone").value =
     settings.phone || "";
-
 
   $("settingsWhatsapp").value =
     settings.whatsapp || "";
 
+  Object.entries(
+    dayConfig
+  ).forEach(
+    ([day,cfg]) => {
 
-  Object.entries(dayConfig)
-    .forEach(([day,cfg]) => {
-
-      const prefix =
+      const p =
         cfg.prefix;
 
-      const data =
+      const d =
         settings.hours?.[day];
 
-
-      if(!data){
+      if(!d){
         return;
       }
 
-
-      if(data.status){
-
-        $(prefix+"Closed").value =
-          data.status;
-
+      if(d.status){
+        $(p+"Closed").value =
+          d.status;
       }
 
-
-      if(data.open){
-
-        $(prefix+"Open").value =
-          data.open;
-
+      if(d.open){
+        $(p+"Open").value =
+          d.open;
       }
 
-
-      if(data.close){
-
-        $(prefix+"Close").value =
-          data.close;
-
+      if(d.close){
+        $(p+"Close").value =
+          d.close;
       }
 
-
-      if($(prefix+"BreakStart")){
-
-        $(prefix+"BreakStart").value =
-          data.breakStart || "";
-
+      if($(p+"BreakStart")){
+        $(p+"BreakStart").value =
+          d.breakStart || "";
       }
 
-
-      if($(prefix+"BreakEnd")){
-
-        $(prefix+"BreakEnd").value =
-          data.breakEnd || "";
-
+      if($(p+"BreakEnd")){
+        $(p+"BreakEnd").value =
+          d.breakEnd || "";
       }
 
-    });
+    }
+  );
 
 }
 
 
-/* =========================================================
+/* ============================================================
+   PAUSE
+============================================================ */
+
+function setupBreakRows(){
+
+  let html = "";
+
+  Object.values(
+    dayConfig
+  ).forEach(
+    cfg => {
+
+      html += `
+
+        <div class="hour-row">
+
+          <b>${esc(cfg.label)}</b>
+
+          <input
+            id="${cfg.prefix}BreakStart"
+            type="time"
+          >
+
+          <input
+            id="${cfg.prefix}BreakEnd"
+            type="time"
+          >
+
+        </div>
+
+      `;
+
+    }
+  );
+
+  $("breakRows").innerHTML =
+    html;
+
+}
+
+
+/* ============================================================
    SERVIZI
-========================================================= */
+============================================================ */
 
 function addService(){
 
-  const button =
-    $("addServiceButton");
-
-
-  if(button.disabled){
-    return;
-  }
-
-
   const name =
-    $("serviceName")
-      .value
-      .trim();
-
+    $("serviceName").value.trim();
 
   const category =
-    $("serviceCategory")
-      .value
-      .trim();
-
-
-  const price =
-    $("servicePrice")
-      .value;
-
-
-  const duration =
-    $("serviceDuration")
-      .value;
-
+    $("serviceCategory").value.trim();
 
   const description =
-    $("serviceDescription")
-      .value
-      .trim();
+    $("serviceDescription").value.trim();
+
+  const price =
+    $("servicePrice").value;
+
+  const duration =
+    $("serviceDuration").value;
 
 
   if(
@@ -1719,18 +1480,12 @@ function addService(){
   ){
 
     alert(
-      "Compila nome, prezzo e durata."
+      "Compila almeno nome, prezzo e durata."
     );
 
     return;
 
   }
-
-
-  button.disabled = true;
-
-  button.textContent =
-    "Salvataggio...";
 
 
   const services =
@@ -1741,90 +1496,68 @@ function addService(){
 
     id:
       "service_" +
-      Date.now() +
-      "_" +
-      Math.random()
-        .toString(36)
-        .slice(2),
+      Date.now(),
 
     name,
 
     category,
 
+    description,
+
     price:
       Number(price),
 
     duration:
-      Number(duration),
-
-    description
+      Number(duration)
 
   });
 
 
-  localStorage.setItem(
-    "services",
-    JSON.stringify(services)
+  setServices(
+    services
   );
 
 
-  $("serviceName").value = "";
+  $("serviceName").value =
+    "";
 
-  $("serviceCategory").value = "";
+  $("serviceCategory").value =
+    "";
 
-  $("servicePrice").value = "";
+  $("serviceDescription").value =
+    "";
 
-  $("serviceDuration").value = "";
+  $("servicePrice").value =
+    "";
 
-  $("serviceDescription").value = "";
+  $("serviceDuration").value =
+    "";
 
 
   renderServices();
-
+  populateServiceSelect();
   updateDashboard();
-
-
-  setTimeout(() => {
-
-    button.disabled = false;
-
-    button.textContent =
-      "Aggiungi servizio";
-
-  },500);
 
 }
 
 
 function deleteService(index){
 
-  if(
-    !confirm(
-      "Eliminare questo servizio?"
-    )
-  ){
-    return;
-  }
-
-
   const services =
     getServices();
-
 
   services.splice(
     index,
     1
   );
 
-
-  localStorage.setItem(
-    "services",
-    JSON.stringify(services)
+  setServices(
+    services
   );
 
-
   renderServices();
-
+  populateServiceSelect();
+  renderCalendar();
   updateDashboard();
 
 }
@@ -1835,80 +1568,69 @@ function renderServices(){
   const services =
     getServices();
 
+  if(!services.length){
+
+    $("servicesList").innerHTML =
+      '<p class="muted">Nessun servizio configurato.</p>';
+
+    populateServiceSelect();
+
+    return;
+
+  }
+
 
   $("servicesList").innerHTML =
-    services.length
+    services
+      .map(
+        (service,index) => `
 
-      ? services
-          .map(
-            (service,index) => `
+          <div class="service-item">
 
-              <div class="service-item">
+            <b>
+              ${esc(service.name)}
+            </b>
 
-                <b>
-                  ${esc(service.name)}
-                </b>
+            ${
+              service.category
+                ? `<br>Categoria: ${esc(service.category)}`
+                : ""
+            }
 
-                ${
-                  service.category
-                    ? `
-                      <br>
-                      <span class="badge">
-                        ${esc(service.category)}
-                      </span>
-                    `
-                    : ""
-                }
+            ${
+              service.description
+                ? `<br>${esc(service.description)}`
+                : ""
+            }
 
-                <br>
+            <br>
 
-                <span class="muted">
-                  €${Number(
-                    service.price || 0
-                  ).toFixed(2)}
+            €${Number(
+              service.price || 0
+            ).toFixed(2)}
 
-                  ·
+            ·
 
-                  ${Number(
-                    service.duration || 0
-                  )}
+            ${Number(
+              service.duration || 0
+            )} minuti
 
-                  minuti
-                </span>
+            <div class="service-actions">
 
-                ${
-                  service.description
-                    ? `
-                      <p>
-                        ${esc(
-                          service.description
-                        )}
-                      </p>
-                    `
-                    : ""
-                }
+              <button
+                class="danger"
+                onclick="deleteService(${index})"
+              >
+                Elimina
+              </button>
 
-                <div class="service-actions">
+            </div>
 
-                  <button
-                    class="danger"
-                    onclick="deleteService(${index})">
-                    Elimina
-                  </button>
+          </div>
 
-                </div>
-
-              </div>
-
-            `
-          )
-          .join("")
-
-      : `
-        <p class="muted">
-          Nessun servizio configurato.
-        </p>
-      `;
+        `
+      )
+      .join("");
 
 
   populateServiceSelect();
@@ -1916,323 +1638,35 @@ function renderServices(){
 }
 
 
-/* =========================================================
-   PROMOZIONI
-========================================================= */
-
-function addPromotion(){
-
-  const button =
-    $("addPromotionButton");
-
-
-  if(button.disabled){
-    return;
-  }
-
-
-  const title =
-    $("promotionTitle")
-      .value
-      .trim();
-
-
-  const category =
-    $("promotionCategory")
-      .value
-      .trim();
-
-
-  const description =
-    $("promotionDescription")
-      .value
-      .trim();
-
-
-  const price =
-    $("promotionPrice")
-      .value;
-
-
-  const expiry =
-    $("promotionExpiry")
-      .value;
-
-
-  if(!title){
-
-    alert(
-      "Inserisci il titolo della promozione."
-    );
-
-    return;
-
-  }
-
-
-  button.disabled = true;
-
-  button.textContent =
-    "Salvataggio...";
-
-
-  const promotions =
-    getPromotions();
-
-
-  promotions.push({
-
-    id:
-      "promotion_" +
-      Date.now() +
-      "_" +
-      Math.random()
-        .toString(36)
-        .slice(2),
-
-    title,
-
-    category,
-
-    description,
-
-    price:
-      price === ""
-        ? null
-        : Number(price),
-
-    expiry
-
-  });
-
-
-  localStorage.setItem(
-    "promotions",
-    JSON.stringify(promotions)
-  );
-
-
-  $("promotionTitle").value = "";
-
-  $("promotionCategory").value = "";
-
-  $("promotionDescription").value = "";
-
-  $("promotionPrice").value = "";
-
-  $("promotionExpiry").value = "";
-
-
-  renderPromotions();
-
-  updateDashboard();
-
-
-  setTimeout(() => {
-
-    button.disabled = false;
-
-    button.textContent =
-      "Aggiungi promozione";
-
-  },500);
-
-}
-
-
-function deletePromotion(index){
-
-  if(
-    !confirm(
-      "Eliminare questa promozione?"
-    )
-  ){
-    return;
-  }
-
-
-  const promotions =
-    getPromotions();
-
-
-  promotions.splice(
-    index,
-    1
-  );
-
-
-  localStorage.setItem(
-    "promotions",
-    JSON.stringify(promotions)
-  );
-
-
-  renderPromotions();
-
-  updateDashboard();
-
-}
-
-
-function renderPromotions(){
-
-  const promotions =
-    getPromotions();
-
-
-  $("promotionsList").innerHTML =
-    promotions.length
-
-      ? promotions
-          .map(
-            (promotion,index) => `
-
-              <div class="promotion-item">
-
-                <b>
-                  ${esc(
-                    promotion.title
-                  )}
-                </b>
-
-                ${
-                  promotion.category
-                    ? `
-                      <br>
-                      <span class="badge">
-                        ${esc(
-                          promotion.category
-                        )}
-                      </span>
-                    `
-                    : ""
-                }
-
-                ${
-                  promotion.description
-                    ? `
-                      <p>
-                        ${esc(
-                          promotion.description
-                        )}
-                      </p>
-                    `
-                    : ""
-                }
-
-                ${
-                  promotion.price !== null &&
-                  promotion.price !== undefined &&
-                  promotion.price !== ""
-
-                    ? `
-                      <div>
-                        Prezzo promozionale:
-                        <b>
-                          €${Number(
-                            promotion.price
-                          ).toFixed(2)}
-                        </b>
-                      </div>
-                    `
-
-                    : ""
-                }
-
-                ${
-                  promotion.expiry
-                    ? `
-                      <div class="muted">
-                        Valida fino al
-                        ${esc(
-                          promotion.expiry
-                        )}
-                      </div>
-                    `
-                    : ""
-                }
-
-                <div class="promotion-actions">
-
-                  <button
-                    class="danger"
-                    onclick="deletePromotion(${index})">
-                    Elimina
-                  </button>
-
-                </div>
-
-              </div>
-
-            `
-          )
-          .join("")
-
-      : `
-        <p class="muted">
-          Nessuna promozione configurata.
-        </p>
-      `;
-
-}
-
-
-/* =========================================================
-   SELECT SERVIZI
-========================================================= */
-
 function populateServiceSelect(){
 
   const services =
     getServices();
 
-
   const select =
     $("s");
-
 
   if(!select){
     return;
   }
 
-
   const current =
     select.value;
 
-
   select.innerHTML =
-    `
-      <option value="">
-        Seleziona servizio
-      </option>
-    ` +
+    '<option value="">Seleziona servizio</option>' +
 
     services
       .map(
         service => `
 
-          <option
-            value="${esc(service.name)}">
+          <option value="${esc(service.name)}">
 
             ${esc(service.name)}
-
-            ${
-              service.category
-                ? " — "+
-                  esc(
-                    service.category
-                  )
-                : ""
-            }
-
-            —
-
-            €${Number(
+            — €${Number(
               service.price || 0
             ).toFixed(2)}
-
             —
-
             ${Number(
               service.duration || 0
             )} min
@@ -2259,59 +1693,202 @@ function populateServiceSelect(){
 }
 
 
-/* =========================================================
-   PAUSE
-========================================================= */
+/* ============================================================
+   PROMOZIONI
+============================================================ */
 
-function setupBreakRows(){
+function addPromotion(){
 
-  let html = "";
+  const title =
+    $("promotionTitle").value.trim();
 
+  const category =
+    $("promotionCategory").value.trim();
 
-  Object.values(dayConfig)
-    .forEach(cfg => {
+  const description =
+    $("promotionDescription").value.trim();
 
-      html += `
+  const price =
+    $("promotionPrice").value;
 
-        <div class="hour-row">
-
-          <b>
-            ${cfg.label}
-          </b>
-
-          <span class="muted">
-            Pausa
-          </span>
-
-          <input
-            id="${cfg.prefix}BreakStart"
-            type="time">
-
-          <input
-            id="${cfg.prefix}BreakEnd"
-            type="time">
-
-        </div>
-
-      `;
-
-    });
+  const expiry =
+    $("promotionExpiry").value;
 
 
-  $("breakRows").innerHTML =
-    html;
+  if(
+    !title &&
+    !description
+  ){
+
+    alert(
+      "Inserisci almeno il titolo o la descrizione della promozione."
+    );
+
+    return;
+
+  }
+
+
+  const promotions =
+    getPromotions();
+
+
+  promotions.push({
+
+    id:
+      "promotion_" +
+      Date.now(),
+
+    title,
+
+    category,
+
+    description,
+
+    price:
+      price === ""
+        ? null
+        : Number(price),
+
+    expiry
+
+  });
+
+
+  setPromotions(
+    promotions
+  );
+
+
+  $("promotionTitle").value =
+    "";
+
+  $("promotionCategory").value =
+    "";
+
+  $("promotionDescription").value =
+    "";
+
+  $("promotionPrice").value =
+    "";
+
+  $("promotionExpiry").value =
+    "";
+
+
+  renderPromotions();
+  updateDashboard();
 
 }
 
 
-/* =========================================================
-   CALENDARIO
-========================================================= */
+function deletePromotion(index){
+
+  const promotions =
+    getPromotions();
+
+  promotions.splice(
+    index,
+    1
+  );
+
+  setPromotions(
+    promotions
+  );
+
+  renderPromotions();
+  updateDashboard();
+
+}
+
+
+function renderPromotions(){
+
+  const promotions =
+    getPromotions();
+
+  if(!promotions.length){
+
+    $("promotionsList").innerHTML =
+      '<p class="muted">Nessuna promozione configurata.</p>';
+
+    return;
+
+  }
+
+
+  $("promotionsList").innerHTML =
+    promotions
+      .map(
+        (promotion,index) => `
+
+          <div class="promotion-item">
+
+            <b>
+              ${esc(
+                promotion.title ||
+                "Promozione"
+              )}
+            </b>
+
+            ${
+              promotion.category
+                ? `<br>Categoria: ${esc(promotion.category)}`
+                : ""
+            }
+
+            ${
+              promotion.description
+                ? `<br>${esc(promotion.description)}`
+                : ""
+            }
+
+            ${
+              promotion.price !== null &&
+              promotion.price !== undefined
+                ? `<br>Prezzo: €${Number(promotion.price).toFixed(2)}`
+                : ""
+            }
+
+            ${
+              promotion.expiry
+                ? `<br>Scadenza: ${esc(promotion.expiry)}`
+                : ""
+            }
+
+            <div class="promotion-actions">
+
+              <button
+                class="danger"
+                onclick="deletePromotion(${index})"
+              >
+                Elimina
+              </button>
+
+            </div>
+
+          </div>
+
+        `
+      )
+      .join("");
+
+}
+
+
+/* ============================================================
+   DATE / ORARI
+============================================================ */
 
 function getDayName(date){
 
-  return [
+  const d =
+    new Date(
+      date +
+      "T12:00:00"
+    );
 
+  return [
     "sunday",
     "monday",
     "tuesday",
@@ -2319,12 +1896,7 @@ function getDayName(date){
     "thursday",
     "friday",
     "saturday"
-
-  ][
-    new Date(
-      date+"T12:00:00"
-    ).getDay()
-  ];
+  ][d.getDay()];
 
 }
 
@@ -2340,12 +1912,10 @@ function toMinutes(time){
 
   }
 
-
   const parts =
     time
       .split(":")
       .map(Number);
-
 
   return (
     parts[0] * 60 +
@@ -2358,23 +1928,17 @@ function toMinutes(time){
 function formatTime(minutes){
 
   return (
-
     String(
       Math.floor(
         minutes / 60
       )
-    ).padStart(2,"0")
+    ).padStart(2,"0") +
 
-    +
-
-    ":"
-
-    +
+    ":" +
 
     String(
       minutes % 60
     ).padStart(2,"0")
-
   );
 
 }
@@ -2386,63 +1950,16 @@ function getService(name){
     return null;
   }
 
-
   return getServices()
     .find(
       service =>
-        String(
-          service.name
-        )
-        .trim()
-        .toLowerCase() ===
+        String(service.name)
+          .trim()
+          .toLowerCase() ===
         String(name)
           .trim()
           .toLowerCase()
     ) || null;
-
-}
-
-
-function appointmentDate(a){
-
-  return (
-    a?.date ||
-    a?.d ||
-    ""
-  );
-
-}
-
-
-function appointmentTime(a){
-
-  return (
-    a?.time ||
-    a?.t ||
-    ""
-  );
-
-}
-
-
-function appointmentService(a){
-
-  return (
-    a?.service ||
-    a?.s ||
-    ""
-  );
-
-}
-
-
-function appointmentName(a){
-
-  return (
-    a?.name ||
-    a?.n ||
-    ""
-  );
 
 }
 
@@ -2453,34 +1970,37 @@ function isBreak(
   end
 ){
 
-  const a =
+  const breakStart =
     toMinutes(
       day?.breakStart
     );
 
-
-  const b =
+  const breakEnd =
     toMinutes(
       day?.breakEnd
     );
 
+  if(
+    breakStart === null ||
+    breakEnd === null ||
+    breakStart >= breakEnd
+  ){
+
+    return false;
+
+  }
 
   return (
-
-    a !== null &&
-
-    b !== null &&
-
-    a < b &&
-
-    start < b &&
-
-    end > a
-
+    start < breakEnd &&
+    end > breakStart
   );
 
 }
 
+
+/* ============================================================
+   CONTROLLO DISPONIBILITÀ
+============================================================ */
 
 function isAppointmentFree(
   date,
@@ -2491,58 +2011,65 @@ function isAppointmentFree(
   const settings =
     getSettings();
 
-
   const day =
     settings.hours?.[
       getDayName(date)
     ];
 
+  if(
+    !day ||
+    day.status === "closed"
+  ){
+
+    return false;
+
+  }
+
 
   const opening =
-    toMinutes(
-      day?.open
-    );
-
+    toMinutes(day.open);
 
   const closing =
-    toMinutes(
-      day?.close
-    );
-
+    toMinutes(day.close);
 
   const start =
     toMinutes(time);
 
+  const serviceDuration =
+    Number(duration || 30);
+
+  if(
+    opening === null ||
+    closing === null ||
+    start === null
+  ){
+
+    return false;
+
+  }
+
 
   const end =
     start +
-    Number(
-      duration || 30
-    );
+    serviceDuration;
 
 
   if(
-
-    !day ||
-
-    day.status === "closed" ||
-
-    opening === null ||
-
-    closing === null ||
-
-    start === null ||
-
     start < opening ||
+    end > closing
+  ){
 
-    end > closing ||
+    return false;
 
+  }
+
+
+  if(
     isBreak(
       day,
       start,
       end
     )
-
   ){
 
     return false;
@@ -2555,23 +2082,17 @@ function isAppointmentFree(
       appointment => {
 
         if(
-          appointmentDate(
-            appointment
-          ) !== date
+          appointment.d !== date
         ){
 
           return false;
 
         }
 
-
         const existingStart =
           toMinutes(
-            appointmentTime(
-              appointment
-            )
+            appointment.t
           );
-
 
         if(
           existingStart === null
@@ -2581,24 +2102,17 @@ function isAppointmentFree(
 
         }
 
-
         const existingService =
           getService(
-            appointmentService(
-              appointment
-            )
+            appointment.s
           );
-
 
         const existingDuration =
           existingService
-
             ? Number(
                 existingService.duration
               ) || 30
-
             : 30;
-
 
         const existingEnd =
           existingStart +
@@ -2606,11 +2120,8 @@ function isAppointmentFree(
 
 
         return (
-
           start < existingEnd &&
-
           end > existingStart
-
         );
 
       }
@@ -2619,37 +2130,30 @@ function isAppointmentFree(
 }
 
 
-/* =========================================================
+/* ============================================================
    CALENDARIO
-========================================================= */
+============================================================ */
 
 function renderCalendar(){
 
   const input =
     $("calendarDate");
 
-
-  if(!input){
-    return;
-  }
-
-
   if(!input.value){
 
-    const today =
+    const now =
       new Date();
 
-
     input.value =
-      `${today.getFullYear()}-` +
-
-      `${String(
-        today.getMonth()+1
-      ).padStart(2,"0")}-` +
-
-      `${String(
-        today.getDate()
-      ).padStart(2,"0")}`;
+      now.getFullYear() +
+      "-" +
+      String(
+        now.getMonth()+1
+      ).padStart(2,"0") +
+      "-" +
+      String(
+        now.getDate()
+      ).padStart(2,"0");
 
   }
 
@@ -2661,46 +2165,44 @@ function renderCalendar(){
   const date =
     input.value;
 
-
-  const dateObject =
+  const d =
     new Date(
-      date+"T12:00:00"
+      date +
+      "T12:00:00"
     );
 
 
-  $("calendarTitle").innerHTML =
-    `
-      <p>
-        <b>
-          ${esc(
-            dateObject.toLocaleDateString(
-              "it-IT",
-              {
-                weekday:"long",
-                day:"numeric",
-                month:"long",
-                year:"numeric"
-              }
-            )
-          )}
-        </b>
-      </p>
-    `;
+  $("calendarTitle").innerHTML = `
+
+    <p>
+      <b>
+        ${esc(
+          d.toLocaleDateString(
+            "it-IT",
+            {
+              weekday:"long",
+              day:"numeric",
+              month:"long",
+              year:"numeric"
+            }
+          )
+        )}
+      </b>
+    </p>
+
+  `;
 
 
   const settings =
     getSettings();
-
 
   const day =
     settings.hours?.[
       getDayName(date)
     ];
 
-
   const calendar =
     $("calendar");
-
 
   calendar.innerHTML =
     "";
@@ -2712,11 +2214,7 @@ function renderCalendar(){
   ){
 
     calendar.innerHTML =
-      `
-        <div class="calendar-empty">
-          Attività chiusa in questo giorno.
-        </div>
-      `;
+      '<div class="calendar-empty">Attività chiusa in questo giorno.</div>';
 
     return;
 
@@ -2724,15 +2222,10 @@ function renderCalendar(){
 
 
   const opening =
-    toMinutes(
-      day.open
-    );
-
+    toMinutes(day.open);
 
   const closing =
-    toMinutes(
-      day.close
-    );
+    toMinutes(day.close);
 
 
   if(
@@ -2742,12 +2235,7 @@ function renderCalendar(){
   ){
 
     calendar.innerHTML =
-      `
-        <div class="calendar-empty">
-          Imposta correttamente gli orari
-          nelle impostazioni.
-        </div>
-      `;
+      '<div class="calendar-empty">Imposta correttamente gli orari nelle Impostazioni.</div>';
 
     return;
 
@@ -2759,14 +2247,11 @@ function renderCalendar(){
       $("s").value
     );
 
-
   const duration =
     selectedService
-
       ? Number(
           selectedService.duration
         ) || 30
-
       : 30;
 
 
@@ -2777,40 +2262,24 @@ function renderCalendar(){
   ){
 
     const slot =
-      document.createElement(
-        "div"
-      );
-
+      document.createElement("div");
 
     slot.className =
       "slot";
 
 
-    const time =
-      formatTime(
-        minutes
-      );
-
-
     const timeElement =
-      document.createElement(
-        "div"
-      );
-
+      document.createElement("div");
 
     timeElement.className =
       "slot-time";
 
-
     timeElement.textContent =
-      time;
+      formatTime(minutes);
 
 
     const box =
-      document.createElement(
-        "div"
-      );
-
+      document.createElement("div");
 
     box.className =
       "slot-box";
@@ -2820,7 +2289,7 @@ function renderCalendar(){
       isBreak(
         day,
         minutes,
-        minutes+30
+        minutes + 30
       )
     ){
 
@@ -2838,20 +2307,15 @@ function renderCalendar(){
             a => {
 
               if(
-                appointmentDate(a) !==
-                date
+                a.d !== date
               ){
 
                 return false;
 
               }
 
-
               const start =
-                toMinutes(
-                  appointmentTime(a)
-                );
-
+                toMinutes(a.t);
 
               if(
                 start === null
@@ -2861,31 +2325,20 @@ function renderCalendar(){
 
               }
 
-
               const service =
-                getService(
-                  appointmentService(a)
-                );
+                getService(a.s);
 
-
-              const appointmentDuration =
+              const duration =
                 service
-
                   ? Number(
                       service.duration
                     ) || 30
-
                   : 30;
 
-
               return (
-
                 minutes >= start &&
-
                 minutes <
-                  start +
-                  appointmentDuration
-
+                  start + duration
               );
 
             }
@@ -2897,30 +2350,26 @@ function renderCalendar(){
         box.className +=
           " busy";
 
+        box.innerHTML = `
 
-        box.innerHTML =
-          `
-            <b>
-              ${esc(
-                appointmentName(
-                  appointment
-                )
-              )}
-            </b>
-
-            <br>
-
+          <b>
             ${esc(
-              appointmentService(
-                appointment
-              )
+              appointment.n
             )}
-          `;
+          </b>
+
+          <br>
+
+          ${esc(
+            appointment.s
+          )}
+
+        `;
 
       }else if(
         isAppointmentFree(
           date,
-          time,
+          formatTime(minutes),
           duration
         )
       ){
@@ -2928,24 +2377,19 @@ function renderCalendar(){
         box.className +=
           " free";
 
-
         box.innerHTML =
-          `
-            <span class="badge">
-              Libero
-            </span>
-          `;
-
+          '<span class="badge">Libero</span>';
 
         box.onclick =
           () =>
-            selectSlot(time);
+            selectSlot(
+              formatTime(minutes)
+            );
 
       }else{
 
         box.className +=
           " closed";
-
 
         box.textContent =
           "Non disponibile";
@@ -2960,7 +2404,6 @@ function renderCalendar(){
       box
     );
 
-
     calendar.appendChild(
       slot
     );
@@ -2970,20 +2413,20 @@ function renderCalendar(){
 }
 
 
+/* ============================================================
+   SELEZIONE SLOT CALENDARIO
+============================================================ */
+
 function selectSlot(time){
 
   $("d").value =
     $("calendarDate").value;
 
-
   $("t").value =
     time;
 
-
-  $("appointmentStatus")
-    .textContent =
+  $("appointmentStatus").textContent =
     `Orario selezionato: ${time}.`;
-
 
   $("n").scrollIntoView({
     behavior:"smooth",
@@ -2993,114 +2436,362 @@ function selectSlot(time){
 }
 
 
+/* ============================================================
+   CAMBIO GIORNO
+============================================================ */
+
 function changeDay(amount){
 
   const input =
     $("calendarDate");
 
-
   if(!input.value){
     return;
   }
 
-
   const date =
     new Date(
-      input.value+"T12:00:00"
+      input.value +
+      "T12:00:00"
     );
 
-
   date.setDate(
-    date.getDate()+amount
+    date.getDate() +
+    amount
   );
 
-
   input.value =
-    `${date.getFullYear()}-` +
-
-    `${String(
+    date.getFullYear() +
+    "-" +
+    String(
       date.getMonth()+1
-    ).padStart(2,"0")}-` +
-
-    `${String(
+    ).padStart(2,"0") +
+    "-" +
+    String(
       date.getDate()
-    ).padStart(2,"0")}`;
-
+    ).padStart(2,"0");
 
   renderCalendar();
 
 }
 
 
-/* =========================================================
-   CONTROLLO DUPLICATI
-========================================================= */
+/* ============================================================
+   CHIAVE APPUNTAMENTO
+============================================================ */
 
-function appointmentExists(
-  appointments,
+function bookingKey(
   appointment
 ){
 
-  return appointments.some(
-    item =>
+  if(
+    !appointment ||
+    !appointment.date ||
+    !appointment.time ||
+    !appointment.service
+  ){
 
-      appointmentDate(item) ===
-        appointment.date &&
+    return "";
 
-      appointmentTime(item) ===
-        appointment.time &&
+  }
 
-      String(
-        appointmentService(item)
-      )
-      .trim()
-      .toLowerCase() ===
-
-      String(
-        appointment.service
-      )
-      .trim()
-      .toLowerCase()
-
-  );
+  return [
+    appointment.date,
+    appointment.time,
+    appointment.service
+  ]
+    .join("_")
+    .toLowerCase();
 
 }
 
 
-/* =========================================================
-   SALVATAGGIO MANUALE
-   DOPPIA PROTEZIONE
-========================================================= */
+/* ============================================================
+   SALVATAGGIO SICURO APPUNTAMENTO
+   PROTEZIONE DOPPIO SALVATAGGIO
+============================================================ */
+
+function saveConfirmedAppointment(
+  appointment
+){
+
+  if(
+    bookingSaveInProgress
+  ){
+
+    return {
+      saved:false,
+      duplicate:false
+    };
+
+  }
+
+
+  bookingSaveInProgress =
+    true;
+
+
+  try{
+
+    const p = {
+
+      name:
+        String(
+          appointment?.name || ""
+        ).trim(),
+
+      date:
+        String(
+          appointment?.date || ""
+        ).trim(),
+
+      time:
+        String(
+          appointment?.time || ""
+        ).trim(),
+
+      service:
+        String(
+          appointment?.service || ""
+        ).trim()
+
+    };
+
+
+    if(
+      !p.name ||
+      !p.date ||
+      !p.time ||
+      !p.service
+    ){
+
+      return {
+        saved:false,
+        duplicate:false,
+        error:"Dati appuntamento incompleti."
+      };
+
+    }
+
+
+    const key =
+      bookingKey(p);
+
+
+    if(!key){
+
+      return {
+        saved:false,
+        duplicate:false,
+        error:"Chiave appuntamento non valida."
+      };
+
+    }
+
+
+    /*
+      PRIMO BLOCCO:
+      controllo chiave persistente.
+    */
+
+    const savedKeys =
+      readJSON(
+        localStorage.getItem(
+          "savedBookingKeys"
+        ),
+        []
+      );
+
+
+    if(
+      savedKeys.includes(key)
+    ){
+
+      return {
+        saved:false,
+        duplicate:true
+      };
+
+    }
+
+
+    /*
+      SECONDO BLOCCO:
+      controllo diretto nel calendario.
+    */
+
+    const appointments =
+      getAppointments();
+
+
+    const alreadyExists =
+      appointments.some(
+        a =>
+          a.d === p.date &&
+          a.t === p.time &&
+          String(
+            a.s || ""
+          ).trim().toLowerCase() ===
+          p.service.toLowerCase()
+      );
+
+
+    if(alreadyExists){
+
+      if(
+        !savedKeys.includes(key)
+      ){
+
+        savedKeys.push(key);
+
+        localStorage.setItem(
+          "savedBookingKeys",
+          JSON.stringify(
+            savedKeys
+          )
+        );
+
+      }
+
+
+      return {
+        saved:false,
+        duplicate:true
+      };
+
+    }
+
+
+    /*
+      CONTROLLO FINALE DISPONIBILITÀ
+      prima del salvataggio locale.
+    */
+
+    const service =
+      getService(
+        p.service
+      );
+
+
+    if(!service){
+
+      return {
+        saved:false,
+        duplicate:false,
+        error:"Servizio non presente nel listino."
+      };
+
+    }
+
+
+    if(
+      !isAppointmentFree(
+        p.date,
+        p.time,
+        Number(
+          service.duration
+        ) || 30
+      )
+    ){
+
+      return {
+        saved:false,
+        duplicate:false,
+        error:"L'orario non è più disponibile."
+      };
+
+    }
+
+
+    /*
+      SALVATAGGIO.
+    */
+
+    appointments.push({
+
+      id:
+        "appointment_" +
+        Date.now(),
+
+      n:
+        p.name,
+
+      d:
+        p.date,
+
+      t:
+        p.time,
+
+      s:
+        service.name,
+
+      bookingKey:
+        key,
+
+      createdAt:
+        new Date().toISOString()
+
+    });
+
+
+    setAppointments(
+      appointments
+    );
+
+
+    /*
+      Memorizziamo la chiave
+      solo dopo il salvataggio.
+    */
+
+    savedKeys.push(key);
+
+    localStorage.setItem(
+      "savedBookingKeys",
+      JSON.stringify(
+        savedKeys
+      )
+    );
+
+
+    return {
+      saved:true,
+      duplicate:false
+    };
+
+
+  }finally{
+
+    bookingSaveInProgress =
+      false;
+
+  }
+
+}
+
+
+/* ============================================================
+   APPUNTAMENTO MANUALE
+============================================================ */
 
 function add(){
 
   const button =
     $("manualSaveButton");
 
-
-  if(
-    manualSaveInProgress ||
-    button.disabled
-  ){
-
+  if(button.disabled){
     return;
-
   }
 
 
   const name =
-    $("n")
-      .value
-      .trim();
-
+    $("n").value.trim();
 
   const date =
     $("d").value;
 
-
   const time =
     $("t").value;
-
 
   const serviceName =
     $("s").value;
@@ -3113,8 +2804,7 @@ function add(){
     !serviceName
   ){
 
-    $("appointmentStatus")
-      .textContent =
+    $("appointmentStatus").textContent =
       "Compila nome, data, orario e servizio.";
 
     return;
@@ -3130,9 +2820,8 @@ function add(){
 
   if(!service){
 
-    $("appointmentStatus")
-      .textContent =
-      "Servizio non trovato.";
+    $("appointmentStatus").textContent =
+      "Il servizio selezionato non esiste.";
 
     return;
 
@@ -3145,12 +2834,11 @@ function add(){
       time,
       Number(
         service.duration
-      )
+      ) || 30
     )
   ){
 
-    $("appointmentStatus")
-      .textContent =
+    $("appointmentStatus").textContent =
       "Questo orario non è disponibile.";
 
     renderCalendar();
@@ -3160,145 +2848,79 @@ function add(){
   }
 
 
-  /*
-   * LOCK IMMEDIATO.
-   */
-
-  manualSaveInProgress =
-    true;
-
-
   button.disabled =
     true;
-
 
   button.textContent =
     "Salvataggio...";
 
 
-  /*
-   * RILETTURA DOPO IL LOCK.
-   */
+  const result =
+    saveConfirmedAppointment({
 
-  let latest =
-    getAppointments();
+      name,
+      date,
+      time,
+      service:
+        service.name
 
-
-  const newAppointment = {
-
-    id:
-      "appointment_" +
-      Date.now() +
-      "_" +
-      Math.random()
-        .toString(36)
-        .slice(2),
-
-    n:name,
-    d:date,
-    t:time,
-    s:service.name,
-
-    name,
-    date,
-    time,
-    service:service.name
-
-  };
+    });
 
 
-  /*
-   * SECONDO CONTROLLO.
-   */
+  if(result.saved){
 
-  if(
-    appointmentExists(
-      latest,
-      newAppointment
-    )
+    $("n").value =
+      "";
+
+    $("t").value =
+      "";
+
+    $("s").value =
+      "";
+
+    $("appointmentStatus").textContent =
+      "Appuntamento salvato nel calendario.";
+
+  }else if(
+    result.duplicate
   ){
 
-    $("appointmentStatus")
-      .textContent =
-      "Questo appuntamento è già presente.";
+    $("appointmentStatus").textContent =
+      "Questo appuntamento è già presente nel calendario.";
 
   }else{
 
-    /*
-     * ULTIMA RILETTURA
-     * prima della scrittura.
-     */
-
-    latest =
-      getAppointments();
-
-
-    if(
-      appointmentExists(
-        latest,
-        newAppointment
-      )
-    ){
-
-      $("appointmentStatus")
-        .textContent =
-        "Questo appuntamento è già presente.";
-
-    }else{
-
-      latest.push(
-        newAppointment
-      );
-
-
-      localStorage.setItem(
-        "a",
-        JSON.stringify(latest)
-      );
-
-
-      $("n").value = "";
-
-      $("t").value = "";
-
-      $("s").value = "";
-
-
-      $("appointmentStatus")
-        .textContent =
-        "Appuntamento salvato.";
-
-    }
+    $("appointmentStatus").textContent =
+      result.error ||
+      "Impossibile salvare l'appuntamento.";
 
   }
 
 
   renderCalendar();
-
   render();
-
   updateDashboard();
 
 
-  setTimeout(() => {
+  setTimeout(
+    () => {
 
-    manualSaveInProgress =
-      false;
+      button.disabled =
+        false;
 
-    button.disabled =
-      false;
+      button.textContent =
+        "Salva appuntamento";
 
-    button.textContent =
-      "Salva appuntamento";
-
-  },1200);
+    },
+    700
+  );
 
 }
 
 
-/* =========================================================
+/* ============================================================
    LISTA APPUNTAMENTI
-========================================================= */
+============================================================ */
 
 function render(){
 
@@ -3309,11 +2931,7 @@ function render(){
   if(!appointments.length){
 
     $("list").innerHTML =
-      `
-        <p class="muted">
-          Nessun appuntamento.
-        </p>
-      `;
+      '<p class="muted">Nessun appuntamento.</p>';
 
     return;
 
@@ -3324,12 +2942,10 @@ function render(){
     [...appointments]
       .sort(
         (a,b) =>
-
-          `${appointmentDate(a)} ${appointmentTime(a)}`
+          `${a.d} ${a.t}`
             .localeCompare(
-              `${appointmentDate(b)} ${appointmentTime(b)}`
+              `${b.d} ${b.t}`
             )
-
       );
 
 
@@ -3342,39 +2958,27 @@ function render(){
 
             <b>
               ${esc(
-                appointmentName(
-                  appointment
-                )
+                appointment.n
               )}
             </b>
 
             <br>
 
             ${esc(
-              appointmentService(
-                appointment
-              )
+              appointment.s
             )}
 
             <br>
 
-            <span class="muted">
+            ${esc(
+              appointment.d
+            )}
 
-              ${esc(
-                appointmentDate(
-                  appointment
-                )
-              )}
+            ·
 
-              ·
-
-              ${esc(
-                appointmentTime(
-                  appointment
-                )
-              )}
-
-            </span>
+            ${esc(
+              appointment.t
+            )}
 
           </div>
 
@@ -3385,9 +2989,44 @@ function render(){
 }
 
 
-/* =========================================================
-   SLOT AI
-========================================================= */
+/* ============================================================
+   DATA ITALIANA
+============================================================ */
+
+function italianDate(date){
+
+  const d =
+    new Date(
+      date +
+      "T12:00:00"
+    );
+
+  if(
+    Number.isNaN(
+      d.getTime()
+    )
+  ){
+
+    return date;
+
+  }
+
+  return d.toLocaleDateString(
+    "it-IT",
+    {
+      weekday:"long",
+      day:"numeric",
+      month:"long",
+      year:"numeric"
+    }
+  );
+
+}
+
+
+/* ============================================================
+   SLOT RESTITUITI DALL'AI
+============================================================ */
 
 function showAvailableSlots(
   slots,
@@ -3410,7 +3049,6 @@ function showAvailableSlots(
       "div"
     );
 
-
   container.className =
     "ai-actions";
 
@@ -3420,16 +3058,12 @@ function showAvailableSlots(
       "div"
     );
 
-
   title.className =
     "available-title";
 
-
   title.textContent =
     service
-
       ? `${service} — orari disponibili`
-
       : "Orari disponibili";
 
 
@@ -3438,50 +3072,50 @@ function showAvailableSlots(
   );
 
 
-  slots.forEach(time => {
+  slots.forEach(
+    time => {
 
-    const button =
-      document.createElement(
-        "button"
-      );
-
-
-    button.className =
-      "ai-slot-button";
-
-
-    button.textContent =
-      time;
-
-
-    button.onclick =
-      () =>
-        selectAISlot(
-          button,
-          time,
-          date,
-          service
+      const button =
+        document.createElement(
+          "button"
         );
 
+      button.className =
+        "ai-slot-button";
 
-    container.appendChild(
-      button
-    );
+      button.textContent =
+        time;
 
-  });
+      button.onclick =
+        () =>
+          selectAISlot(
+            button,
+            time,
+            date,
+            service
+          );
+
+      container.appendChild(
+        button
+      );
+
+    }
+  );
 
 
-  $("chat")
-    .appendChild(
-      container
-    );
-
+  $("chat").appendChild(
+    container
+  );
 
   $("chat").scrollTop =
     $("chat").scrollHeight;
 
 }
 
+
+/* ============================================================
+   SELEZIONE SLOT AI
+============================================================ */
 
 function selectAISlot(
   button,
@@ -3505,15 +3139,14 @@ function selectAISlot(
       ".ai-slot-button"
     )
     .forEach(
-      item =>
-        item.disabled = true
+      b =>
+        b.disabled = true
     );
 
 
   $("d").value =
     date ||
     $("calendarDate").value;
-
 
   $("t").value =
     time;
@@ -3524,17 +3157,12 @@ function selectAISlot(
     const found =
       getServices()
         .find(
-          item =>
-            String(
-              item.name
-            )
-            .toLowerCase() ===
-            String(
-              service
-            )
-            .toLowerCase()
+          s =>
+            s.name
+              .toLowerCase() ===
+            service
+              .toLowerCase()
         );
-
 
     if(found){
 
@@ -3546,8 +3174,7 @@ function selectAISlot(
   }
 
 
-  $("appointmentStatus")
-    .textContent =
+  $("appointmentStatus").textContent =
     `Orario ${time} selezionato.`;
 
 
@@ -3560,14 +3187,13 @@ function selectAISlot(
 }
 
 
-/* =========================================================
-   CONFERMA AI
-========================================================= */
+/* ============================================================
+   PULSANTI CONFERMA
+============================================================ */
 
 function showConfirmationButtons(){
 
-  $("confirmationActions")
-    ?.remove();
+  $("confirmationActions")?.remove();
 
 
   const container =
@@ -3575,10 +3201,8 @@ function showConfirmationButtons(){
       "div"
     );
 
-
   container.id =
     "confirmationActions";
-
 
   container.className =
     "ai-actions";
@@ -3589,10 +3213,8 @@ function showConfirmationButtons(){
       "button"
     );
 
-
   confirm.className =
     "ai-confirm-button";
-
 
   confirm.textContent =
     "Conferma appuntamento";
@@ -3610,10 +3232,8 @@ function showConfirmationButtons(){
       "button"
     );
 
-
   cancel.className =
     "ai-cancel-button";
-
 
   cancel.textContent =
     "Annulla";
@@ -3632,17 +3252,19 @@ function showConfirmationButtons(){
   );
 
 
-  $("chat")
-    .appendChild(
-      container
-    );
-
+  $("chat").appendChild(
+    container
+  );
 
   $("chat").scrollTop =
     $("chat").scrollHeight;
 
 }
 
+
+/* ============================================================
+   CONFERMA
+============================================================ */
 
 function confirmAppointment(
   button
@@ -3662,7 +3284,6 @@ function confirmAppointment(
   button.disabled =
     true;
 
-
   button.textContent =
     "Conferma in corso...";
 
@@ -3675,6 +3296,10 @@ function confirmAppointment(
 
 }
 
+
+/* ============================================================
+   ANNULLAMENTO
+============================================================ */
 
 function cancelAppointment(
   button
@@ -3694,7 +3319,6 @@ function cancelAppointment(
   button.disabled =
     true;
 
-
   button.textContent =
     "Annullamento...";
 
@@ -3708,31 +3332,29 @@ function cancelAppointment(
 }
 
 
-/* =========================================================
-   CHAT AI
-========================================================= */
+/* ============================================================
+   INVIO ALL'API
+============================================================ */
 
 async function send(){
 
-  if(requestInProgress){
+  if(
+    requestInProgress
+  ){
+
     return;
+
   }
 
 
-  const text =
-    $("q")
-      .value
-      .trim();
+  const message =
+    $("q").value.trim();
 
 
-  if(!text){
+  if(!message){
     return;
   }
 
-
-  /*
-   * LOCK IMMEDIATO.
-   */
 
   requestInProgress =
     true;
@@ -3741,29 +3363,30 @@ async function send(){
   $("q").disabled =
     true;
 
-
   $("sendButton").disabled =
     true;
 
+  $("chat").classList.add(
+    "ai-busy"
+  );
 
-  $("chat")
-    .classList
-    .add("ai-busy");
 
+  $("chat").innerHTML += `
 
-  $("chat").innerHTML +=
-    `
-      <div class="msg user">
-        ${esc(text)}
-      </div>
-    `;
+    <div class="msg user">
+      ${esc(message)}
+    </div>
+
+  `;
 
 
   chatHistory.push({
 
-    role:"user",
+    role:
+      "user",
 
-    content:text
+    content:
+      message
 
   });
 
@@ -3773,7 +3396,7 @@ async function send(){
 
 
   $("status").textContent =
-    "Elaborazione...";
+    "L'assistente sta verificando la richiesta...";
 
 
   try{
@@ -3787,7 +3410,8 @@ async function send(){
         "/api/chat",
         {
 
-          method:"POST",
+          method:
+            "POST",
 
           headers:{
             "Content-Type":
@@ -3797,11 +3421,12 @@ async function send(){
           body:
             JSON.stringify({
 
-              message:text,
+              message,
 
               business:
-                settings.name ||
-                localStorage.biz ||
+                localStorage.getItem(
+                  "biz"
+                ) ||
                 "Attività locale",
 
               clientName:
@@ -3821,8 +3446,10 @@ async function send(){
                 getPromotions(),
 
               history:
-                chatHistory
-                  .slice(0,-1),
+                chatHistory.slice(
+                  0,
+                  -1
+                ),
 
               pendingAppointment,
 
@@ -3863,33 +3490,32 @@ async function send(){
 
     const reply =
       data.reply ||
-      "Non ho ricevuto una risposta.";
+      "Non ho ricevuto una risposta dall'assistente.";
 
 
     chatHistory.push({
 
-      role:"assistant",
+      role:
+        "assistant",
 
-      content:reply
+      content:
+        reply
 
     });
 
 
-    chatHistory =
-      chatHistory.slice(-20);
+    $("chat").innerHTML += `
 
+      <div class="msg bot">
+        ${esc(reply)}
+      </div>
 
-    $("chat").innerHTML +=
-      `
-        <div class="msg bot">
-          ${esc(reply)}
-        </div>
-      `;
+    `;
 
 
     /*
-     * SLOT DISPONIBILI.
-     */
+      SLOT DISPONIBILI
+    */
 
     if(
       Array.isArray(
@@ -3908,8 +3534,8 @@ async function send(){
 
 
     /*
-     * PRENOTAZIONE IN ATTESA.
-     */
+      PRENOTAZIONE IN ATTESA
+    */
 
     if(
       data.pendingAppointment
@@ -3918,10 +3544,8 @@ async function send(){
       pendingAppointment =
         data.pendingAppointment;
 
-
       requiresConfirmation =
-        data.requiresConfirmation !== false;
-
+        !!data.requiresConfirmation;
 
       savePendingState();
 
@@ -3934,26 +3558,38 @@ async function send(){
 
       }
 
-    }
-
-
-    /*
-     * PRENOTAZIONE ANNULLATA.
-     */
-
-    if(
-      data.cancelled === true ||
-      data.canceled === true
+    }else if(
+      data.requiresConfirmation === false
     ){
 
-      clearPendingState();
+      /*
+        Se l'API ha annullato
+        la richiesta di conferma.
+      */
+
+      if(
+        data.confirmed !== true
+      ){
+
+        clearPendingState();
+
+      }
 
     }
 
 
     /*
-     * PRENOTAZIONE CONFERMATA.
-     */
+      ========================================================
+      CONFERMA DEFINITIVA
+      ========================================================
+
+      Questo è il passaggio fondamentale:
+
+      API -> confirmed:true
+           + appointment
+
+      INDEX -> salva nel calendario
+    */
 
     if(
       data.confirmed === true &&
@@ -3964,171 +3600,197 @@ async function send(){
         data.appointment;
 
 
+      const result =
+        saveConfirmedAppointment(
+          appointment
+        );
+
+
       if(
-        appointment.name &&
-        appointment.service &&
-        appointment.date &&
-        appointment.time
+        result.saved ||
+        result.duplicate
       ){
 
-        /*
-         * RILETTURA IMMEDIATA.
-         */
-
-        let current =
-          getAppointments();
+        clearPendingState();
 
 
         /*
-         * CONTROLLO DUPLICATO.
-         */
+          Sincronizziamo il form
+          con l'appuntamento.
+        */
 
-        if(
-          !appointmentExists(
-            current,
-            appointment
-          )
-        ){
+        $("n").value =
+          appointment.name || "";
 
-          /*
-           * SECONDA RILETTURA
-           * prima della scrittura.
-           */
+        $("d").value =
+          appointment.date || "";
 
-          current =
-            getAppointments();
+        $("t").value =
+          appointment.time || "";
 
+        const service =
+          getService(
+            appointment.service
+          );
 
-          if(
-            !appointmentExists(
-              current,
-              appointment
-            )
-          ){
+        if(service){
 
-            current.push({
-
-              id:
-                appointment.bookingKey ||
-                appointment.id ||
-                (
-                  appointment.date +
-                  "_" +
-                  appointment.time +
-                  "_" +
-                  appointment.service
-                ),
-
-              n:
-                appointment.name,
-
-              d:
-                appointment.date,
-
-              t:
-                appointment.time,
-
-              s:
-                appointment.service,
-
-              name:
-                appointment.name,
-
-              date:
-                appointment.date,
-
-              time:
-                appointment.time,
-
-              service:
-                appointment.service
-
-            });
-
-
-            localStorage.setItem(
-              "a",
-              JSON.stringify(current)
-            );
-
-          }
+          $("s").value =
+            service.name;
 
         }
 
-      }
+
+        /*
+          Messaggio esplicito
+          richiesto dal flusso.
+        */
+
+        $("bookingSuccess").innerHTML = `
+
+          <div class="success-message">
+
+            Appuntamento confermato e salvato in calendario.
+
+          </div>
+
+        `;
 
 
-      clearPendingState();
+        $("appointmentStatus").textContent =
+          "Appuntamento confermato e salvato nel calendario.";
 
 
-      render();
-
-      renderCalendar();
-
-      updateDashboard();
+        render();
+        renderCalendar();
+        updateDashboard();
 
 
-      if(
-        !$("clientName")
-          .value
-          .trim() &&
-        appointment.name
-      ){
+        /*
+          Portiamo il calendario
+          in primo piano.
+        */
 
-        $("clientName").value =
-          appointment.name;
+        setTimeout(
+          () => {
+
+            $("calendarDate").value =
+              appointment.date;
+
+            renderCalendar();
+
+          },
+          100
+        );
+
+
+        /*
+          Se il nome cliente non è già
+          compilato, lo impostiamo.
+        */
+
+        if(
+          !$("clientName")
+            .value
+            .trim()
+        ){
+
+          $("clientName").value =
+            appointment.name || "";
+
+        }
+
+
+      }else{
+
+        /*
+          L'API ha confermato,
+          ma il calendario non ha
+          potuto salvare.
+        */
+
+        $("bookingSuccess").innerHTML = `
+
+          <div class="info-box">
+
+            L'appuntamento è stato confermato dall'assistente,
+            ma non è stato possibile salvarlo nel calendario:
+            ${esc(
+              result.error ||
+              "errore di salvataggio"
+            )}
+
+          </div>
+
+        `;
 
       }
 
     }
 
 
+    /*
+      Scroll chat.
+    */
+
+    $("chat").scrollTop =
+      $("chat").scrollHeight;
+
+
   }catch(error){
 
     /*
-     * Mantiene lo storico coerente
-     * in caso di errore di rete/server.
-     */
+      Togliamo l'ultimo messaggio
+      utente dalla cronologia soltanto
+      se la chiamata è realmente fallita.
+    */
 
-    chatHistory.pop();
+    if(
+      chatHistory.length &&
+      chatHistory[
+        chatHistory.length - 1
+      ]?.role === "user"
+    ){
+
+      chatHistory.pop();
+
+    }
 
 
-    $("chat").innerHTML +=
-      `
-        <div class="msg bot">
-          Si è verificato un problema:
-          ${esc(
-            error.message
-          )}
-        </div>
-      `;
+    $("chat").innerHTML += `
+
+      <div class="msg bot">
+
+        Si è verificato un problema:
+        ${esc(
+          error?.message ||
+          "Errore sconosciuto."
+        )}
+
+      </div>
+
+    `;
 
   }finally{
 
     requestInProgress =
       false;
 
-
     $("q").disabled =
       false;
-
 
     $("sendButton").disabled =
       false;
 
-
-    $("chat")
-      .classList
-      .remove("ai-busy");
-
+    $("chat").classList.remove(
+      "ai-busy"
+    );
 
     $("status").textContent =
       "";
 
-
     $("q").value =
       "";
-
 
     $("chat").scrollTop =
       $("chat").scrollHeight;
@@ -4139,8 +3801,8 @@ async function send(){
         ".ai-slot-button"
       )
       .forEach(
-        button =>
-          button.disabled = false
+        b =>
+          b.disabled = false
       );
 
   }
@@ -4148,125 +3810,49 @@ async function send(){
 }
 
 
-/* =========================================================
+/* ============================================================
    POST AI
-========================================================= */
+============================================================ */
 
 async function generatePost(){
 
   const button =
     $("postButton");
 
-
-  if(
-    postRequestInProgress ||
-    button.disabled
-  ){
-
+  if(button.disabled){
     return;
-
   }
 
 
   const topic =
-    $("topic")
-      .value
-      .trim() ||
-    "una nuova promozione";
+    $("topic").value.trim() ||
+    "Nuova promozione";
 
 
   const settings =
     getSettings();
 
 
-  postRequestInProgress =
-    true;
-
-
   button.disabled =
     true;
-
 
   button.textContent =
     "Generazione...";
 
 
   $("postStatus").textContent =
-    "Preparazione del post...";
+    "L'AI sta preparando il post...";
 
 
   try{
-
-    const promotions =
-      getPromotions();
-
-
-    const promotionText =
-      promotions
-        .map(p => {
-
-          const parts = [];
-
-
-          if(p.title){
-            parts.push(
-              p.title
-            );
-          }
-
-
-          if(p.category){
-            parts.push(
-              p.category
-            );
-          }
-
-
-          if(p.description){
-            parts.push(
-              p.description
-            );
-          }
-
-
-          if(
-            p.price !== null &&
-            p.price !== undefined
-          ){
-
-            parts.push(
-              `€${Number(
-                p.price
-              ).toFixed(2)}`
-            );
-
-          }
-
-
-          if(p.expiry){
-
-            parts.push(
-              `Valida fino al ${p.expiry}`
-            );
-
-          }
-
-
-          return parts.join(
-            " — "
-          );
-
-        })
-        .filter(Boolean)
-        .join("\n");
-
 
     const response =
       await fetch(
         "/api/chat",
         {
 
-          method:"POST",
+          method:
+            "POST",
 
           headers:{
             "Content-Type":
@@ -4276,13 +3862,16 @@ async function generatePost(){
           body:
             JSON.stringify({
 
-              action:"post",
+              action:
+                "post",
 
               topic,
 
               business:
                 settings.name ||
-                localStorage.biz ||
+                localStorage.getItem(
+                  "biz"
+                ) ||
                 "Attività locale",
 
               settings,
@@ -4290,10 +3879,8 @@ async function generatePost(){
               services:
                 getServices(),
 
-              promotions,
-
-              promotion:
-                promotionText
+              promotions:
+                getPromotions()
 
             })
 
@@ -4301,28 +3888,15 @@ async function generatePost(){
       );
 
 
-    let data;
-
-
-    try{
-
-      data =
-        await response.json();
-
-    }catch{
-
-      throw new Error(
-        "Risposta non valida dal server."
-      );
-
-    }
+    const data =
+      await response.json();
 
 
     if(!response.ok){
 
       throw new Error(
         data.error ||
-        "Errore durante la generazione."
+        "Errore nella generazione del post."
       );
 
     }
@@ -4330,52 +3904,44 @@ async function generatePost(){
 
     $("out").value =
       data.reply ||
-      "Non è stato generato alcun post.";
+      "";
 
 
     $("postStatus").textContent =
       "Post generato.";
 
-
   }catch(error){
 
     $("postStatus").textContent =
-      "Errore: " +
-      error.message;
+      error?.message ||
+      "Errore nella generazione del post.";
 
   }finally{
-
-    postRequestInProgress =
-      false;
-
 
     button.disabled =
       false;
 
-
     button.textContent =
-      "Genera post AI";
+      "Genera post con AI";
 
   }
 
 }
 
 
-/* =========================================================
-   AVVIO APP
-========================================================= */
+/* ============================================================
+   INIZIALIZZAZIONE
+============================================================ */
 
 setupBreakRows();
 
 
-const savedBusiness =
-  localStorage.biz ||
+$("biz").value =
+  localStorage.getItem(
+    "biz"
+  ) ||
   getSettings().name ||
   "Attività locale";
-
-
-$("biz").value =
-  savedBusiness;
 
 
 loadSettings();
@@ -4391,63 +3957,48 @@ updateDashboard();
 
 (function(){
 
-  const today =
+  const now =
     new Date();
 
-
-  const date =
-    `${today.getFullYear()}-` +
-
-    `${String(
-      today.getMonth()+1
-    ).padStart(2,"0")}-` +
-
-    `${String(
-      today.getDate()
-    ).padStart(2,"0")}`;
+  const today =
+    now.getFullYear() +
+    "-" +
+    String(
+      now.getMonth()+1
+    ).padStart(2,"0") +
+    "-" +
+    String(
+      now.getDate()
+    ).padStart(2,"0");
 
 
   $("calendarDate").value =
-    date;
-
+    today;
 
   $("d").value =
-    date;
+    today;
 
 
   renderCalendar();
 
-})();
 
+  /*
+    Se l'app viene riaperta
+    con una prenotazione ancora
+    in attesa di conferma,
+    ricreiamo i pulsanti.
+  */
 
-/* =========================================================
-   RIPRISTINO PRENOTAZIONE PENDENTE
-========================================================= */
-
-if(
-  pendingAppointment &&
-  requiresConfirmation
-){
-
-  setTimeout(() => {
-
-    show("ai");
-
-    $("chat").innerHTML +=
-      `
-        <div class="msg bot">
-          Hai una prenotazione in attesa
-          di conferma.
-        </div>
-      `;
+  if(
+    pendingAppointment &&
+    requiresConfirmation
+  ){
 
     showConfirmationButtons();
 
-  },100);
+  }
 
-}
+})();
 
-</script>
-
-</body>
+</script></body>
 </html>
