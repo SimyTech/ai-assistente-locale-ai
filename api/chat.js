@@ -35,6 +35,15 @@ export default async function handler(req, res) {
 
 
     /* ============================================================
+       OPENAI
+    ============================================================ */
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+
+
+    /* ============================================================
        FUNZIONI BASE
     ============================================================ */
 
@@ -59,7 +68,8 @@ export default async function handler(req, res) {
         s += ":00";
       }
 
-      const match = s.match(/^(\d{1,2}):(\d{2})$/);
+      const match =
+        s.match(/^(\d{1,2}):(\d{2})$/);
 
       if (!match) return null;
 
@@ -85,29 +95,10 @@ export default async function handler(req, res) {
       String(minutes % 60).padStart(2, "0");
 
 
-    const dayName = date => {
-
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date || "")) {
-        return null;
-      }
-
-      return [
-        "sunday",
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday"
-      ][
-        new Date(date + "T12:00:00").getDay()
-      ];
-    };
-
-
     const addDays = (date, amount) => {
 
-      const d = new Date(date + "T12:00:00");
+      const d =
+        new Date(date + "T12:00:00");
 
       d.setDate(
         d.getDate() + amount
@@ -123,9 +114,35 @@ export default async function handler(req, res) {
     };
 
 
+    const dayName = date => {
+
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(date || "")
+      ) {
+        return null;
+      }
+
+      return [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday"
+      ][
+        new Date(
+          date + "T12:00:00"
+        ).getDay()
+      ];
+    };
+
+
     const italianDate = date => {
 
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date || "")) {
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(date || "")
+      ) {
         return date || "";
       }
 
@@ -162,7 +179,8 @@ export default async function handler(req, res) {
     parts.forEach(part => {
 
       if (part.type !== "literal") {
-        dateMap[part.type] = part.value;
+        dateMap[part.type] =
+          part.value;
       }
 
     });
@@ -172,7 +190,7 @@ export default async function handler(req, res) {
 
 
     /* ============================================================
-       SERVIZI
+       DATI SICURI
     ============================================================ */
 
     const safeServices =
@@ -186,9 +204,38 @@ export default async function handler(req, res) {
         : [];
 
 
+    const safePromotions =
+      Array.isArray(promotions)
+        ? promotions.filter(
+            p =>
+              p &&
+              typeof p === "object"
+          )
+        : [];
+
+
+    const safeAppointments =
+      Array.isArray(appointments)
+        ? appointments.filter(
+            a =>
+              a &&
+              typeof a === "object"
+          )
+        : [];
+
+
+    /* ============================================================
+       SERVIZI
+    ============================================================ */
+
     const getService = name => {
 
-      const target = norm(name);
+      const target =
+        norm(name);
+
+      if (!target) {
+        return null;
+      }
 
       return safeServices.find(
         service =>
@@ -199,34 +246,60 @@ export default async function handler(req, res) {
 
     const findService = text => {
 
-      const n = norm(text);
+      const n =
+        norm(text);
 
-      return safeServices.find(service => {
+      if (!n) {
+        return null;
+      }
 
-        const serviceName =
-          norm(service.name);
+      return safeServices.find(
+        service => {
 
-        if (!serviceName) {
-          return false;
+          const serviceName =
+            norm(service.name);
+
+          if (!serviceName) {
+            return false;
+          }
+
+          if (
+            n.includes(serviceName)
+          ) {
+            return true;
+          }
+
+          const words =
+            serviceName
+              .split(/\s+/)
+              .filter(Boolean);
+
+          return (
+            words.length > 0 &&
+            words.every(
+              word =>
+                n.includes(word)
+            )
+          );
+
         }
+      ) || null;
+    };
 
-        if (n.includes(serviceName)) {
-          return true;
-        }
 
-        const words =
-          serviceName
-            .split(/\s+/)
-            .filter(Boolean);
+    const serviceDuration = service => {
 
-        return (
-          words.length > 0 &&
-          words.every(
-            word => n.includes(word)
-          )
+      const duration =
+        Number(
+          service?.duration
         );
 
-      }) || null;
+      return (
+        Number.isFinite(duration) &&
+        duration > 0
+      )
+        ? duration
+        : 30;
     };
 
 
@@ -234,32 +307,20 @@ export default async function handler(req, res) {
        PROMOZIONI
     ============================================================ */
 
-    const safePromotions =
-      Array.isArray(promotions)
-        ? promotions.filter(
-            p =>
-              p &&
-              typeof p === "object" &&
-              (
-                String(p.title || "").trim() ||
-                String(p.description || "").trim()
-              )
-          )
-        : [];
-
-
     const validPromotions =
-      safePromotions.filter(p => {
+      safePromotions.filter(
+        p => {
 
-        if (!p.expiry) {
-          return true;
+          if (!p.expiry) {
+            return true;
+          }
+
+          return (
+            String(p.expiry) >= today
+          );
+
         }
-
-        return (
-          String(p.expiry) >= today
-        );
-
-      });
+      );
 
 
     const promotionList =
@@ -295,10 +356,18 @@ export default async function handler(req, res) {
                   : "";
 
               return [
-                title ? `- ${title}` : "",
-                category ? `categoria: ${category}` : "",
-                description ? `descrizione: ${description}` : "",
-                price ? `prezzo: ${price}` : "",
+                title
+                  ? `- ${title}`
+                  : "",
+                category
+                  ? `categoria: ${category}`
+                  : "",
+                description
+                  ? `descrizione: ${description}`
+                  : "",
+                price
+                  ? `prezzo: ${price}`
+                  : "",
                 expiry
               ]
                 .filter(Boolean)
@@ -311,13 +380,60 @@ export default async function handler(req, res) {
 
     /* ============================================================
        ORARI
+       COMPATIBILE CON:
+       NUOVO INDEX:
+       {closed,start,end}
+       
+       FORMATO PRECEDENTE:
+       {status,open,close}
     ============================================================ */
 
-    const daySettings =
-      date =>
+    const getDaySettings = date => {
+
+      const day =
         settings?.hours?.[
           dayName(date)
-        ] || null;
+        ];
+
+      if (!day) {
+        return null;
+      }
+
+      const closed =
+        day.closed === true ||
+        day.status === "closed";
+
+      const open =
+        day.start ||
+        day.open ||
+        "";
+
+      const close =
+        day.end ||
+        day.close ||
+        "";
+
+      const breakStart =
+        day.breakStart ||
+        day.pauseStart ||
+        day.break_start ||
+        "";
+
+      const breakEnd =
+        day.breakEnd ||
+        day.pauseEnd ||
+        day.break_end ||
+        "";
+
+      return {
+        ...day,
+        closed,
+        open,
+        close,
+        breakStart,
+        breakEnd
+      };
+    };
 
 
     const openingHours =
@@ -335,70 +451,154 @@ export default async function handler(req, res) {
         const day =
           settings?.hours?.[key];
 
-        if (
-          !day ||
-          day.status === "closed"
-        ) {
+        if (!day) {
+          return `${label}: non configurato`;
+        }
+
+        const closed =
+          day.closed === true ||
+          day.status === "closed";
+
+        if (closed) {
           return `${label}: Chiuso`;
         }
 
         const open =
-          day.open || "";
+          day.start ||
+          day.open ||
+          "";
 
         const close =
-          day.close || "";
+          day.end ||
+          day.close ||
+          "";
+
+        const breakStart =
+          day.breakStart ||
+          day.pauseStart ||
+          "";
+
+        const breakEnd =
+          day.breakEnd ||
+          day.pauseEnd ||
+          "";
 
         const pause =
-          day.breakStart &&
-          day.breakEnd
-            ? ` (pausa ${day.breakStart}-${day.breakEnd})`
+          breakStart &&
+          breakEnd
+            ? ` (pausa ${breakStart}-${breakEnd})`
             : "";
 
-        return `${label}: ${open} - ${close}${pause}`;
+        return (
+          `${label}: ` +
+          `${open} - ${close}` +
+          pause
+        );
 
       })
       .join("\n");
 
 
     /* ============================================================
-       CONTROLLO PAUSA
+       PAUSE
     ============================================================ */
 
     const breakOverlap =
-      (start, end, day) => {
+      (
+        start,
+        end,
+        day
+      ) => {
 
         const breakStart =
-          toMinutes(day?.breakStart);
+          toMinutes(
+            day?.breakStart
+          );
 
         const breakEnd =
-          toMinutes(day?.breakEnd);
+          toMinutes(
+            day?.breakEnd
+          );
+
+        if (
+          breakStart === null ||
+          breakEnd === null
+        ) {
+          return false;
+        }
 
         return (
-          breakStart !== null &&
-          breakEnd !== null &&
           breakStart < breakEnd &&
           start < breakEnd &&
           end > breakStart
         );
-
       };
 
 
     /* ============================================================
-       CONTROLLO DISPONIBILITÀ
+       APPUNTAMENTO
+       SUPPORTA:
+       NUOVO:
+       {name,service,date,time}
+       
+       VECCHIO:
+       {n,s,d,t}
+    ============================================================ */
+
+    const appointmentDate =
+      appointment =>
+        appointment?.date ||
+        appointment?.d ||
+        "";
+
+
+    const appointmentTime =
+      appointment =>
+        appointment?.time ||
+        appointment?.t ||
+        "";
+
+
+    const appointmentService =
+      appointment =>
+        appointment?.service ||
+        appointment?.s ||
+        "";
+
+
+    const appointmentName =
+      appointment =>
+        appointment?.name ||
+        appointment?.n ||
+        "";
+
+
+    /* ============================================================
+       DISPONIBILITÀ
     ============================================================ */
 
     const free =
-      (date, time, duration) => {
+      (
+        date,
+        time,
+        duration
+      ) => {
 
         const day =
-          daySettings(date);
+          getDaySettings(date);
+
+        if (
+          !day ||
+          day.closed
+        ) {
+          return false;
+        }
 
         const opening =
-          toMinutes(day?.open);
+          toMinutes(day.open);
 
         const closing =
-          toMinutes(day?.close);
+          toMinutes(day.close);
 
         const start =
           toMinutes(time);
@@ -407,8 +607,6 @@ export default async function handler(req, res) {
           Number(duration) || 30;
 
         if (
-          !day ||
-          day.status === "closed" ||
           opening === null ||
           closing === null ||
           start === null
@@ -436,64 +634,53 @@ export default async function handler(req, res) {
           return false;
         }
 
-        return !(
-          Array.isArray(appointments)
-            ? appointments
-            : []
-        ).some(a => {
+        return !safeAppointments.some(
+          appointment => {
 
-          if (!a) {
-            return false;
-          }
+            if (
+              appointmentDate(
+                appointment
+              ) !== date
+            ) {
+              return false;
+            }
 
-          /*
-           * Supporto sia al formato nuovo
-           * sia al vecchio formato:
-           * {name,service,date,time}
-           * {n,s,d,t}
-           */
+            const existingTime =
+              toMinutes(
+                appointmentTime(
+                  appointment
+                )
+              );
 
-          const appointmentDate =
-            a.date || a.d || "";
+            if (
+              existingTime === null
+            ) {
+              return false;
+            }
 
-          if (
-            appointmentDate !== date
-          ) {
-            return false;
-          }
+            const existingService =
+              getService(
+                appointmentService(
+                  appointment
+                )
+              );
 
-          const existingTime =
-            toMinutes(
-              a.time || a.t
+            const existingDuration =
+              serviceDuration(
+                existingService
+              );
+
+            const existingEnd =
+              existingTime +
+              existingDuration;
+
+            return (
+              start < existingEnd &&
+              end > existingTime
             );
 
-          if (existingTime === null) {
-            return false;
           }
-
-          const existingService =
-            getService(
-              a.service || a.s
-            );
-
-          const existingDuration =
-            existingService
-              ? Number(
-                  existingService.duration
-                ) || 30
-              : 30;
-
-          const existingEnd =
-            existingTime +
-            existingDuration;
-
-          return (
-            start < existingEnd &&
-            end > existingTime
-          );
-
-        });
-
+        );
       };
 
 
@@ -510,11 +697,11 @@ export default async function handler(req, res) {
       ) => {
 
         const day =
-          daySettings(date);
+          getDaySettings(date);
 
         if (
           !day ||
-          day.status === "closed"
+          day.closed
         ) {
           return [];
         }
@@ -549,7 +736,9 @@ export default async function handler(req, res) {
               );
 
         first =
-          Math.ceil(first / 30) * 30;
+          Math.ceil(
+            first / 30
+          ) * 30;
 
         const result = [];
 
@@ -578,23 +767,42 @@ export default async function handler(req, res) {
 
 
     /* ============================================================
-       RICONOSCIMENTO DATA
+       DATA
     ============================================================ */
 
     const detectDate = text => {
 
-      const n = norm(text);
+      const n =
+        norm(text);
 
-      if (n.includes("oggi")) {
+      /*
+       * IMPORTANTE:
+       * dopodomani DEVE essere controllato
+       * prima di domani.
+       */
+
+      if (
+        n.includes("dopodomani")
+      ) {
+        return addDays(
+          today,
+          2
+        );
+      }
+
+      if (
+        n.includes("domani")
+      ) {
+        return addDays(
+          today,
+          1
+        );
+      }
+
+      if (
+        n.includes("oggi")
+      ) {
         return today;
-      }
-
-      if (n.includes("domani")) {
-        return addDays(today, 1);
-      }
-
-      if (n.includes("dopodomani")) {
-        return addDays(today, 2);
       }
 
       const iso =
@@ -613,14 +821,30 @@ export default async function handler(req, res) {
 
       if (numeric) {
 
-        return (
+        const year =
           numeric[3] ||
-          today.slice(0, 4)
-        ) +
-        "-" +
-        String(numeric[2]).padStart(2, "0") +
-        "-" +
-        String(numeric[1]).padStart(2, "0");
+          today.slice(0, 4);
+
+        const month =
+          Number(numeric[2]);
+
+        const day =
+          Number(numeric[1]);
+
+        if (
+          month >= 1 &&
+          month <= 12 &&
+          day >= 1 &&
+          day <= 31
+        ) {
+          return (
+            year +
+            "-" +
+            String(month).padStart(2, "0") +
+            "-" +
+            String(day).padStart(2, "0")
+          );
+        }
 
       }
 
@@ -640,15 +864,18 @@ export default async function handler(req, res) {
       };
 
       for (
-        const [name, target] of
-        Object.entries(weekdays)
+        const [name, target]
+        of Object.entries(weekdays)
       ) {
 
-        if (n.includes(name)) {
+        if (
+          n.includes(name)
+        ) {
 
           const current =
             new Date(
-              today + "T12:00:00"
+              today +
+              "T12:00:00"
             ).getDay();
 
           let diff =
@@ -662,7 +889,6 @@ export default async function handler(req, res) {
             today,
             diff
           );
-
         }
 
       }
@@ -672,12 +898,13 @@ export default async function handler(req, res) {
 
 
     /* ============================================================
-       RICONOSCIMENTO ORARIO
+       ORARIO
     ============================================================ */
 
     const detectTime = text => {
 
-      const n = norm(text);
+      const n =
+        norm(text);
 
       let match =
         n.match(
@@ -690,7 +917,6 @@ export default async function handler(req, res) {
           Number(match[1]) * 60 +
           Number(match[2])
         );
-
       }
 
       match =
@@ -703,1001 +929,818 @@ export default async function handler(req, res) {
         return fmt(
           Number(match[1]) * 60
         );
-
       }
 
-      if (/^\d{1,2}$/.test(n)) {
+      /*
+       * Supporto per:
+       * "15"
+       * "alle 15"
+       * "ore 15"
+       */
+
+      const standalone =
+        n.match(
+          /\b([01]?\d|2[0-3])\b/
+        );
+
+      if (standalone) {
 
         const hour =
-          Number(n);
+          Number(
+            standalone[1]
+          );
 
-        if (hour <= 23) {
-          return fmt(hour * 60);
+        if (
+          hour >= 0 &&
+          hour <= 23
+        ) {
+          return fmt(
+            hour * 60
+          );
+        }
+      }
+
+      return null;
+    };
+
+
+    /* ============================================================
+       DATI PRENOTAZIONE
+    ============================================================ */
+
+    const normalizePending =
+      pending => {
+
+        if (
+          !pending ||
+          typeof pending !== "object"
+        ) {
+          return null;
         }
 
-      }
+        const date =
+          pending.date ||
+          pending.d ||
+          "";
 
-      return null;
-    };
+        const time =
+          pending.time ||
+          pending.t ||
+          "";
+
+        const service =
+          pending.service ||
+          pending.s ||
+          "";
+
+        const name =
+          pending.name ||
+          pending.n ||
+          clientName ||
+          "";
+
+        return {
+          ...pending,
+          date,
+          time,
+          service,
+          name
+        };
+      };
+
+
+    const pending =
+      normalizePending(
+        pendingAppointment
+      );
 
 
     /* ============================================================
-       PERIODI DELLA GIORNATA
+       CONTROLLO PRENOTAZIONE
     ============================================================ */
 
-    const period = text => {
+    const checkAppointment =
+      appointment => {
 
-      const n = norm(text);
+        if (!appointment) {
+          return {
+            ok: false,
+            error:
+              "Dati appuntamento mancanti."
+          };
+        }
 
-      if (
-        n.includes("pomeriggio")
-      ) {
-        return [840, 1140];
-      }
+        const date =
+          appointment.date;
 
-      if (
-        n.includes("mattina")
-      ) {
-        return [480, 780];
-      }
+        const time =
+          appointment.time;
 
-      if (
-        n.includes("sera")
-      ) {
-        return [1020, 1320];
-      }
+        const service =
+          getService(
+            appointment.service
+          );
 
-      return null;
-    };
+        if (!date) {
+          return {
+            ok: false,
+            error:
+              "Data dell'appuntamento mancante."
+          };
+        }
+
+        if (!time) {
+          return {
+            ok: false,
+            error:
+              "Orario dell'appuntamento mancante."
+          };
+        }
+
+        if (!service) {
+          return {
+            ok: false,
+            error:
+              "Servizio non trovato."
+          };
+        }
+
+        const duration =
+          serviceDuration(
+            service
+          );
+
+        if (
+          !free(
+            date,
+            time,
+            duration
+          )
+        ) {
+
+          return {
+            ok: false,
+            error:
+              `L'orario ${time} del ${italianDate(date)} non è disponibile.`
+          };
+        }
+
+        return {
+          ok: true,
+          date,
+          time,
+          service,
+          duration
+        };
+      };
 
 
     /* ============================================================
-       GESTIONE POST AI
-       action:"post"
+       RICHIESTA SLOT
     ============================================================ */
 
-    if (action === "post") {
+    const findSlots =
+      (
+        date,
+        serviceName
+      ) => {
 
-      const cleanTopic =
-        String(topic || "").trim();
+        const service =
+          getService(
+            serviceName
+          );
 
-      if (!cleanTopic) {
+        if (!service) {
+          return [];
+        }
 
-        return res.status(400).json({
-          error: "Argomento del post mancante"
-        });
+        const duration =
+          serviceDuration(
+            service
+          );
 
-      }
-
-      const serviceList =
-        safeServices.length
-          ? safeServices
-              .map(s =>
-                `- ${s.name}: €${s.price || ""} (${s.duration || 30} minuti)${s.description ? ` — ${s.description}` : ""}`
-              )
-              .join("\n")
-          : "Nessun servizio inserito.";
+        return available(
+          date,
+          duration
+        );
+      };
 
 
-      const postPrompt = `
-Sei il responsabile della comunicazione
-social di ${business || "un'attività locale italiana"}.
+    /* ============================================================
+       AZIONE POST AI
+    ============================================================ */
 
-Scrivi un post promozionale in italiano.
+    if (
+      action === "post"
+    ) {
 
-ARGOMENTO:
-${cleanTopic}
+      const selectedContent =
+        body.selectedContent ||
+        null;
+
+      const contentType =
+        body.contentType ||
+        "generico";
+
+      const platform =
+        body.platform ||
+        "generic";
+
+      const platformLabel =
+        body.platformLabel ||
+        platform;
+
+      const contentTypeLabel =
+        body.contentTypeLabel ||
+        contentType;
+
+      const style =
+        body.style ||
+        "professionale";
+
+      const goal =
+        body.goal ||
+        "";
+
+      const audience =
+        body.audience ||
+        "";
+
+      const callToAction =
+        body.callToAction ||
+        "";
+
+      const customMessage =
+        body.customMessage ||
+        "";
+
+      const advanced =
+        body.advanced === true;
+
+      const systemPrompt = `
+Sei un esperto di social media marketing per attività locali italiane.
+
+Devi creare un post pronto per essere pubblicato.
 
 ATTIVITÀ:
-Tipo: ${settings.type || "Non specificato"}
-Descrizione: ${settings.description || "Non specificata"}
-Indirizzo: ${settings.address || "Non specificato"}
-Telefono: ${settings.phone || "Non specificato"}
-WhatsApp: ${settings.whatsapp || "Non specificato"}
+${business || "Attività locale"}
 
-SERVIZI:
-${serviceList}
+PIATTAFORMA:
+${platformLabel}
 
-PROMOZIONI ATTIVE:
+TIPO CONTENUTO:
+${contentTypeLabel}
+
+STILE:
+${style}
+
+OBIETTIVO:
+${goal}
+
+PUBBLICO:
+${audience}
+
+CALL TO ACTION:
+${callToAction}
+
+ISTRUZIONI AGGIUNTIVE:
+${customMessage}
+
+ARGOMENTO:
+${topic}
+
+CONTENUTO SELEZIONATO:
+${JSON.stringify(selectedContent || {}, null, 2)}
+
+SERVIZI DISPONIBILI:
+${JSON.stringify(safeServices, null, 2)}
+
+PROMOZIONI:
 ${promotionList}
 
 REGOLE:
-- Non inventare prezzi.
-- Non inventare servizi.
-- Non inventare promozioni.
-- Usa esclusivamente i dati forniti.
-- Scrivi un testo naturale e professionale.
-- Il testo deve essere pronto per essere pubblicato.
-- Puoi usare emoji con moderazione.
-- Non inserire spiegazioni sul processo.
-- Non usare formule come "ecco il post".
-- Se l'argomento riguarda una promozione, usa i dati della promozione se pertinenti.
+- Scrivi in italiano.
+- Non inventare prezzi, promozioni o servizi.
+- Usa solo informazioni fornite.
+- Adatta lunghezza e stile alla piattaforma.
+- Il testo deve essere concreto e utilizzabile.
+- Evita introduzioni del tipo "Ecco il post".
+- Se opportuno usa una call to action.
+- Gli hashtag devono essere pertinenti.
+- Non usare informazioni non presenti nei dati.
 `;
 
-      const client =
-        new OpenAI({
-          apiKey:
-            process.env.OPENAI_API_KEY
-        });
-
-      const result =
-        await client.responses.create({
-
+      const completion =
+        await openai.chat.completions.create({
           model: "gpt-5.4-mini",
-
-          instructions:
-            postPrompt,
-
-          input:
-            cleanTopic
-
+          messages: [
+            {
+              role: "system",
+              content:
+                systemPrompt
+            },
+            {
+              role: "user",
+              content:
+                topic ||
+                "Crea un post promozionale per l'attività."
+            }
+          ],
+          temperature: 0.8
         });
+
+      const reply =
+        completion
+          ?.choices?.[0]
+          ?.message
+          ?.content
+          ?.trim() || "";
+
+      if (!reply) {
+        return res.status(500).json({
+          error:
+            "L'AI non ha restituito alcun contenuto."
+        });
+      }
 
       return res.status(200).json({
-        reply:
-          result.output_text ||
-          "Non è stato possibile generare il post."
+        ok: true,
+        reply,
+        post: reply,
+        meta: {
+          platform,
+          contentType,
+          advanced
+        }
       });
-
     }
 
 
     /* ============================================================
-       CHAT AI
+       RICHIESTA DISPONIBILITÀ DIRETTA
     ============================================================ */
 
     if (
-      !message ||
-      !String(message).trim()
+      action === "availability"
     ) {
 
-      return res.status(400).json({
-        error: "Messaggio mancante"
-      });
+      const date =
+        body.date ||
+        detectDate(message);
 
+      const serviceName =
+        body.service ||
+        body.serviceName ||
+        findService(message)?.name ||
+        "";
+
+      if (!date) {
+
+        return res.status(200).json({
+          ok: true,
+          reply:
+            "Per verificare la disponibilità indicami il giorno."
+        });
+      }
+
+      if (!serviceName) {
+
+        return res.status(200).json({
+          ok: true,
+          reply:
+            "Per verificare gli orari indicami anche il servizio."
+        });
+      }
+
+      const slots =
+        findSlots(
+          date,
+          serviceName
+        );
+
+      if (!slots.length) {
+
+        return res.status(200).json({
+          ok: true,
+          available: false,
+          date,
+          slots: [],
+          reply:
+            `Non risultano orari disponibili per ${serviceName} ${italianDate(date)}.`
+        });
+      }
+
+      return res.status(200).json({
+        ok: true,
+        available: true,
+        date,
+        service: serviceName,
+        slots,
+        reply:
+          `Per ${serviceName}, ${italianDate(date)}, sono disponibili: ${slots.join(", ")}.`
+      });
     }
 
 
-    const nmsg =
-      norm(message);
+    /* ============================================================
+       CONFERMA PRENOTAZIONE
+    ============================================================ */
 
-    const service =
-      findService(message);
+    if (
+      requiresConfirmation === true &&
+      pending
+    ) {
 
-    const date =
+      const check =
+        checkAppointment(
+          pending
+        );
+
+      if (!check.ok) {
+
+        return res.status(200).json({
+          ok: false,
+          bookingConfirmed: false,
+          reply: check.error,
+          error: check.error
+        });
+      }
+
+      /*
+       * RICONTROLLO FINALE.
+       *
+       * Il controllo viene eseguito nuovamente
+       * prima di confermare.
+       */
+
+      const finalCheck =
+        checkAppointment({
+          date: check.date,
+          time: check.time,
+          service:
+            check.service.name
+        });
+
+      if (!finalCheck.ok) {
+
+        return res.status(200).json({
+          ok: false,
+          bookingConfirmed: false,
+          reply:
+            finalCheck.error,
+          error:
+            finalCheck.error
+        });
+      }
+
+      return res.status(200).json({
+        ok: true,
+        bookingConfirmed: true,
+        confirmed: true,
+        pendingAppointment: {
+          name:
+            pending.name ||
+            clientName ||
+            "",
+          service:
+            check.service.name,
+          date:
+            check.date,
+          time:
+            check.time,
+          duration:
+            check.duration
+        },
+        reply:
+          `Appuntamento confermato per ${pending.name || clientName || "il cliente"} il ${italianDate(check.date)} alle ${check.time} per ${check.service.name}.`
+      });
+    }
+
+
+    /* ============================================================
+       ASSISTENTE AI
+    ============================================================ */
+
+    const detectedDate =
       detectDate(message);
 
-    const time =
+    const detectedTime =
       detectTime(message);
 
-    const per =
-      period(message);
+    const detectedService =
+      findService(message);
 
 
     /* ============================================================
-       RICONOSCIMENTO RICHIESTA ORARI
+       PRENOTAZIONE RILEVATA
     ============================================================ */
 
-    const asksAvailability =
-      nmsg.includes("orari disponibili") ||
-      nmsg.includes("orari liberi") ||
-      nmsg.includes("quando sei libero") ||
-      nmsg.includes("quando siete liberi") ||
-      nmsg.includes("che ore hai") ||
-      nmsg.includes("che orari hai") ||
-      nmsg.includes("disponibilita") ||
-      nmsg.includes("disponibilità");
+    const bookingIntent =
+      /prenot|appunt|fissare|fissa|riserv|disponibil/i
+        .test(message);
 
-
-    /* ============================================================
-       RICONOSCIMENTO PRENOTAZIONE
-    ============================================================ */
-
-    const booking =
-      nmsg.includes("prenot") ||
-      nmsg.includes("appuntament") ||
-      nmsg.includes("vorrei") ||
-      nmsg.includes("voglio") ||
-      nmsg.includes("fissare") ||
-      nmsg.includes("prenotare") ||
-      !!service;
-
-
-    /* ============================================================
-       CONFERMA / ANNULLAMENTO
-    ============================================================ */
-
-    const confirmations =
-      new Set([
-        "si",
-        "sì",
-        "confermo",
-        "va bene",
-        "ok",
-        "okay",
-        "prenota",
-        "prenotalo",
-        "procedi",
-        "conferma"
-      ]);
-
-
-    const cancellations =
-      new Set([
-        "no",
-        "annulla",
-        "cancella",
-        "non confermo",
-        "lascia perdere"
-      ]);
-
-
-    const isConfirm =
-      confirmations.has(nmsg) ||
-      nmsg.includes("si confermo") ||
-      nmsg.includes("sì confermo");
-
-
-    const isCancel =
-      cancellations.has(nmsg);
-
-
-    /* ============================================================
-       CONFERMA APPUNTAMENTO
-       RICONTROLLO DISPONIBILITÀ PRIMA DELLA CONFERMA
-    ============================================================ */
 
     if (
-      pendingAppointment &&
-      requiresConfirmation &&
-      isConfirm
+      bookingIntent &&
+      detectedDate &&
+      detectedTime &&
+      detectedService
     ) {
-
-      const p =
-        pendingAppointment;
-
-      const s =
-        getService(p.service);
-
-      if (!s) {
-
-        return res.status(200).json({
-          reply:
-            "Il servizio richiesto non è più presente nel listino.",
-          appointment: null,
-          pendingAppointment: null,
-          requiresConfirmation: false,
-          confirmed: false
-        });
-
-      }
-
-
-      const name =
-        String(
-          p.name ||
-          clientName ||
-          ""
-        ).trim();
-
-
-      const d =
-        String(
-          p.date || ""
-        ).trim();
-
-
-      const minutes =
-        toMinutes(p.time);
-
-
-      const t =
-        minutes === null
-          ? String(
-              p.time || ""
-            ).trim()
-          : fmt(minutes);
-
-
-      if (
-        !name ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(d) ||
-        !t
-      ) {
-
-        return res.status(200).json({
-          reply:
-            "Mancano alcuni dati dell'appuntamento. Ripetimi la richiesta.",
-          appointment: null,
-          pendingAppointment: null,
-          requiresConfirmation: false,
-          confirmed: false
-        });
-
-      }
-
-
-      if (
-        !free(
-          d,
-          t,
-          Number(s.duration) || 30
-        )
-      ) {
-
-        const alternatives =
-          available(
-            d,
-            Number(s.duration) || 30
-          );
-
-        return res.status(200).json({
-
-          reply:
-            alternatives.length
-              ? `Nel frattempo l'orario ${t} non è più disponibile. Posso proporti: ${alternatives.slice(0, 5).join(", ")}.`
-              : "Nel frattempo l'orario richiesto non è più disponibile e non ci sono altri slot quel giorno.",
-
-          appointment: null,
-
-          pendingAppointment: null,
-
-          requiresConfirmation: false,
-
-          confirmed: false,
-
-          availableSlots:
-            alternatives,
-
-          availableDate:
-            d,
-
-          availableService:
-            s.name
-
-        });
-
-      }
-
-
-      return res.status(200).json({
-
-        reply:
-          `Appuntamento confermato per ${s.name} il ${italianDate(d)} alle ${t}.`,
-
-        appointment: {
-          name,
-          service: s.name,
-          date: d,
-          time: t
-        },
-
-        pendingAppointment: null,
-
-        requiresConfirmation: false,
-
-        confirmed: true
-
-      });
-
-    }
-
-
-    /* ============================================================
-       ANNULLAMENTO APPUNTAMENTO IN ATTESA
-    ============================================================ */
-
-    if (
-      pendingAppointment &&
-      requiresConfirmation &&
-      isCancel
-    ) {
-
-      return res.status(200).json({
-
-        reply:
-          "Va bene. L'appuntamento non è stato prenotato.",
-
-        appointment: null,
-
-        pendingAppointment: null,
-
-        requiresConfirmation: false,
-
-        confirmed: false
-
-      });
-
-    }
-
-
-    /* ============================================================
-       RICHIESTA ORARI
-    ============================================================ */
-
-    if (asksAvailability) {
-
-      const selectedDate =
-        date ||
-        addDays(today, 1);
 
       const duration =
-        service
-          ? Number(
-              service.duration
-            ) || 30
-          : 30;
+        serviceDuration(
+          detectedService
+        );
 
-      let slots =
-        available(
-          selectedDate,
+      const isFree =
+        free(
+          detectedDate,
+          detectedTime,
           duration
         );
 
+      if (!isFree) {
 
-      if (per) {
+        const slots =
+          available(
+            detectedDate,
+            duration
+          );
 
-        slots =
-          slots.filter(slot => {
+        const alternatives =
+          slots.slice(0, 6);
 
-            const m =
-              toMinutes(slot);
-
-            return (
-              m >= per[0] &&
-              m <= per[1]
-            );
-
-          });
-
+        return res.status(200).json({
+          ok: true,
+          bookingConfirmed: false,
+          available: false,
+          date: detectedDate,
+          service:
+            detectedService.name,
+          requestedTime:
+            detectedTime,
+          alternatives,
+          reply:
+            alternatives.length
+              ? `L'orario ${detectedTime} non è disponibile. Per ${detectedService.name} ${italianDate(detectedDate)} posso proporti: ${alternatives.join(", ")}.`
+              : `L'orario ${detectedTime} non è disponibile e non risultano altri orari liberi per ${detectedService.name} ${italianDate(detectedDate)}.`
+        });
       }
 
+      const pendingBooking = {
+        name:
+          clientName || "",
+        service:
+          detectedService.name,
+        date:
+          detectedDate,
+        time:
+          detectedTime,
+        duration
+      };
 
       return res.status(200).json({
-
+        ok: true,
+        bookingConfirmed: false,
+        requiresConfirmation: true,
+        pendingAppointment:
+          pendingBooking,
         reply:
-          slots.length
-            ? `Gli orari disponibili per ${italianDate(selectedDate)} sono: ${slots.join(", ")}.`
-            : `Non risultano orari disponibili per ${italianDate(selectedDate)}.`,
-
-        appointment: null,
-
-        pendingAppointment: null,
-
-        requiresConfirmation: false,
-
-        confirmed: false,
-
-        availableSlots:
-          slots,
-
-        availableDate:
-          selectedDate,
-
-        availableService:
-          service?.name || null
-
+          `Ho verificato la disponibilità. ${detectedService.name} è disponibile ${italianDate(detectedDate)} alle ${detectedTime}. Confermi la prenotazione?`
       });
-
     }
 
 
     /* ============================================================
-       FLUSSO PRENOTAZIONE
-       L'AI NON VIENE UTILIZZATA PER DECIDERE LA DISPONIBILITÀ
+       SELEZIONE SERVIZIO + DATA
     ============================================================ */
 
     if (
-      booking &&
-      (
-        service ||
-        pendingAppointment
-      )
+      bookingIntent &&
+      detectedDate &&
+      detectedService &&
+      !detectedTime
     ) {
 
-      const selectedService =
-        service ||
-        getService(
-          pendingAppointment?.service
+      const slots =
+        findSlots(
+          detectedDate,
+          detectedService.name
         );
 
-
-      const selectedDate =
-        date ||
-        pendingAppointment?.date ||
-        null;
-
-
-      const selectedTime =
-        time ||
-        pendingAppointment?.time ||
-        null;
-
-
-      const name =
-        String(
-          clientName ||
-          pendingAppointment?.name ||
-          ""
-        ).trim();
-
-
-      if (!selectedService) {
+      if (!slots.length) {
 
         return res.status(200).json({
-
+          ok: true,
+          bookingConfirmed: false,
+          available: false,
+          date:
+            detectedDate,
+          service:
+            detectedService.name,
+          slots: [],
           reply:
-            "Quale servizio vuoi prenotare?",
-
-          appointment: null,
-
-          pendingAppointment: null,
-
-          requiresConfirmation: false,
-
-          confirmed: false
-
+            `Non risultano disponibilità per ${detectedService.name} ${italianDate(detectedDate)}.`
         });
-
       }
-
-
-      if (!name) {
-
-        return res.status(200).json({
-
-          reply:
-            "Perfetto. Mi confermi il nome per la prenotazione?",
-
-          appointment: null,
-
-          pendingAppointment: {
-
-            service:
-              selectedService.name,
-
-            date:
-              selectedDate || "",
-
-            time:
-              selectedTime || "",
-
-            name: ""
-
-          },
-
-          requiresConfirmation: false,
-
-          confirmed: false
-
-        });
-
-      }
-
-
-      if (!selectedDate) {
-
-        return res.status(200).json({
-
-          reply:
-            "Per quale giorno vuoi prenotare?",
-
-          appointment: null,
-
-          pendingAppointment: {
-
-            name,
-
-            service:
-              selectedService.name,
-
-            date: "",
-
-            time:
-              selectedTime || ""
-
-          },
-
-          requiresConfirmation: false,
-
-          confirmed: false
-
-        });
-
-      }
-
-
-      if (!selectedTime) {
-
-        const slots =
-          available(
-            selectedDate,
-            Number(
-              selectedService.duration
-            ) || 30
-          );
-
-
-        return res.status(200).json({
-
-          reply:
-            slots.length
-              ? `Perfetto. Scegli un orario per ${italianDate(selectedDate)}.`
-              : `Non risultano orari disponibili per ${italianDate(selectedDate)}.`,
-
-          appointment: null,
-
-          pendingAppointment: {
-
-            name,
-
-            service:
-              selectedService.name,
-
-            date:
-              selectedDate,
-
-            time: ""
-
-          },
-
-          requiresConfirmation: false,
-
-          confirmed: false,
-
-          availableSlots:
-            slots,
-
-          availableDate:
-            selectedDate,
-
-          availableService:
-            selectedService.name
-
-        });
-
-      }
-
-
-      const day =
-        daySettings(
-          selectedDate
-        );
-
-
-      if (
-        !day ||
-        day.status === "closed"
-      ) {
-
-        return res.status(200).json({
-
-          reply:
-            `L'attività è chiusa ${italianDate(selectedDate)}. Scegli un altro giorno.`,
-
-          appointment: null,
-
-          pendingAppointment: null,
-
-          requiresConfirmation: false,
-
-          confirmed: false
-
-        });
-
-      }
-
-
-      if (
-        !free(
-          selectedDate,
-          selectedTime,
-          Number(
-            selectedService.duration
-          ) || 30
-        )
-      ) {
-
-        const alternatives =
-          available(
-            selectedDate,
-            Number(
-              selectedService.duration
-            ) || 30
-          );
-
-
-        return res.status(200).json({
-
-          reply:
-            alternatives.length
-              ? `L'orario ${selectedTime} non è disponibile. Posso proporti: ${alternatives.slice(0, 8).join(", ")}.`
-              : "Non ci sono altri slot disponibili quel giorno.",
-
-          appointment: null,
-
-          pendingAppointment: null,
-
-          requiresConfirmation: false,
-
-          confirmed: false,
-
-          availableSlots:
-            alternatives,
-
-          availableDate:
-            selectedDate,
-
-          availableService:
-            selectedService.name
-
-        });
-
-      }
-
 
       return res.status(200).json({
-
+        ok: true,
+        bookingConfirmed: false,
+        available: true,
+        date:
+          detectedDate,
+        service:
+          detectedService.name,
+        slots,
         reply:
-          `Perfetto. Ho verificato la disponibilità per ${selectedService.name} il ${italianDate(selectedDate)} alle ${selectedTime}. Vuoi confermare l'appuntamento?`,
-
-        appointment: null,
-
-        pendingAppointment: {
-
-          name,
-
-          service:
-            selectedService.name,
-
-          date:
-            selectedDate,
-
-          time:
-            selectedTime
-
-        },
-
-        requiresConfirmation: true,
-
-        confirmed: false
-
+          `Per ${detectedService.name} ${italianDate(detectedDate)} sono disponibili: ${slots.join(", ")}. Quale orario preferisci?`
       });
-
     }
 
 
     /* ============================================================
        AI GENERALE
-       VIENE UTILIZZATA SOLO QUANDO LA RICHIESTA NON È
-       GESTIBILE DALLA LOGICA LOCALE
     ============================================================ */
 
-    const serviceList =
+    const serviceText =
       safeServices.length
         ? safeServices
-            .map(s => {
-
-              const description =
-                s.description
-                  ? ` — ${s.description}`
-                  : "";
-
-              return (
-                `- ${s.name}: €${s.price || ""} ` +
-                `(${s.duration || 30} minuti)` +
-                description
-              );
-
-            })
+            .map(
+              service =>
+                `- ${service.name} (${serviceDuration(service)} minuti${service.price !== undefined ? `, €${service.price}` : ""})`
+            )
             .join("\n")
-        : "Nessun servizio inserito.";
+        : "Nessun servizio configurato.";
 
 
-    const safeHistory =
+    const appointmentText =
+      safeAppointments.length
+        ? safeAppointments
+            .map(
+              appointment =>
+                `- ${appointmentDate(appointment)} ${appointmentTime(appointment)} ${appointmentName(appointment)} ${appointmentService(appointment)}`
+            )
+            .join("\n")
+        : "Nessun appuntamento.";
+
+
+    const historyMessages =
       Array.isArray(history)
         ? history
+            .slice(-12)
             .filter(
               item =>
                 item &&
                 (
                   item.role === "user" ||
                   item.role === "assistant"
-                ) &&
-                typeof item.content === "string"
+                )
             )
-            .slice(-12)
+            .map(
+              item => ({
+                role:
+                  item.role,
+                content:
+                  String(
+                    item.content ||
+                    item.message ||
+                    ""
+                  )
+              })
+            )
+            .filter(
+              item =>
+                item.content.trim()
+            )
         : [];
 
 
-    const client =
-      new OpenAI({
-        apiKey:
-          process.env.OPENAI_API_KEY
-      });
+    const systemPrompt = `
+Sei l'assistente AI di un'attività locale italiana.
+
+NOME ATTIVITÀ:
+${business || settings?.name || "Attività locale"}
+
+DATA ODIERNA:
+${today}
+
+ORARI:
+${openingHours}
+
+SERVIZI:
+${serviceText}
+
+PROMOZIONI ATTIVE:
+${promotionList}
+
+APPUNTAMENTI:
+${appointmentText}
+
+REGOLE IMPORTANTI:
+
+1. Rispondi sempre in italiano.
+
+2. Usa esclusivamente i dati forniti.
+
+3. Non inventare servizi, prezzi,
+   promozioni, orari o disponibilità.
+
+4. Se l'utente chiede un appuntamento,
+   verifica sempre:
+   - servizio
+   - data
+   - orario
+   - durata
+   - apertura
+   - pausa
+   - sovrapposizioni.
+
+5. Non dichiarare mai un appuntamento
+   confermato senza una richiesta esplicita
+   di conferma da parte dell'utente.
+
+6. Se mancano dati necessari,
+   chiedili in modo semplice.
+
+7. Per date relative usa come riferimento
+   la data odierna ${today}.
+
+8. "domani" significa:
+   ${addDays(today, 1)}
+
+9. "dopodomani" significa:
+   ${addDays(today, 2)}
+
+10. Se l'utente chiede disponibilità,
+    usa i dati reali ricevuti dall'app.
+
+11. Non dire di aver effettuato azioni
+    che non sono state realmente eseguite.
+
+12. Mantieni risposte brevi e chiare,
+    adatte a una chat.
+
+13. Se una promozione è scaduta,
+    non proporla.
+`;
 
 
-    const ai =
-      await client.responses.create({
+    const completion =
+      await openai.chat.completions.create({
 
         model:
           "gpt-5.4-mini",
 
-        instructions: `
-
-Sei l'assistente virtuale di ${
-          business ||
-          "un'attività locale italiana"
-        }.
-
-Rispondi sempre in italiano.
-
-Non inventare informazioni.
-
-Usa esclusivamente i dati forniti
-in questa richiesta.
-
-INFORMAZIONI ATTIVITÀ
-
-Tipo:
-${settings.type || "Non specificato"}
-
-Descrizione:
-${settings.description || "Non specificata"}
-
-Indirizzo:
-${settings.address || "Non specificato"}
-
-Telefono:
-${settings.phone || "Non specificato"}
-
-WhatsApp:
-${settings.whatsapp || "Non specificato"}
-
-ORARI
-
-${openingHours}
-
-SERVIZI
-
-${serviceList}
-
-PROMOZIONI ATTIVE
-
-${promotionList}
-
-CLIENTE
-
-Nome cliente:
-${clientName || "Non fornito"}
-
-DATA ODIERNA
-
-${today}
-
-REGOLE
-
-- Non inventare prezzi.
-- Non inventare servizi.
-- Non inventare promozioni.
-- Non inventare orari.
-- Non inventare disponibilità.
-- Se una promozione è scaduta non comunicarla.
-- Se il cliente chiede informazioni su una promozione, usa esclusivamente le promozioni attive sopra indicate.
-- Le prenotazioni con servizio, data e ora sono gestite direttamente dal server.
-- Non dichiarare mai di aver effettuato una prenotazione se il server non ha restituito confirmed:true.
-- Rispondi in modo semplice, naturale e utile.
-- Se la domanda è complessa e non può essere risolta dai dati forniti, rispondi indicando chiaramente ciò che manca.
-
-Restituisci esclusivamente JSON valido nel formato:
-
-{
-  "reply": "risposta",
-  "appointment": null,
-  "pendingAppointment": null,
-  "requiresConfirmation": false,
-  "confirmed": false
-}
-
-`,
-
-        input: [
-          ...safeHistory,
+        messages: [
           {
-            role: "user",
+            role:
+              "system",
             content:
-              String(message)
-          }
-        ]
+              systemPrompt
+          },
 
+          ...historyMessages,
+
+          {
+            role:
+              "user",
+            content:
+              message ||
+              topic ||
+              "Ciao"
+          }
+        ],
+
+        temperature:
+          0.4
       });
 
 
-    /* ============================================================
-       PARSING RISPOSTA AI
-    ============================================================ */
-
-    let result;
-
-    try {
-
-      result =
-        JSON.parse(
-          ai.output_text
-        );
-
-    } catch {
-
-      result = {
-
-        reply:
-          ai.output_text ||
-          "Non ho capito la richiesta.",
-
-        appointment: null,
-
-        pendingAppointment: null,
-
-        requiresConfirmation: false,
-
-        confirmed: false
-
-      };
-
-    }
-
-
-    if (
-      !result ||
-      typeof result !== "object"
-    ) {
-
-      result = {
-
-        reply:
-          "Non ho capito la richiesta.",
-
-        appointment: null,
-
-        pendingAppointment: null,
-
-        requiresConfirmation: false,
-
-        confirmed: false
-
-      };
-
-    }
+    const reply =
+      completion
+        ?.choices?.[0]
+        ?.message
+        ?.content
+        ?.trim() ||
+      "Non ho ricevuto una risposta dall'AI.";
 
 
     /* ============================================================
-       RISPOSTA FINALE
+       RISPOSTA
     ============================================================ */
 
     return res.status(200).json({
 
-      reply:
-        result.reply ||
-        "Non ho ricevuto una risposta.",
+      ok: true,
 
-      appointment:
-        result.confirmed
-          ? result.appointment || null
-          : null,
+      reply,
 
-      pendingAppointment:
-        result.pendingAppointment ||
-        null,
+      bookingConfirmed:
+        false,
 
       requiresConfirmation:
-        Boolean(
-          result.requiresConfirmation
-        ),
-
-      confirmed:
-        Boolean(
-          result.confirmed
-        )
+        false
 
     });
 
@@ -1705,48 +1748,17 @@ Restituisci esclusivamente JSON valido nel formato:
   } catch (error) {
 
     console.error(
-      "OPENAI ERROR:",
+      "API /api/chat error:",
       error
     );
 
-
-    if (
-      error?.status === 429 ||
-      String(
-        error?.message || ""
-      ).includes("429") ||
-      String(
-        error?.message || ""
-      )
-        .toLowerCase()
-        .includes("rate limit")
-    ) {
-
-      return res.status(200).json({
-
-        reply:
-          "L'assistente AI è temporaneamente occupato. Puoi riprovare tra qualche minuto.",
-
-        appointment: null,
-
-        pendingAppointment: null,
-
-        requiresConfirmation: false,
-
-        confirmed: false,
-
-        rateLimited: true
-
-      });
-
-    }
-
-
     return res.status(500).json({
+
+      ok: false,
 
       error:
         error?.message ||
-        "Errore durante la richiesta AI"
+        "Errore interno del server."
 
     });
 
