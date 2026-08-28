@@ -18,7 +18,7 @@ body{
 header{
   background:#111827;
   color:white;
-  padding:18px;
+  padding:18px
 }
 header h1{margin:0;font-size:21px}
 header .muted{color:#cbd5e1}
@@ -149,6 +149,7 @@ textarea{resize:vertical}
 }
 
 .bot{background:#e5e7eb}
+
 .user{
   background:#dbeafe;
   margin-left:auto
@@ -324,6 +325,16 @@ textarea{resize:vertical}
   margin-bottom:10px
 }
 
+.storage-box{
+  background:#f0fdf4;
+  border:1px solid #bbf7d0;
+  color:#166534;
+  padding:10px 12px;
+  border-radius:10px;
+  margin-top:12px;
+  font-size:13px
+}
+
 .small-button{
   padding:7px 10px;
   font-size:13px
@@ -368,24 +379,26 @@ textarea{resize:vertical}
 
 <main>
 
-<!-- =========================================================
-     HOME
-========================================================= -->
-
 <section id="home" class="page active">
 
   <div class="card">
     <h2>Dashboard</h2>
+
     <p>
       Gestisci attività, servizi, promozioni, appuntamenti e assistente AI.
     </p>
 
     <label>Nome attività</label>
+
     <input id="biz" value="Salone Bella Linea">
 
     <button class="primary" onclick="saveBusiness()">
       Salva attività
     </button>
+
+    <div id="storageStatus" class="storage-box">
+      Archivio dati protetto con doppio salvataggio.
+    </div>
   </div>
 
   <div class="card">
@@ -413,10 +426,6 @@ textarea{resize:vertical}
 
 </section>
 
-
-<!-- =========================================================
-     AI
-========================================================= -->
 
 <section id="ai" class="page">
 
@@ -461,10 +470,6 @@ textarea{resize:vertical}
 
 </section>
 
-
-<!-- =========================================================
-     CALENDARIO
-========================================================= -->
 
 <section id="app" class="page">
 
@@ -558,10 +563,6 @@ textarea{resize:vertical}
 </section>
 
 
-<!-- =========================================================
-     POST AI
-========================================================= -->
-
 <section id="post" class="page">
 
   <div class="card">
@@ -598,10 +599,6 @@ textarea{resize:vertical}
 </section>
 
 
-<!-- =========================================================
-     IMPOSTAZIONI
-========================================================= -->
-
 <section id="settings" class="page">
 
   <div class="card">
@@ -609,6 +606,7 @@ textarea{resize:vertical}
     <h2>Impostazioni attività</h2>
 
     <label>Nome attività</label>
+
     <input
       id="settingsName"
       placeholder="Es. Barber Shop Rossi"
@@ -652,13 +650,7 @@ textarea{resize:vertical}
       placeholder="Numero WhatsApp"
     >
 
-
     <hr class="divider">
-
-
-    <!-- =====================================================
-         ORARI
-    ====================================================== -->
 
     <h3>Orari di apertura</h3>
 
@@ -738,10 +730,6 @@ textarea{resize:vertical}
     </div>
 
 
-    <!-- =====================================================
-         PAUSE
-    ====================================================== -->
-
     <h3>Pausa</h3>
 
     <p class="muted">
@@ -753,10 +741,6 @@ textarea{resize:vertical}
 
     <hr class="divider">
 
-
-    <!-- =====================================================
-         SERVIZI
-    ====================================================== -->
 
     <h3>Servizi e trattamenti</h3>
 
@@ -824,10 +808,6 @@ textarea{resize:vertical}
 
     <hr class="divider">
 
-
-    <!-- =====================================================
-         PROMOZIONI
-    ====================================================== -->
 
     <h3>Promozioni</h3>
 
@@ -917,27 +897,777 @@ textarea{resize:vertical}
 <script>
 
 /* ============================================================
-   VARIABILI
+   CONFIGURAZIONE ARCHIVIO UNICO
 ============================================================ */
 
-const $ = id => document.getElementById(id);
+const STORAGE_PRIMARY = "appData";
+const STORAGE_BACKUP = "appData_backup";
+const STORAGE_VERSION = 2;
+
+let appData = null;
 
 let chatHistory = [];
 
 let pendingAppointment =
   readJSON(
-    localStorage.pendingAppointment,
+    localStorage.getItem("pendingAppointment"),
     null
   );
 
 let requiresConfirmation =
-  localStorage.requiresConfirmation === "true";
+  localStorage.getItem("requiresConfirmation") === "true";
 
 let requestInProgress = false;
 
 
 /* ============================================================
-   CONFIGURAZIONE GIORNI
+   HELPER DOM
+============================================================ */
+
+const $ = id =>
+  document.getElementById(id);
+
+
+/* ============================================================
+   JSON
+============================================================ */
+
+function readJSON(value,fallback){
+
+  try{
+
+    if(
+      value === undefined ||
+      value === null ||
+      value === ""
+    ){
+
+      return fallback;
+
+    }
+
+    return JSON.parse(value);
+
+  }catch{
+
+    return fallback;
+
+  }
+
+}
+
+
+/* ============================================================
+   STRUTTURA DATI UNICA
+============================================================ */
+
+function createEmptyAppData(){
+
+  return {
+
+    version:STORAGE_VERSION,
+
+    revision:0,
+
+    updatedAt:null,
+
+    business:{
+      name:"Salone Bella Linea"
+    },
+
+    settings:{
+      name:"Salone Bella Linea",
+      type:"Parrucchiere",
+      description:"",
+      address:"",
+      phone:"",
+      whatsapp:"",
+      hours:{}
+    },
+
+    services:[],
+
+    promotions:[],
+
+    appointments:[]
+
+  };
+
+}
+
+
+/* ============================================================
+   VALIDAZIONE APP DATA
+============================================================ */
+
+function isValidAppData(data){
+
+  if(
+    !data ||
+    typeof data !== "object"
+  ){
+
+    return false;
+
+  }
+
+  if(
+    typeof data.business !== "object"
+  ){
+
+    return false;
+
+  }
+
+  if(
+    typeof data.settings !== "object"
+  ){
+
+    return false;
+
+  }
+
+  if(
+    !Array.isArray(data.services)
+  ){
+
+    return false;
+
+  }
+
+  if(
+    !Array.isArray(data.promotions)
+  ){
+
+    return false;
+
+  }
+
+  if(
+    !Array.isArray(data.appointments)
+  ){
+
+    return false;
+
+  }
+
+  return true;
+
+}
+
+
+/* ============================================================
+   MIGRAZIONE DATI VECCHI
+============================================================ */
+
+function migrateLegacyData(){
+
+  const data =
+    createEmptyAppData();
+
+
+  const oldSettings =
+    readJSON(
+      localStorage.getItem("settings"),
+      {}
+    );
+
+
+  const oldServices =
+    readJSON(
+      localStorage.getItem("services"),
+      []
+    );
+
+
+  const oldPromotions =
+    readJSON(
+      localStorage.getItem("promotions"),
+      []
+    );
+
+
+  const oldAppointments =
+    readJSON(
+      localStorage.getItem("a"),
+      []
+    );
+
+
+  const oldBackupAppointments =
+    readJSON(
+      localStorage.getItem("a_backup"),
+      []
+    );
+
+
+  const oldBusiness =
+    localStorage.getItem("biz");
+
+
+  if(
+    oldSettings &&
+    typeof oldSettings === "object"
+  ){
+
+    data.settings =
+      {
+        ...data.settings,
+        ...oldSettings
+      };
+
+  }
+
+
+  if(oldBusiness){
+
+    data.business.name =
+      oldBusiness;
+
+    if(
+      !data.settings.name
+    ){
+
+      data.settings.name =
+        oldBusiness;
+
+    }
+
+  }
+
+
+  if(
+    Array.isArray(oldServices)
+  ){
+
+    data.services =
+      oldServices;
+
+  }
+
+
+  if(
+    Array.isArray(oldPromotions)
+  ){
+
+    data.promotions =
+      oldPromotions;
+
+  }
+
+
+  if(
+    Array.isArray(oldAppointments) &&
+    oldAppointments.length
+  ){
+
+    data.appointments =
+      oldAppointments;
+
+  }else if(
+    Array.isArray(oldBackupAppointments)
+  ){
+
+    data.appointments =
+      oldBackupAppointments;
+
+  }
+
+
+  return data;
+
+}
+
+
+/* ============================================================
+   CARICAMENTO ARCHIVIO
+============================================================ */
+
+function loadAppData(){
+
+  const primaryRaw =
+    localStorage.getItem(
+      STORAGE_PRIMARY
+    );
+
+  const backupRaw =
+    localStorage.getItem(
+      STORAGE_BACKUP
+    );
+
+
+  const primary =
+    readJSON(
+      primaryRaw,
+      null
+    );
+
+  const backup =
+    readJSON(
+      backupRaw,
+      null
+    );
+
+
+  /*
+   * PRINCIPALE VALIDO
+   */
+
+  if(
+    isValidAppData(primary)
+  ){
+
+    appData =
+      normalizeAppData(
+        primary
+      );
+
+    return appData;
+
+  }
+
+
+  /*
+   * PRINCIPALE NON VALIDO:
+   * recupero dal backup.
+   */
+
+  if(
+    isValidAppData(backup)
+  ){
+
+    appData =
+      normalizeAppData(
+        backup
+      );
+
+    /*
+     * Ripristino anche
+     * il principale.
+     */
+
+    try{
+
+      localStorage.setItem(
+        STORAGE_PRIMARY,
+        JSON.stringify(
+          appData
+        )
+      );
+
+    }catch{}
+
+    return appData;
+
+  }
+
+
+  /*
+   * Nessun archivio nuovo:
+   * migrazione dai vecchi dati.
+   */
+
+  appData =
+    normalizeAppData(
+      migrateLegacyData()
+    );
+
+
+  saveAppDataSafely(
+    appData
+  );
+
+
+  return appData;
+
+}
+
+
+/* ============================================================
+   NORMALIZZAZIONE
+============================================================ */
+
+function normalizeAppData(data){
+
+  const base =
+    createEmptyAppData();
+
+
+  const normalized = {
+
+    ...base,
+
+    ...data,
+
+    business:{
+      ...base.business,
+      ...(data.business || {})
+    },
+
+    settings:{
+      ...base.settings,
+      ...(data.settings || {}),
+      hours:{
+        ...(data.settings?.hours || {})
+      }
+    },
+
+    services:
+      Array.isArray(data.services)
+        ? data.services
+        : [],
+
+    promotions:
+      Array.isArray(data.promotions)
+        ? data.promotions
+        : [],
+
+    appointments:
+      Array.isArray(data.appointments)
+        ? data.appointments
+        : []
+
+  };
+
+
+  if(
+    !normalized.settings.name &&
+    normalized.business.name
+  ){
+
+    normalized.settings.name =
+      normalized.business.name;
+
+  }
+
+
+  if(
+    !normalized.business.name &&
+    normalized.settings.name
+  ){
+
+    normalized.business.name =
+      normalized.settings.name;
+
+  }
+
+
+  return normalized;
+
+}
+
+
+/* ============================================================
+   SALVATAGGIO DOPPIO DELL'INTERO ARCHIVIO
+============================================================ */
+
+function saveAppDataSafely(data){
+
+  const normalized =
+    normalizeAppData(
+      data
+    );
+
+
+  normalized.version =
+    STORAGE_VERSION;
+
+
+  normalized.revision =
+    Number(
+      normalized.revision || 0
+    ) + 1;
+
+
+  normalized.updatedAt =
+    new Date().toISOString();
+
+
+  const value =
+    JSON.stringify(
+      normalized
+    );
+
+
+  /*
+   * PRIMA COPIA:
+   * backup.
+   */
+
+  localStorage.setItem(
+    STORAGE_BACKUP,
+    value
+  );
+
+
+  /*
+   * SECONDA COPIA:
+   * principale.
+   */
+
+  localStorage.setItem(
+    STORAGE_PRIMARY,
+    value
+  );
+
+
+  appData =
+    normalized;
+
+
+  updateStorageStatus();
+
+}
+
+
+/* ============================================================
+   ACCESSO UNICO AI DATI
+============================================================ */
+
+function getAppData(){
+
+  if(
+    !isValidAppData(appData)
+  ){
+
+    appData =
+      loadAppData();
+
+  }
+
+  return appData;
+
+}
+
+
+function updateAppData(mutator){
+
+  const data =
+    getAppData();
+
+
+  mutator(
+    data
+  );
+
+
+  saveAppDataSafely(
+    data
+  );
+
+
+  return data;
+
+}
+
+
+/* ============================================================
+   FUNZIONI DATI
+============================================================ */
+
+function getServices(){
+
+  return getAppData()
+    .services;
+
+}
+
+
+function getPromotions(){
+
+  return getAppData()
+    .promotions;
+
+}
+
+
+function getAppointments(){
+
+  return getAppData()
+    .appointments;
+
+}
+
+
+function getSettings(){
+
+  return getAppData()
+    .settings;
+
+}
+
+
+/* ============================================================
+   COMPATIBILITÀ VECCHIE CHIAVI
+============================================================ */
+
+function syncLegacyKeys(){
+
+  const data =
+    getAppData();
+
+
+  try{
+
+    localStorage.setItem(
+      "biz",
+      data.business.name ||
+      data.settings.name ||
+      "Attività locale"
+    );
+
+    localStorage.setItem(
+      "settings",
+      JSON.stringify(
+        data.settings
+      )
+    );
+
+    localStorage.setItem(
+      "services",
+      JSON.stringify(
+        data.services
+      )
+    );
+
+    localStorage.setItem(
+      "promotions",
+      JSON.stringify(
+        data.promotions
+      )
+    );
+
+    localStorage.setItem(
+      "a",
+      JSON.stringify(
+        data.appointments
+      )
+    );
+
+    localStorage.setItem(
+      "a_backup",
+      JSON.stringify(
+        data.appointments
+      )
+    );
+
+  }catch{}
+
+}
+
+
+/* ============================================================
+   STATUS ARCHIVIO
+============================================================ */
+
+function updateStorageStatus(){
+
+  const element =
+    $("storageStatus");
+
+
+  if(
+    !element ||
+    !isValidAppData(appData)
+  ){
+
+    return;
+
+  }
+
+
+  element.innerHTML =
+    `
+      Archivio dati protetto con doppio salvataggio.
+      Revisione ${esc(
+        appData.revision
+      )}.
+    `;
+
+}
+
+
+/* ============================================================
+   PENDING APPOINTMENT
+============================================================ */
+
+function savePendingState(){
+
+  if(
+    pendingAppointment
+  ){
+
+    localStorage.setItem(
+      "pendingAppointment",
+      JSON.stringify(
+        pendingAppointment
+      )
+    );
+
+  }else{
+
+    localStorage.removeItem(
+      "pendingAppointment"
+    );
+
+  }
+
+
+  if(
+    requiresConfirmation
+  ){
+
+    localStorage.setItem(
+      "requiresConfirmation",
+      "true"
+    );
+
+  }else{
+
+    localStorage.removeItem(
+      "requiresConfirmation"
+    );
+
+  }
+
+}
+
+
+function clearPendingState(){
+
+  pendingAppointment =
+    null;
+
+  requiresConfirmation =
+    false;
+
+
+  localStorage.removeItem(
+    "pendingAppointment"
+  );
+
+  localStorage.removeItem(
+    "requiresConfirmation"
+  );
+
+
+  const actions =
+    $("confirmationActions");
+
+  if(actions){
+
+    actions.remove();
+
+  }
+
+
+  renderPendingBox();
+
+}
+
+
+/* ============================================================
+   GIORNI
 ============================================================ */
 
 const dayConfig = {
@@ -981,180 +1711,6 @@ const dayConfig = {
 
 
 /* ============================================================
-   STORAGE
-============================================================ */
-
-function readJSON(value,fallback){
-
-  try{
-
-    if(
-      value === undefined ||
-      value === null ||
-      value === ""
-    ){
-      return fallback;
-    }
-
-    return JSON.parse(value);
-
-  }catch{
-
-    return fallback;
-
-  }
-
-}
-
-
-function getServices(){
-
-  return readJSON(
-    localStorage.services,
-    []
-  );
-
-}
-
-
-function getAppointments(){
-
-  const primary =
-    readJSON(
-      localStorage.a,
-      null
-    );
-
-  if(Array.isArray(primary)){
-    return primary;
-  }
-
-  const backup =
-    readJSON(
-      localStorage.a_backup,
-      []
-    );
-
-  return Array.isArray(backup)
-    ? backup
-    : [];
-
-}
-
-
-function getPromotions(){
-
-  const stored =
-    readJSON(
-      localStorage.promotions,
-      []
-    );
-
-  if(Array.isArray(stored)){
-    return stored;
-  }
-
-  return [];
-
-}
-
-
-function getSettings(){
-
-  return readJSON(
-    localStorage.settings,
-    {}
-  );
-
-}
-
-
-/* ============================================================
-   STORAGE SICURO
-============================================================ */
-
-function saveAppointmentsSafely(list){
-
-  const value =
-    JSON.stringify(list);
-
-  /*
-   * Doppio salvataggio:
-   * prima backup, poi archivio principale.
-   */
-
-  localStorage.setItem(
-    "a_backup",
-    value
-  );
-
-  localStorage.setItem(
-    "a",
-    value
-  );
-
-}
-
-
-function savePendingState(){
-
-  if(pendingAppointment){
-
-    localStorage.setItem(
-      "pendingAppointment",
-      JSON.stringify(
-        pendingAppointment
-      )
-    );
-
-  }else{
-
-    localStorage.removeItem(
-      "pendingAppointment"
-    );
-
-  }
-
-  if(requiresConfirmation){
-
-    localStorage.setItem(
-      "requiresConfirmation",
-      "true"
-    );
-
-  }else{
-
-    localStorage.removeItem(
-      "requiresConfirmation"
-    );
-
-  }
-
-}
-
-
-function clearPendingState(){
-
-  pendingAppointment = null;
-
-  requiresConfirmation = false;
-
-  localStorage.removeItem(
-    "pendingAppointment"
-  );
-
-  localStorage.removeItem(
-    "requiresConfirmation"
-  );
-
-  $("confirmationActions")?.remove();
-
-  renderPendingBox();
-
-}
-
-
-/* ============================================================
    NAVIGAZIONE
 ============================================================ */
 
@@ -1163,18 +1719,29 @@ function showPage(page){
   document
     .querySelectorAll(".page")
     .forEach(
-      pageElement =>
-        pageElement.classList.remove("active")
+      element =>
+        element.classList.remove(
+          "active"
+        )
     );
+
 
   const target =
     $(page);
 
+
   if(target){
-    target.classList.add("active");
+
+    target.classList.add(
+      "active"
+    );
+
   }
 
-  if(page === "app"){
+
+  if(
+    page === "app"
+  ){
 
     renderCalendar();
 
@@ -1182,7 +1749,10 @@ function showPage(page){
 
   }
 
-  if(page === "settings"){
+
+  if(
+    page === "settings"
+  ){
 
     loadSettings();
 
@@ -1192,11 +1762,17 @@ function showPage(page){
 
   }
 
-  if(page === "ai"){
+
+  if(
+    page === "ai"
+  ){
 
     renderPendingBox();
 
   }
+
+
+  updateDashboard();
 
 }
 
@@ -1232,11 +1808,16 @@ function updateDashboard(){
   $("dashboardServices").textContent =
     getServices().length;
 
+
   $("dashboardPromotions").textContent =
     getPromotions().length;
 
+
   $("dashboardAppointments").textContent =
     getAppointments().length;
+
+
+  updateStorageStatus();
 
 }
 
@@ -1248,23 +1829,35 @@ function updateDashboard(){
 function saveBusiness(){
 
   const name =
-    $("biz").value.trim() ||
+    $("biz")
+      .value
+      .trim() ||
     "Attività locale";
 
-  localStorage.biz =
+
+  updateAppData(
+    data => {
+
+      data.business.name =
+        name;
+
+      data.settings.name =
+        name;
+
+    }
+  );
+
+
+  syncLegacyKeys();
+
+
+  $("settingsName").value =
     name;
 
-  const settings =
-    getSettings();
-
-  settings.name =
-    name;
-
-  localStorage.settings =
-    JSON.stringify(settings);
 
   $("settingsStatus").textContent =
     "Attività salvata.";
+
 
   updateDashboard();
 
@@ -1279,6 +1872,7 @@ function collectHours(){
 
   const hours = {};
 
+
   Object.entries(
     dayConfig
   ).forEach(
@@ -1286,6 +1880,7 @@ function collectHours(){
 
       const p =
         cfg.prefix;
+
 
       hours[day] = {
 
@@ -1311,6 +1906,7 @@ function collectHours(){
     }
   );
 
+
   return hours;
 
 }
@@ -1325,22 +1921,33 @@ function saveSettings(){
   const settings = {
 
     name:
-      $("settingsName").value.trim(),
+      $("settingsName")
+        .value
+        .trim(),
 
     type:
-      $("settingsType").value,
+      $("settingsType")
+        .value,
 
     description:
-      $("settingsDescription").value.trim(),
+      $("settingsDescription")
+        .value
+        .trim(),
 
     address:
-      $("settingsAddress").value.trim(),
+      $("settingsAddress")
+        .value
+        .trim(),
 
     phone:
-      $("settingsPhone").value.trim(),
+      $("settingsPhone")
+        .value
+        .trim(),
 
     whatsapp:
-      $("settingsWhatsapp").value.trim(),
+      $("settingsWhatsapp")
+        .value
+        .trim(),
 
     hours:
       collectHours()
@@ -1348,19 +1955,36 @@ function saveSettings(){
   };
 
 
-  localStorage.settings =
-    JSON.stringify(settings);
+  updateAppData(
+    data => {
 
-  localStorage.biz =
-    settings.name ||
-    "Attività locale";
+      data.settings =
+        {
+          ...data.settings,
+          ...settings
+        };
+
+
+      data.business.name =
+        settings.name ||
+        data.business.name ||
+        "Attività locale";
+
+    }
+  );
+
+
+  syncLegacyKeys();
+
 
   $("biz").value =
-    localStorage.biz;
+    settings.name ||
+    "Attività locale";
 
 
   $("settingsStatus").textContent =
     "Impostazioni salvate correttamente.";
+
 
   renderCalendar();
 
@@ -1381,24 +2005,31 @@ function loadSettings(){
 
   $("settingsName").value =
     settings.name ||
-    localStorage.biz ||
+    getAppData()
+      .business
+      .name ||
     "";
+
 
   $("settingsType").value =
     settings.type ||
     "Parrucchiere";
 
+
   $("settingsDescription").value =
     settings.description ||
     "";
+
 
   $("settingsAddress").value =
     settings.address ||
     "";
 
+
   $("settingsPhone").value =
     settings.phone ||
     "";
+
 
   $("settingsWhatsapp").value =
     settings.whatsapp ||
@@ -1413,30 +2044,62 @@ function loadSettings(){
       const p =
         cfg.prefix;
 
+
       const d =
         settings.hours?.[day];
 
-      if(!d)return;
 
-      if(d.status)
+      if(!d){
+
+        return;
+
+      }
+
+
+      if(d.status){
+
         $(p+"Closed").value =
           d.status;
 
-      if(d.open)
+      }
+
+
+      if(d.open){
+
         $(p+"Open").value =
           d.open;
 
-      if(d.close)
+      }
+
+
+      if(d.close){
+
         $(p+"Close").value =
           d.close;
 
-      if($(p+"BreakStart"))
-        $(p+"BreakStart").value =
-          d.breakStart || "";
+      }
 
-      if($(p+"BreakEnd"))
+
+      if(
+        $(p+"BreakStart")
+      ){
+
+        $(p+"BreakStart").value =
+          d.breakStart ||
+          "";
+
+      }
+
+
+      if(
+        $(p+"BreakEnd")
+      ){
+
         $(p+"BreakEnd").value =
-          d.breakEnd || "";
+          d.breakEnd ||
+          "";
+
+      }
 
     }
   );
@@ -1451,6 +2114,7 @@ function loadSettings(){
 function setupBreakRows(){
 
   let html = "";
+
 
   Object.values(
     dayConfig
@@ -1480,6 +2144,7 @@ function setupBreakRows(){
     }
   );
 
+
   $("breakRows").innerHTML =
     html;
 
@@ -1497,21 +2162,27 @@ function addService(){
       .value
       .trim();
 
+
   const category =
     $("serviceCategory")
       .value
       .trim();
+
 
   const description =
     $("serviceDescription")
       .value
       .trim();
 
+
   const price =
-    $("servicePrice").value;
+    $("servicePrice")
+      .value;
+
 
   const duration =
-    $("serviceDuration").value;
+    $("serviceDuration")
+      .value;
 
 
   if(
@@ -1529,35 +2200,34 @@ function addService(){
   }
 
 
-  const services =
-    getServices();
+  updateAppData(
+    data => {
+
+      data.services.push({
+
+        id:
+          "srv_" +
+          Date.now(),
+
+        name,
+
+        category,
+
+        description,
+
+        price:
+          Number(price),
+
+        duration:
+          Number(duration)
+
+      });
+
+    }
+  );
 
 
-  services.push({
-
-    id:
-      "srv_" +
-      Date.now(),
-
-    name,
-
-    category,
-
-    description,
-
-    price:
-      Number(price),
-
-    duration:
-      Number(duration)
-
-  });
-
-
-  localStorage.services =
-    JSON.stringify(
-      services
-    );
+  syncLegacyKeys();
 
 
   $("serviceName").value = "";
@@ -1576,18 +2246,20 @@ function addService(){
 
 function deleteService(index){
 
-  const services =
-    getServices();
+  updateAppData(
+    data => {
 
-  services.splice(
-    index,
-    1
+      data.services.splice(
+        index,
+        1
+      );
+
+    }
   );
 
-  localStorage.services =
-    JSON.stringify(
-      services
-    );
+
+  syncLegacyKeys();
+
 
   renderServices();
 
@@ -1611,24 +2283,41 @@ function renderServices(){
 
               <div class="service-item">
 
-                <b>${esc(service.name)}</b>
+                <b>
+                  ${esc(
+                    service.name
+                  )}
+                </b>
 
                 ${
                   service.category
-                    ? `<br><span class="badge">${esc(service.category)}</span>`
+                    ? `<br>
+                       <span class="badge">
+                         ${esc(
+                           service.category
+                         )}
+                       </span>`
                     : ""
                 }
 
                 ${
                   service.description
-                    ? `<p class="muted">${esc(service.description)}</p>`
+                    ? `<p class="muted">
+                         ${esc(
+                           service.description
+                         )}
+                       </p>`
                     : ""
                 }
 
                 <div>
-                  €${Number(service.price || 0).toFixed(2)}
+                  €${Number(
+                    service.price || 0
+                  ).toFixed(2)}
                   ·
-                  ${Number(service.duration || 0)} minuti
+                  ${Number(
+                    service.duration || 0
+                  )} minuti
                 </div>
 
                 <div class="service-actions">
@@ -1667,8 +2356,10 @@ function populateServiceSelect(){
   const services =
     getServices();
 
+
   const select =
     $("s");
+
 
   const current =
     select.value;
@@ -1683,13 +2374,23 @@ function populateServiceSelect(){
       .map(
         service => `
 
-          <option value="${esc(service.name)}">
+          <option
+            value="${esc(
+              service.name
+            )}"
+          >
 
-            ${esc(service.name)}
+            ${esc(
+              service.name
+            )}
             —
-            €${Number(service.price || 0).toFixed(2)}
+            €${Number(
+              service.price || 0
+            ).toFixed(2)}
             —
-            ${Number(service.duration || 0)} min
+            ${Number(
+              service.duration || 0
+            )} min
 
           </option>
 
@@ -1724,21 +2425,27 @@ function addPromotion(){
       .value
       .trim();
 
+
   const category =
     $("promotionCategory")
       .value
       .trim();
+
 
   const description =
     $("promotionDescription")
       .value
       .trim();
 
+
   const price =
-    $("promotionPrice").value;
+    $("promotionPrice")
+      .value;
+
 
   const expiry =
-    $("promotionExpiry").value;
+    $("promotionExpiry")
+      .value;
 
 
   if(
@@ -1755,36 +2462,35 @@ function addPromotion(){
   }
 
 
-  const promotions =
-    getPromotions();
+  updateAppData(
+    data => {
+
+      data.promotions.push({
+
+        id:
+          "promo_" +
+          Date.now(),
+
+        title,
+
+        category,
+
+        description,
+
+        price:
+          price === ""
+            ? null
+            : Number(price),
+
+        expiry
+
+      });
+
+    }
+  );
 
 
-  promotions.push({
-
-    id:
-      "promo_" +
-      Date.now(),
-
-    title,
-
-    category,
-
-    description,
-
-    price:
-      price === ""
-        ? null
-        : Number(price),
-
-    expiry
-
-  });
-
-
-  localStorage.promotions =
-    JSON.stringify(
-      promotions
-    );
+  syncLegacyKeys();
 
 
   $("promotionTitle").value = "";
@@ -1803,18 +2509,20 @@ function addPromotion(){
 
 function deletePromotion(index){
 
-  const promotions =
-    getPromotions();
+  updateAppData(
+    data => {
 
-  promotions.splice(
-    index,
-    1
+      data.promotions.splice(
+        index,
+        1
+      );
+
+    }
   );
 
-  localStorage.promotions =
-    JSON.stringify(
-      promotions
-    );
+
+  syncLegacyKeys();
+
 
   renderPromotions();
 
@@ -1847,13 +2555,22 @@ function renderPromotions(){
 
                 ${
                   promotion.category
-                    ? `<br><span class="badge">${esc(promotion.category)}</span>`
+                    ? `<br>
+                       <span class="badge">
+                         ${esc(
+                           promotion.category
+                         )}
+                       </span>`
                     : ""
                 }
 
                 ${
                   promotion.description
-                    ? `<p class="muted">${esc(promotion.description)}</p>`
+                    ? `<p class="muted">
+                         ${esc(
+                           promotion.description
+                         )}
+                       </p>`
                     : ""
                 }
 
@@ -1861,13 +2578,23 @@ function renderPromotions(){
                   promotion.price !== null &&
                   promotion.price !== undefined &&
                   promotion.price !== ""
-                    ? `<div>Prezzo: €${Number(promotion.price).toFixed(2)}</div>`
+                    ? `<div>
+                         Prezzo:
+                         €${Number(
+                           promotion.price
+                         ).toFixed(2)}
+                       </div>`
                     : ""
                 }
 
                 ${
                   promotion.expiry
-                    ? `<div>Scadenza: ${esc(promotion.expiry)}</div>`
+                    ? `<div>
+                         Scadenza:
+                         ${esc(
+                           promotion.expiry
+                         )}
+                       </div>`
                     : ""
                 }
 
@@ -1902,6 +2629,7 @@ function renderPromotions(){
 function getDayName(date){
 
   return [
+
     "sunday",
     "monday",
     "tuesday",
@@ -1909,6 +2637,7 @@ function getDayName(date){
     "thursday",
     "friday",
     "saturday"
+
   ][
     new Date(
       date +
@@ -1930,10 +2659,12 @@ function toMinutes(time){
 
   }
 
+
   const parts =
     time
       .split(":")
       .map(Number);
+
 
   return (
     parts[0] * 60 +
@@ -1946,13 +2677,23 @@ function toMinutes(time){
 function formatTime(minutes){
 
   return (
+
     String(
-      Math.floor(minutes / 60)
-    ).padStart(2,"0") +
-    ":" +
+      Math.floor(
+        minutes / 60
+      )
+    ).padStart(2,"0")
+
+    +
+
+    ":"
+
+    +
+
     String(
       minutes % 60
     ).padStart(2,"0")
+
   );
 
 }
@@ -1960,17 +2701,27 @@ function formatTime(minutes){
 
 function getService(name){
 
-  if(!name)return null;
+  if(!name){
+
+    return null;
+
+  }
+
 
   return getServices()
     .find(
       service =>
-        String(service.name)
-          .trim()
-          .toLowerCase() ===
-        String(name)
-          .trim()
-          .toLowerCase()
+        String(
+          service.name
+        )
+        .trim()
+        .toLowerCase() ===
+
+        String(
+          name
+        )
+        .trim()
+        .toLowerCase()
     ) || null;
 
 }
@@ -1987,21 +2738,33 @@ function isBreak(
       day?.breakStart
     );
 
+
   const b =
     toMinutes(
       day?.breakEnd
     );
 
+
   return (
+
     a !== null &&
+
     b !== null &&
+
     a < b &&
+
     start < b &&
+
     end > a
+
   );
 
 }
 
+
+/* ============================================================
+   CONTROLLO DISPONIBILITÀ
+============================================================ */
 
 function isAppointmentFree(
   date,
@@ -2012,21 +2775,37 @@ function isAppointmentFree(
   const settings =
     getSettings();
 
+
   const day =
     settings.hours?.[
       getDayName(date)
     ];
 
-  if(!day)return false;
+
+  if(!day){
+
+    return false;
+
+  }
+
 
   const opening =
-    toMinutes(day.open);
+    toMinutes(
+      day.open
+    );
+
 
   const closing =
-    toMinutes(day.close);
+    toMinutes(
+      day.close
+    );
+
 
   const start =
-    toMinutes(time);
+    toMinutes(
+      time
+    );
+
 
   if(
     opening === null ||
@@ -2038,15 +2817,21 @@ function isAppointmentFree(
 
   }
 
+
   const end =
     start +
-    Number(duration || 30);
+    Number(
+      duration || 30
+    );
 
 
   if(
     day.status === "closed" ||
+
     start < opening ||
+
     end > closing ||
+
     isBreak(
       day,
       start,
@@ -2071,10 +2856,12 @@ function isAppointmentFree(
 
         }
 
+
         const existingStart =
           toMinutes(
             appointment.t
           );
+
 
         if(
           existingStart === null
@@ -2084,10 +2871,12 @@ function isAppointmentFree(
 
         }
 
+
         const existingService =
           getService(
             appointment.s
           );
+
 
         const existingDuration =
           existingService
@@ -2096,14 +2885,18 @@ function isAppointmentFree(
               ) || 30
             : 30;
 
+
         const existingEnd =
           existingStart +
           existingDuration;
 
 
         return (
+
           start < existingEnd &&
+
           end > existingStart
+
         );
 
       }
@@ -2111,6 +2904,10 @@ function isAppointmentFree(
 
 }
 
+
+/* ============================================================
+   RENDER CALENDARIO
+============================================================ */
 
 function renderCalendar(){
 
@@ -2122,6 +2919,7 @@ function renderCalendar(){
 
     const today =
       new Date();
+
 
     input.value =
       today
@@ -2137,6 +2935,7 @@ function renderCalendar(){
 
   const date =
     input.value;
+
 
   const d =
     new Date(
@@ -2166,13 +2965,16 @@ function renderCalendar(){
   const settings =
     getSettings();
 
+
   const day =
     settings.hours?.[
       getDayName(date)
     ];
 
+
   const calendar =
     $("calendar");
+
 
   calendar.innerHTML =
     "";
@@ -2194,10 +2996,15 @@ function renderCalendar(){
 
 
   const opening =
-    toMinutes(day.open);
+    toMinutes(
+      day.open
+    );
+
 
   const closing =
-    toMinutes(day.close);
+    toMinutes(
+      day.close
+    );
 
 
   if(
@@ -2221,6 +3028,7 @@ function renderCalendar(){
       $("s").value
     );
 
+
   const duration =
     selectedService
       ? Number(
@@ -2230,8 +3038,12 @@ function renderCalendar(){
 
 
   for(
-    let minutes = opening;
-    minutes < closing;
+    let minutes =
+      opening;
+
+    minutes <
+      closing;
+
     minutes += 30
   ){
 
@@ -2239,6 +3051,7 @@ function renderCalendar(){
       document.createElement(
         "div"
       );
+
 
     slot.className =
       "slot";
@@ -2255,8 +3068,10 @@ function renderCalendar(){
         "div"
       );
 
+
     timeElement.className =
       "slot-time";
+
 
     timeElement.textContent =
       time;
@@ -2266,6 +3081,7 @@ function renderCalendar(){
       document.createElement(
         "div"
       );
+
 
     box.className =
       "slot-box";
@@ -2281,6 +3097,7 @@ function renderCalendar(){
 
       box.className +=
         " break";
+
 
       box.textContent =
         "Pausa";
@@ -2300,8 +3117,12 @@ function renderCalendar(){
 
               }
 
+
               const start =
-                toMinutes(a.t);
+                toMinutes(
+                  a.t
+                );
+
 
               if(
                 start === null
@@ -2311,8 +3132,12 @@ function renderCalendar(){
 
               }
 
+
               const service =
-                getService(a.s);
+                getService(
+                  a.s
+                );
+
 
               const duration =
                 service
@@ -2321,10 +3146,15 @@ function renderCalendar(){
                     ) || 30
                   : 30;
 
+
               return (
+
                 minutes >= start &&
+
                 minutes <
-                  start + duration
+                  start +
+                  duration
+
               );
 
             }
@@ -2336,12 +3166,17 @@ function renderCalendar(){
         box.className +=
           " busy";
 
+
         box.innerHTML =
           `<b>
-             ${esc(appointment.n)}
+             ${esc(
+               appointment.n
+             )}
            </b>
            <br>
-           ${esc(appointment.s)}`;
+           ${esc(
+             appointment.s
+           )}`;
 
       }else if(
         isAppointmentFree(
@@ -2354,10 +3189,12 @@ function renderCalendar(){
         box.className +=
           " free";
 
+
         box.innerHTML =
           `<span class="badge">
              Libero
            </span>`;
+
 
         box.onclick =
           () =>
@@ -2369,6 +3206,7 @@ function renderCalendar(){
 
         box.className +=
           " closed";
+
 
         box.textContent =
           "Non disponibile";
@@ -2383,6 +3221,7 @@ function renderCalendar(){
       box
     );
 
+
     calendar.appendChild(
       slot
     );
@@ -2392,16 +3231,23 @@ function renderCalendar(){
 }
 
 
+/* ============================================================
+   SELEZIONE SLOT CALENDARIO
+============================================================ */
+
 function selectCalendarSlot(time){
 
   $("d").value =
     $("calendarDate").value;
 
+
   $("t").value =
     time;
 
+
   $("appointmentStatus").textContent =
     `Orario selezionato: ${time}.`;
+
 
   $("n").scrollIntoView({
     behavior:"smooth",
@@ -2416,7 +3262,13 @@ function changeDay(amount){
   const input =
     $("calendarDate");
 
-  if(!input.value)return;
+
+  if(!input.value){
+
+    return;
+
+  }
+
 
   const d =
     new Date(
@@ -2424,13 +3276,17 @@ function changeDay(amount){
       "T12:00:00"
     );
 
+
   d.setDate(
     d.getDate() +
     amount
   );
 
+
   input.value =
-    d.toISOString().slice(0,10);
+    d.toISOString()
+      .slice(0,10);
+
 
   renderCalendar();
 
@@ -2446,20 +3302,33 @@ function addAppointment(){
   const button =
     $("manualSaveButton");
 
-  if(button.disabled)return;
+
+  if(button.disabled){
+
+    return;
+
+  }
 
 
   const name =
-    $("n").value.trim();
+    $("n")
+      .value
+      .trim();
+
 
   const date =
-    $("d").value;
+    $("d")
+      .value;
+
 
   const time =
-    $("t").value;
+    $("t")
+      .value;
+
 
   const serviceName =
-    $("s").value;
+    $("s")
+      .value;
 
 
   if(
@@ -2483,9 +3352,7 @@ function addAppointment(){
     );
 
 
-  if(
-    !service
-  ){
+  if(!service){
 
     $("appointmentStatus").textContent =
       "Servizio non valido.";
@@ -2518,6 +3385,7 @@ function addAppointment(){
   button.disabled =
     true;
 
+
   button.textContent =
     "Salvataggio...";
 
@@ -2528,15 +3396,17 @@ function addAppointment(){
 
   /*
    * DOPPIO CONTROLLO:
-   * impedisce duplicati anche se
-   * il pulsante viene premuto due volte.
+   * data + ora + servizio.
    */
 
   const duplicate =
     appointments.some(
       appointment =>
+
         appointment.d === date &&
+
         appointment.t === time
+
     );
 
 
@@ -2545,11 +3415,14 @@ function addAppointment(){
     $("appointmentStatus").textContent =
       "Questo orario è già stato prenotato.";
 
+
     button.disabled =
       false;
 
+
     button.textContent =
       "Salva appuntamento";
+
 
     renderCalendar();
 
@@ -2558,30 +3431,34 @@ function addAppointment(){
   }
 
 
-  appointments.push({
+  updateAppData(
+    data => {
 
-    id:
-      "apt_" +
-      Date.now(),
+      data.appointments.push({
 
-    n:
-      name,
+        id:
+          "apt_" +
+          Date.now(),
 
-    d:
-      date,
+        n:
+          name,
 
-    t:
-      time,
+        d:
+          date,
 
-    s:
-      service.name
+        t:
+          time,
 
-  });
+        s:
+          service.name
 
+      });
 
-  saveAppointmentsSafely(
-    appointments
+    }
   );
+
+
+  syncLegacyKeys();
 
 
   $("n").value = "";
@@ -2591,6 +3468,7 @@ function addAppointment(){
 
   $("appointmentStatus").textContent =
     "Appuntamento salvato.";
+
 
   renderCalendar();
 
@@ -2677,8 +3555,7 @@ function renderAppointments(){
 
 
 /* ============================================================
-   PRENOTAZIONE AI:
-   ORARI DISPONIBILI
+   ORARI AI DISPONIBILI
 ============================================================ */
 
 function showAvailableSlots(
@@ -2697,11 +3574,6 @@ function showAvailableSlots(
   }
 
 
-  /*
-   * Prima eliminiamo eventuali
-   * vecchi pulsanti.
-   */
-
   document
     .querySelectorAll(
       ".available-slot-actions"
@@ -2717,6 +3589,7 @@ function showAvailableSlots(
       "div"
     );
 
+
   container.className =
     "ai-actions available-slot-actions";
 
@@ -2726,8 +3599,10 @@ function showAvailableSlots(
       "div"
     );
 
+
   title.className =
     "available-title";
+
 
   title.textContent =
     service
@@ -2748,8 +3623,10 @@ function showAvailableSlots(
           "button"
         );
 
+
       button.className =
         "ai-slot-button";
+
 
       button.textContent =
         time;
@@ -2785,8 +3662,8 @@ function showAvailableSlots(
 
 
 /* ============================================================
-   CORREZIONE PRINCIPALE:
-   SELEZIONE ORARIO ALTERNATIVO
+   SELEZIONE ORARIO AI
+   MANTIENE SERVIZIO + CLIENTE + DATA
 ============================================================ */
 
 function selectAISlot(
@@ -2806,11 +3683,6 @@ function selectAISlot(
   }
 
 
-  /*
-   * Disabilita tutti i pulsanti
-   * per evitare doppie richieste.
-   */
-
   document
     .querySelectorAll(
       ".ai-slot-button"
@@ -2821,23 +3693,12 @@ function selectAISlot(
     );
 
 
-  /*
-   * Recuperiamo il servizio.
-   *
-   * Se l'API ha restituito "Taglio uomo",
-   * lo manteniamo.
-   */
-
   let selectedService =
     service ||
     pendingAppointment?.service ||
     $("s").value ||
     "";
 
-
-  /*
-   * Recuperiamo la data.
-   */
 
   const selectedDate =
     date ||
@@ -2846,21 +3707,16 @@ function selectAISlot(
     $("calendarDate").value;
 
 
-  /*
-   * Recuperiamo il nome.
-   */
-
   const selectedName =
     pendingAppointment?.name ||
-    $("clientName").value.trim() ||
-    $("n").value.trim() ||
+    $("clientName")
+      .value
+      .trim() ||
+    $("n")
+      .value
+      .trim() ||
     "";
 
-
-  /*
-   * Se il servizio esiste nell'elenco,
-   * utilizziamo il nome ufficiale.
-   */
 
   const serviceObject =
     getService(
@@ -2873,6 +3729,7 @@ function selectAISlot(
     selectedService =
       serviceObject.name;
 
+
     $("s").value =
       serviceObject.name;
 
@@ -2880,14 +3737,7 @@ function selectAISlot(
 
 
   /*
-   * =========================================================
-   * PUNTO FONDAMENTALE
-   *
-   * NON perdiamo più il servizio.
-   *
-   * L'orario alternativo viene scritto
-   * direttamente dentro pendingAppointment.
-   * =========================================================
+   * MEMORIA COMPLETA DELLA PRENOTAZIONE.
    */
 
   pendingAppointment = {
@@ -2907,14 +3757,6 @@ function selectAISlot(
   };
 
 
-  /*
-   * La richiesta successiva NON deve
-   * essere una nuova prenotazione.
-   *
-   * È una modifica dell'orario
-   * della prenotazione già in corso.
-   */
-
   requiresConfirmation =
     false;
 
@@ -2922,12 +3764,9 @@ function selectAISlot(
   savePendingState();
 
 
-  /*
-   * Aggiorniamo anche il calendario.
-   */
-
   $("d").value =
     selectedDate;
+
 
   $("t").value =
     time;
@@ -2936,12 +3775,6 @@ function selectAISlot(
   $("appointmentStatus").textContent =
     `Orario ${time} selezionato per ${selectedService || "il servizio"}.`;
 
-
-  /*
-   * Inviamo all'API soltanto la scelta
-   * dell'orario, ma insieme a pendingAppointment
-   * completo.
-   */
 
   $("q").value =
     `Scelgo le ${time}`;
@@ -2953,7 +3786,7 @@ function selectAISlot(
 
 
 /* ============================================================
-   BOX PRENOTAZIONE IN ATTESA
+   BOX PRENOTAZIONE
 ============================================================ */
 
 function renderPendingBox(){
@@ -2961,18 +3794,15 @@ function renderPendingBox(){
   const box =
     $("pendingBox");
 
-  if(
-    !box
-  ){
+
+  if(!box){
 
     return;
 
   }
 
 
-  if(
-    !pendingAppointment
-  ){
+  if(!pendingAppointment){
 
     box.innerHTML =
       "";
@@ -2986,13 +3816,16 @@ function renderPendingBox(){
     pendingAppointment.service ||
     "Servizio";
 
+
   const date =
     pendingAppointment.date ||
     "";
 
+
   const time =
     pendingAppointment.time ||
     "";
+
 
   const name =
     pendingAppointment.name ||
@@ -3052,8 +3885,10 @@ function showConfirmationButtons(){
       "div"
     );
 
+
   container.id =
     "confirmationActions";
+
 
   container.className =
     "ai-actions";
@@ -3064,8 +3899,10 @@ function showConfirmationButtons(){
       "button"
     );
 
+
   confirm.className =
     "ai-confirm-button";
+
 
   confirm.textContent =
     "Conferma appuntamento";
@@ -3083,8 +3920,10 @@ function showConfirmationButtons(){
       "button"
     );
 
+
   cancel.className =
     "ai-cancel-button";
+
 
   cancel.textContent =
     "Annulla";
@@ -3132,6 +3971,7 @@ function confirmAppointment(
   button.disabled =
     true;
 
+
   button.textContent =
     "Conferma in corso...";
 
@@ -3163,6 +4003,7 @@ function cancelAppointment(
   button.disabled =
     true;
 
+
   button.textContent =
     "Annullamento...";
 
@@ -3182,9 +4023,7 @@ function cancelAppointment(
 
 async function send(){
 
-  if(
-    requestInProgress
-  ){
+  if(requestInProgress){
 
     return;
 
@@ -3192,7 +4031,9 @@ async function send(){
 
 
   const message =
-    $("q").value.trim();
+    $("q")
+      .value
+      .trim();
 
 
   if(!message){
@@ -3208,6 +4049,7 @@ async function send(){
 
   $("q").disabled =
     true;
+
 
   $("sendButton").disabled =
     true;
@@ -3246,11 +4088,10 @@ async function send(){
     const settings =
       getSettings();
 
+
     /*
      * IMPORTANTE:
-     * viene sempre inviato pendingAppointment
-     * aggiornato, anche dopo la scelta di un
-     * orario alternativo.
+     * TUTTI i dati arrivano dallo stesso appData.
      */
 
     const payload = {
@@ -3258,7 +4099,9 @@ async function send(){
       message,
 
       business:
-        localStorage.biz ||
+        getAppData()
+          .business
+          .name ||
         settings.name ||
         "Attività locale",
 
@@ -3287,6 +4130,7 @@ async function send(){
       pendingAppointment:
         pendingAppointment
           ? {
+
               name:
                 pendingAppointment.name ||
                 "",
@@ -3302,11 +4146,11 @@ async function send(){
               service:
                 pendingAppointment.service ||
                 ""
+
             }
           : null,
 
       requiresConfirmation:
-
         Boolean(
           requiresConfirmation
         )
@@ -3352,9 +4196,7 @@ async function send(){
     }
 
 
-    if(
-      !response.ok
-    ){
+    if(!response.ok){
 
       throw new Error(
         data.error ||
@@ -3384,11 +4226,9 @@ async function send(){
        </div>`;
 
 
-    /*
-     * =======================================================
-     * ORARI ALTERNATIVI
-     * =======================================================
-     */
+    /* ======================================================
+       ORARI ALTERNATIVI
+    ====================================================== */
 
     if(
       Array.isArray(
@@ -3397,15 +4237,11 @@ async function send(){
       data.availableSlots.length
     ){
 
-      /*
-       * Se l'API restituisce il contesto,
-       * lo memorizziamo immediatamente.
-       */
-
       const alternativeDate =
         data.availableDate ||
         pendingAppointment?.date ||
         "";
+
 
       const alternativeService =
         data.availableService ||
@@ -3414,50 +4250,38 @@ async function send(){
 
 
       /*
-       * IMPORTANTE:
-       * quando arrivano gli orari alternativi,
-       * preserviamo servizio + data + nome.
+       * PRESERVIAMO IL CONTESTO ESISTENTE.
        */
 
-      if(
-        alternativeDate ||
-        alternativeService
-      ){
+      pendingAppointment = {
 
-        pendingAppointment = {
+        name:
+          pendingAppointment?.name ||
+          $("clientName")
+            .value
+            .trim() ||
+          "",
 
-          name:
-            pendingAppointment?.name ||
-            $("clientName").value.trim() ||
-            "",
+        date:
+          alternativeDate,
 
-          date:
-            alternativeDate,
+        time:
+          pendingAppointment?.time ||
+          "",
 
-          time:
-            pendingAppointment?.time ||
-            "",
+        service:
+          alternativeService
 
-          service:
-            alternativeService
-
-        };
+      };
 
 
-        /*
-         * Se stiamo mostrando alternative,
-         * non chiediamo ancora conferma.
-         */
-
-        requiresConfirmation =
-          false;
+      requiresConfirmation =
+        false;
 
 
-        savePendingState();
+      savePendingState();
 
-        renderPendingBox();
-
-      }
+      renderPendingBox();
 
 
       showAvailableSlots(
@@ -3469,26 +4293,22 @@ async function send(){
     }
 
 
-    /*
-     * =======================================================
-     * PRENOTAZIONE IN ATTESA
-     * =======================================================
-     */
+    /* ======================================================
+       PRENOTAZIONE IN ATTESA
+    ====================================================== */
 
     if(
       data.pendingAppointment
     ){
-
-      /*
-       * Conserviamo SEMPRE tutti i campi.
-       */
 
       pendingAppointment = {
 
         name:
           data.pendingAppointment.name ||
           pendingAppointment?.name ||
-          $("clientName").value.trim() ||
+          $("clientName")
+            .value
+            .trim() ||
           "",
 
         date:
@@ -3531,11 +4351,9 @@ async function send(){
     }
 
 
-    /*
-     * =======================================================
-     * CONFERMA
-     * =======================================================
-     */
+    /* ======================================================
+       CONFERMA DEFINITIVA
+    ====================================================== */
 
     if(
       data.confirmed === true &&
@@ -3546,62 +4364,76 @@ async function send(){
         data.appointment;
 
 
+      /*
+       * Recuperiamo sempre l'archivio
+       * unico aggiornato.
+       */
+
       const appointments =
         getAppointments();
 
 
       /*
-       * Doppio controllo contro
-       * il salvataggio duplicato.
+       * Doppia protezione:
+       * non inseriamo due appuntamenti
+       * nello stesso giorno e ora.
        */
 
       const duplicate =
         appointments.some(
           existing =>
+
             existing.d ===
               appointment.date &&
+
             existing.t ===
               appointment.time
+
         );
 
 
       if(!duplicate){
 
-        appointments.push({
+        updateAppData(
+          dataStore => {
 
-          id:
-            appointment.bookingKey ||
-            "apt_" +
-            Date.now(),
+            dataStore.appointments.push({
 
-          n:
-            appointment.name,
+              id:
+                appointment.bookingKey ||
+                "apt_" +
+                Date.now(),
 
-          d:
-            appointment.date,
+              n:
+                appointment.name,
 
-          t:
-            appointment.time,
+              d:
+                appointment.date,
 
-          s:
-            appointment.service
+              t:
+                appointment.time,
 
-        });
+              s:
+                appointment.service
 
+            });
 
-        saveAppointmentsSafely(
-          appointments
+          }
         );
 
       }
 
 
+      syncLegacyKeys();
+
+
       /*
-       * La prenotazione è ormai
+       * ORA la prenotazione è
        * definitivamente salvata.
        */
 
       clearPendingState();
+
 
       renderAppointments();
 
@@ -3625,17 +4457,20 @@ async function send(){
     }
 
 
-    /*
-     * =======================================================
-     * CANCELLAZIONE
-     * =======================================================
-     */
+    /* ======================================================
+       CANCELLAZIONE
+    ====================================================== */
 
     if(
       data.confirmed === false &&
+
       data.requiresConfirmation === false &&
+
       !data.pendingAppointment &&
-      message.toLowerCase().includes("annulla")
+
+      message
+        .toLowerCase()
+        .includes("annulla")
     ){
 
       clearPendingState();
@@ -3645,19 +4480,15 @@ async function send(){
 
   }catch(error){
 
-    /*
-     * Rimuoviamo l'ultimo messaggio
-     * dalla cronologia solo se era la richiesta
-     * appena fallita.
-     */
-
     chatHistory.pop();
 
 
     $("chat").innerHTML +=
       `<div class="msg bot">
          Si è verificato un problema:
-         ${esc(error.message)}
+         ${esc(
+           error.message
+         )}
        </div>`;
 
   }finally{
@@ -3665,29 +4496,31 @@ async function send(){
     requestInProgress =
       false;
 
+
     $("q").disabled =
       false;
 
+
     $("sendButton").disabled =
       false;
+
 
     $("chat").classList.remove(
       "ai-busy"
     );
 
+
     $("status").textContent =
       "";
+
 
     $("q").value =
       "";
 
+
     $("chat").scrollTop =
       $("chat").scrollHeight;
 
-
-    /*
-     * Riabilitiamo i pulsanti.
-     */
 
     document
       .querySelectorAll(
@@ -3726,6 +4559,11 @@ async function generatePost(){
       getSettings();
 
 
+    /*
+     * Anche Post AI utilizza ESATTAMENTE
+     * lo stesso archivio dell'Home e del Calendario.
+     */
+
     const response =
       await fetch(
         "/api/chat",
@@ -3746,8 +4584,10 @@ async function generatePost(){
               topic,
 
               business:
+                getAppData()
+                  .business
+                  .name ||
                 settings.name ||
-                localStorage.biz ||
                 "Attività locale",
 
               settings,
@@ -3756,7 +4596,10 @@ async function generatePost(){
                 getServices(),
 
               promotions:
-                getPromotions()
+                getPromotions(),
+
+              appointments:
+                getAppointments()
 
             })
 
@@ -3798,13 +4641,68 @@ async function generatePost(){
 
 
 /* ============================================================
+   SINCRONIZZAZIONE TRA SCHEDE
+============================================================ */
+
+window.addEventListener(
+  "storage",
+  event => {
+
+    if(
+      event.key === STORAGE_PRIMARY ||
+      event.key === STORAGE_BACKUP
+    ){
+
+      appData =
+        loadAppData();
+
+
+      renderServices();
+
+      renderPromotions();
+
+      renderAppointments();
+
+      renderCalendar();
+
+      updateDashboard();
+
+      loadSettings();
+
+    }
+
+  }
+);
+
+
+/* ============================================================
    INIZIALIZZAZIONE
 ============================================================ */
 
 setupBreakRows();
 
+
+/*
+ * Carica il nuovo archivio.
+ * Se non esiste, esegue automaticamente
+ * la migrazione dei vecchi dati.
+ */
+
+loadAppData();
+
+
+/*
+ * Mantiene compatibilità con
+ * il vecchio sistema.
+ */
+
+syncLegacyKeys();
+
+
 $("biz").value =
-  localStorage.biz ||
+  getAppData()
+    .business
+    .name ||
   "Salone Bella Linea";
 
 
@@ -3824,16 +4722,20 @@ updateDashboard();
   const today =
     new Date();
 
+
   const date =
     today
       .toISOString()
       .slice(0,10);
 
+
   $("calendarDate").value =
     date;
 
+
   $("d").value =
     date;
+
 
   renderCalendar();
 
@@ -3842,12 +4744,6 @@ updateDashboard();
 
 renderPendingBox();
 
-
-/*
- * Se l'app viene riaperta mentre
- * una prenotazione è in attesa,
- * il contesto rimane disponibile.
- */
 
 if(
   pendingAppointment
