@@ -9,7 +9,6 @@
 
 <style>
 *{box-sizing:border-box}
-
 :root{
   --bg:#f4f6f8;
   --surface:#fff;
@@ -23,750 +22,297 @@
   --danger:#dc2626;
   --warning:#d97706;
   --radius:18px;
-  --shadow:0 4px 18px rgba(15,23,42,.06);
+  --shadow:0 4px 18px rgba(15,23,42,.06)
 }
-
 html{scroll-behavior:smooth}
-
 body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
+  margin:0;background:var(--bg);color:var(--text);
   font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  font-size:15px;
-  line-height:1.5;
+  font-size:15px;line-height:1.5
 }
-
-button,
-input,
-textarea,
-select{
-  font:inherit;
-}
-
-button{
-  border:0;
-  cursor:pointer;
-  transition:.18s ease;
-}
-
-button:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-button:hover:not(:disabled){
-  transform:translateY(-1px);
-}
-
+button,input,textarea,select{font:inherit}
+button{border:0;cursor:pointer;transition:.18s ease}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:hover:not(:disabled){transform:translateY(-1px)}
 header{
-  background:#0f172a;
-  color:white;
-  padding:20px max(18px,calc((100% - 1100px)/2));
+  background:#0f172a;color:white;
+  padding:20px max(18px,calc((100% - 1100px)/2))
 }
-
-.header-inner{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{display:flex;align-items:center;gap:12px}
 .brand-icon{
-  width:42px;
-  height:42px;
-  border-radius:13px;
-  background:#2563eb;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:20px;
-  font-weight:800;
+  width:42px;height:42px;border-radius:13px;background:#2563eb;
+  display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800
 }
-
-header h1{
-  margin:0;
-  font-size:20px;
-  line-height:1.2;
-}
-
-.header-subtitle{
-  margin-top:3px;
-  color:#cbd5e1;
-  font-size:13px;
-}
-
+header h1{margin:0;font-size:20px;line-height:1.2}
+.header-subtitle{margin-top:3px;color:#cbd5e1;font-size:13px}
 nav{
-  position:sticky;
-  top:0;
-  z-index:50;
-  background:rgba(255,255,255,.96);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line);
-  display:flex;
-  justify-content:center;
-  gap:5px;
-  padding:8px 10px;
-  overflow-x:auto;
+  position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+  display:flex;justify-content:center;gap:5px;padding:8px 10px;overflow-x:auto
 }
-
 nav button{
-  flex:0 0 auto;
-  background:transparent;
-  color:#475569;
-  padding:9px 13px;
-  border-radius:11px;
-  font-weight:700;
-  white-space:nowrap;
+  flex:0 0 auto;background:transparent;color:#475569;padding:9px 13px;
+  border-radius:11px;font-weight:700;white-space:nowrap
 }
-
-nav button:hover{
-  background:#f1f5f9;
-  color:var(--text);
-}
-
-nav button.active{
-  background:#e8efff;
-  color:var(--primary);
-}
-
-main{
-  width:min(1100px,100%);
-  margin:auto;
-  padding:22px 16px 50px;
-}
-
-.page{
-  display:none;
-}
-
-.page.active{
-  display:block;
-  animation:pageIn .18s ease;
-}
-
-@keyframes pageIn{
-  from{opacity:.5;transform:translateY(4px)}
-  to{opacity:1;transform:none}
-}
-
+nav button:hover{background:#f1f5f9;color:var(--text)}
+nav button.active{background:#e8efff;color:var(--primary)}
+main{width:min(1100px,100%);margin:auto;padding:22px 16px 50px}
+.page{display:none}
+.page.active{display:block;animation:pageIn .18s ease}
+@keyframes pageIn{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
 .page-heading{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:15px;
-  margin:4px 0 18px;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:15px;margin:4px 0 18px
 }
-
-.page-heading h2{
-  margin:0;
-  font-size:25px;
-  letter-spacing:-.5px;
-}
-
-.page-heading p{
-  margin:4px 0 0;
-  color:var(--muted);
-}
-
+.page-heading h2{margin:0;font-size:25px;letter-spacing:-.5px}
+.page-heading p{margin:4px 0 0;color:var(--muted)}
 .card{
-  background:var(--surface);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  padding:20px;
-  margin-bottom:15px;
-  box-shadow:var(--shadow);
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;margin-bottom:15px;box-shadow:var(--shadow)
 }
-
-.card h2,
-.card h3{
-  margin-top:0;
-}
-
-.card h2{
-  font-size:20px;
-  letter-spacing:-.2px;
-}
-
-.card h3{
-  font-size:17px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-}
-
+.card h2,.card h3{margin-top:0}
+.card h2{font-size:20px;letter-spacing:-.2px}
+.card h3{font-size:17px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .stat-card{
-  background:var(--surface);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:17px;
-  box-shadow:var(--shadow);
+  background:var(--surface);border:1px solid var(--line);border-radius:16px;
+  padding:17px;box-shadow:var(--shadow)
 }
-
-.stat{
-  font-size:30px;
-  font-weight:800;
-  line-height:1;
-  margin-bottom:7px;
-}
-
-.stat-label{
-  color:var(--muted);
-  font-size:13px;
-  font-weight:600;
-}
-
+.stat{font-size:30px;font-weight:800;line-height:1;margin-bottom:7px}
+.stat-label{color:var(--muted);font-size:13px;font-weight:600}
 .stat-icon{
-  width:38px;
-  height:38px;
-  border-radius:11px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#eff6ff;
-  color:var(--primary);
-  font-weight:800;
-  margin-bottom:13px;
+  width:38px;height:38px;border-radius:11px;display:flex;align-items:center;
+  justify-content:center;background:#eff6ff;color:var(--primary);font-weight:800;margin-bottom:13px
 }
-
-.muted{
-  color:var(--muted);
-  font-size:13px;
+.muted{color:var(--muted);font-size:13px}
+input,textarea,select{
+  width:100%;padding:12px 13px;margin:6px 0 12px;border:1px solid #cbd5e1;
+  border-radius:11px;background:white;color:var(--text);outline:none;transition:.15s ease
 }
-
-input,
-textarea,
-select{
-  width:100%;
-  padding:12px 13px;
-  margin:6px 0 12px;
-  border:1px solid #cbd5e1;
-  border-radius:11px;
-  background:white;
-  color:var(--text);
-  outline:none;
-  transition:.15s ease;
+input:focus,textarea:focus,select:focus{
+  border-color:#60a5fa;box-shadow:0 0 0 3px rgba(37,99,235,.10)
 }
-
-input:focus,
-textarea:focus,
-select:focus{
-  border-color:#60a5fa;
-  box-shadow:0 0 0 3px rgba(37,99,235,.10);
-}
-
-textarea{
-  resize:vertical;
-}
-
-label{
-  display:block;
-  font-size:13px;
-  font-weight:700;
-  color:#475569;
-  margin-bottom:3px;
-}
-
-button{
-  padding:10px 14px;
-  border-radius:11px;
-  font-weight:750;
-}
-
-.primary{
-  background:var(--primary);
-  color:white;
-}
-
-.primary:hover{
-  background:var(--primary-dark);
-}
-
-.secondary{
-  background:#eef2f7;
-  color:#334155;
-}
-
-.success{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.danger{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
-.warning{
-  background:#fef3c7;
-  color:#92400e;
-}
-
-.row{
-  display:flex;
-  gap:9px;
-  align-items:center;
-}
-
-.row>*{
-  flex:1;
-}
-
-.hero{
-  background:linear-gradient(135deg,#0f172a,#1e3a8a);
-  color:white;
-  border:0;
-  padding:25px;
-}
-
-.hero h2{
-  margin-bottom:5px;
-  font-size:26px;
-}
-
-.hero p{
-  margin:0;
-  color:#dbeafe;
-}
-
+textarea{resize:vertical}
+label{display:block;font-size:13px;font-weight:700;color:#475569;margin-bottom:3px}
+button{padding:10px 14px;border-radius:11px;font-weight:750}
+.primary{background:var(--primary);color:white}
+.primary:hover{background:var(--primary-dark)}
+.secondary{background:#eef2f7;color:#334155}
+.success{background:#dcfce7;color:#166534}
+.danger{background:#fee2e2;color:#991b1b}
+.warning{background:#fef3c7;color:#92400e}
+.row{display:flex;gap:9px;align-items:center}
+.row>*{flex:1}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:white;border:0;padding:25px}
+.hero h2{margin-bottom:5px;font-size:26px}
+.hero p{margin:0;color:#dbeafe}
 .storage-box{
-  margin-top:13px;
-  padding:11px 13px;
-  border-radius:11px;
-  background:#f0fdf4;
-  color:#166534;
-  border:1px solid #bbf7d0;
-  font-size:13px;
+  margin-top:13px;padding:11px 13px;border-radius:11px;background:#f0fdf4;
+  color:#166534;border:1px solid #bbf7d0;font-size:13px
 }
-
 .chat{
-  height:390px;
-  overflow:auto;
+  height:390px;overflow:auto;background:#f8fafc;border:1px solid var(--line);
+  border-radius:15px;padding:13px
+}
+.msg{
+  padding:11px 13px;border-radius:14px;margin:8px 0;max-width:86%;
+  white-space:pre-wrap;line-height:1.5
+}
+.bot{background:#e8edf3;color:#1e293b}
+.user{background:#dbeafe;margin-left:auto;color:#1e3a8a}
+.ai-busy{opacity:.7;pointer-events:none}
+.ai-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.available-title{width:100%;font-weight:750;margin:4px 0}
+.ai-slot-button{background:var(--primary);color:white;min-width:72px}
+.ai-confirm-button{background:var(--success);color:white;width:100%}
+.ai-cancel-button{background:#fee2e2;color:#991b1b;width:100%}
+.pending-box{
+  background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;
+  padding:13px;border-radius:13px;margin-bottom:12px
+}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.section-title h3{margin:0}
+.calendar-header{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.calendar-header input{margin:0;flex:1}
+.calendar-grid{display:flex;flex-direction:column;gap:6px}
+.slot{display:grid;grid-template-columns:65px 1fr;gap:8px}
+.slot-time{
+  display:flex;align-items:center;justify-content:center;color:#64748b;
+  font-size:13px;font-weight:750
+}
+.slot-box{
+  min-height:48px;border:1px solid var(--line);border-radius:12px;
+  background:#f8fafc;padding:10px 12px
+}
+.slot-box.free{cursor:pointer}
+.slot-box.free:hover{background:#eff6ff;border-color:#93c5fd}
+.slot-box.busy{background:#dbeafe;border-color:#93c5fd}
+.slot-box.closed{background:#f1f5f9;color:#94a3b8}
+.calendar-empty,.empty-state{
+  padding:24px;text-align:center;background:#f8fafc;
+  border:1px dashed #cbd5e1;border-radius:13px;color:var(--muted)
+}
+.day-summary{background:#eff6ff;border:1px solid #bfdbfe;border-radius:13px;padding:12px;margin-bottom:12px}
+.appointment-item,.service-item,.promotion-item,.client-item{
+  background:#f8fafc;border:1px solid var(--line);border-radius:13px;padding:14px;margin:8px 0
+}
+.appointment-item b,.service-item>b,.promotion-item>b,.client-item>b{font-size:15px}
+.appointment-actions,.service-actions,.promotion-actions,.client-actions{
+  display:flex;flex-wrap:wrap;gap:7px;margin-top:11px
+}
+.small-button{padding:7px 10px;font-size:12px}
+.badge{display:inline-block;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800;margin-top:7px}
+.status-confirmed{background:#dcfce7;color:#166534}
+.status-completed{background:#dbeafe;color:#1d4ed8}
+.status-cancelled{background:#fee2e2;color:#991b1b}
+.search-box{background:#f8fafc;border:1px solid var(--line);border-radius:13px;padding:11px;margin-bottom:12px}
+.client-stat{color:#475569;font-size:13px;font-weight:700;margin-top:8px}
+.client-history{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.divider{border:0;border-top:1px solid var(--line);margin:20px 0}
+.hour-row{
+  display:grid;grid-template-columns:115px 110px 1fr 1fr;gap:8px;
+  align-items:center;margin-bottom:8px
+}
+.hour-row input,.hour-row select{margin:0}
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;
+  align-items:center;justify-content:center;padding:15px;z-index:100
+}
+.modal-backdrop.open{display:flex}
+.modal{
+  width:min(600px,100%);max-height:90vh;overflow:auto;background:white;
+  border-radius:20px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)
+}
+.modal-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.modal-header h3{margin:0}
+.close-button{background:#f1f5f9;color:#334155;padding:7px 11px}
+.form-error{color:#991b1b;background:#fee2e2;border-radius:10px;padding:10px;margin:8px 0;display:none}
+.form-error.show{display:block}
+.quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
+.quick-action{text-align:left;background:#f8fafc;border:1px solid var(--line);padding:15px;border-radius:14px}
+.quick-action strong{display:block;margin-bottom:3px}
+.quick-action span{color:var(--muted);font-size:12px}
+
+/* POST AI */
+.post-mode{
+  display:flex;gap:8px;margin-bottom:18px;
+  background:#f1f5f9;padding:5px;border-radius:13px
+}
+.post-mode button{
+  flex:1;background:transparent;color:#64748b
+}
+.post-mode button.active{
+  background:white;color:var(--primary);
+  box-shadow:0 2px 7px rgba(15,23,42,.08)
+}
+.post-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:13px
+}
+.post-platforms{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:7px 0 14px
+}
+.post-platform{
+  border:1px solid var(--line);
+  background:#f8fafc;
+  color:#475569;
+  padding:12px 8px;
+  border-radius:12px;
+  text-align:center;
+  font-weight:700
+}
+.post-platform.active{
+  background:#e8efff;
+  border-color:#93c5fd;
+  color:var(--primary)
+}
+.post-platform small{
+  display:block;
+  font-size:11px;
+  font-weight:600;
+  margin-top:2px;
+  color:var(--muted)
+}
+.post-platform.active small{color:#2563eb}
+.post-result{
   background:#f8fafc;
   border:1px solid var(--line);
   border-radius:15px;
-  padding:13px;
+  padding:15px
 }
-
-.msg{
-  padding:11px 13px;
-  border-radius:14px;
-  margin:8px 0;
-  max-width:86%;
-  white-space:pre-wrap;
-  line-height:1.5;
+.post-result textarea{
+  min-height:300px;
+  margin-bottom:8px;
+  background:white
 }
-
-.bot{
-  background:#e8edf3;
-  color:#1e293b;
-}
-
-.user{
-  background:#dbeafe;
-  margin-left:auto;
-  color:#1e3a8a;
-}
-
-.ai-busy{
-  opacity:.7;
-  pointer-events:none;
-}
-
-.ai-actions{
+.post-actions{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
-  margin:10px 0;
+  margin-top:10px
 }
-
-.available-title{
-  width:100%;
-  font-weight:750;
-  margin:4px 0;
-}
-
-.ai-slot-button{
-  background:var(--primary);
-  color:white;
-  min-width:72px;
-}
-
-.ai-confirm-button{
-  background:var(--success);
-  color:white;
-  width:100%;
-}
-
-.ai-cancel-button{
-  background:#fee2e2;
-  color:#991b1b;
-  width:100%;
-}
-
-.pending-box{
-  background:#fff7ed;
-  border:1px solid #fed7aa;
-  color:#9a3412;
-  padding:13px;
-  border-radius:13px;
-  margin-bottom:12px;
-}
-
-.section-title{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:13px;
-}
-
-.section-title h3{
-  margin:0;
-}
-
-.calendar-header{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-bottom:16px;
-}
-
-.calendar-header input{
-  margin:0;
-  flex:1;
-}
-
-.calendar-grid{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.slot{
-  display:grid;
-  grid-template-columns:65px 1fr;
-  gap:8px;
-}
-
-.slot-time{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#64748b;
-  font-size:13px;
-  font-weight:750;
-}
-
-.slot-box{
-  min-height:48px;
+.post-actions button{flex:1 1 130px}
+.post-history-item{
   border:1px solid var(--line);
-  border-radius:12px;
   background:#f8fafc;
-  padding:10px 12px;
-}
-
-.slot-box.free{
-  cursor:pointer;
-}
-
-.slot-box.free:hover{
-  background:#eff6ff;
-  border-color:#93c5fd;
-}
-
-.slot-box.busy{
-  background:#dbeafe;
-  border-color:#93c5fd;
-}
-
-.slot-box.closed{
-  background:#f1f5f9;
-  color:#94a3b8;
-}
-
-.calendar-empty,
-.empty-state{
-  padding:24px;
-  text-align:center;
-  background:#f8fafc;
-  border:1px dashed #cbd5e1;
   border-radius:13px;
-  color:var(--muted);
+  padding:13px;
+  margin:8px 0
 }
-
-.day-summary{
+.post-history-item b{display:block;margin-bottom:3px}
+.post-history-meta{font-size:12px;color:var(--muted)}
+.post-history-actions{display:flex;gap:7px;margin-top:9px}
+.post-tip{
+  padding:12px 13px;
+  border-radius:12px;
   background:#eff6ff;
   border:1px solid #bfdbfe;
-  border-radius:13px;
-  padding:12px;
-  margin-bottom:12px;
-}
-
-.appointment-item,
-.service-item,
-.promotion-item,
-.client-item{
-  background:#f8fafc;
-  border:1px solid var(--line);
-  border-radius:13px;
-  padding:14px;
-  margin:8px 0;
-}
-
-.appointment-item b,
-.service-item>b,
-.promotion-item>b,
-.client-item>b{
-  font-size:15px;
-}
-
-.appointment-actions,
-.service-actions,
-.promotion-actions,
-.client-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-  margin-top:11px;
-}
-
-.small-button{
-  padding:7px 10px;
-  font-size:12px;
-}
-
-.badge{
-  display:inline-block;
-  padding:4px 9px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:800;
-  margin-top:7px;
-}
-
-.status-confirmed{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.status-completed{
-  background:#dbeafe;
-  color:#1d4ed8;
-}
-
-.status-cancelled{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
-.search-box{
-  background:#f8fafc;
-  border:1px solid var(--line);
-  border-radius:13px;
-  padding:11px;
-  margin-bottom:12px;
-}
-
-.client-stat{
-  color:#475569;
+  color:#1e40af;
   font-size:13px;
-  font-weight:700;
-  margin-top:8px;
+  margin-bottom:14px
 }
-
-.client-history{
-  margin-top:12px;
-  padding-top:12px;
-  border-top:1px solid var(--line);
-}
-
-.divider{
-  border:0;
-  border-top:1px solid var(--line);
-  margin:20px 0;
-}
-
-.form-title{
-  margin-top:20px;
-}
-
-.hour-row{
-  display:grid;
-  grid-template-columns:115px 110px 1fr 1fr;
-  gap:8px;
+.post-loading{
+  display:inline-flex;
   align-items:center;
-  margin-bottom:8px;
+  gap:8px
 }
-
-.hour-row input,
-.hour-row select{
-  margin:0;
+.post-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:currentColor;
+  animation:postPulse 1s infinite
 }
-
-.modal-backdrop{
-  position:fixed;
-  inset:0;
-  background:rgba(15,23,42,.58);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:15px;
-  z-index:100;
-}
-
-.modal-backdrop.open{
-  display:flex;
-}
-
-.modal{
-  width:min(600px,100%);
-  max-height:90vh;
-  overflow:auto;
-  background:white;
-  border-radius:20px;
-  padding:20px;
-  box-shadow:0 20px 60px rgba(0,0,0,.25);
-}
-
-.modal-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:10px;
-}
-
-.modal-header h3{
-  margin:0;
-}
-
-.close-button{
-  background:#f1f5f9;
-  color:#334155;
-  padding:7px 11px;
-}
-
-.form-error{
-  color:#991b1b;
-  background:#fee2e2;
-  border-radius:10px;
-  padding:10px;
-  margin:8px 0;
-  display:none;
-}
-
-.form-error.show{
-  display:block;
-}
-
-.quick-actions{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin-top:15px;
-}
-
-.quick-action{
-  text-align:left;
-  background:#f8fafc;
-  border:1px solid var(--line);
-  padding:15px;
-  border-radius:14px;
-}
-
-.quick-action strong{
-  display:block;
-  margin-bottom:3px;
-}
-
-.quick-action span{
-  color:var(--muted);
-  font-size:12px;
+@keyframes postPulse{
+  0%,100%{opacity:.25}
+  50%{opacity:1}
 }
 
 @media(max-width:800px){
-  .grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .quick-actions{
-    grid-template-columns:1fr;
-  }
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .quick-actions{grid-template-columns:1fr}
+  .post-grid{grid-template-columns:1fr}
 }
-
 @media(max-width:600px){
-  header{
-    padding:16px;
-  }
-
-  main{
-    padding:17px 11px 40px;
-  }
-
-  .card{
-    padding:16px;
-    border-radius:16px;
-  }
-
-  .page-heading h2{
-    font-size:22px;
-  }
-
-  .grid{
-    grid-template-columns:repeat(2,1fr);
-    gap:9px;
-  }
-
-  .stat-card{
-    padding:14px;
-  }
-
-  .stat{
-    font-size:25px;
-  }
-
-  .row{
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  .row>*{
-    width:100%;
-  }
-
-  .hour-row{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .hour-row b{
-    grid-column:1/-1;
-  }
-
-  .slot{
-    grid-template-columns:55px 1fr;
-  }
-
-  .appointment-actions button{
-    flex:1 1 45%;
-  }
-
-  .header-subtitle{
-    display:none;
-  }
-
-  nav{
-    justify-content:flex-start;
-  }
+  header{padding:16px}
+  main{padding:17px 11px 40px}
+  .card{padding:16px;border-radius:16px}
+  .page-heading h2{font-size:22px}
+  .grid{grid-template-columns:repeat(2,1fr);gap:9px}
+  .stat-card{padding:14px}
+  .stat{font-size:25px}
+  .row{flex-direction:column;align-items:stretch}
+  .row>*{width:100%}
+  .hour-row{grid-template-columns:1fr 1fr}
+  .hour-row b{grid-column:1/-1}
+  .slot{grid-template-columns:55px 1fr}
+  .appointment-actions button{flex:1 1 45%}
+  .header-subtitle{display:none}
+  nav{justify-content:flex-start}
+  .post-platforms{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
@@ -797,7 +343,6 @@ button{
 <main>
 
 <section id="home" class="page active">
-
   <div class="page-heading">
     <div>
       <h2>Dashboard</h2>
@@ -814,12 +359,10 @@ button{
         <strong>Calendario</strong>
         <span>Gestisci gli appuntamenti</span>
       </button>
-
       <button class="quick-action" onclick="showPage('clients')">
         <strong>Clienti</strong>
         <span>Apri le schede cliente</span>
       </button>
-
       <button class="quick-action" onclick="showPage('ai')">
         <strong>Assistente AI</strong>
         <span>Parla con il tuo assistente</span>
@@ -828,31 +371,26 @@ button{
   </div>
 
   <div class="grid">
-
     <div class="stat-card">
       <div class="stat-icon">S</div>
       <div class="stat" id="dashboardServices">0</div>
       <div class="stat-label">Servizi</div>
     </div>
-
     <div class="stat-card">
       <div class="stat-icon">P</div>
       <div class="stat" id="dashboardPromotions">0</div>
       <div class="stat-label">Promozioni</div>
     </div>
-
     <div class="stat-card">
       <div class="stat-icon">A</div>
       <div class="stat" id="dashboardAppointments">0</div>
       <div class="stat-label">Appuntamenti attivi</div>
     </div>
-
     <div class="stat-card">
       <div class="stat-icon">C</div>
       <div class="stat" id="dashboardClients">0</div>
       <div class="stat-label">Clienti</div>
     </div>
-
   </div>
 
   <div class="card">
@@ -872,12 +410,10 @@ button{
       Archivio dati protetto con doppio salvataggio.
     </div>
   </div>
-
 </section>
 
 
 <section id="ai" class="page">
-
   <div class="page-heading">
     <div>
       <h2>Assistente AI</h2>
@@ -886,34 +422,24 @@ button{
   </div>
 
   <div class="card">
-
     <div id="pendingBox"></div>
 
     <div id="chat" class="chat">
-      <div class="msg bot">
-        Ciao! Come posso aiutarti?
-      </div>
+      <div class="msg bot">Ciao! Come posso aiutarti?</div>
     </div>
 
     <p id="status" class="muted"></p>
 
     <div class="row">
       <input id="clientName" placeholder="Nome cliente">
-      <input
-        id="q"
-        placeholder="Scrivi una domanda..."
-        onkeydown="if(event.key==='Enter')send()"
-      >
+      <input id="q" placeholder="Scrivi una domanda..." onkeydown="if(event.key==='Enter')send()">
       <button id="sendButton" class="primary" onclick="send()">Invia</button>
     </div>
-
   </div>
-
 </section>
 
 
 <section id="app" class="page">
-
   <div class="page-heading">
     <div>
       <h2>Calendario</h2>
@@ -922,39 +448,22 @@ button{
   </div>
 
   <div class="card">
-
     <div class="calendar-header">
       <button class="secondary" onclick="changeDay(-1)">‹</button>
-
-      <input
-        id="calendarDate"
-        type="date"
-        onchange="renderCalendar();renderDayAppointments()"
-      >
-
+      <input id="calendarDate" type="date" onchange="renderCalendar();renderDayAppointments()">
       <button class="secondary" onclick="changeDay(1)">›</button>
     </div>
 
     <div id="calendarTitle" class="day-summary"></div>
-
     <div id="calendar" class="calendar-grid"></div>
-
   </div>
 
-
   <div class="card">
-
-    <div class="section-title">
-      <h3>Appuntamenti del giorno</h3>
-    </div>
-
+    <div class="section-title"><h3>Appuntamenti del giorno</h3></div>
     <div id="dayAppointments"></div>
-
   </div>
 
-
   <div class="card">
-
     <div class="section-title">
       <div>
         <h3>Ricerca appuntamenti</h3>
@@ -963,20 +472,12 @@ button{
     </div>
 
     <div class="search-box">
-      <input
-        id="appointmentSearch"
-        placeholder="Cerca per nome cliente..."
-        oninput="renderAppointments()"
-      >
+      <input id="appointmentSearch" placeholder="Cerca per nome cliente..." oninput="renderAppointments()">
     </div>
-
     <div id="searchResults"></div>
-
   </div>
 
-
   <div class="card">
-
     <div class="section-title">
       <div>
         <h3>Nuovo appuntamento</h3>
@@ -992,34 +493,18 @@ button{
       <option value="">Seleziona servizio</option>
     </select>
 
-    <button
-      class="primary"
-      id="manualSaveButton"
-      onclick="addAppointment()"
-    >
-      Salva appuntamento
-    </button>
-
+    <button class="primary" id="manualSaveButton" onclick="addAppointment()">Salva appuntamento</button>
     <p id="appointmentStatus" class="muted"></p>
-
   </div>
-
 
   <div class="card">
-
-    <div class="section-title">
-      <h3>Appuntamenti salvati</h3>
-    </div>
-
+    <div class="section-title"><h3>Appuntamenti salvati</h3></div>
     <div id="list"></div>
-
   </div>
-
 </section>
 
 
 <section id="clients" class="page">
-
   <div class="page-heading">
     <div>
       <h2>Clienti</h2>
@@ -1027,9 +512,7 @@ button{
     </div>
   </div>
 
-
   <div class="card">
-
     <div class="section-title">
       <div>
         <h3>Archivio clienti</h3>
@@ -1037,13 +520,226 @@ button{
       </div>
     </div>
 
+    <input id="clientSearch" placeholder="Cerca cliente..." oninput="renderClients()">
+    <div id="clientsList"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <div>
+        <h3>Nuovo cliente</h3>
+        <div class="muted">Crea una nuova scheda cliente.</div>
+      </div>
+    </div>
+
+    <input id="newClientName" placeholder="Nome e cognome">
+    <input id="newClientPhone" type="tel" placeholder="Telefono">
+    <input id="newClientEmail" type="email" placeholder="Email">
+    <textarea id="newClientNotes" rows="4" placeholder="Note cliente"></textarea>
+
+    <button class="primary" onclick="saveClient()">Salva cliente</button>
+    <p id="clientStatus" class="muted"></p>
+  </div>
+</section>
+
+
+<!-- POST AI -->
+<section id="post" class="page">
+
+  <div class="page-heading">
+    <div>
+      <h2>Post AI</h2>
+      <p>Crea contenuti personalizzati per i canali della tua attività.</p>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <div class="post-tip">
+      L'AI utilizza automaticamente i dati della tua attività, dei servizi e delle promozioni già presenti nell'app.
+    </div>
+
+    <div class="post-mode">
+      <button id="postModeQuick" class="active" onclick="setPostMode('quick')">
+        Modalità Rapida
+      </button>
+      <button id="postModeAdvanced" onclick="setPostMode('advanced')">
+        Modalità Avanzata
+      </button>
+    </div>
+
+    <div class="post-grid">
+
+      <div>
+        <label>Cosa vuoi promuovere?</label>
+
+        <select id="postContentType" onchange="updatePostContentOptions()">
+          <option value="servizio">Servizio</option>
+          <option value="promozione">Promozione</option>
+          <option value="novita">Novità</option>
+          <option value="evento">Evento</option>
+          <option value="informazione">Informazione utile</option>
+          <option value="generico">Post generico</option>
+        </select>
+
+        <div id="postContentSelection"></div>
+      </div>
+
+      <div>
+        <label>Dove vuoi pubblicarlo?</label>
+
+        <div class="post-platforms">
+
+          <button class="post-platform active" data-platform="instagram" onclick="selectPostPlatform('instagram')">
+            Instagram
+            <small>Post social</small>
+          </button>
+
+          <button class="post-platform" data-platform="facebook" onclick="selectPostPlatform('facebook')">
+            Facebook
+            <small>Post social</small>
+          </button>
+
+          <button class="post-platform" data-platform="whatsapp" onclick="selectPostPlatform('whatsapp')">
+            WhatsApp
+            <small>Messaggio</small>
+          </button>
+
+          <button class="post-platform" data-platform="google" onclick="selectPostPlatform('google')">
+            Google
+            <small>Profilo attività</small>
+          </button>
+
+          <button class="post-platform" data-platform="tiktok" onclick="selectPostPlatform('tiktok')">
+            TikTok
+            <small>Video + caption</small>
+          </button>
+
+          <button class="post-platform" data-platform="generic" onclick="selectPostPlatform('generic')">
+            Generico
+            <small>Multiuso</small>
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="post-grid">
+
+      <div>
+        <label>Stile</label>
+        <select id="postStyle">
+          <option value="professionale">Professionale</option>
+          <option value="elegante">Elegante</option>
+          <option value="amichevole">Amichevole</option>
+          <option value="diretto">Diretto</option>
+          <option value="promozionale">Promozionale</option>
+          <option value="coinvolgente">Coinvolgente</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Obiettivo</label>
+        <select id="postGoal">
+          <option value="promuovere">Promuovere un servizio</option>
+          <option value="clienti">Portare nuovi clienti</option>
+          <option value="novita">Far conoscere una novità</option>
+          <option value="appuntamenti">Riempire gli appuntamenti</option>
+          <option value="fidelizzazione">Fidelizzare i clienti</option>
+          <option value="interazioni">Aumentare le interazioni</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div id="postAdvancedFields" style="display:none">
+
+      <div class="post-grid">
+
+        <div>
+          <label>Pubblico</label>
+          <input id="postAudience" placeholder="Es. donne 25-45 anni della zona">
+        </div>
+
+        <div>
+          <label>Call to action</label>
+          <input id="postCTA" placeholder="Es. Prenota il tuo appuntamento">
+        </div>
+
+      </div>
+
+      <label>Messaggio o indicazione personalizzata</label>
+      <textarea
+        id="postCustomMessage"
+        rows="3"
+        placeholder="Aggiungi qualcosa che vuoi comunicare nel post..."
+      ></textarea>
+
+    </div>
+
+    <label>Argomento aggiuntivo</label>
     <input
-      id="clientSearch"
-      placeholder="Cerca cliente..."
-      oninput="renderClients()"
+      id="postTopic"
+      placeholder="Es. voglio mettere in evidenza il risultato del trattamento"
     >
 
-    <div id="clientsList"></div>
+    <button
+      id="generatePostButton"
+      class="primary"
+      onclick="generatePost()"
+      style="width:100%;margin-top:5px"
+    >
+      ✨ Genera post con AI
+    </button>
+
+    <p id="postStatus" class="muted"></p>
+
+  </div>
+
+
+  <div class="card" id="postResultCard" style="display:none">
+
+    <div class="section-title">
+      <div>
+        <h3>Post generato</h3>
+        <div id="postResultMeta" class="muted"></div>
+      </div>
+    </div>
+
+    <div class="post-result">
+
+      <textarea
+        id="out"
+        rows="14"
+        placeholder="Il contenuto generato apparirà qui..."
+      ></textarea>
+
+      <div class="post-actions">
+
+        <button class="primary" onclick="copyPost()">
+          📋 Copia
+        </button>
+
+        <button class="secondary" onclick="editPost()">
+          ✏️ Modifica
+        </button>
+
+        <button class="secondary" onclick="regeneratePost()">
+          🔄 Rigenera
+        </button>
+
+        <button class="success" onclick="saveGeneratedPost()">
+          💾 Salva
+        </button>
+
+        <button class="warning" onclick="generateAnotherPost()">
+          ✨ Genera un altro
+        </button>
+
+      </div>
+
+    </div>
 
   </div>
 
@@ -1052,74 +748,12 @@ button{
 
     <div class="section-title">
       <div>
-        <h3>Nuovo cliente</h3>
-        <div class="muted">Crea una nuova scheda cliente.</div>
+        <h3>Post salvati</h3>
+        <div class="muted">I contenuti che hai deciso di conservare.</div>
       </div>
     </div>
 
-    <input
-      id="newClientName"
-      placeholder="Nome e cognome"
-    >
-
-    <input
-      id="newClientPhone"
-      type="tel"
-      placeholder="Telefono"
-    >
-
-    <input
-      id="newClientEmail"
-      type="email"
-      placeholder="Email"
-    >
-
-    <textarea
-      id="newClientNotes"
-      rows="4"
-      placeholder="Note cliente"
-    ></textarea>
-
-    <button class="primary" onclick="saveClient()">
-      Salva cliente
-    </button>
-
-    <p id="clientStatus" class="muted"></p>
-
-  </div>
-
-</section>
-
-
-<section id="post" class="page">
-
-  <div class="page-heading">
-    <div>
-      <h2>Post AI</h2>
-      <p>Crea contenuti promozionali per la tua attività.</p>
-    </div>
-  </div>
-
-  <div class="card">
-
-    <label>Argomento del post</label>
-
-    <input
-      id="topic"
-      placeholder="Es. promozione taglio uomo"
-    >
-
-    <button class="primary" onclick="generatePost()">
-      Genera post con AI
-    </button>
-
-    <textarea
-      id="out"
-      rows="13"
-      placeholder="Il post generato apparirà qui..."
-    ></textarea>
-
-    <p id="postStatus" class="muted"></p>
+    <div id="postHistory"></div>
 
   </div>
 
@@ -1134,7 +768,6 @@ button{
       <p>Configura l'attività, i servizi e le promozioni.</p>
     </div>
   </div>
-
 
   <div class="card">
 
@@ -1152,11 +785,7 @@ button{
     <input id="settingsType" placeholder="Es. Parrucchiere, estetista, barbiere">
 
     <label>Descrizione</label>
-    <textarea
-      id="settingsDescription"
-      rows="3"
-      placeholder="Descrizione dell'attività"
-    ></textarea>
+    <textarea id="settingsDescription" rows="3" placeholder="Descrizione dell'attività"></textarea>
 
     <label>Indirizzo</label>
     <input id="settingsAddress" placeholder="Indirizzo">
@@ -1173,10 +802,7 @@ button{
 
     <div id="hours"></div>
 
-    <button class="primary" onclick="saveSettings()">
-      Salva impostazioni
-    </button>
-
+    <button class="primary" onclick="saveSettings()">Salva impostazioni</button>
     <p id="settingsStatus" class="muted"></p>
 
   </div>
@@ -1193,31 +819,13 @@ button{
 
     <input id="serviceName" placeholder="Nome servizio">
 
-    <input
-      id="serviceDuration"
-      type="number"
-      min="5"
-      step="5"
-      placeholder="Durata in minuti"
-    >
+    <input id="serviceDuration" type="number" min="5" step="5" placeholder="Durata in minuti">
 
-    <input
-      id="servicePrice"
-      type="number"
-      min="0"
-      step="0.01"
-      placeholder="Prezzo"
-    >
+    <input id="servicePrice" type="number" min="0" step="0.01" placeholder="Prezzo">
 
-    <textarea
-      id="serviceDescription"
-      rows="3"
-      placeholder="Descrizione servizio"
-    ></textarea>
+    <textarea id="serviceDescription" rows="3" placeholder="Descrizione servizio"></textarea>
 
-    <button class="primary" onclick="saveService()">
-      Salva servizio
-    </button>
+    <button class="primary" onclick="saveService()">Salva servizio</button>
 
     <div id="services"></div>
 
@@ -1233,16 +841,9 @@ button{
       </div>
     </div>
 
-    <input
-      id="promotionTitle"
-      placeholder="Titolo promozione"
-    >
+    <input id="promotionTitle" placeholder="Titolo promozione">
 
-    <textarea
-      id="promotionDescription"
-      rows="3"
-      placeholder="Descrizione promozione"
-    ></textarea>
+    <textarea id="promotionDescription" rows="3" placeholder="Descrizione promozione"></textarea>
 
     <label>Data inizio</label>
     <input id="promotionStart" type="date">
@@ -1250,9 +851,7 @@ button{
     <label>Data fine</label>
     <input id="promotionEnd" type="date">
 
-    <button class="primary" onclick="savePromotion()">
-      Salva promozione
-    </button>
+    <button class="primary" onclick="savePromotion()">Salva promozione</button>
 
     <div id="promotions"></div>
 
@@ -1270,12 +869,7 @@ button{
     <div class="modal-header">
       <h3>Modifica appuntamento</h3>
 
-      <button
-        class="close-button"
-        onclick="closeAppointmentModal()"
-      >
-        ✕
-      </button>
+      <button class="close-button" onclick="closeAppointmentModal()">✕</button>
     </div>
 
     <input type="hidden" id="editAppointmentId">
@@ -1304,13 +898,8 @@ button{
     <div id="editAppointmentError" class="form-error"></div>
 
     <div class="row">
-      <button class="secondary" onclick="closeAppointmentModal()">
-        Annulla
-      </button>
-
-      <button class="primary" onclick="saveEditedAppointment()">
-        Salva modifiche
-      </button>
+      <button class="secondary" onclick="closeAppointmentModal()">Annulla</button>
+      <button class="primary" onclick="saveEditedAppointment()">Salva modifiche</button>
     </div>
 
   </div>
@@ -1326,13 +915,14 @@ const STORAGE_VERSION=3;
 
 let appData=null;
 let chatHistory=[];
-let pendingAppointment=readJSON(
-  localStorage.getItem("pendingAppointment"),
-  null
-);
-let requiresConfirmation=
-  localStorage.getItem("requiresConfirmation")==="true";
+let pendingAppointment=readJSON(localStorage.getItem("pendingAppointment"),null);
+let requiresConfirmation=localStorage.getItem("requiresConfirmation")==="true";
 let requestInProgress=false;
+
+/* POST AI */
+let postMode="quick";
+let postPlatform="instagram";
+let lastPostConfig=null;
 
 
 const $=id=>document.getElementById(id);
@@ -1340,9 +930,7 @@ const $=id=>document.getElementById(id);
 
 function readJSON(value,fallback){
   try{
-    if(value===undefined||value===null||value===""){
-      return fallback;
-    }
+    if(value===undefined||value===null||value==="")return fallback;
     return JSON.parse(value);
   }catch{
     return fallback;
@@ -1355,11 +943,7 @@ function createEmptyAppData(){
     version:STORAGE_VERSION,
     revision:0,
     updatedAt:null,
-
-    business:{
-      name:"Salone Bella Linea"
-    },
-
+    business:{name:"Salone Bella Linea"},
     settings:{
       name:"Salone Bella Linea",
       type:"Parrucchiere",
@@ -1369,32 +953,28 @@ function createEmptyAppData(){
       whatsapp:"",
       hours:{}
     },
-
     services:[],
     promotions:[],
     appointments:[],
-    clients:[]
+    clients:[],
+    postHistory:[]
   };
 }
 
 
 function isValidAppData(data){
-
   if(
-    !data ||
-    typeof data!=="object" ||
-    typeof data.business!=="object" ||
-    typeof data.settings!=="object" ||
-    !Array.isArray(data.services) ||
-    !Array.isArray(data.promotions) ||
+    !data||
+    typeof data!=="object"||
+    typeof data.business!=="object"||
+    typeof data.settings!=="object"||
+    !Array.isArray(data.services)||
+    !Array.isArray(data.promotions)||
     !Array.isArray(data.appointments)
-  ){
-    return false;
-  }
+  )return false;
 
-  if(!Array.isArray(data.clients)){
-    data.clients=[];
-  }
+  if(!Array.isArray(data.clients))data.clients=[];
+  if(!Array.isArray(data.postHistory))data.postHistory=[];
 
   return true;
 }
@@ -1404,52 +984,26 @@ function migrateLegacyData(){
 
   const data=createEmptyAppData();
 
-  const oldSettings=
-    readJSON(localStorage.getItem("settings"),{});
+  const oldSettings=readJSON(localStorage.getItem("settings"),{});
+  const oldServices=readJSON(localStorage.getItem("services"),[]);
+  const oldPromotions=readJSON(localStorage.getItem("promotions"),[]);
+  const oldAppointments=readJSON(localStorage.getItem("a"),[]);
+  const oldBackupAppointments=readJSON(localStorage.getItem("a_backup"),[]);
+  const oldBusiness=localStorage.getItem("biz");
 
-  const oldServices=
-    readJSON(localStorage.getItem("services"),[]);
-
-  const oldPromotions=
-    readJSON(localStorage.getItem("promotions"),[]);
-
-  const oldAppointments=
-    readJSON(localStorage.getItem("a"),[]);
-
-  const oldBackupAppointments=
-    readJSON(localStorage.getItem("a_backup"),[]);
-
-  const oldBusiness=
-    localStorage.getItem("biz");
-
-
-  if(oldSettings && typeof oldSettings==="object"){
-    data.settings={
-      ...data.settings,
-      ...oldSettings
-    };
+  if(oldSettings&&typeof oldSettings==="object"){
+    data.settings={...data.settings,...oldSettings};
   }
 
   if(oldBusiness){
     data.business.name=oldBusiness;
-
-    if(!data.settings.name){
-      data.settings.name=oldBusiness;
-    }
+    if(!data.settings.name)data.settings.name=oldBusiness;
   }
 
-  if(Array.isArray(oldServices)){
-    data.services=oldServices;
-  }
+  if(Array.isArray(oldServices))data.services=oldServices;
+  if(Array.isArray(oldPromotions))data.promotions=oldPromotions;
 
-  if(Array.isArray(oldPromotions)){
-    data.promotions=oldPromotions;
-  }
-
-  if(
-    Array.isArray(oldAppointments) &&
-    oldAppointments.length
-  ){
+  if(Array.isArray(oldAppointments)&&oldAppointments.length){
     data.appointments=oldAppointments;
   }else if(Array.isArray(oldBackupAppointments)){
     data.appointments=oldBackupAppointments;
@@ -1464,72 +1018,25 @@ function normalizeAppointment(appointment,index){
   const now=new Date().toISOString();
 
   return{
-    id:
-      appointment?.id ||
-      "apt_migrated_"+Date.now()+"_"+index,
-
-    n:String(
-      appointment?.n ||
-      appointment?.name ||
-      ""
-    ).trim(),
-
-    d:
-      appointment?.d ||
-      appointment?.date ||
-      "",
-
-    t:
-      appointment?.t ||
-      appointment?.time ||
-      "",
-
-    s:
-      appointment?.s ||
-      appointment?.service ||
-      "",
-
-    clientId:
-      appointment?.clientId ||
-      "",
-
-    status:
-      normalizeAppointmentStatus(
-        appointment?.status
-      ),
-
-    createdAt:
-      appointment?.createdAt ||
-      now,
-
-    updatedAt:
-      appointment?.updatedAt ||
-      now
+    id:appointment?.id||"apt_migrated_"+Date.now()+"_"+index,
+    n:String(appointment?.n||appointment?.name||"").trim(),
+    d:appointment?.d||appointment?.date||"",
+    t:appointment?.t||appointment?.time||"",
+    s:appointment?.s||appointment?.service||"",
+    clientId:appointment?.clientId||"",
+    status:normalizeAppointmentStatus(appointment?.status),
+    createdAt:appointment?.createdAt||now,
+    updatedAt:appointment?.updatedAt||now
   };
 }
 
 
 function normalizeAppointmentStatus(status){
 
-  const value=
-    String(status||"")
-      .trim()
-      .toLowerCase();
+  const value=String(status||"").trim().toLowerCase();
 
-  if(
-    value==="cancellato" ||
-    value==="cancelled" ||
-    value==="canceled"
-  ){
-    return"cancellato";
-  }
-
-  if(
-    value==="completato" ||
-    value==="completed"
-  ){
-    return"completato";
-  }
+  if(value==="cancellato"||value==="cancelled"||value==="canceled")return"cancellato";
+  if(value==="completato"||value==="completed")return"completato";
 
   return"confermato";
 }
@@ -1540,39 +1047,13 @@ function normalizeClient(client,index){
   const now=new Date().toISOString();
 
   return{
-    id:String(
-      client?.id ||
-      "cli_migrated_"+Date.now()+"_"+index
-    ),
-
-    name:String(
-      client?.name ||
-      client?.n ||
-      ""
-    ).trim(),
-
-    phone:String(
-      client?.phone ||
-      ""
-    ).trim(),
-
-    email:String(
-      client?.email ||
-      ""
-    ).trim(),
-
-    notes:String(
-      client?.notes ||
-      ""
-    ).trim(),
-
-    createdAt:
-      client?.createdAt ||
-      now,
-
-    updatedAt:
-      client?.updatedAt ||
-      now
+    id:String(client?.id||"cli_migrated_"+Date.now()+"_"+index),
+    name:String(client?.name||client?.n||"").trim(),
+    phone:String(client?.phone||"").trim(),
+    email:String(client?.email||"").trim(),
+    notes:String(client?.notes||"").trim(),
+    createdAt:client?.createdAt||now,
+    updatedAt:client?.updatedAt||now
   };
 }
 
@@ -1584,67 +1065,34 @@ function normalizeAppData(data){
   const normalized={
     ...base,
     ...data,
-
-    business:{
-      ...base.business,
-      ...(data.business||{})
-    },
-
+    business:{...base.business,...(data.business||{})},
     settings:{
       ...base.settings,
       ...(data.settings||{}),
-
-      hours:{
-        ...(data.settings?.hours||{})
-      }
+      hours:{...(data.settings?.hours||{})}
     },
-
-    services:
-      Array.isArray(data.services)
-        ? data.services
-        : [],
-
-    promotions:
-      Array.isArray(data.promotions)
-        ? data.promotions
-        : [],
-
-    appointments:
-      Array.isArray(data.appointments)
-        ? data.appointments.map(normalizeAppointment)
-        : [],
-
-    clients:
-      Array.isArray(data.clients)
-        ? data.clients.map(normalizeClient)
-        : []
+    services:Array.isArray(data.services)?data.services:[],
+    promotions:Array.isArray(data.promotions)?data.promotions:[],
+    appointments:Array.isArray(data.appointments)
+      ?data.appointments.map(normalizeAppointment):[],
+    clients:Array.isArray(data.clients)
+      ?data.clients.map(normalizeClient):[],
+    postHistory:Array.isArray(data.postHistory)?data.postHistory:[]
   };
 
-
-  const clientMap=
-    new Map(
-      normalized.clients.map(
-        c=>[c.name.toLowerCase(),c]
-      )
-    );
-
+  const clientMap=new Map(
+    normalized.clients.map(c=>[c.name.toLowerCase(),c])
+  );
 
   normalized.appointments.forEach(a=>{
 
-    if(!a.clientId && a.n){
+    if(!a.clientId&&a.n){
 
-      const key=
-        a.n.trim().toLowerCase();
-
+      const key=a.n.trim().toLowerCase();
       let c=clientMap.get(key);
 
       if(!c){
-
-        c=normalizeClient(
-          {name:a.n},
-          normalized.clients.length
-        );
-
+        c=normalizeClient({name:a.n},normalized.clients.length);
         normalized.clients.push(c);
         clientMap.set(key,c);
       }
@@ -1654,24 +1102,13 @@ function normalizeAppData(data){
 
   });
 
-
-  if(
-    !normalized.settings.name &&
-    normalized.business.name
-  ){
-    normalized.settings.name=
-      normalized.business.name;
+  if(!normalized.settings.name&&normalized.business.name){
+    normalized.settings.name=normalized.business.name;
   }
 
-
-  if(
-    !normalized.business.name &&
-    normalized.settings.name
-  ){
-    normalized.business.name=
-      normalized.settings.name;
+  if(!normalized.business.name&&normalized.settings.name){
+    normalized.business.name=normalized.settings.name;
   }
-
 
   normalized.version=STORAGE_VERSION;
 
@@ -1681,47 +1118,25 @@ function normalizeAppData(data){
 
 function loadAppData(){
 
-  const primary=
-    readJSON(
-      localStorage.getItem(STORAGE_PRIMARY),
-      null
-    );
-
-  const backup=
-    readJSON(
-      localStorage.getItem(STORAGE_BACKUP),
-      null
-    );
-
+  const primary=readJSON(localStorage.getItem(STORAGE_PRIMARY),null);
+  const backup=readJSON(localStorage.getItem(STORAGE_BACKUP),null);
 
   if(isValidAppData(primary)){
-
     appData=normalizeAppData(primary);
-
     return appData;
   }
 
-
   if(isValidAppData(backup)){
-
     appData=normalizeAppData(backup);
 
     try{
-      localStorage.setItem(
-        STORAGE_PRIMARY,
-        JSON.stringify(appData)
-      );
+      localStorage.setItem(STORAGE_PRIMARY,JSON.stringify(appData));
     }catch{}
 
     return appData;
   }
 
-
-  appData=
-    normalizeAppData(
-      migrateLegacyData()
-    );
-
+  appData=normalizeAppData(migrateLegacyData());
   saveAppDataSafely(appData);
 
   return appData;
@@ -1730,31 +1145,16 @@ function loadAppData(){
 
 function saveAppDataSafely(data){
 
-  const normalized=
-    normalizeAppData(data);
+  const normalized=normalizeAppData(data);
 
   normalized.version=STORAGE_VERSION;
+  normalized.revision=Number(normalized.revision||0)+1;
+  normalized.updatedAt=new Date().toISOString();
 
-  normalized.revision=
-    Number(normalized.revision||0)+1;
+  const value=JSON.stringify(normalized);
 
-  normalized.updatedAt=
-    new Date().toISOString();
-
-  const value=
-    JSON.stringify(normalized);
-
-
-  localStorage.setItem(
-    STORAGE_BACKUP,
-    value
-  );
-
-  localStorage.setItem(
-    STORAGE_PRIMARY,
-    value
-  );
-
+  localStorage.setItem(STORAGE_BACKUP,value);
+  localStorage.setItem(STORAGE_PRIMARY,value);
 
   appData=normalized;
 
@@ -1764,9 +1164,7 @@ function saveAppDataSafely(data){
 
 function getAppData(){
 
-  if(!isValidAppData(appData)){
-    appData=loadAppData();
-  }
+  if(!isValidAppData(appData))appData=loadAppData();
 
   return appData;
 }
@@ -1784,29 +1182,11 @@ function updateAppData(mutator){
 }
 
 
-function getServices(){
-  return getAppData().services;
-}
-
-
-function getPromotions(){
-  return getAppData().promotions;
-}
-
-
-function getAppointments(){
-  return getAppData().appointments;
-}
-
-
-function getSettings(){
-  return getAppData().settings;
-}
-
-
-function getClients(){
-  return getAppData().clients;
-}
+function getServices(){return getAppData().services}
+function getPromotions(){return getAppData().promotions}
+function getAppointments(){return getAppData().appointments}
+function getSettings(){return getAppData().settings}
+function getClients(){return getAppData().clients}
 
 
 function upsertClient(name,extra={}){
@@ -1819,34 +1199,20 @@ function upsertClient(name,extra={}){
 
   updateAppData(data=>{
 
-    let c=
-      data.clients.find(
-        x=>
-          x.name.trim().toLowerCase()===
-          name.toLowerCase()
-      );
+    let c=data.clients.find(
+      x=>x.name.trim().toLowerCase()===name.toLowerCase()
+    );
 
-    const now=
-      new Date().toISOString();
-
+    const now=new Date().toISOString();
 
     if(!c){
 
       c={
-        id:
-          "cli_"+
-          Date.now()+
-          "_"+
-          Math.random()
-            .toString(36)
-            .slice(2,7),
-
+        id:"cli_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
         name,
-
         phone:"",
         email:"",
         notes:"",
-
         createdAt:now,
         updatedAt:now
       };
@@ -1854,18 +1220,11 @@ function upsertClient(name,extra={}){
       data.clients.push(c);
     }
 
-
     for(const k of Object.keys(extra)){
-
-      if(extra[k]!==undefined){
-        c[k]=String(extra[k]||"").trim();
-      }
-
+      if(extra[k]!==undefined)c[k]=String(extra[k]||"").trim();
     }
 
-
     c.updatedAt=now;
-
     result=c;
   });
 
@@ -1881,35 +1240,14 @@ function syncLegacyKeys(){
 
     localStorage.setItem(
       "biz",
-      data.business.name ||
-      data.settings.name ||
-      "Attività locale"
+      data.business.name||data.settings.name||"Attività locale"
     );
 
-    localStorage.setItem(
-      "settings",
-      JSON.stringify(data.settings)
-    );
-
-    localStorage.setItem(
-      "services",
-      JSON.stringify(data.services)
-    );
-
-    localStorage.setItem(
-      "promotions",
-      JSON.stringify(data.promotions)
-    );
-
-    localStorage.setItem(
-      "a",
-      JSON.stringify(data.appointments)
-    );
-
-    localStorage.setItem(
-      "a_backup",
-      JSON.stringify(data.appointments)
-    );
+    localStorage.setItem("settings",JSON.stringify(data.settings));
+    localStorage.setItem("services",JSON.stringify(data.services));
+    localStorage.setItem("promotions",JSON.stringify(data.promotions));
+    localStorage.setItem("a",JSON.stringify(data.appointments));
+    localStorage.setItem("a_backup",JSON.stringify(data.appointments));
 
   }catch{}
 }
@@ -1919,12 +1257,7 @@ function updateStorageStatus(){
 
   const element=$("storageStatus");
 
-  if(
-    !element ||
-    !isValidAppData(appData)
-  ){
-    return;
-  }
+  if(!element||!isValidAppData(appData))return;
 
   element.innerHTML=
     "Archivio dati protetto con doppio salvataggio. Revisione "+
@@ -1935,34 +1268,15 @@ function updateStorageStatus(){
 function savePendingState(){
 
   if(pendingAppointment){
-
-    localStorage.setItem(
-      "pendingAppointment",
-      JSON.stringify(pendingAppointment)
-    );
-
+    localStorage.setItem("pendingAppointment",JSON.stringify(pendingAppointment));
   }else{
-
-    localStorage.removeItem(
-      "pendingAppointment"
-    );
-
+    localStorage.removeItem("pendingAppointment");
   }
 
-
   if(requiresConfirmation){
-
-    localStorage.setItem(
-      "requiresConfirmation",
-      "true"
-    );
-
+    localStorage.setItem("requiresConfirmation","true");
   }else{
-
-    localStorage.removeItem(
-      "requiresConfirmation"
-    );
-
+    localStorage.removeItem("requiresConfirmation");
   }
 }
 
@@ -1972,115 +1286,62 @@ function clearPendingState(){
   pendingAppointment=null;
   requiresConfirmation=false;
 
-  localStorage.removeItem(
-    "pendingAppointment"
-  );
+  localStorage.removeItem("pendingAppointment");
+  localStorage.removeItem("requiresConfirmation");
 
-  localStorage.removeItem(
-    "requiresConfirmation"
-  );
+  const actions=$("confirmationActions");
 
-  const actions=
-    $("confirmationActions");
-
-  if(actions){
-    actions.remove();
-  }
+  if(actions)actions.remove();
 
   renderPendingBox();
 }
 
 
 const dayConfig={
-  monday:{
-    prefix:"mon",
-    label:"Lunedì"
-  },
-  tuesday:{
-    prefix:"tue",
-    label:"Martedì"
-  },
-  wednesday:{
-    prefix:"wed",
-    label:"Mercoledì"
-  },
-  thursday:{
-    prefix:"thu",
-    label:"Giovedì"
-  },
-  friday:{
-    prefix:"fri",
-    label:"Venerdì"
-  },
-  saturday:{
-    prefix:"sat",
-    label:"Sabato"
-  },
-  sunday:{
-    prefix:"sun",
-    label:"Domenica"
-  }
+  monday:{prefix:"mon",label:"Lunedì"},
+  tuesday:{prefix:"tue",label:"Martedì"},
+  wednesday:{prefix:"wed",label:"Mercoledì"},
+  thursday:{prefix:"thu",label:"Giovedì"},
+  friday:{prefix:"fri",label:"Venerdì"},
+  saturday:{prefix:"sat",label:"Sabato"},
+  sunday:{prefix:"sun",label:"Domenica"}
 };
 
 
 function showPage(page){
 
-  document
-    .querySelectorAll(".page")
-    .forEach(
-      element=>
-        element.classList.remove("active")
-    );
-
+  document.querySelectorAll(".page")
+    .forEach(element=>element.classList.remove("active"));
 
   const target=$(page);
 
-  if(target){
-    target.classList.add("active");
-  }
+  if(target)target.classList.add("active");
 
-
-  document
-    .querySelectorAll("#mainNav button")
+  document.querySelectorAll("#mainNav button")
     .forEach(button=>{
-      button.classList.toggle(
-        "active",
-        button.dataset.page===page
-      );
+      button.classList.toggle("active",button.dataset.page===page);
     });
 
-
   if(page==="app"){
-
     renderCalendar();
     renderDayAppointments();
     renderAppointments();
-
   }
 
-
   if(page==="settings"){
-
     loadSettings();
     renderServices();
     renderPromotions();
-
   }
 
+  if(page==="ai")renderPendingBox();
 
-  if(page==="ai"){
+  if(page==="clients")renderClients();
 
-    renderPendingBox();
-
+  if(page==="post"){
+    updatePostContentOptions();
+    renderPostHistory();
   }
-
-
-  if(page==="clients"){
-
-    renderClients();
-
-  }
-
 
   updateDashboard();
 }
@@ -2089,73 +1350,53 @@ function showPage(page){
 function esc(value){
 
   return String(value??"")
-    .replace(
-      /[&<>"']/g,
-      char=>({
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#39;"
-      }[char])
-    );
+    .replace(/[&<>"']/g,char=>({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+    }[char]));
 }
 
 
 function updateDashboard(){
 
-  $("dashboardServices").textContent=
-    getServices().length;
-
-  $("dashboardPromotions").textContent=
-    getPromotions().length;
+  $("dashboardServices").textContent=getServices().length;
+  $("dashboardPromotions").textContent=getPromotions().length;
 
   $("dashboardAppointments").textContent=
-    getAppointments()
-      .filter(a=>a.status!=="cancellato")
-      .length;
+    getAppointments().filter(a=>a.status!=="cancellato").length;
 
-  $("dashboardClients").textContent=
-    getClients().length;
+  $("dashboardClients").textContent=getClients().length;
 
   const name=
-    getAppData().business.name ||
-    getSettings().name ||
+    getAppData().business.name||
+    getSettings().name||
     "La tua attività";
 
-  $("dashboardWelcome").textContent=
-    "Benvenuto in "+name;
-
+  $("dashboardWelcome").textContent="Benvenuto in "+name;
   $("biz").value=name;
 }
 
 
 function saveBusiness(){
 
-  const name=
-    $("biz").value.trim();
+  const name=$("biz").value.trim();
 
   if(!name){
-
-    $("storageStatus").textContent=
-      "Inserisci il nome dell'attività.";
-
+    $("storageStatus").textContent="Inserisci il nome dell'attività.";
     return;
   }
 
-
   updateAppData(data=>{
-
     data.business.name=name;
     data.settings.name=name;
-
   });
-
 
   syncLegacyKeys();
 
-  $("storageStatus").textContent=
-    "Attività salvata.";
+  $("storageStatus").textContent="Attività salvata.";
 }
 
 
@@ -2165,14 +1406,10 @@ function loadSettings(){
 
   $("settingsName").value=s.name||"";
   $("settingsType").value=s.type||"";
-  $("settingsDescription").value=
-    s.description||"";
-  $("settingsAddress").value=
-    s.address||"";
-  $("settingsPhone").value=
-    s.phone||"";
-  $("settingsWhatsapp").value=
-    s.whatsapp||"";
+  $("settingsDescription").value=s.description||"";
+  $("settingsAddress").value=s.address||"";
+  $("settingsPhone").value=s.phone||"";
+  $("settingsWhatsapp").value=s.whatsapp||"";
 
   setupBreakRows();
 }
@@ -2184,51 +1421,25 @@ function setupBreakRows(){
 
   if(!box)return;
 
+  box.innerHTML=Object.entries(dayConfig).map(([key,c])=>{
 
-  box.innerHTML=
-    Object.entries(dayConfig)
-      .map(([key,c])=>{
+    const h=getSettings().hours?.[key]||{};
 
-        const h=
-          getSettings().hours?.[key]||{};
+    return`
+      <div class="hour-row">
+        <b>${c.label}</b>
 
-        return`
-          <div class="hour-row">
-            <b>${c.label}</b>
+        <select id="${c.prefix}Open">
+          <option value="true"${h.closed!==true?" selected":""}>Aperto</option>
+          <option value="false"${h.closed===true?" selected":""}>Chiuso</option>
+        </select>
 
-            <select id="${c.prefix}Open">
-              <option value="true"${
-                h.closed!==true
-                  ?" selected"
-                  :""
-              }>
-                Aperto
-              </option>
+        <input id="${c.prefix}Start" type="time" value="${esc(h.start||"09:00")}">
+        <input id="${c.prefix}End" type="time" value="${esc(h.end||"19:00")}">
+      </div>
+    `;
 
-              <option value="false"${
-                h.closed===true
-                  ?" selected"
-                  :""
-              }>
-                Chiuso
-              </option>
-            </select>
-
-            <input
-              id="${c.prefix}Start"
-              type="time"
-              value="${esc(h.start||"09:00")}"
-            >
-
-            <input
-              id="${c.prefix}End"
-              type="time"
-              value="${esc(h.end||"19:00")}"
-            >
-          </div>
-        `;
-      })
-      .join("");
+  }).join("");
 }
 
 
@@ -2236,73 +1447,41 @@ function saveSettings(){
 
   const hours={};
 
+  Object.entries(dayConfig).forEach(([key,c])=>{
 
-  Object.entries(dayConfig)
-    .forEach(([key,c])=>{
+    hours[key]={
+      closed:$(c.prefix+"Open").value!=="true",
+      start:$(c.prefix+"Start").value,
+      end:$(c.prefix+"End").value
+    };
 
-      hours[key]={
-        closed:
-          $(c.prefix+"Open").value!=="true",
-
-        start:
-          $(c.prefix+"Start").value,
-
-        end:
-          $(c.prefix+"End").value
-      };
-
-    });
-
+  });
 
   updateAppData(data=>{
 
     data.settings.name=
-      $("settingsName").value.trim() ||
+      $("settingsName").value.trim()||
       data.business.name;
 
-    data.business.name=
-      data.settings.name;
+    data.business.name=data.settings.name;
 
-    data.settings.type=
-      $("settingsType").value.trim();
-
-    data.settings.description=
-      $("settingsDescription")
-        .value
-        .trim();
-
-    data.settings.address=
-      $("settingsAddress")
-        .value
-        .trim();
-
-    data.settings.phone=
-      $("settingsPhone")
-        .value
-        .trim();
-
-    data.settings.whatsapp=
-      $("settingsWhatsapp")
-        .value
-        .trim();
-
+    data.settings.type=$("settingsType").value.trim();
+    data.settings.description=$("settingsDescription").value.trim();
+    data.settings.address=$("settingsAddress").value.trim();
+    data.settings.phone=$("settingsPhone").value.trim();
+    data.settings.whatsapp=$("settingsWhatsapp").value.trim();
     data.settings.hours=hours;
 
   });
 
-
   syncLegacyKeys();
 
-  $("biz").value=
-    getAppData().business.name;
-
-  $("settingsStatus").textContent=
-    "Impostazioni salvate.";
+  $("biz").value=getAppData().business.name;
+  $("settingsStatus").textContent="Impostazioni salvate.";
 }
 
 
 function serviceDuration(service){
-
   return Number(service?.duration)||30;
 }
 
@@ -2310,9 +1489,8 @@ function serviceDuration(service){
 function getService(name){
 
   return getServices().find(
-    s=>
-      String(s.name||"").toLowerCase()===
-      String(name||"").toLowerCase()
+    s=>String(s.name||"").toLowerCase()===
+       String(name||"").toLowerCase()
   );
 }
 
@@ -2321,19 +1499,12 @@ function populateServiceSelects(){
 
   const html=
     '<option value="">Seleziona servizio</option>'+
-    getServices()
-      .map(
-        s=>
-          `<option value="${esc(s.name)}">
-            ${esc(s.name)}
-          </option>`
-      )
-      .join("");
+    getServices().map(
+      s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`
+    ).join("");
 
   $("s").innerHTML=html;
-
-  $("editAppointmentService").innerHTML=
-    html;
+  $("editAppointmentService").innerHTML=html;
 }
 
 
@@ -2347,87 +1518,56 @@ function renderServices(){
 
   const list=getServices();
 
+  box.innerHTML=list.length
+    ?list.map((s,i)=>`
 
-  box.innerHTML=
-    list.length
-      ? list.map((s,i)=>`
+      <div class="service-item">
 
-        <div class="service-item">
+        <b>${esc(s.name)}</b>
 
-          <b>${esc(s.name)}</b>
-
-          <div>
-            ${serviceDuration(s)} minuti
-            ${
-              s.price!=="" &&
-              s.price!==undefined
-                ?` · € ${esc(s.price)}`
-                :""
-            }
-          </div>
-
+        <div>
+          ${serviceDuration(s)} minuti
           ${
-            s.description
-              ?`
-                <div class="muted">
-                  ${esc(s.description)}
-                </div>
-              `
+            s.price!==""&&s.price!==undefined
+              ?` · € ${esc(s.price)}`
               :""
           }
+        </div>
 
-          <div class="service-actions">
+        ${
+          s.description
+            ?`<div class="muted">${esc(s.description)}</div>`
+            :""
+        }
 
-            <button
-              class="secondary small-button"
-              onclick="editService(${i})"
-            >
-              Modifica
-            </button>
+        <div class="service-actions">
 
-            <button
-              class="danger small-button"
-              onclick="deleteService(${i})"
-            >
-              Elimina
-            </button>
+          <button class="secondary small-button" onclick="editService(${i})">
+            Modifica
+          </button>
 
-          </div>
+          <button class="danger small-button" onclick="deleteService(${i})">
+            Elimina
+          </button>
 
         </div>
 
-      `).join("")
-      :`
-        <div class="empty-state">
-          Nessun servizio configurato.
-        </div>
-      `;
+      </div>
+
+    `).join("")
+    :`<div class="empty-state">Nessun servizio configurato.</div>`;
 }
 
 
 function saveService(){
 
-  const name=
-    $("serviceName")
-      .value
-      .trim();
+  const name=$("serviceName").value.trim();
 
   if(!name)return;
 
-
-  const duration=
-    Number(
-      $("serviceDuration").value
-    )||30;
-
-  const price=
-    $("servicePrice").value;
-
-  const description=
-    $("serviceDescription")
-      .value
-      .trim();
-
+  const duration=Number($("serviceDuration").value)||30;
+  const price=$("servicePrice").value;
+  const description=$("serviceDescription").value.trim();
 
   updateAppData(data=>
     data.services.push({
@@ -2439,16 +1579,8 @@ function saveService(){
     })
   );
 
-
-  [
-    "serviceName",
-    "serviceDuration",
-    "servicePrice",
-    "serviceDescription"
-  ].forEach(
-    id=>$(id).value=""
-  );
-
+  ["serviceName","serviceDuration","servicePrice","serviceDescription"]
+    .forEach(id=>$(id).value="");
 
   renderServices();
   renderAppointments();
@@ -2463,60 +1595,30 @@ function editService(i){
 
   if(!s)return;
 
-
-  const name=
-    prompt("Nome servizio",s.name);
-
+  const name=prompt("Nome servizio",s.name);
   if(name===null)return;
 
-
-  const duration=
-    prompt(
-      "Durata in minuti",
-      s.duration
-    );
-
+  const duration=prompt("Durata in minuti",s.duration);
   if(duration===null)return;
 
-
-  const price=
-    prompt(
-      "Prezzo",
-      s.price??""
-    );
-
+  const price=prompt("Prezzo",s.price??"");
   if(price===null)return;
 
-
-  const description=
-    prompt(
-      "Descrizione",
-      s.description||""
-    );
-
+  const description=prompt("Descrizione",s.description||"");
   if(description===null)return;
-
 
   updateAppData(data=>{
 
     const x=data.services[i];
 
     if(x){
-
-      x.name=
-        name.trim()||x.name;
-
-      x.duration=
-        Number(duration)||30;
-
+      x.name=name.trim()||x.name;
+      x.duration=Number(duration)||30;
       x.price=price;
-
-      x.description=
-        description.trim();
+      x.description=description.trim();
     }
 
   });
-
 
   renderServices();
   renderAppointments();
@@ -2528,20 +1630,9 @@ function deleteService(i){
 
   const s=getServices()[i];
 
-  if(
-    !s ||
-    !confirm(
-      `Eliminare il servizio ${s.name}?`
-    )
-  ){
-    return;
-  }
+  if(!s||!confirm(`Eliminare il servizio ${s.name}?`))return;
 
-
-  updateAppData(data=>
-    data.services.splice(i,1)
-  );
-
+  updateAppData(data=>data.services.splice(i,1));
 
   renderServices();
   renderAppointments();
@@ -2555,111 +1646,69 @@ function renderPromotions(){
 
   if(!box)return;
 
-
   const list=getPromotions();
 
+  box.innerHTML=list.length
+    ?list.map((p,i)=>`
 
-  box.innerHTML=
-    list.length
-      ? list.map((p,i)=>`
+      <div class="promotion-item">
 
-        <div class="promotion-item">
+        <b>${esc(p.title)}</b>
 
-          <b>${esc(p.title)}</b>
+        ${
+          p.start||p.end
+            ?`
+              <div class="muted">
+                ${esc(p.start||"")}
+                ${p.end?" → "+esc(p.end):""}
+              </div>
+            `
+            :""
+        }
 
-          ${
-            p.start||p.end
-              ?`
-                <div class="muted">
-                  ${esc(p.start||"")}
-                  ${p.end
-                    ?" → "+esc(p.end)
-                    :""
-                  }
-                </div>
-              `
-              :""
-          }
+        ${
+          p.description
+            ?`<div class="muted">${esc(p.description)}</div>`
+            :""
+        }
 
-          ${
-            p.description
-              ?`
-                <div class="muted">
-                  ${esc(p.description)}
-                </div>
-              `
-              :""
-          }
+        <div class="promotion-actions">
 
-          <div class="promotion-actions">
+          <button class="secondary small-button" onclick="editPromotion(${i})">
+            Modifica
+          </button>
 
-            <button
-              class="secondary small-button"
-              onclick="editPromotion(${i})"
-            >
-              Modifica
-            </button>
-
-            <button
-              class="danger small-button"
-              onclick="deletePromotion(${i})"
-            >
-              Elimina
-            </button>
-
-          </div>
+          <button class="danger small-button" onclick="deletePromotion(${i})">
+            Elimina
+          </button>
 
         </div>
 
-      `).join("")
-      :`
-        <div class="empty-state">
-          Nessuna promozione configurata.
-        </div>
-      `;
+      </div>
+
+    `).join("")
+    :`<div class="empty-state">Nessuna promozione configurata.</div>`;
 }
 
 
 function savePromotion(){
 
-  const title=
-    $("promotionTitle")
-      .value
-      .trim();
+  const title=$("promotionTitle").value.trim();
 
   if(!title)return;
 
-
   updateAppData(data=>
     data.promotions.push({
-
       id:"pro_"+Date.now(),
-
       title,
-
-      description:
-        $("promotionDescription")
-          .value
-          .trim(),
-
-      start:
-        $("promotionStart").value,
-
-      end:
-        $("promotionEnd").value
+      description:$("promotionDescription").value.trim(),
+      start:$("promotionStart").value,
+      end:$("promotionEnd").value
     })
   );
 
-
-  [
-    "promotionTitle",
-    "promotionDescription",
-    "promotionStart",
-    "promotionEnd"
-  ].forEach(
-    id=>$(id).value=""
-  );
-
+  ["promotionTitle","promotionDescription","promotionStart","promotionEnd"]
+    .forEach(id=>$(id).value="");
 
   renderPromotions();
   updateDashboard();
@@ -2673,37 +1722,22 @@ function editPromotion(i){
 
   if(!p)return;
 
-
-  const title=
-    prompt("Titolo",p.title);
-
+  const title=prompt("Titolo",p.title);
   if(title===null)return;
 
-
-  const description=
-    prompt(
-      "Descrizione",
-      p.description||""
-    );
-
+  const description=prompt("Descrizione",p.description||"");
   if(description===null)return;
-
 
   updateAppData(data=>{
 
     const x=data.promotions[i];
 
     if(x){
-
-      x.title=
-        title.trim()||x.title;
-
-      x.description=
-        description.trim();
+      x.title=title.trim()||x.title;
+      x.description=description.trim();
     }
 
   });
-
 
   renderPromotions();
   syncLegacyKeys();
@@ -2714,20 +1748,9 @@ function deletePromotion(i){
 
   const p=getPromotions()[i];
 
-  if(
-    !p ||
-    !confirm(
-      `Eliminare la promozione ${p.title}?`
-    )
-  ){
-    return;
-  }
+  if(!p||!confirm(`Eliminare la promozione ${p.title}?`))return;
 
-
-  updateAppData(data=>
-    data.promotions.splice(i,1)
-  );
-
+  updateAppData(data=>data.promotions.splice(i,1));
 
   renderPromotions();
   updateDashboard();
@@ -2747,10 +1770,7 @@ function formatAppointmentDate(date){
 
   if(!date)return"";
 
-  const d=
-    new Date(
-      date+"T12:00:00"
-    );
+  const d=new Date(date+"T12:00:00");
 
   return d.toLocaleDateString(
     "it-IT",
@@ -2766,19 +1786,9 @@ function formatAppointmentDate(date){
 
 function toMinutes(time){
 
-  if(
-    !time ||
-    !/^\d{2}:\d{2}$/.test(time)
-  ){
-    return null;
-  }
+  if(!time||!/^\d{2}:\d{2}$/.test(time))return null;
 
-
-  const p=
-    time
-      .split(":")
-      .map(Number);
-
+  const p=time.split(":").map(Number);
 
   return p[0]*60+p[1];
 }
@@ -2793,9 +1803,7 @@ function addMinutes(time,minutes){
   const total=m+minutes;
 
   return(
-    String(
-      Math.floor(total/60)%24
-    ).padStart(2,"0")+
+    String(Math.floor(total/60)%24).padStart(2,"0")+
     ":"+
     String(total%60).padStart(2,"0")
   );
@@ -2804,10 +1812,7 @@ function addMinutes(time,minutes){
 
 function getDayKey(date){
 
-  const day=
-    new Date(
-      date+"T12:00:00"
-    ).getDay();
+  const day=new Date(date+"T12:00:00").getDay();
 
   return[
     "sunday",
@@ -2825,150 +1830,84 @@ function getHoursForDate(date){
 
   const key=getDayKey(date);
 
-  return(
-    getSettings().hours?.[key]||
-    {
-      closed:false,
-      start:"09:00",
-      end:"19:00"
-    }
-  );
+  return getSettings().hours?.[key]||{
+    closed:false,
+    start:"09:00",
+    end:"19:00"
+  };
 }
 
 
-function isWithinHours(
-  date,
-  time,
-  duration
-){
+function isWithinHours(date,time,duration){
 
-  const h=
-    getHoursForDate(date);
+  const h=getHoursForDate(date);
 
   if(h.closed)return false;
-
 
   const start=toMinutes(h.start);
   const end=toMinutes(h.end);
   const t=toMinutes(time);
 
-
   return(
-    start!==null &&
-    end!==null &&
-    t!==null &&
-    t>=start &&
+    start!==null&&
+    end!==null&&
+    t!==null&&
+    t>=start&&
     t+duration<=end
   );
 }
 
 
-function isAppointmentFree(
-  date,
-  time,
-  duration,
-  ignoreId=""
-){
+function isAppointmentFree(date,time,duration,ignoreId=""){
 
-  if(
-    !isWithinHours(
-      date,
-      time,
-      duration
-    )
-  ){
-    return false;
-  }
-
+  if(!isWithinHours(date,time,duration))return false;
 
   const start=toMinutes(time);
   const end=start+duration;
 
+  return!getAppointments().some(a=>{
 
-  return!(
-    getAppointments().some(a=>{
+    if(
+      a.id===ignoreId||
+      a.status==="cancellato"||
+      a.d!==date
+    )return false;
 
-      if(
-        a.id===ignoreId ||
-        a.status==="cancellato" ||
-        a.d!==date
-      ){
-        return false;
-      }
+    const s=toMinutes(a.t);
 
+    if(s===null)return false;
 
-      const s=toMinutes(a.t);
+    const e=s+serviceDuration(getService(a.s));
 
-      if(s===null)return false;
+    return start<e&&end>s;
 
-
-      const e=
-        s+
-        serviceDuration(
-          getService(a.s)
-        );
-
-
-      return start<e && end>s;
-    })
-  );
+  });
 }
 
 
 function getSlots(date,serviceName){
 
-  const service=
-    getService(serviceName);
-
-  const duration=
-    serviceDuration(service);
-
-  const h=
-    getHoursForDate(date);
-
+  const service=getService(serviceName);
+  const duration=serviceDuration(service);
+  const h=getHoursForDate(date);
   const slots=[];
 
   if(h.closed)return slots;
 
-
   const start=toMinutes(h.start);
   const end=toMinutes(h.end);
 
-  if(
-    start===null ||
-    end===null
-  ){
-    return slots;
-  }
+  if(start===null||end===null)return slots;
 
-
-  for(
-    let m=start;
-    m+duration<=end;
-    m+=30
-  ){
+  for(let m=start;m+duration<=end;m+=30){
 
     const t=
-      String(
-        Math.floor(m/60)
-      ).padStart(2,"0")+
+      String(Math.floor(m/60)).padStart(2,"0")+
       ":"+
-      String(
-        m%60
-      ).padStart(2,"0");
+      String(m%60).padStart(2,"0");
 
-
-    if(
-      isAppointmentFree(
-        date,
-        t,
-        duration
-      )
-    ){
-      slots.push(t);
-    }
+    if(isAppointmentFree(date,t,duration))slots.push(t);
   }
-
 
   return slots;
 }
@@ -2976,102 +1915,58 @@ function getSlots(date,serviceName){
 
 function renderCalendar(){
 
-  const date=
-    $("calendarDate").value ||
-    dateKey(new Date());
-
+  const date=$("calendarDate").value||dateKey(new Date());
   const box=$("calendar");
   const title=$("calendarTitle");
 
   if(!box)return;
 
+  title.textContent=formatAppointmentDate(date);
 
-  title.textContent=
-    formatAppointmentDate(date);
-
-
-  const h=
-    getHoursForDate(date);
-
+  const h=getHoursForDate(date);
 
   if(h.closed){
-
-    box.innerHTML=
-      '<div class="calendar-empty">Attività chiusa.</div>';
-
+    box.innerHTML='<div class="calendar-empty">Attività chiusa.</div>';
     return;
   }
-
 
   const start=toMinutes(h.start);
   const end=toMinutes(h.end);
 
-
-  if(
-    start===null ||
-    end===null
-  ){
-
-    box.innerHTML=
-      '<div class="calendar-empty">Configura gli orari nelle impostazioni.</div>';
-
+  if(start===null||end===null){
+    box.innerHTML='<div class="calendar-empty">Configura gli orari nelle impostazioni.</div>';
     return;
   }
 
-
   let html="";
 
-
-  for(
-    let m=start;
-    m<end;
-    m+=30
-  ){
+  for(let m=start;m<end;m+=30){
 
     const t=
-      String(
-        Math.floor(m/60)
-      ).padStart(2,"0")+
+      String(Math.floor(m/60)).padStart(2,"0")+
       ":"+
-      String(
-        m%60
-      ).padStart(2,"0");
+      String(m%60).padStart(2,"0");
 
-
-    const a=
-      getAppointments().find(
-        x=>
-          x.d===date &&
-          x.t===t &&
-          x.status!=="cancellato"
-      );
-
+    const a=getAppointments().find(
+      x=>x.d===date&&x.t===t&&x.status!=="cancellato"
+    );
 
     html+=`
 
       <div class="slot">
 
-        <div class="slot-time">
-          ${t}
-        </div>
+        <div class="slot-time">${t}</div>
 
         <div
           class="slot-box ${a?"busy":"free"}"
-          ${
-            a
-              ?""
-              :`onclick="selectCalendarSlot('${t}')"`
-          }
-        >
+          ${a?"":`onclick="selectCalendarSlot('${t}')"`}>
 
           ${
             a
               ?`
                 <b>${esc(a.n)}</b>
                 <br>
-                <span class="muted">
-                  ${esc(a.s)}
-                </span>
+                <span class="muted">${esc(a.s)}</span>
               `
               :"Disponibile"
           }
@@ -3082,28 +1977,22 @@ function renderCalendar(){
     `;
   }
 
-
   box.innerHTML=
-    html ||
+    html||
     '<div class="calendar-empty">Nessun orario.</div>';
 }
 
 
 function selectCalendarSlot(time){
 
-  const date=
-    $("calendarDate").value;
+  const date=$("calendarDate").value;
 
   if(!date)return;
-
 
   $("d").value=date;
   $("t").value=time;
 
-
-  $("appointmentStatus").textContent=
-    `Orario ${time} selezionato.`;
-
+  $("appointmentStatus").textContent=`Orario ${time} selezionato.`;
 
   $("n").focus();
 }
@@ -3113,22 +2002,13 @@ function changeDay(offset){
 
   const input=$("calendarDate");
 
-  const d=
-    new Date(
-      (
-        input.value ||
-        dateKey(new Date())
-      )+"T12:00:00"
-    );
-
-
-  d.setDate(
-    d.getDate()+offset
+  const d=new Date(
+    (input.value||dateKey(new Date()))+"T12:00:00"
   );
 
+  d.setDate(d.getDate()+offset);
 
   input.value=dateKey(d);
-
   $("d").value=input.value;
 
   renderCalendar();
@@ -3144,113 +2024,55 @@ function createAppointmentRecord(
   status="confermato"
 ){
 
-  const client=
-    upsertClient(name);
-
+  const client=upsertClient(name);
 
   return{
-
-    id:
-      "apt_"+
-      Date.now()+
-      "_"+
-      Math.random()
-        .toString(36)
-        .slice(2,6),
-
+    id:"apt_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),
     n:name,
-
     d:date,
-
     t:time,
-
     s:service,
-
-    clientId:
-      client?.id||"",
-
+    clientId:client?.id||"",
     status,
-
-    createdAt:
-      new Date().toISOString(),
-
-    updatedAt:
-      new Date().toISOString()
+    createdAt:new Date().toISOString(),
+    updatedAt:new Date().toISOString()
   };
 }
 
 
 function addAppointment(){
 
-  const name=
-    $("n").value.trim();
-
+  const name=$("n").value.trim();
   const date=$("d").value;
   const time=$("t").value;
   const service=$("s").value;
 
-
-  if(
-    !name ||
-    !date ||
-    !time ||
-    !service
-  ){
-
+  if(!name||!date||!time||!service){
     $("appointmentStatus").textContent=
       "Compila nome, data, orario e servizio.";
-
     return;
   }
 
+  const duration=serviceDuration(getService(service));
 
-  const duration=
-    serviceDuration(
-      getService(service)
-    );
-
-
-  if(
-    !isAppointmentFree(
-      date,
-      time,
-      duration
-    )
-  ){
-
+  if(!isAppointmentFree(date,time,duration)){
     $("appointmentStatus").textContent=
       "L'orario non è disponibile.";
-
     return;
   }
 
-
   updateAppData(
-    data=>
-      data.appointments.push(
-        createAppointmentRecord(
-          name,
-          date,
-          time,
-          service
-        )
-      )
+    data=>data.appointments.push(
+      createAppointmentRecord(name,date,time,service)
+    )
   );
-
 
   syncLegacyKeys();
 
-
-  ["n","d","t"].forEach(
-    id=>$(id).value=""
-  );
-
+  ["n","d","t"].forEach(id=>$(id).value="");
   $("s").value="";
 
-
-  $("appointmentStatus").textContent=
-    "Appuntamento salvato.";
-
+  $("appointmentStatus").textContent="Appuntamento salvato.";
 
   renderAppointments();
   renderDayAppointments();
@@ -3262,22 +2084,14 @@ function addAppointment(){
 
 function statusLabel(status){
 
-  if(status==="completato"){
-    return"Completato";
-  }
-
-  if(status==="cancellato"){
-    return"Cancellato";
-  }
+  if(status==="completato")return"Completato";
+  if(status==="cancellato")return"Cancellato";
 
   return"Confermato";
 }
 
 
-function appointmentHTML(
-  a,
-  history=false
-){
+function appointmentHTML(a,history=false){
 
   const cls=
     a.status==="completato"
@@ -3285,7 +2099,6 @@ function appointmentHTML(
       :a.status==="cancellato"
         ?"status-cancelled"
         :"status-confirmed";
-
 
   return`
 
@@ -3299,9 +2112,7 @@ function appointmentHTML(
         ${esc(a.t)}
       </div>
 
-      <div>
-        ${esc(a.s)}
-      </div>
+      <div>${esc(a.s)}</div>
 
       <span class="badge ${cls}">
         ${statusLabel(a.status)}
@@ -3314,41 +2125,33 @@ function appointmentHTML(
             <div class="appointment-actions">
 
               ${
-                a.status!=="completato" &&
+                a.status!=="completato"&&
                 a.status!=="cancellato"
                   ?`
-                    <button
-                      class="success small-button"
-                      onclick="completeAppointment('${esc(a.id)}')"
-                    >
+                    <button class="success small-button"
+                      onclick="completeAppointment('${esc(a.id)}')">
                       Completa
                     </button>
                   `
                   :""
               }
 
-              <button
-                class="secondary small-button"
-                onclick="moveAppointment('${esc(a.id)}')"
-              >
+              <button class="secondary small-button"
+                onclick="moveAppointment('${esc(a.id)}')">
                 Modifica
               </button>
 
               ${
                 a.status==="cancellato"
                   ?`
-                    <button
-                      class="warning small-button"
-                      onclick="restoreAppointment('${esc(a.id)}')"
-                    >
+                    <button class="warning small-button"
+                      onclick="restoreAppointment('${esc(a.id)}')">
                       Ripristina
                     </button>
                   `
                   :`
-                    <button
-                      class="danger small-button"
-                      onclick="cancelAppointmentRecord('${esc(a.id)}')"
-                    >
+                    <button class="danger small-button"
+                      onclick="cancelAppointmentRecord('${esc(a.id)}')">
                       Cancella
                     </button>
                   `
@@ -3365,29 +2168,18 @@ function appointmentHTML(
 
 function renderDayAppointments(){
 
-  const date=
-    $("calendarDate").value;
-
-  const box=
-    $("dayAppointments");
+  const date=$("calendarDate").value;
+  const box=$("dayAppointments");
 
   if(!box)return;
 
-
-  const list=
-    getAppointments()
-      .filter(a=>a.d===date)
-      .sort(
-        (a,b)=>
-          a.t.localeCompare(b.t)
-      );
-
+  const list=getAppointments()
+    .filter(a=>a.d===date)
+    .sort((a,b)=>a.t.localeCompare(b.t));
 
   box.innerHTML=
     list.length
-      ?list
-        .map(a=>appointmentHTML(a))
-        .join("")
+      ?list.map(a=>appointmentHTML(a)).join("")
       :`
         <div class="empty-state">
           Nessun appuntamento per questa giornata.
@@ -3401,40 +2193,23 @@ function renderAppointments(){
   const box=$("list");
   const searchBox=$("searchResults");
 
-  const q=
-    (
-      $("appointmentSearch")?.value ||
-      ""
+  const q=(
+    $("appointmentSearch")?.value||""
+  ).trim().toLowerCase();
+
+  const list=getAppointments()
+    .filter(
+      a=>!q||a.n.toLowerCase().includes(q)
     )
-      .trim()
-      .toLowerCase();
-
-
-  const list=
-    getAppointments()
-      .filter(
-        a=>
-          !q ||
-          a.n
-            .toLowerCase()
-            .includes(q)
-      )
-      .sort(
-        (a,b)=>
-          `${b.d}${b.t}`
-            .localeCompare(
-              `${a.d}${a.t}`
-            )
-      );
-
+    .sort(
+      (a,b)=>
+        `${b.d}${b.t}`.localeCompare(`${a.d}${a.t}`)
+    );
 
   if(box){
-
     box.innerHTML=
       list.length
-        ?list
-          .map(a=>appointmentHTML(a))
-          .join("")
+        ?list.map(a=>appointmentHTML(a)).join("")
         :`
           <div class="empty-state">
             Nessun appuntamento.
@@ -3442,16 +2217,12 @@ function renderAppointments(){
         `;
   }
 
-
   if(searchBox){
-
     searchBox.innerHTML=
       q
         ?(
           list.length
-            ?list
-              .map(a=>appointmentHTML(a))
-              .join("")
+            ?list.map(a=>appointmentHTML(a)).join("")
             :`
               <div class="empty-state">
                 Nessun risultato.
@@ -3465,12 +2236,9 @@ function renderAppointments(){
 
 function openEditAppointment(id){
 
-  const a=
-    getAppointments()
-      .find(x=>x.id===id);
+  const a=getAppointments().find(x=>x.id===id);
 
   if(!a)return;
-
 
   $("editAppointmentId").value=a.id;
   $("editAppointmentName").value=a.n;
@@ -3478,107 +2246,57 @@ function openEditAppointment(id){
   $("editAppointmentTime").value=a.t;
   $("editAppointmentStatus").value=a.status;
 
-
   populateServiceSelects();
 
+  $("editAppointmentService").value=a.s;
 
-  $("editAppointmentService").value=
-    a.s;
+  $("editAppointmentError").classList.remove("show");
 
-
-  $("editAppointmentError")
-    .classList.remove("show");
-
-
-  $("appointmentModal")
-    .classList.add("open");
+  $("appointmentModal").classList.add("open");
 }
 
 
 function closeAppointmentModal(){
-
-  $("appointmentModal")
-    .classList.remove("open");
+  $("appointmentModal").classList.remove("open");
 }
 
 
 function saveEditedAppointment(){
 
-  const id=
-    $("editAppointmentId").value;
+  const id=$("editAppointmentId").value;
+  const name=$("editAppointmentName").value.trim();
+  const date=$("editAppointmentDate").value;
+  const time=$("editAppointmentTime").value;
+  const service=$("editAppointmentService").value;
+  const status=$("editAppointmentStatus").value;
+  const error=$("editAppointmentError");
 
-  const name=
-    $("editAppointmentName")
-      .value
-      .trim();
+  if(!name||!date||!time||!service){
 
-  const date=
-    $("editAppointmentDate").value;
-
-  const time=
-    $("editAppointmentTime").value;
-
-  const service=
-    $("editAppointmentService").value;
-
-  const status=
-    $("editAppointmentStatus").value;
-
-  const error=
-    $("editAppointmentError");
-
-
-  if(
-    !name ||
-    !date ||
-    !time ||
-    !service
-  ){
-
-    error.textContent=
-      "Compila tutti i campi.";
-
+    error.textContent="Compila tutti i campi.";
     error.classList.add("show");
 
     return;
   }
 
-
-  const duration=
-    serviceDuration(
-      getService(service)
-    );
-
+  const duration=serviceDuration(getService(service));
 
   if(
-    status!=="cancellato" &&
-    !isAppointmentFree(
-      date,
-      time,
-      duration,
-      id
-    )
+    status!=="cancellato"&&
+    !isAppointmentFree(date,time,duration,id)
   ){
 
-    error.textContent=
-      "L'orario scelto non è disponibile.";
-
+    error.textContent="L'orario scelto non è disponibile.";
     error.classList.add("show");
 
     return;
   }
 
-
-  const client=
-    upsertClient(name);
-
+  const client=upsertClient(name);
 
   updateAppData(data=>{
 
-    const a=
-      data.appointments
-        .find(x=>x.id===id);
-
+    const a=data.appointments.find(x=>x.id===id);
 
     if(a){
 
@@ -3586,19 +2304,13 @@ function saveEditedAppointment(){
       a.d=date;
       a.t=time;
       a.s=service;
-
-      a.clientId=
-        client?.id ||
-        a.clientId;
-
+      a.clientId=client?.id||a.clientId;
       a.status=status;
+      a.updatedAt=new Date().toISOString();
 
-      a.updatedAt=
-        new Date().toISOString();
     }
 
   });
-
 
   syncLegacyKeys();
 
@@ -3616,20 +2328,14 @@ function completeAppointment(id){
 
   updateAppData(data=>{
 
-    const a=
-      data.appointments
-        .find(x=>x.id===id);
+    const a=data.appointments.find(x=>x.id===id);
 
     if(a){
-
       a.status="completato";
-
-      a.updatedAt=
-        new Date().toISOString();
+      a.updatedAt=new Date().toISOString();
     }
 
   });
-
 
   syncLegacyKeys();
 
@@ -3642,47 +2348,26 @@ function completeAppointment(id){
 
 function cancelAppointmentRecord(id){
 
-  const appointment=
-    getAppointments()
-      .find(
-        item=>item.id===id
-      );
+  const appointment=getAppointments().find(item=>item.id===id);
 
-
-  if(
-    !appointment ||
-    appointment.status==="cancellato"
-  ){
-    return;
-  }
-
+  if(!appointment||appointment.status==="cancellato")return;
 
   if(
     !confirm(
       `Cancellare l'appuntamento di ${appointment.n} del ${formatAppointmentDate(appointment.d)} alle ${appointment.t}?`
     )
-  ){
-    return;
-  }
-
+  )return;
 
   updateAppData(data=>{
 
-    const item=
-      data.appointments
-        .find(a=>a.id===id);
-
+    const item=data.appointments.find(a=>a.id===id);
 
     if(item){
-
       item.status="cancellato";
-
-      item.updatedAt=
-        new Date().toISOString();
+      item.updatedAt=new Date().toISOString();
     }
 
   });
-
 
   syncLegacyKeys();
 
@@ -3691,32 +2376,18 @@ function cancelAppointmentRecord(id){
   renderAppointments();
   updateDashboard();
 
-  $("appointmentStatus").textContent=
-    "Appuntamento cancellato.";
+  $("appointmentStatus").textContent="Appuntamento cancellato.";
 }
 
 
 function restoreAppointment(id){
 
-  const appointment=
-    getAppointments()
-      .find(
-        item=>item.id===id
-      );
-
+  const appointment=getAppointments().find(item=>item.id===id);
 
   if(!appointment)return;
 
-
-  const service=
-    getService(appointment.s);
-
-
-  const duration=
-    service
-      ?Number(service.duration)||30
-      :30;
-
+  const service=getService(appointment.s);
+  const duration=service?Number(service.duration)||30:30;
 
   if(
     !isAppointmentFree(
@@ -3734,33 +2405,18 @@ function restoreAppointment(id){
     return;
   }
 
-
-  if(
-    !confirm(
-      `Ripristinare l'appuntamento di ${appointment.n}?`
-    )
-  ){
-    return;
-  }
-
+  if(!confirm(`Ripristinare l'appuntamento di ${appointment.n}?`))return;
 
   updateAppData(data=>{
 
-    const item=
-      data.appointments
-        .find(a=>a.id===id);
-
+    const item=data.appointments.find(a=>a.id===id);
 
     if(item){
-
       item.status="confermato";
-
-      item.updatedAt=
-        new Date().toISOString();
+      item.updatedAt=new Date().toISOString();
     }
 
   });
-
 
   syncLegacyKeys();
 
@@ -3772,144 +2428,85 @@ function restoreAppointment(id){
 
 
 function moveAppointment(id){
-
   openEditAppointment(id);
 }
 
 
-function showAvailableSlots(
-  slots,
-  date,
-  service
-){
+function showAvailableSlots(slots,date,service){
 
-  if(
-    !Array.isArray(slots) ||
-    !slots.length
-  ){
-    return;
-  }
+  if(!Array.isArray(slots)||!slots.length)return;
 
+  document.querySelectorAll(".available-slot-actions")
+    .forEach(e=>e.remove());
 
-  document
-    .querySelectorAll(
-      ".available-slot-actions"
-    )
-    .forEach(
-      e=>e.remove()
-    );
+  const container=document.createElement("div");
+  container.className="ai-actions available-slot-actions";
 
-
-  const container=
-    document.createElement("div");
-
-  container.className=
-    "ai-actions available-slot-actions";
-
-
-  const title=
-    document.createElement("div");
-
-  title.className=
-    "available-title";
+  const title=document.createElement("div");
+  title.className="available-title";
 
   title.textContent=
     service
       ?`${service} — orari disponibili`
       :"Orari disponibili";
 
-
   container.appendChild(title);
-
 
   slots.forEach(time=>{
 
-    const button=
-      document.createElement("button");
+    const button=document.createElement("button");
 
-    button.className=
-      "ai-slot-button";
-
+    button.className="ai-slot-button";
     button.textContent=time;
 
-    button.onclick=
-      ()=>selectAISlot(
-        button,
-        time,
-        date,
-        service
-      );
+    button.onclick=()=>selectAISlot(
+      button,
+      time,
+      date,
+      service
+    );
 
     container.appendChild(button);
 
   });
 
-
   $("chat").appendChild(container);
-
-  $("chat").scrollTop=
-    $("chat").scrollHeight;
+  $("chat").scrollTop=$("chat").scrollHeight;
 }
 
 
-function selectAISlot(
-  button,
-  time,
-  date,
-  service
-){
+function selectAISlot(button,time,date,service){
 
-  if(
-    requestInProgress ||
-    button.disabled
-  ){
-    return;
-  }
+  if(requestInProgress||button.disabled)return;
 
-
-  document
-    .querySelectorAll(
-      ".ai-slot-button"
-    )
-    .forEach(
-      b=>b.disabled=true
-    );
-
+  document.querySelectorAll(".ai-slot-button")
+    .forEach(b=>b.disabled=true);
 
   let selectedService=
-    service ||
-    pendingAppointment?.service ||
-    $("s").value ||
+    service||
+    pendingAppointment?.service||
+    $("s").value||
     "";
-
 
   const selectedDate=
-    date ||
-    pendingAppointment?.date ||
-    $("d").value ||
+    date||
+    pendingAppointment?.date||
+    $("d").value||
     $("calendarDate").value;
 
-
   const selectedName=
-    pendingAppointment?.name ||
-    $("clientName").value.trim() ||
-    $("n").value.trim() ||
+    pendingAppointment?.name||
+    $("clientName").value.trim()||
+    $("n").value.trim()||
     "";
 
-
-  const serviceObject=
-    getService(selectedService);
-
+  const serviceObject=getService(selectedService);
 
   if(serviceObject){
 
-    selectedService=
-      serviceObject.name;
-
-    $("s").value=
-      serviceObject.name;
+    selectedService=serviceObject.name;
+    $("s").value=serviceObject.name;
   }
-
 
   pendingAppointment={
     name:selectedName,
@@ -3918,23 +2515,17 @@ function selectAISlot(
     service:selectedService
   };
 
-
   requiresConfirmation=false;
 
   savePendingState();
 
-
   $("d").value=selectedDate;
   $("t").value=time;
-
 
   $("appointmentStatus").textContent=
     `Orario ${time} selezionato per ${selectedService||"il servizio"}.`;
 
-
-  $("q").value=
-    `Scelgo le ${time}`;
-
+  $("q").value=`Scelgo le ${time}`;
 
   send();
 }
@@ -3946,31 +2537,15 @@ function renderPendingBox(){
 
   if(!box)return;
 
-
   if(!pendingAppointment){
-
     box.innerHTML="";
-
     return;
   }
 
-
-  const service=
-    pendingAppointment.service||
-    "Servizio";
-
-  const date=
-    pendingAppointment.date||
-    "";
-
-  const time=
-    pendingAppointment.time||
-    "";
-
-  const name=
-    pendingAppointment.name||
-    "";
-
+  const service=pendingAppointment.service||"Servizio";
+  const date=pendingAppointment.date||"";
+  const time=pendingAppointment.time||"";
+  const name=pendingAppointment.name||"";
 
   box.innerHTML=`
 
@@ -4007,82 +2582,44 @@ function renderPendingBox(){
 
 function showConfirmationButtons(){
 
-  document
-    .getElementById(
-      "confirmationActions"
-    )
-    ?.remove();
+  document.getElementById("confirmationActions")?.remove();
 
+  const container=document.createElement("div");
 
-  const container=
-    document.createElement("div");
+  container.id="confirmationActions";
+  container.className="ai-actions";
 
-  container.id=
-    "confirmationActions";
+  const confirm=document.createElement("button");
 
-  container.className=
-    "ai-actions";
+  confirm.className="ai-confirm-button";
+  confirm.textContent="Conferma appuntamento";
+  confirm.onclick=()=>confirmAppointment(confirm);
 
+  const cancel=document.createElement("button");
 
-  const confirm=
-    document.createElement("button");
+  cancel.className="ai-cancel-button";
+  cancel.textContent="Annulla";
+  cancel.onclick=()=>cancelAppointment(cancel);
 
-  confirm.className=
-    "ai-confirm-button";
-
-  confirm.textContent=
-    "Conferma appuntamento";
-
-  confirm.onclick=
-    ()=>confirmAppointment(confirm);
-
-
-  const cancel=
-    document.createElement("button");
-
-  cancel.className=
-    "ai-cancel-button";
-
-  cancel.textContent=
-    "Annulla";
-
-  cancel.onclick=
-    ()=>cancelAppointment(cancel);
-
-
-  container.append(
-    confirm,
-    cancel
-  );
-
+  container.append(confirm,cancel);
 
   $("chat").appendChild(container);
-
-  $("chat").scrollTop=
-    $("chat").scrollHeight;
+  $("chat").scrollTop=$("chat").scrollHeight;
 }
 
 
 function confirmAppointment(button){
 
   if(
-    requestInProgress ||
-    !pendingAppointment ||
+    requestInProgress||
+    !pendingAppointment||
     !requiresConfirmation
-  ){
-    return;
-  }
-
+  )return;
 
   button.disabled=true;
+  button.textContent="Conferma in corso...";
 
-  button.textContent=
-    "Conferma in corso...";
-
-
-  $("q").value=
-    "Confermo l'appuntamento";
-
+  $("q").value="Confermo l'appuntamento";
 
   send();
 }
@@ -4091,19 +2628,13 @@ function confirmAppointment(button){
 function cancelAppointment(button){
 
   if(
-    requestInProgress ||
-    !pendingAppointment ||
+    requestInProgress||
+    !pendingAppointment||
     !requiresConfirmation
-  ){
-    return;
-  }
-
+  )return;
 
   button.disabled=true;
-
-  button.textContent=
-    "Annullamento...";
-
+  button.textContent="Annullamento...";
 
   $("q").value="Annulla";
 
@@ -4115,206 +2646,143 @@ async function send(){
 
   if(requestInProgress)return;
 
-
-  const message=
-    $("q").value.trim();
-
+  const message=$("q").value.trim();
 
   if(!message)return;
 
-
   requestInProgress=true;
-
 
   $("q").disabled=true;
   $("sendButton").disabled=true;
 
-  $("chat")
-    .classList
-    .add("ai-busy");
-
+  $("chat").classList.add("ai-busy");
 
   $("chat").innerHTML+=
     `<div class="msg user">${esc(message)}</div>`;
-
 
   chatHistory.push({
     role:"user",
     content:message
   });
 
-
-  chatHistory=
-    chatHistory.slice(-20);
-
+  chatHistory=chatHistory.slice(-20);
 
   $("status").textContent=
     "L'assistente sta verificando i dati...";
 
-
   try{
 
-    const settings=
-      getSettings();
-
+    const settings=getSettings();
 
     const payload={
 
       message,
 
       business:
-        getAppData().business.name ||
-        settings.name ||
+        getAppData().business.name||
+        settings.name||
         "Attività locale",
 
-      clientName:
-        $("clientName")
-          .value
-          .trim(),
+      clientName:$("clientName").value.trim(),
 
       settings,
 
-      services:
-        getServices(),
+      services:getServices(),
 
-      appointments:
-        getAppointments(),
+      appointments:getAppointments(),
 
-      promotions:
-        getPromotions(),
+      promotions:getPromotions(),
 
-      clients:
-        getClients(),
+      clients:getClients(),
 
-      history:
-        chatHistory.slice(0,-1),
+      history:chatHistory.slice(0,-1),
 
       pendingAppointment:
         pendingAppointment
           ?{
-            name:
-              pendingAppointment.name||"",
-
-            date:
-              pendingAppointment.date||"",
-
-            time:
-              pendingAppointment.time||"",
-
-            service:
-              pendingAppointment.service||""
+            name:pendingAppointment.name||"",
+            date:pendingAppointment.date||"",
+            time:pendingAppointment.time||"",
+            service:pendingAppointment.service||""
           }
           :null,
 
-      requiresConfirmation:
-        Boolean(
-          requiresConfirmation
-        )
+      requiresConfirmation:Boolean(requiresConfirmation)
+
     };
 
-
-    const response=
-      await fetch(
-        "/api/chat",
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify(payload)
-        }
-      );
-
+    const response=await fetch(
+      "/api/chat",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify(payload)
+      }
+    );
 
     let data;
 
-
     try{
-
-      data=
-        await response.json();
-
+      data=await response.json();
     }catch{
-
       throw new Error(
         "Il server ha restituito una risposta non valida."
       );
     }
 
-
     if(!response.ok){
-
-      throw new Error(
-        data.error ||
-        "Errore del server."
-      );
+      throw new Error(data.error||"Errore del server.");
     }
 
-
     const reply=
-      data.reply ||
+      data.reply||
       "Non ho ricevuto una risposta dall'assistente.";
-
 
     chatHistory.push({
       role:"assistant",
       content:reply
     });
 
-
     $("chat").innerHTML+=
       `<div class="msg bot">${esc(reply)}</div>`;
 
-
     if(
-      Array.isArray(
-        data.availableSlots
-      ) &&
+      Array.isArray(data.availableSlots)&&
       data.availableSlots.length
     ){
 
       const alternativeDate=
-        data.availableDate ||
-        pendingAppointment?.date ||
+        data.availableDate||
+        pendingAppointment?.date||
         "";
 
       const alternativeService=
-        data.availableService ||
-        pendingAppointment?.service ||
+        data.availableService||
+        pendingAppointment?.service||
         "";
-
 
       pendingAppointment={
 
         name:
-          pendingAppointment?.name ||
-          $("clientName")
-            .value
-            .trim() ||
+          pendingAppointment?.name||
+          $("clientName").value.trim()||
           "",
 
-        date:
-          alternativeDate,
+        date:alternativeDate,
 
         time:
-          pendingAppointment?.time ||
+          pendingAppointment?.time||
           "",
 
-        service:
-          alternativeService
+        service:alternativeService
       };
-
 
       requiresConfirmation=false;
 
       savePendingState();
-
       renderPendingBox();
-
 
       showAvailableSlots(
         data.availableSlots,
@@ -4323,123 +2791,82 @@ async function send(){
       );
     }
 
-
     if(data.pendingAppointment){
 
       pendingAppointment={
 
         name:
-          data.pendingAppointment.name ||
-          pendingAppointment?.name ||
-          $("clientName")
-            .value
-            .trim() ||
+          data.pendingAppointment.name||
+          pendingAppointment?.name||
+          $("clientName").value.trim()||
           "",
 
         date:
-          data.pendingAppointment.date ||
-          pendingAppointment?.date ||
+          data.pendingAppointment.date||
+          pendingAppointment?.date||
           "",
 
         time:
-          data.pendingAppointment.time ||
-          pendingAppointment?.time ||
+          data.pendingAppointment.time||
+          pendingAppointment?.time||
           "",
 
         service:
-          data.pendingAppointment.service ||
-          pendingAppointment?.service ||
+          data.pendingAppointment.service||
+          pendingAppointment?.service||
           ""
       };
 
-
-      requiresConfirmation=
-        Boolean(
-          data.requiresConfirmation
-        );
-
+      requiresConfirmation=Boolean(
+        data.requiresConfirmation
+      );
 
       savePendingState();
-
       renderPendingBox();
 
-
-      if(requiresConfirmation){
-
-        showConfirmationButtons();
-
-      }
+      if(requiresConfirmation)showConfirmationButtons();
     }
 
+    if(data.confirmed===true&&data.appointment){
 
-    if(
-      data.confirmed===true &&
-      data.appointment
-    ){
+      const appointment=data.appointment;
+      const appointments=getAppointments();
 
-      const appointment=
-        data.appointment;
-
-
-      const appointments=
-        getAppointments();
-
-
-      const duplicate=
-        appointments.some(
-          existing=>
-            existing.status!=="cancellato" &&
-            existing.d===appointment.date &&
-            existing.t===appointment.time
-        );
-
+      const duplicate=appointments.some(
+        existing=>
+          existing.status!=="cancellato"&&
+          existing.d===appointment.date&&
+          existing.t===appointment.time
+      );
 
       if(!duplicate){
 
-        const client=
-          upsertClient(
-            appointment.name
-          );
+        const client=upsertClient(appointment.name);
 
+        updateAppData(dataStore=>{
 
-        updateAppData(
-          dataStore=>{
+          dataStore.appointments.push({
 
-            dataStore.appointments.push({
+            id:
+              appointment.bookingKey||
+              "apt_"+Date.now(),
 
-              id:
-                appointment.bookingKey ||
-                "apt_"+Date.now(),
+            n:appointment.name,
+            d:appointment.date,
+            t:appointment.time,
+            s:appointment.service,
 
-              n:
-                appointment.name,
+            clientId:client?.id||"",
 
-              d:
-                appointment.date,
+            status:"confermato",
 
-              t:
-                appointment.time,
+            createdAt:new Date().toISOString(),
+            updatedAt:new Date().toISOString()
 
-              s:
-                appointment.service,
+          });
 
-              clientId:
-                client?.id||"",
-
-              status:
-                "confermato",
-
-              createdAt:
-                new Date().toISOString(),
-
-              updatedAt:
-                new Date().toISOString()
-            });
-
-          }
-        );
+        });
       }
-
 
       syncLegacyKeys();
 
@@ -4451,37 +2878,23 @@ async function send(){
       renderClients();
       updateDashboard();
 
-
-      if(
-        !$("clientName")
-          .value
-          .trim()
-      ){
-
-        $("clientName").value=
-          appointment.name||"";
+      if(!$("clientName").value.trim()){
+        $("clientName").value=appointment.name||"";
       }
     }
 
-
     if(
-      data.confirmed===false &&
-      data.requiresConfirmation===false &&
-      !data.pendingAppointment &&
-      message
-        .toLowerCase()
-        .includes("annulla")
+      data.confirmed===false&&
+      data.requiresConfirmation===false&&
+      !data.pendingAppointment&&
+      message.toLowerCase().includes("annulla")
     ){
-
       clearPendingState();
-
     }
-
 
   }catch(error){
 
     chatHistory.pop();
-
 
     $("chat").innerHTML+=
       `<div class="msg bot">
@@ -4490,7 +2903,6 @@ async function send(){
       </div>`;
   }
 
-
   finally{
 
     requestInProgress=false;
@@ -4498,35 +2910,24 @@ async function send(){
     $("q").disabled=false;
     $("sendButton").disabled=false;
 
-    $("chat")
-      .classList
-      .remove("ai-busy");
+    $("chat").classList.remove("ai-busy");
 
     $("status").textContent="";
-
     $("q").value="";
 
-    $("chat").scrollTop=
-      $("chat").scrollHeight;
+    $("chat").scrollTop=$("chat").scrollHeight;
 
-
-    document
-      .querySelectorAll(
-        ".ai-slot-button"
-      )
-      .forEach(
-        button=>button.disabled=false
-      );
+    document.querySelectorAll(".ai-slot-button")
+      .forEach(button=>button.disabled=false);
   }
 }
 
 
 function clientAppointments(id){
 
-  return getAppointments()
-    .filter(
-      a=>a.clientId===id
-    );
+  return getAppointments().filter(
+    a=>a.clientId===id
+  );
 }
 
 
@@ -4536,42 +2937,23 @@ function renderClients(){
 
   if(!box)return;
 
+  const q=(
+    $("clientSearch")?.value||""
+  ).trim().toLowerCase();
 
-  const q=
-    $("clientSearch")
-      ?.value
-      .trim()
-      .toLowerCase() ||
-    "";
-
-
-  const list=
-    getClients()
-      .filter(
-        c=>
-          !q ||
-          [
-            c.name,
-            c.phone,
-            c.email
-          ]
-          .some(
-            v=>
-              String(v||"")
-                .toLowerCase()
-                .includes(q)
-          )
-      );
-
+  const list=getClients().filter(
+    c=>
+      !q||
+      [c.name,c.phone,c.email].some(
+        v=>String(v||"").toLowerCase().includes(q)
+      )
+  );
 
   box.innerHTML=
     list.length
       ?list.map(c=>{
 
-        const n=
-          clientAppointments(c.id)
-            .length;
-
+        const n=clientAppointments(c.id).length;
 
         return`
 
@@ -4581,46 +2963,30 @@ function renderClients(){
 
             ${
               c.phone
-                ?`
-                  <div class="muted">
-                    ${esc(c.phone)}
-                  </div>
-                `
+                ?`<div class="muted">${esc(c.phone)}</div>`
                 :""
             }
 
             ${
               c.email
-                ?`
-                  <div class="muted">
-                    ${esc(c.email)}
-                  </div>
-                `
+                ?`<div class="muted">${esc(c.email)}</div>`
                 :""
             }
 
             <div class="client-stat">
               ${n}
-              ${
-                n===1
-                  ?" appuntamento"
-                  :" appuntamenti"
-              }
+              ${n===1?" appuntamento":" appuntamenti"}
             </div>
 
             <div class="client-actions">
 
-              <button
-                class="primary small-button"
-                onclick="openClient('${esc(c.id)}')"
-              >
+              <button class="primary small-button"
+                onclick="openClient('${esc(c.id)}')">
                 Apri scheda
               </button>
 
-              <button
-                class="secondary small-button"
-                onclick="editClient('${esc(c.id)}')"
-              >
+              <button class="secondary small-button"
+                onclick="editClient('${esc(c.id)}')">
                 Modifica
               </button>
 
@@ -4628,6 +2994,7 @@ function renderClients(){
 
           </div>
         `;
+
       }).join("")
       :`
         <div class="empty-state">
@@ -4639,23 +3006,14 @@ function renderClients(){
 
 function openClient(id){
 
-  const c=
-    getClients()
-      .find(x=>x.id===id);
+  const c=getClients().find(x=>x.id===id);
 
   if(!c)return;
 
-
-  const a=
-    clientAppointments(id)
-      .sort(
-        (x,y)=>
-          `${y.d}${y.t}`
-            .localeCompare(
-              `${x.d}${x.t}`
-            )
-      );
-
+  const a=clientAppointments(id).sort(
+    (x,y)=>
+      `${y.d}${y.t}`.localeCompare(`${x.d}${x.t}`)
+  );
 
   $("clientsList").innerHTML=`
 
@@ -4665,58 +3023,34 @@ function openClient(id){
 
       ${
         c.phone
-          ?`
-            <div>
-              Telefono:
-              ${esc(c.phone)}
-            </div>
-          `
+          ?`<div>Telefono: ${esc(c.phone)}</div>`
           :""
       }
 
       ${
         c.email
-          ?`
-            <div>
-              Email:
-              ${esc(c.email)}
-            </div>
-          `
+          ?`<div>Email: ${esc(c.email)}</div>`
           :""
       }
 
       ${
         c.notes
-          ?`
-            <p class="muted">
-              ${esc(c.notes)}
-            </p>
-          `
+          ?`<p class="muted">${esc(c.notes)}</p>`
           :""
       }
 
       <div class="client-stat">
         ${a.length}
-        ${
-          a.length===1
-            ?" appuntamento"
-            :" appuntamenti"
-        }
+        ${a.length===1?" appuntamento":" appuntamenti"}
       </div>
 
       <div class="client-history">
 
         ${
           a.length
-            ?a
-              .map(
-                x=>
-                  appointmentHTML(
-                    x,
-                    true
-                  )
-              )
-              .join("")
+            ?a.map(
+              x=>appointmentHTML(x,true)
+            ).join("")
             :`
               <p class="muted">
                 Nessun appuntamento.
@@ -4728,24 +3062,18 @@ function openClient(id){
 
       <div class="client-actions">
 
-        <button
-          class="secondary small-button"
-          onclick="editClient('${esc(c.id)}')"
-        >
+        <button class="secondary small-button"
+          onclick="editClient('${esc(c.id)}')">
           Modifica dati
         </button>
 
-        <button
-          class="danger small-button"
-          onclick="deleteClient('${esc(c.id)}')"
-        >
+        <button class="danger small-button"
+          onclick="deleteClient('${esc(c.id)}')">
           Elimina cliente
         </button>
 
-        <button
-          class="secondary small-button"
-          onclick="renderClients()"
-        >
+        <button class="secondary small-button"
+          onclick="renderClients()">
           Torna all'elenco
         </button>
 
@@ -4758,49 +3086,31 @@ function openClient(id){
 
 function saveClient(){
 
-  const name=
-    $("newClientName")
-      .value
-      .trim();
-
+  const name=$("newClientName").value.trim();
 
   if(!name){
-
     $("clientStatus").textContent=
       "Inserisci il nome del cliente.";
-
     return;
   }
-
 
   upsertClient(
     name,
     {
-      phone:
-        $("newClientPhone").value,
-
-      email:
-        $("newClientEmail").value,
-
-      notes:
-        $("newClientNotes").value
+      phone:$("newClientPhone").value,
+      email:$("newClientEmail").value,
+      notes:$("newClientNotes").value
     }
   );
-
 
   [
     "newClientName",
     "newClientPhone",
     "newClientEmail",
     "newClientNotes"
-  ].forEach(
-    id=>$(id).value=""
-  );
+  ].forEach(id=>$(id).value="");
 
-
-  $("clientStatus").textContent=
-    "Cliente salvato.";
-
+  $("clientStatus").textContent="Cliente salvato.";
 
   renderClients();
   updateDashboard();
@@ -4809,86 +3119,40 @@ function saveClient(){
 
 function editClient(id){
 
-  const c=
-    getClients()
-      .find(x=>x.id===id);
+  const c=getClients().find(x=>x.id===id);
 
   if(!c)return;
 
-
-  const name=
-    prompt(
-      "Nome e cognome",
-      c.name
-    );
-
+  const name=prompt("Nome e cognome",c.name);
   if(name===null)return;
 
-
-  const phone=
-    prompt(
-      "Telefono",
-      c.phone||""
-    );
-
+  const phone=prompt("Telefono",c.phone||"");
   if(phone===null)return;
 
-
-  const email=
-    prompt(
-      "Email",
-      c.email||""
-    );
-
+  const email=prompt("Email",c.email||"");
   if(email===null)return;
 
-
-  const notes=
-    prompt(
-      "Note",
-      c.notes||""
-    );
-
+  const notes=prompt("Note",c.notes||"");
   if(notes===null)return;
-
 
   updateAppData(data=>{
 
-    const x=
-      data.clients
-        .find(v=>v.id===id);
-
+    const x=data.clients.find(v=>v.id===id);
 
     if(x){
 
-      x.name=
-        name.trim()||x.name;
+      x.name=name.trim()||x.name;
+      x.phone=phone.trim();
+      x.email=email.trim();
+      x.notes=notes.trim();
+      x.updatedAt=new Date().toISOString();
 
-      x.phone=
-        phone.trim();
-
-      x.email=
-        email.trim();
-
-      x.notes=
-        notes.trim();
-
-      x.updatedAt=
-        new Date().toISOString();
-
-
-      data.appointments
-        .forEach(a=>{
-
-          if(a.clientId===id){
-            a.n=x.name;
-          }
-
-        });
+      data.appointments.forEach(a=>{
+        if(a.clientId===id)a.n=x.name;
+      });
     }
 
   });
-
 
   renderClients();
   renderAppointments();
@@ -4899,40 +3163,25 @@ function editClient(id){
 
 function deleteClient(id){
 
-  const c=
-    getClients()
-      .find(x=>x.id===id);
+  const c=getClients().find(x=>x.id===id);
 
   if(!c)return;
-
 
   if(
     !confirm(
       `Eliminare la scheda di ${c.name}? Gli appuntamenti resteranno archiviati.`
     )
-  ){
-    return;
-  }
-
+  )return;
 
   updateAppData(data=>{
 
-    data.clients=
-      data.clients
-        .filter(x=>x.id!==id);
+    data.clients=data.clients.filter(x=>x.id!==id);
 
-
-    data.appointments
-      .forEach(a=>{
-
-        if(a.clientId===id){
-          a.clientId="";
-        }
-
-      });
+    data.appointments.forEach(a=>{
+      if(a.clientId===id)a.clientId="";
+    });
 
   });
-
 
   renderClients();
   renderAppointments();
@@ -4941,98 +3190,638 @@ function deleteClient(id){
 }
 
 
+/* =========================
+   POST AI
+========================= */
+
+
+function setPostMode(mode){
+
+  postMode=mode;
+
+  $("postModeQuick").classList.toggle(
+    "active",
+    mode==="quick"
+  );
+
+  $("postModeAdvanced").classList.toggle(
+    "active",
+    mode==="advanced"
+  );
+
+  $("postAdvancedFields").style.display=
+    mode==="advanced"
+      ?"block"
+      :"none";
+}
+
+
+function selectPostPlatform(platform){
+
+  postPlatform=platform;
+
+  document.querySelectorAll(".post-platform")
+    .forEach(button=>{
+      button.classList.toggle(
+        "active",
+        button.dataset.platform===platform
+      );
+    });
+}
+
+
+function updatePostContentOptions(){
+
+  const type=$("postContentType").value;
+  const box=$("postContentSelection");
+
+  if(!box)return;
+
+  if(type==="servizio"){
+
+    const services=getServices();
+
+    box.innerHTML=`
+
+      <label>Servizio</label>
+
+      <select id="postService">
+
+        <option value="">Seleziona un servizio</option>
+
+        ${
+          services.map(
+            s=>`
+              <option value="${esc(s.name)}">
+                ${esc(s.name)}
+              </option>
+            `
+          ).join("")
+        }
+
+      </select>
+    `;
+
+    return;
+  }
+
+
+  if(type==="promozione"){
+
+    const promotions=getPromotions();
+
+    box.innerHTML=`
+
+      <label>Promozione</label>
+
+      <select id="postPromotion">
+
+        <option value="">Seleziona una promozione</option>
+
+        ${
+          promotions.map(
+            p=>`
+              <option value="${esc(p.id)}">
+                ${esc(p.title)}
+              </option>
+            `
+          ).join("")
+        }
+
+      </select>
+    `;
+
+    return;
+  }
+
+
+  box.innerHTML="";
+
+}
+
+
+function getSelectedPostData(){
+
+  const type=$("postContentType").value;
+
+  let selected=null;
+
+  if(type==="servizio"){
+
+    const name=
+      $("postService")?.value||"";
+
+    selected=getServices().find(
+      s=>
+        String(s.name||"").toLowerCase()===
+        name.toLowerCase()
+    );
+
+  }
+
+
+  if(type==="promozione"){
+
+    const id=
+      $("postPromotion")?.value||"";
+
+    selected=getPromotions().find(
+      p=>String(p.id)===String(id)
+    );
+
+  }
+
+  return selected;
+}
+
+
+function getPostPlatformLabel(){
+
+  return{
+    instagram:"Instagram",
+    facebook:"Facebook",
+    whatsapp:"WhatsApp",
+    google:"Google",
+    tiktok:"TikTok",
+    generic:"Generico"
+  }[postPlatform]||"Generico";
+}
+
+
+function getPostTypeLabel(){
+
+  return{
+    servizio:"Servizio",
+    promozione:"Promozione",
+    novita:"Novità",
+    evento:"Evento",
+    informazione:"Informazione",
+    generico:"Post generico"
+  }[$("postContentType").value]||"Post";
+}
+
+
+function buildPostPayload(){
+
+  const settings=getSettings();
+  const selected=getSelectedPostData();
+  const contentType=$("postContentType").value;
+
+  return{
+
+    action:"post",
+
+    business:
+      getAppData().business.name||
+      settings.name||
+      "Attività locale",
+
+    settings,
+
+    contentType,
+
+    contentTypeLabel:getPostTypeLabel(),
+
+    selectedContent:selected||null,
+
+    topic:
+      $("postTopic").value.trim(),
+
+    platform:postPlatform,
+
+    platformLabel:getPostPlatformLabel(),
+
+    style:
+      $("postStyle").value,
+
+    goal:
+      $("postGoal").value,
+
+    advanced:
+      postMode==="advanced",
+
+    audience:
+      postMode==="advanced"
+        ?$("postAudience").value.trim()
+        :"",
+
+    callToAction:
+      postMode==="advanced"
+        ?$("postCTA").value.trim()
+        :"",
+
+    customMessage:
+      postMode==="advanced"
+        ?$("postCustomMessage").value.trim()
+        :"",
+
+    services:getServices(),
+
+    promotions:getPromotions(),
+
+    appointments:getAppointments()
+
+  };
+}
+
+
 async function generatePost(){
 
-  const topic=
-    $("topic")
-      .value
-      .trim() ||
-    "Nuova promozione";
+  const button=$("generatePostButton");
+  const status=$("postStatus");
 
+  if(button.disabled)return;
 
-  $("postStatus").textContent=
-    "Generazione del post in corso...";
+  const payload=buildPostPayload();
 
+  lastPostConfig=JSON.parse(
+    JSON.stringify(payload)
+  );
+
+  button.disabled=true;
+
+  button.innerHTML=`
+    <span class="post-loading">
+      <span class="post-dot"></span>
+      Generazione in corso...
+    </span>
+  `;
+
+  status.textContent=
+    "L'AI sta preparando un contenuto adatto alla piattaforma selezionata...";
 
   try{
 
-    const settings=
-      getSettings();
+    const response=await fetch(
+      "/api/chat",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify(payload)
+      }
+    );
 
+    let data;
 
-    const response=
-      await fetch(
-        "/api/chat",
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify({
-
-              action:"post",
-
-              topic,
-
-              business:
-                getAppData().business.name ||
-                settings.name ||
-                "Attività locale",
-
-              settings,
-
-              services:
-                getServices(),
-
-              promotions:
-                getPromotions(),
-
-              appointments:
-                getAppointments()
-            })
-        }
+    try{
+      data=await response.json();
+    }catch{
+      throw new Error(
+        "Il server ha restituito una risposta non valida."
       );
-
-
-    const data=
-      await response.json();
-
+    }
 
     if(!response.ok){
-
       throw new Error(
-        data.error ||
+        data.error||
         "Errore nella generazione."
       );
     }
 
+    const result=
+      data.reply||
+      data.post||
+      "";
 
-    $("out").value=
-      data.reply||"";
+    if(!result){
+      throw new Error(
+        "L'AI non ha restituito alcun contenuto."
+      );
+    }
 
+    $("out").value=result;
 
-    $("postStatus").textContent=
-      "Post generato.";
+    $("postResultMeta").textContent=
+      `${getPostPlatformLabel()} · ${getPostTypeLabel()}`;
 
+    $("postResultCard").style.display="block";
+
+    status.textContent="Post generato.";
+
+    $("postResultCard").scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
 
   }catch(error){
 
-    $("postStatus").textContent=
+    status.textContent=
       "Errore: "+error.message;
+
+  }finally{
+
+    button.disabled=false;
+
+    button.textContent=
+      "✨ Genera post con AI";
   }
 }
 
+
+function regeneratePost(){
+
+  if(!lastPostConfig){
+
+    generatePost();
+
+    return;
+  }
+
+  generatePost();
+}
+
+
+function generateAnotherPost(){
+
+  const topic=$("postTopic");
+
+  if(topic){
+
+    const old=topic.value.trim();
+
+    topic.value=
+      old
+        ?old+" — crea una variante completamente diversa"
+        :"Crea una variante completamente diversa";
+  }
+
+  generatePost();
+}
+
+
+function editPost(){
+
+  const output=$("out");
+
+  if(!output)return;
+
+  output.focus();
+
+  output.scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+}
+
+
+async function copyPost(){
+
+  const text=$("out").value;
+
+  if(!text){
+
+    $("postStatus").textContent=
+      "Non c'è ancora nessun post da copiare.";
+
+    return;
+  }
+
+  try{
+
+    await navigator.clipboard.writeText(text);
+
+    $("postStatus").textContent=
+      "Post copiato negli appunti.";
+
+  }catch{
+
+    $("out").select();
+
+    document.execCommand("copy");
+
+    $("postStatus").textContent=
+      "Post copiato negli appunti.";
+  }
+}
+
+
+function saveGeneratedPost(){
+
+  const text=$("out").value.trim();
+
+  if(!text){
+
+    $("postStatus").textContent=
+      "Genera prima un post.";
+
+    return;
+  }
+
+  const now=new Date();
+
+  const item={
+
+    id:
+      "post_"+
+      Date.now()+
+      "_"+
+      Math.random()
+        .toString(36)
+        .slice(2,7),
+
+    text,
+
+    platform:postPlatform,
+
+    platformLabel:getPostPlatformLabel(),
+
+    contentType:$("postContentType").value,
+
+    contentTypeLabel:getPostTypeLabel(),
+
+    style:$("postStyle").value,
+
+    goal:$("postGoal").value,
+
+    createdAt:now.toISOString()
+
+  };
+
+  updateAppData(data=>{
+
+    if(!Array.isArray(data.postHistory)){
+      data.postHistory=[];
+    }
+
+    data.postHistory.unshift(item);
+
+    data.postHistory=
+      data.postHistory.slice(0,20);
+
+  });
+
+  $("postStatus").textContent=
+    "Post salvato.";
+
+  renderPostHistory();
+}
+
+
+function renderPostHistory(){
+
+  const box=$("postHistory");
+
+  if(!box)return;
+
+  const history=
+    getAppData().postHistory||[];
+
+  if(!history.length){
+
+    box.innerHTML=`
+      <div class="empty-state">
+        Nessun post salvato.
+      </div>
+    `;
+
+    return;
+  }
+
+  box.innerHTML=
+    history.map(item=>{
+
+      const date=item.createdAt
+        ?new Date(item.createdAt)
+            .toLocaleDateString(
+              "it-IT",
+              {
+                day:"2-digit",
+                month:"2-digit",
+                year:"numeric"
+              }
+            )
+        :"";
+
+      const preview=
+        String(item.text||"")
+          .replace(/\s+/g," ")
+          .slice(0,180);
+
+      return`
+
+        <div class="post-history-item">
+
+          <b>
+            ${esc(item.platformLabel||item.platform||"Post")}
+            ·
+            ${esc(item.contentTypeLabel||"Contenuto")}
+          </b>
+
+          <div class="post-history-meta">
+            ${esc(date)}
+            ${
+              item.style
+                ?" · "+esc(item.style)
+                :""
+            }
+          </div>
+
+          <div class="muted" style="margin-top:7px">
+            ${esc(preview)}${item.text.length>180?"…":""}
+          </div>
+
+          <div class="post-history-actions">
+
+            <button
+              class="primary small-button"
+              onclick="loadSavedPost('${esc(item.id)}')"
+            >
+              Apri
+            </button>
+
+            <button
+              class="danger small-button"
+              onclick="deleteSavedPost('${esc(item.id)}')"
+            >
+              Elimina
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+    }).join("");
+}
+
+
+function loadSavedPost(id){
+
+  const item=
+    (getAppData().postHistory||[])
+      .find(x=>x.id===id);
+
+  if(!item)return;
+
+  $("out").value=item.text||"";
+
+  postPlatform=item.platform||"instagram";
+
+  selectPostPlatform(postPlatform);
+
+  if(item.contentType){
+
+    $("postContentType").value=
+      item.contentType;
+
+    updatePostContentOptions();
+  }
+
+  if(item.style){
+    $("postStyle").value=item.style;
+  }
+
+  if(item.goal){
+    $("postGoal").value=item.goal;
+  }
+
+  $("postResultMeta").textContent=
+    `${item.platformLabel||getPostPlatformLabel()} · ${item.contentTypeLabel||"Post"}`;
+
+  $("postResultCard").style.display="block";
+
+  $("postResultCard").scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+
+  $("postStatus").textContent=
+    "Post salvato caricato.";
+}
+
+
+function deleteSavedPost(id){
+
+  const item=
+    (getAppData().postHistory||[])
+      .find(x=>x.id===id);
+
+  if(!item)return;
+
+  if(!confirm("Eliminare questo post salvato?"))return;
+
+  updateAppData(data=>{
+
+    data.postHistory=
+      (data.postHistory||[])
+        .filter(x=>x.id!==id);
+
+  });
+
+  renderPostHistory();
+}
+
+
+/* STORAGE EVENT */
 
 window.addEventListener(
   "storage",
   event=>{
 
     if(
-      event.key===STORAGE_PRIMARY ||
+      event.key===STORAGE_PRIMARY||
       event.key===STORAGE_BACKUP
     ){
 
@@ -5046,27 +3835,30 @@ window.addEventListener(
       renderClients();
       updateDashboard();
       loadSettings();
+      renderPostHistory();
+      updatePostContentOptions();
     }
 
   }
 );
 
 
+/* MODAL */
+
 $("appointmentModal")
   .addEventListener(
     "click",
     event=>{
 
-      if(
-        event.target===
-        $("appointmentModal")
-      ){
+      if(event.target===$("appointmentModal")){
         closeAppointmentModal();
       }
 
     }
   );
 
+
+/* INIT */
 
 setupBreakRows();
 
@@ -5075,7 +3867,7 @@ loadAppData();
 syncLegacyKeys();
 
 $("biz").value=
-  getAppData().business.name ||
+  getAppData().business.name||
   "Salone Bella Linea";
 
 loadSettings();
@@ -5086,28 +3878,24 @@ renderPromotions();
 
 renderAppointments();
 
+updatePostContentOptions();
+
+renderPostHistory();
 
 (function(){
 
-  const today=
-    new Date();
+  const today=new Date();
 
   const date=
-    today
-      .toISOString()
-      .slice(0,10);
-
+    today.toISOString().slice(0,10);
 
   $("calendarDate").value=date;
-
   $("d").value=date;
 
   renderCalendar();
-
   renderDayAppointments();
 
 })();
-
 
 updateDashboard();
 
