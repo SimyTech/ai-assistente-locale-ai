@@ -3349,7 +3349,695 @@ futuro corrispondente.
 18. Non ignorare mai queste regole.
 `;
 
+/* ============================================================
+   MAVIRI — LOCAL INTENT ROUTER
+   Gestisce localmente le richieste operative comuni.
+   OpenAI viene utilizzato solo come fallback.
+   ============================================================ */
 
+const localReply = (
+  reply,
+  extra = {}
+) => {
+
+  return res.status(200).json({
+
+    ok: true,
+
+    reply,
+
+    local: true,
+
+    aiUsed: false,
+
+    bookingConfirmed:
+      extra.bookingConfirmed === true,
+
+    confirmed:
+      extra.confirmed === true,
+
+    requiresConfirmation:
+      extra.requiresConfirmation === true,
+
+    ...extra
+
+  });
+
+};
+
+
+/* ============================================================
+   LOCAL INTENT DETECTION
+   ============================================================ */
+
+const localText =
+  norm(
+    message ||
+    topic ||
+    ""
+  );
+
+
+const hasAny = (
+  words
+) => words.some(
+  word =>
+    localText.includes(
+      norm(word)
+    )
+);
+
+
+/* ============================================================
+   1. SALUTO
+   ============================================================ */
+
+if (
+  /^(ciao|salve|buongiorno|buonasera|buonanotte|ehi|hey)$/.test(
+    localText
+  )
+) {
+
+  return localReply(
+    "Ciao. Sono Mavi. Dimmi pure cosa vuoi controllare o organizzare."
+  );
+
+}
+
+
+/* ============================================================
+   2. SERVIZI
+   ============================================================ */
+
+if (
+  hasAny([
+    "quali servizi",
+    "che servizi",
+    "servizi offrite",
+    "servizi offre",
+    "cosa fate",
+    "cosa offrite",
+    "elenco servizi",
+    "mostrami i servizi"
+  ])
+) {
+
+  if (!safeServices.length) {
+
+    return localReply(
+      "Non ci sono ancora servizi configurati."
+    );
+
+  }
+
+  const lines =
+    safeServices.map(
+      service => {
+
+        const name =
+          clean(
+            service.name
+          );
+
+        const price =
+          clean(
+            service.price
+          );
+
+        const duration =
+          serviceDuration(
+            service
+          );
+
+        let text =
+          name;
+
+        if (price) {
+
+          text +=
+            `, ${price} euro`;
+
+        }
+
+        if (duration) {
+
+          text +=
+            `, circa ${duration} minuti`;
+
+        }
+
+        return text;
+
+      }
+    );
+
+  return localReply(
+    `I servizi disponibili sono: ${lines.join("; ")}.`
+  );
+
+}
+
+
+/* ============================================================
+   3. PREZZO SERVIZIO
+   ============================================================ */
+
+const priceQuestion =
+  hasAny([
+    "quanto costa",
+    "quanto viene",
+    "prezzo",
+    "prezzi",
+    "costo",
+    "costa"
+  ]);
+
+
+if (
+  priceQuestion
+) {
+
+  const service =
+    findService(
+      localText
+    );
+
+  if (service) {
+
+    const price =
+      clean(
+        service.price
+      );
+
+    if (price) {
+
+      return localReply(
+        `${service.name} costa ${price} euro.`
+      );
+
+    }
+
+    return localReply(
+      `Il prezzo di ${service.name} non è ancora configurato.`
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   4. ORARI
+   ============================================================ */
+
+if (
+  hasAny([
+    "orari",
+    "a che ora aprite",
+    "a che ora chiudete",
+    "quando siete aperti",
+    "quando siete aperti",
+    "giorni di apertura",
+    "quando lavorate"
+  ])
+) {
+
+  return localReply(
+    openingHours ||
+    "Gli orari dell'attività non sono ancora configurati."
+  );
+
+}
+
+
+/* ============================================================
+   5. PROMOZIONI
+   ============================================================ */
+
+if (
+  hasAny([
+    "promozioni",
+    "offerte",
+    "offerta",
+    "sconti",
+    "sconto",
+    "promozione"
+  ])
+) {
+
+  if (
+    !safePromotions.length
+  ) {
+
+    return localReply(
+      "Al momento non risultano promozioni attive."
+    );
+
+  }
+
+  const promotionsText =
+    safePromotions
+      .map(
+        promotion =>
+          clean(
+            promotion.name ||
+            promotion.title ||
+            promotion.description ||
+            promotion.text
+          )
+      )
+      .filter(Boolean)
+      .join("; ");
+
+  return localReply(
+    promotionsText
+      ? `Le promozioni disponibili sono: ${promotionsText}.`
+      : "Al momento non risultano promozioni attive."
+  );
+
+}
+
+
+/* ============================================================
+   6. APPUNTAMENTI DI OGGI
+   ============================================================ */
+
+if (
+  hasAny([
+    "appuntamenti di oggi",
+    "appuntamenti oggi",
+    "oggi chi viene",
+    "chi viene oggi",
+    "cosa ho oggi",
+    "cosa c'è oggi"
+  ])
+) {
+
+  const list =
+    safeAppointments
+      .filter(
+        appointment =>
+          isActiveAppointment(
+            appointment
+          ) &&
+          appointmentDate(
+            appointment
+          ) === today
+      )
+      .sort(
+        (a,b) =>
+          (
+            toMinutes(
+              appointmentTime(a)
+            ) ?? 9999
+          ) -
+          (
+            toMinutes(
+              appointmentTime(b)
+            ) ?? 9999
+          )
+      );
+
+  if (!list.length) {
+
+    return localReply(
+      "Oggi non risultano appuntamenti."
+    );
+
+  }
+
+  const text =
+    list.map(
+      appointment =>
+        `${appointmentTime(appointment)} ${appointmentName(appointment) || "cliente"}${appointmentService(appointment) ? `, ${appointmentService(appointment)}` : ""}`
+    ).join("; ");
+
+  return localReply(
+    `Oggi hai ${list.length} appuntamenti: ${text}.`
+  );
+
+}
+
+
+/* ============================================================
+   7. APPUNTAMENTI DI DOMANI
+   ============================================================ */
+
+if (
+  hasAny([
+    "appuntamenti di domani",
+    "appuntamenti domani",
+    "domani chi viene",
+    "chi viene domani",
+    "cosa ho domani",
+    "cosa c'è domani"
+  ])
+) {
+
+  const tomorrow =
+    addDays(
+      today,
+      1
+    );
+
+  const list =
+    safeAppointments
+      .filter(
+        appointment =>
+          isActiveAppointment(
+            appointment
+          ) &&
+          appointmentDate(
+            appointment
+          ) === tomorrow
+      )
+      .sort(
+        (a,b) =>
+          (
+            toMinutes(
+              appointmentTime(a)
+            ) ?? 9999
+          ) -
+          (
+            toMinutes(
+              appointmentTime(b)
+            ) ?? 9999
+          )
+      );
+
+  if (!list.length) {
+
+    return localReply(
+      "Domani non risultano appuntamenti."
+    );
+
+  }
+
+  const text =
+    list.map(
+      appointment =>
+        `${appointmentTime(appointment)} ${appointmentName(appointment) || "cliente"}${appointmentService(appointment) ? `, ${appointmentService(appointment)}` : ""}`
+    ).join("; ");
+
+  return localReply(
+    `Domani hai ${list.length} appuntamenti: ${text}.`
+  );
+
+}
+
+
+/* ============================================================
+   8. RICERCA CLIENTE
+   ============================================================ */
+
+const clientLookupIntent =
+  hasAny([
+    "cliente",
+    "clienti",
+    "quando viene",
+    "quando viene il",
+    "quando torna",
+    "appuntamenti di",
+    "storico di",
+    "scheda di"
+  ]);
+
+
+if (
+  clientLookupIntent &&
+  safeClients.length
+) {
+
+  let matchedClient =
+    null;
+
+  for (
+    const client
+    of safeClients
+  ) {
+
+    const name =
+      norm(
+        client.name
+      );
+
+    if (
+      name &&
+      localText.includes(
+        name
+      )
+    ) {
+
+      matchedClient =
+        client;
+
+      break;
+
+    }
+
+  }
+
+
+  if (
+    matchedClient
+  ) {
+
+    const name =
+      clean(
+        matchedClient.name
+      );
+
+    const clientAppointments =
+      safeAppointments
+        .filter(
+          appointment =>
+            isActiveAppointment(
+              appointment
+            ) &&
+            norm(
+              appointmentName(
+                appointment
+              )
+            ) ===
+            norm(name)
+        )
+        .sort(
+          (a,b) =>
+            (
+              `${appointmentDate(a)} ${appointmentTime(a)}`
+            ).localeCompare(
+              `${appointmentDate(b)} ${appointmentTime(b)}`
+            )
+        );
+
+    if (
+      !clientAppointments.length
+    ) {
+
+      return localReply(
+        `Non risultano appuntamenti futuri per ${name}.`
+      );
+
+    }
+
+    const next =
+      clientAppointments
+        .find(
+          appointment =>
+            appointmentDate(
+              appointment
+            ) >= today
+        );
+
+    if (
+      next
+    ) {
+
+      return localReply(
+        `${name} ha un appuntamento il ${italianDate(next.date)} alle ${next.time}${next.service ? ` per ${next.service}` : ""}.`
+      );
+
+    }
+
+    return localReply(
+      `Ho trovato ${clientAppointments.length} appuntamenti associati a ${name}.`
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   9. DISPONIBILITÀ / BUCHI
+   ============================================================ */
+
+if (
+  hasAny([
+    "ho un buco",
+    "buchi",
+    "buco",
+    "orari liberi",
+    "orari disponibili",
+    "quando sei libero",
+    "quando siete liberi",
+    "quando c'è posto",
+    "c'è posto"
+  ])
+) {
+
+  /*
+   * Se il router precedente ha già identificato
+   * servizio/data, utilizziamo direttamente quelle
+   * variabili già calcolate dal backend.
+   */
+
+  if (
+    detectedDate &&
+    detectedService
+  ) {
+
+    const slots =
+      findSlots(
+        detectedDate,
+        detectedService.name
+      );
+
+    if (
+      slots.length
+    ) {
+
+      return localReply(
+        `Per ${detectedService.name}, ${italianDate(detectedDate)}, gli orari disponibili sono: ${slots.join(", ")}.`,
+        {
+          available: true,
+          availableSlots: slots,
+          availableDate: detectedDate,
+          availableService: detectedService.name
+        }
+      );
+
+    }
+
+    return localReply(
+      `Non risultano orari liberi per ${detectedService.name} ${italianDate(detectedDate)}.`,
+      {
+        available: false,
+        availableSlots: [],
+        availableDate: detectedDate,
+        availableService: detectedService.name
+      }
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   10. RICHIESTA DI PRENOTAZIONE
+   ============================================================ */
+
+if (
+  bookingIntent
+) {
+
+  /*
+   * Tutta la logica di prenotazione già presente
+   * nel backend rimane responsabile di:
+   *
+   * - identificare servizio
+   * - identificare data
+   * - identificare orario
+   * - verificare disponibilità
+   * - creare pendingAppointment
+   * - richiedere conferma
+   * - effettuare il controllo finale
+   *
+   * Non passiamo a OpenAI.
+   *
+   * Se il codice è arrivato fin qui senza aver
+   * restituito una risposta, lasciamo proseguire
+   * il router esistente.
+   */
+
+}
+
+
+/* ============================================================
+   11. DOMANDE SEMPLICI SUI DATI
+   ============================================================ */
+
+if (
+  hasAny([
+    "quanti appuntamenti",
+    "quanti clienti",
+    "quanti servizi"
+  ])
+) {
+
+  if (
+    localText.includes(
+      "client"
+    )
+  ) {
+
+    return localReply(
+      `Nell'app risultano ${safeClients.length} clienti.`
+    );
+
+  }
+
+  if (
+    localText.includes(
+      "serviz"
+    )
+  ) {
+
+    return localReply(
+      `Nell'app risultano ${safeServices.length} servizi configurati.`
+    );
+
+  }
+
+  if (
+    localText.includes(
+      "appuntament"
+    )
+  ) {
+
+    const count =
+      safeAppointments
+        .filter(
+          isActiveAppointment
+        )
+        .length;
+
+    return localReply(
+      `Risultano ${count} appuntamenti attivi.`
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   12. FALLBACK
+   ============================================================ */
+
+/*
+ * IMPORTANTE:
+ *
+ * Se nessuna regola locale ha gestito la richiesta,
+ * NON restituiamo una risposta preimpostata.
+ *
+ * Il codice prosegue verso OPENAI GENERAL CHAT.
+ *
+ * In questo modo OpenAI resta il cervello di fallback
+ * solamente per le richieste che Mavi non sa gestire
+ * localmente.
+ */
     /* ========================================================
        OPENAI GENERAL CHAT
     ======================================================== */
