@@ -3902,6 +3902,1723 @@ updateDashboard();
 renderPendingBox();
 
 </script>
+<!-- =========================================================
+     MAVIRI 2.0 — CENTRO OPERATIVO + MAVI VOICE
+     MODULO AUTONOMO
+     Inserire una sola volta prima di </body>
+     ========================================================= -->
 
+<style>
+/* =========================
+   MAVIRI OPERATING CENTER
+   ========================= */
+
+#maviriOperatingCenter{
+  width:100%;
+  margin:0 0 18px;
+  border-radius:24px;
+  overflow:hidden;
+  color:#fff;
+  background:
+    radial-gradient(circle at 85% 10%,rgba(96,165,250,.22),transparent 32%),
+    radial-gradient(circle at 10% 90%,rgba(59,130,246,.16),transparent 35%),
+    linear-gradient(135deg,#0f172a,#172554 58%,#1d4ed8);
+  box-shadow:0 14px 40px rgba(15,23,42,.18);
+  position:relative;
+  box-sizing:border-box;
+}
+
+#maviriOperatingCenter *{
+  box-sizing:border-box;
+}
+
+.maviri-inner{
+  padding:20px;
+  position:relative;
+  z-index:2;
+}
+
+.maviri-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.maviri-brand{
+  min-width:0;
+}
+
+.maviri-brand-name{
+  margin:0;
+  font-size:26px;
+  line-height:1.1;
+  font-weight:850;
+  letter-spacing:-.7px;
+}
+
+.maviri-brand-subtitle{
+  margin:5px 0 0;
+  font-size:13px;
+  color:#bfdbfe;
+}
+
+.mavi-orb{
+  width:72px;
+  height:72px;
+  min-width:72px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  background:
+    radial-gradient(
+      circle at 34% 28%,
+      #ffffff 0%,
+      #dbeafe 20%,
+      #93c5fd 40%,
+      #3b82f6 67%,
+      #1e3a8a 100%
+    );
+  box-shadow:
+    0 0 0 7px rgba(147,197,253,.10),
+    0 0 34px rgba(96,165,250,.42);
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+
+.mavi-orb:before{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:50%;
+  border:1px solid rgba(191,219,254,.18);
+}
+
+.mavi-orb-core{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 0 18px rgba(255,255,255,.95);
+}
+
+.mavi-status{
+  margin-top:14px;
+  min-height:20px;
+  color:#dbeafe;
+  font-size:13px;
+  position:relative;
+  z-index:2;
+}
+
+.mavi-actions{
+  display:flex;
+  gap:9px;
+  margin-top:15px;
+  position:relative;
+  z-index:2;
+}
+
+#maviTalkButton,
+#maviStopButton{
+  appearance:none;
+  border:0;
+  outline:none;
+  cursor:pointer;
+  font:inherit;
+  border-radius:14px;
+  padding:12px 16px;
+  min-height:46px;
+  font-weight:800;
+  transition:transform .15s ease,opacity .15s ease,background .15s ease;
+}
+
+#maviTalkButton{
+  flex:1;
+  color:#1d4ed8;
+  background:#fff;
+}
+
+#maviTalkButton:active,
+#maviStopButton:active{
+  transform:scale(.98);
+}
+
+#maviTalkButton:hover{
+  background:#eff6ff;
+}
+
+#maviStopButton{
+  display:none;
+  color:#fff;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);
+}
+
+.mavi-message{
+  display:none;
+  margin-top:12px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.10);
+  color:#e0f2fe;
+  font-size:13px;
+  line-height:1.45;
+}
+
+.mavi-message.show{
+  display:block;
+}
+
+.maviri-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  margin-top:15px;
+}
+
+.maviri-summary-card{
+  min-width:0;
+  padding:12px;
+  border-radius:15px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.10);
+}
+
+.maviri-summary-value{
+  font-size:21px;
+  line-height:1.15;
+  font-weight:850;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.maviri-summary-label{
+  margin-top:5px;
+  color:#bfdbfe;
+  font-size:11px;
+}
+
+/* =========================
+   MAVI STATES
+   ========================= */
+
+html[data-mavi-state="listening"] .mavi-orb{
+  transform:scale(1.06);
+  animation:maviListening 1.1s infinite ease-in-out;
+  box-shadow:
+    0 0 0 10px rgba(96,165,250,.12),
+    0 0 42px rgba(96,165,250,.62);
+}
+
+html[data-mavi-state="processing"] .mavi-orb{
+  animation:maviProcessing .8s infinite linear;
+  box-shadow:
+    0 0 0 9px rgba(96,165,250,.11),
+    0 0 40px rgba(96,165,250,.55);
+}
+
+html[data-mavi-state="speaking"] .mavi-orb{
+  animation:maviSpeaking .55s infinite ease-in-out;
+  box-shadow:
+    0 0 0 9px rgba(96,165,250,.14),
+    0 0 48px rgba(96,165,250,.70);
+}
+
+@keyframes maviListening{
+  0%,100%{
+    transform:scale(1);
+  }
+  50%{
+    transform:scale(1.10);
+  }
+}
+
+@keyframes maviProcessing{
+  0%{
+    transform:rotate(0deg) scale(1);
+  }
+  50%{
+    transform:rotate(180deg) scale(1.04);
+  }
+  100%{
+    transform:rotate(360deg) scale(1);
+  }
+}
+
+@keyframes maviSpeaking{
+  0%,100%{
+    transform:scale(1);
+  }
+  50%{
+    transform:scale(1.13);
+  }
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media(max-width:600px){
+
+  .maviri-inner{
+    padding:17px;
+  }
+
+  .maviri-brand-name{
+    font-size:23px;
+  }
+
+  .mavi-orb{
+    width:62px;
+    height:62px;
+    min-width:62px;
+  }
+
+  .maviri-summary{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .maviri-summary-card:last-child{
+    grid-column:1/-1;
+  }
+
+}
+
+@media(max-width:380px){
+
+  .maviri-summary{
+    grid-template-columns:1fr;
+  }
+
+  .maviri-summary-card:last-child{
+    grid-column:auto;
+  }
+
+}
+</style>
+
+
+<!-- =========================================================
+     MAVIRI OPERATING CENTER
+     ========================================================= -->
+
+<section
+  id="maviriOperatingCenter"
+  aria-label="Centro operativo Maviri"
+>
+
+  <div class="maviri-inner">
+
+    <div class="maviri-header">
+
+      <div class="maviri-brand">
+
+        <h2 class="maviri-brand-name">
+          Maviri
+        </h2>
+
+        <p class="maviri-brand-subtitle">
+          Il tuo manager digitale
+        </p>
+
+      </div>
+
+      <div
+        id="maviOrb"
+        class="mavi-orb"
+        aria-label="Mavi"
+        title="Mavi"
+      >
+
+        <div class="mavi-orb-core"></div>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="maviStatus"
+      class="mavi-status"
+      aria-live="polite"
+    >
+      Mavi è pronta
+    </div>
+
+
+    <div class="mavi-actions">
+
+      <button
+        id="maviTalkButton"
+        type="button"
+      >
+        Parla con Mavi
+      </button>
+
+      <button
+        id="maviStopButton"
+        type="button"
+      >
+        Interrompi
+      </button>
+
+    </div>
+
+
+    <div
+      id="maviMessage"
+      class="mavi-message"
+      aria-live="polite"
+    ></div>
+
+
+    <div class="maviri-summary">
+
+      <div class="maviri-summary-card">
+
+        <div
+          id="maviTodayCount"
+          class="maviri-summary-value"
+        >
+          0
+        </div>
+
+        <div class="maviri-summary-label">
+          Appuntamenti oggi
+        </div>
+
+      </div>
+
+
+      <div class="maviri-summary-card">
+
+        <div
+          id="maviNextClient"
+          class="maviri-summary-value"
+        >
+          —
+        </div>
+
+        <div class="maviri-summary-label">
+          Prossimo cliente
+        </div>
+
+      </div>
+
+
+      <div class="maviri-summary-card">
+
+        <div
+          id="maviNextTime"
+          class="maviri-summary-value"
+        >
+          —
+        </div>
+
+        <div class="maviri-summary-label">
+          Prossimo appuntamento
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<script>
+/* =========================================================
+   MAVIRI 2.0
+   MAVI — VOCE + CENTRO OPERATIVO
+   ========================================================= */
+
+(function(){
+
+  "use strict";
+
+
+  /* =======================================================
+     UTILITÀ
+     ======================================================= */
+
+  function getElement(id){
+
+    return document.getElementById(id);
+
+  }
+
+
+  function setText(id,text){
+
+    const element =
+      getElement(id);
+
+    if(element){
+
+      element.textContent =
+        text == null
+          ? ""
+          : String(text);
+
+    }
+
+  }
+
+
+  function getAppData(){
+
+    try{
+
+      const raw =
+        localStorage.getItem(
+          "appData"
+        );
+
+      if(!raw){
+
+        return null;
+
+      }
+
+      return JSON.parse(
+        raw
+      );
+
+    }catch(error){
+
+      return null;
+
+    }
+
+  }
+
+
+  function getTodayISO(){
+
+    const now =
+      new Date();
+
+    const year =
+      now.getFullYear();
+
+    const month =
+      String(
+        now.getMonth()+1
+      ).padStart(2,"0");
+
+    const day =
+      String(
+        now.getDate()
+      ).padStart(2,"0");
+
+    return (
+      year +
+      "-" +
+      month +
+      "-" +
+      day
+    );
+
+  }
+
+
+  function appointmentName(a){
+
+    return (
+      a.name ||
+      a.n ||
+      a.clientName ||
+      "Cliente"
+    );
+
+  }
+
+
+  function appointmentTime(a){
+
+    return (
+      a.time ||
+      a.t ||
+      ""
+    );
+
+  }
+
+
+  function appointmentDate(a){
+
+    return (
+      a.date ||
+      a.d ||
+      ""
+    );
+
+  }
+
+
+  function appointmentService(a){
+
+    return (
+      a.service ||
+      a.s ||
+      a.serviceName ||
+      ""
+    );
+
+  }
+
+
+  function appointmentStatus(a){
+
+    return (
+      a.status ||
+      "confirmed"
+    );
+
+  }
+
+
+  /* =======================================================
+     APPUNTAMENTI DI OGGI
+     ======================================================= */
+
+  function getTodayAppointments(){
+
+    const data =
+      getAppData();
+
+    if(
+      !data ||
+      !Array.isArray(
+        data.appointments
+      )
+    ){
+
+      return [];
+
+    }
+
+
+    const today =
+      getTodayISO();
+
+
+    return data.appointments
+
+      .filter(function(a){
+
+        return (
+          appointmentDate(a) === today &&
+          appointmentStatus(a) !== "cancelled"
+        );
+
+      })
+
+      .sort(function(a,b){
+
+        return appointmentTime(a)
+          .localeCompare(
+            appointmentTime(b)
+          );
+
+      });
+
+  }
+
+
+  /* =======================================================
+     AGGIORNA CENTRO OPERATIVO
+     ======================================================= */
+
+  function refreshMaviriCenter(){
+
+    const appointments =
+      getTodayAppointments();
+
+
+    setText(
+      "maviTodayCount",
+      appointments.length
+    );
+
+
+    if(!appointments.length){
+
+      setText(
+        "maviNextClient",
+        "—"
+      );
+
+      setText(
+        "maviNextTime",
+        "—"
+      );
+
+      return;
+
+    }
+
+
+    const next =
+      appointments[0];
+
+
+    setText(
+      "maviNextClient",
+      appointmentName(next)
+    );
+
+
+    setText(
+      "maviNextTime",
+      appointmentTime(next) || "—"
+    );
+
+  }
+
+
+  /* =======================================================
+     STATO MAVI
+     ======================================================= */
+
+  const Mavi = {
+
+    recognition:null,
+
+    listening:false,
+
+    speaking:false,
+
+
+    setState:function(state){
+
+      document.documentElement
+        .setAttribute(
+          "data-mavi-state",
+          state
+        );
+
+
+      const labels = {
+
+        idle:
+          "Mavi è pronta",
+
+        listening:
+          "Mavi ti sta ascoltando…",
+
+        processing:
+          "Mavi sta elaborando…",
+
+        speaking:
+          "Mavi sta parlando…"
+
+      };
+
+
+      setText(
+        "maviStatus",
+        labels[state] ||
+        labels.idle
+      );
+
+    },
+
+
+    message:function(text){
+
+      const box =
+        getElement(
+          "maviMessage"
+        );
+
+      if(!box){
+
+        return;
+
+      }
+
+
+      if(!text){
+
+        box.textContent =
+          "";
+
+        box.classList.remove(
+          "show"
+        );
+
+        return;
+
+      }
+
+
+      box.textContent =
+        text;
+
+      box.classList.add(
+        "show"
+      );
+
+    },
+
+
+    resetButtons:function(){
+
+      const talk =
+        getElement(
+          "maviTalkButton"
+        );
+
+      const stop =
+        getElement(
+          "maviStopButton"
+        );
+
+
+      if(talk){
+
+        talk.style.display =
+          "block";
+
+      }
+
+
+      if(stop){
+
+        stop.style.display =
+          "none";
+
+      }
+
+    },
+
+
+    stopSpeaking:function(){
+
+      if(
+        window.speechSynthesis
+      ){
+
+        window.speechSynthesis.cancel();
+
+      }
+
+
+      this.speaking =
+        false;
+
+      this.setState(
+        "idle"
+      );
+
+    },
+
+
+    speak:function(text){
+
+      if(!text){
+
+        return;
+
+      }
+
+
+      if(
+        !window.speechSynthesis
+      ){
+
+        this.message(
+          text
+        );
+
+        this.setState(
+          "idle"
+        );
+
+        return;
+
+      }
+
+
+      window.speechSynthesis.cancel();
+
+
+      this.speaking =
+        true;
+
+      this.setState(
+        "speaking"
+      );
+
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          String(text)
+        );
+
+
+      utterance.lang =
+        "it-IT";
+
+      utterance.rate =
+        1;
+
+      utterance.pitch =
+        1;
+
+
+      utterance.onend =
+        function(){
+
+          Mavi.speaking =
+            false;
+
+          Mavi.setState(
+            "idle"
+          );
+
+        };
+
+
+      utterance.onerror =
+        function(){
+
+          Mavi.speaking =
+            false;
+
+          Mavi.setState(
+            "idle"
+          );
+
+        };
+
+
+      window.speechSynthesis.speak(
+        utterance
+      );
+
+    },
+
+
+    start:function(){
+
+      const Recognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+      if(!Recognition){
+
+        const message =
+          "Il riconoscimento vocale non è disponibile in questo browser.";
+
+        this.message(
+          message
+        );
+
+        this.speak(
+          message
+        );
+
+        return;
+
+      }
+
+
+      this.stopSpeaking();
+
+
+      if(this.recognition){
+
+        try{
+
+          this.recognition.abort();
+
+        }catch(error){}
+
+      }
+
+
+      const recognition =
+        new Recognition();
+
+
+      this.recognition =
+        recognition;
+
+
+      recognition.lang =
+        "it-IT";
+
+
+      recognition.continuous =
+        false;
+
+
+      recognition.interimResults =
+        true;
+
+
+      recognition.maxAlternatives =
+        1;
+
+
+      recognition.onstart =
+        function(){
+
+          Mavi.listening =
+            true;
+
+          Mavi.setState(
+            "listening"
+          );
+
+
+          Mavi.message(
+            "Parla normalmente con Mavi."
+          );
+
+
+          const talk =
+            getElement(
+              "maviTalkButton"
+            );
+
+          const stop =
+            getElement(
+              "maviStopButton"
+            );
+
+
+          if(talk){
+
+            talk.style.display =
+              "none";
+
+          }
+
+
+          if(stop){
+
+            stop.style.display =
+              "block";
+
+          }
+
+        };
+
+
+      recognition.onresult =
+        function(event){
+
+          let transcript =
+            "";
+
+
+          for(
+            let i =
+              event.resultIndex;
+
+            i <
+              event.results.length;
+
+            i++
+          ){
+
+            transcript +=
+              event.results[i][0]
+                .transcript;
+
+          }
+
+
+          transcript =
+            transcript.trim();
+
+
+          if(transcript){
+
+            Mavi.message(
+              transcript
+            );
+
+          }
+
+
+          const lastResult =
+            event.results[
+              event.results.length-1
+            ];
+
+
+          if(
+            lastResult &&
+            lastResult.isFinal
+          ){
+
+            Mavi.process(
+              transcript
+            );
+
+          }
+
+        };
+
+
+      recognition.onerror =
+        function(event){
+
+          Mavi.listening =
+            false;
+
+          Mavi.setState(
+            "idle"
+          );
+
+
+          let message =
+            "Non sono riuscita a comprendere la richiesta.";
+
+
+          if(
+            event &&
+            event.error ===
+              "not-allowed"
+          ){
+
+            message =
+              "Il microfono non è autorizzato. Controlla i permessi del browser.";
+
+          }
+
+
+          Mavi.message(
+            message
+          );
+
+
+          Mavi.resetButtons();
+
+        };
+
+
+      recognition.onend =
+        function(){
+
+          Mavi.listening =
+            false;
+
+
+          if(
+            document.documentElement
+              .getAttribute(
+                "data-mavi-state"
+              ) ===
+              "listening"
+          ){
+
+            Mavi.setState(
+              "idle"
+            );
+
+          }
+
+
+          Mavi.resetButtons();
+
+        };
+
+
+      try{
+
+        recognition.start();
+
+      }catch(error){
+
+        Mavi.listening =
+          false;
+
+        Mavi.setState(
+          "idle"
+        );
+
+        Mavi.resetButtons();
+
+      }
+
+    },
+
+
+    stop:function(){
+
+      if(this.recognition){
+
+        try{
+
+          this.recognition.stop();
+
+        }catch(error){}
+
+      }
+
+
+      this.stopSpeaking();
+
+
+      this.listening =
+        false;
+
+
+      this.resetButtons();
+
+
+      this.message(
+        ""
+      );
+
+    },
+
+
+    process:function(text){
+
+      if(!text){
+
+        this.setState(
+          "idle"
+        );
+
+        return;
+
+      }
+
+
+      this.setState(
+        "processing"
+      );
+
+
+      const query =
+        String(text)
+          .toLowerCase()
+          .trim();
+
+
+      /* ================================================
+         COSA HO OGGI?
+         ================================================ */
+
+      if(
+        /cosa ho oggi|appuntamenti di oggi|che appuntamenti ho oggi|che appuntamenti ho/.test(
+          query
+        )
+      ){
+
+        const answer =
+          this.todaySummary();
+
+
+        this.message(
+          answer
+        );
+
+
+        this.speak(
+          answer
+        );
+
+
+        return;
+
+      }
+
+
+      /* ================================================
+         CHI VIENE OGGI?
+         ================================================ */
+
+      if(
+        /chi viene oggi|quali clienti ho oggi|clienti di oggi/.test(
+          query
+        )
+      ){
+
+        const answer =
+          this.todayClients();
+
+
+        this.message(
+          answer
+        );
+
+
+        this.speak(
+          answer
+        );
+
+
+        return;
+
+      }
+
+
+      /* ================================================
+         QUANTI APPUNTAMENTI?
+         ================================================ */
+
+      if(
+        /quanti appuntamenti|quanti clienti/.test(
+          query
+        )
+      ){
+
+        const appointments =
+          getTodayAppointments();
+
+
+        const answer =
+          appointments.length === 0
+
+            ? "Oggi non risultano appuntamenti."
+
+            :
+
+              "Oggi hai " +
+              appointments.length +
+              (
+                appointments.length === 1
+                  ? " appuntamento."
+                  : " appuntamenti."
+              );
+
+
+        this.message(
+          answer
+        );
+
+
+        this.speak(
+          answer
+        );
+
+
+        return;
+
+      }
+
+
+      /* ================================================
+         SERVIZI
+         ================================================ */
+
+      if(
+        /quali servizi|che servizi|elenco servizi/.test(
+          query
+        )
+      ){
+
+        const data =
+          getAppData();
+
+
+        const services =
+          data &&
+          Array.isArray(
+            data.services
+          )
+            ? data.services
+            : [];
+
+
+        if(!services.length){
+
+          const answer =
+            "Non risultano servizi configurati nell'app.";
+
+          this.message(
+            answer
+          );
+
+          this.speak(
+            answer
+          );
+
+          return;
+
+        }
+
+
+        const names =
+          services
+            .map(function(service){
+
+              return (
+                service.name ||
+                service.title ||
+                "Servizio"
+              );
+
+            })
+            .slice(0,10);
+
+
+        const answer =
+          "I servizi configurati sono: " +
+          names.join(", ") +
+          ".";
+
+
+        this.message(
+          answer
+        );
+
+
+        this.speak(
+          answer
+        );
+
+
+        return;
+
+      }
+
+
+      /* ================================================
+         CLIENTI
+         ================================================ */
+
+      if(
+        /quanti clienti|quanti clienti ho/.test(
+          query
+        )
+      ){
+
+        const data =
+          getAppData();
+
+
+        const clients =
+          data &&
+          Array.isArray(
+            data.clients
+          )
+            ? data.clients
+            : [];
+
+
+        const answer =
+          "Nella tua anagrafica risultano " +
+          clients.length +
+          (
+            clients.length === 1
+              ? " cliente."
+              : " clienti."
+          );
+
+
+        this.message(
+          answer
+        );
+
+
+        this.speak(
+          answer
+        );
+
+
+        return;
+
+      }
+
+
+      /* ================================================
+         RICHIESTA NON ANCORA COLLEGATA
+         ================================================ */
+
+      const answer =
+        "Ho ascoltato la richiesta. In questa prima versione posso già consultare gli appuntamenti e i dati principali dell'attività. Il prossimo passo sarà permettermi di eseguire direttamente le operazioni che mi chiedi.";
+
+
+      this.message(
+        answer
+      );
+
+
+      this.speak(
+        answer
+      );
+
+    },
+
+
+    todaySummary:function(){
+
+      const appointments =
+        getTodayAppointments();
+
+
+      if(!appointments.length){
+
+        return (
+          "Oggi non risultano appuntamenti."
+        );
+
+      }
+
+
+      let answer =
+        "Oggi hai " +
+        appointments.length +
+        (
+          appointments.length === 1
+            ? " appuntamento. "
+            : " appuntamenti. "
+        );
+
+
+      const first =
+        appointments[0];
+
+
+      answer +=
+        "Il primo è alle " +
+        (
+          appointmentTime(first) ||
+          "orario non indicato"
+        ) +
+        " con " +
+        appointmentName(first) +
+        ".";
+
+
+      if(
+        appointments.length > 1
+      ){
+
+        const last =
+          appointments[
+            appointments.length-1
+          ];
+
+
+        answer +=
+          " L'ultimo è alle " +
+          (
+            appointmentTime(last) ||
+            "orario non indicato"
+          ) +
+          " con " +
+          appointmentName(last) +
+          ".";
+
+      }
+
+
+      return answer;
+
+    },
+
+
+    todayClients:function(){
+
+      const appointments =
+        getTodayAppointments();
+
+
+      if(!appointments.length){
+
+        return (
+          "Oggi non risultano clienti prenotati."
+        );
+
+      }
+
+
+      const names =
+        appointments.map(
+          appointmentName
+        );
+
+
+      return (
+        "Oggi hai: " +
+        names.join(", ") +
+        "."
+      );
+
+    }
+
+  };
+
+
+  /* =======================================================
+     EVENTI UI
+     ======================================================= */
+
+  const talkButton =
+    getElement(
+      "maviTalkButton"
+    );
+
+
+  const stopButton =
+    getElement(
+      "maviStopButton"
+    );
+
+
+  if(talkButton){
+
+    talkButton.addEventListener(
+      "click",
+      function(){
+
+        Mavi.start();
+
+      }
+    );
+
+  }
+
+
+  if(stopButton){
+
+    stopButton.addEventListener(
+      "click",
+      function(){
+
+        Mavi.stop();
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     AGGIORNAMENTO AUTOMATICO
+     ======================================================= */
+
+  refreshMaviriCenter();
+
+
+  /*
+   * Controlla periodicamente i dati locali.
+   * Non modifica alcun dato.
+   */
+
+  setInterval(
+    refreshMaviriCenter,
+    3000
+  );
+
+
+  /*
+   * Se l'app esistente salva appData e genera
+   * eventi personalizzati, aggiorniamo anche subito.
+   */
+
+  window.addEventListener(
+    "storage",
+    function(event){
+
+      if(
+        event.key === "appData"
+      ){
+
+        refreshMaviriCenter();
+
+      }
+
+    }
+  );
+
+
+  /* =======================================================
+     API PUBBLICA
+     ======================================================= */
+
+  window.Mavi =
+    Mavi;
+
+
+  window.Maviri =
+    {
+
+      refresh:
+        refreshMaviriCenter,
+
+      speak:
+        function(text){
+
+          Mavi.speak(
+            text
+          );
+
+        },
+
+      talk:
+        function(){
+
+          Mavi.start();
+
+        },
+
+      stop:
+        function(){
+
+          Mavi.stop();
+
+        },
+
+      getTodayAppointments:
+        getTodayAppointments
+
+    };
+
+
+  /* =======================================================
+     AVVIO
+     ======================================================= */
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      function(){
+
+        refreshMaviriCenter();
+
+        Mavi.setState(
+          "idle"
+        );
+
+      }
+    );
+
+  }else{
+
+    refreshMaviriCenter();
+
+    Mavi.setState(
+      "idle"
+    );
+
+  }
+
+})();
+</script>
+<!-- =========================================================
+     FINE MODULO MAVIRI 2.0
+     ========================================================= -->
 </body>
 </html>
