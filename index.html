@@ -6395,5 +6395,514 @@ html[data-mavi-state="speaking"] #maviStatus{
 })();
 
 </script>
+  <!-- ============================================================
+     MAVIRI — MAVI LOCAL AI ENGINE
+     Nessuna OpenAI
+     Nessuna API key
+     Qwen3 ONNX + Transformers.js
+     WebGPU -> WASM
+     ============================================================ -->
+
+<script src="./mavi-engine.js"></script>
+
+<script>
+(function () {
+
+  "use strict";
+
+  /* ==========================================================
+     MAVI LOCAL ENGINE BRIDGE
+     ========================================================== */
+
+  function getAppDataSafe() {
+
+    try {
+
+      const raw =
+        localStorage.getItem("appData");
+
+      if (!raw) {
+        return {};
+      }
+
+      const data =
+        JSON.parse(raw);
+
+      return data &&
+        typeof data === "object"
+        ? data
+        : {};
+
+    } catch (error) {
+
+      console.warn(
+        "Mavi: impossibile leggere appData",
+        error
+      );
+
+      return {};
+
+    }
+
+  }
+
+
+  function getHistory() {
+
+    try {
+
+      const raw =
+        localStorage.getItem(
+          "maviConversation"
+        );
+
+      if (!raw) {
+        return [];
+      }
+
+      const history =
+        JSON.parse(raw);
+
+      return Array.isArray(history)
+        ? history.slice(-12)
+        : [];
+
+    } catch (error) {
+
+      return [];
+
+    }
+
+  }
+
+
+  function saveHistory(
+    userMessage,
+    assistantMessage
+  ) {
+
+    try {
+
+      const history =
+        getHistory();
+
+      history.push({
+        role: "user",
+        content: String(
+          userMessage || ""
+        ).slice(0, 2000)
+      });
+
+      history.push({
+        role: "assistant",
+        content: String(
+          assistantMessage || ""
+        ).slice(0, 2000)
+      });
+
+      localStorage.setItem(
+        "maviConversation",
+        JSON.stringify(
+          history.slice(-12)
+        )
+      );
+
+    } catch (error) {
+
+      console.warn(
+        "Mavi: impossibile salvare conversazione",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* ==========================================================
+     STATO ENGINE
+     ========================================================== */
+
+  window.addEventListener(
+    "mavi-engine-status",
+    function (event) {
+
+      const detail =
+        event?.detail || {};
+
+      const status =
+        detail.status || "";
+
+      const text =
+        detail.detail || "";
+
+      const element =
+        document.getElementById(
+          "maviStatus"
+        );
+
+      if (!element) {
+        return;
+      }
+
+      if (
+        status === "loading"
+      ) {
+
+        element.textContent =
+          text ||
+          "Mavi sta caricando il motore locale…";
+
+      } else if (
+        status === "thinking"
+      ) {
+
+        element.textContent =
+          "Mavi sta elaborando…";
+
+      } else if (
+        status === "ready"
+      ) {
+
+        element.textContent =
+          "Mavi è pronta";
+
+      } else if (
+        status === "error"
+      ) {
+
+        element.textContent =
+          text ||
+          "Errore del motore Mavi.";
+
+      }
+
+    }
+  );
+
+
+  /* ==========================================================
+     MESSAGGIO CHAT
+     ========================================================== */
+
+  function showMaviMessage(
+    text
+  ) {
+
+    if (
+      window.Mavi &&
+      typeof window.Mavi.message ===
+        "function"
+    ) {
+
+      window.Mavi.message(
+        text
+      );
+
+    }
+
+    const chat =
+      document.getElementById(
+        "chat"
+      );
+
+    if (!chat) {
+      return;
+    }
+
+    const box =
+      document.createElement(
+        "div"
+      );
+
+    box.className =
+      "msg bot";
+
+    box.textContent =
+      String(text || "");
+
+    chat.appendChild(
+      box
+    );
+
+    chat.scrollTop =
+      chat.scrollHeight;
+
+  }
+
+
+  /* ==========================================================
+     MAVI ENGINE
+     ========================================================== */
+
+  async function askLocalMavi(
+    text
+  ) {
+
+    if (
+      !window.MaviAI ||
+      typeof window.MaviAI.ask !==
+        "function"
+    ) {
+
+      throw new Error(
+        "Mavi AI Engine non disponibile."
+      );
+
+    }
+
+    const data =
+      getAppDataSafe();
+
+    const result =
+      await window.MaviAI.ask({
+
+        message:
+          text,
+
+        history:
+          getHistory(),
+
+        businessData:
+          data,
+
+        temperature:
+          0.45
+
+      });
+
+    if (
+      !result ||
+      result.ok !== true
+    ) {
+
+      throw new Error(
+        result?.error ||
+        "Mavi non ha prodotto una risposta."
+      );
+
+    }
+
+    saveHistory(
+      text,
+      result.reply
+    );
+
+    return result;
+
+  }
+
+
+  /* ==========================================================
+     SOSTITUZIONE DEL PROCESSORE VOCALE
+     ========================================================== */
+
+  if (
+    window.Mavi
+  ) {
+
+    const originalProcess =
+      window.Mavi.process;
+
+    window.Mavi.process =
+      async function (
+        text
+      ) {
+
+        if (!text) {
+
+          this.setState(
+            "idle"
+          );
+
+          return;
+
+        }
+
+        this.setState(
+          "processing"
+        );
+
+        this.message(
+          text
+        );
+
+        try {
+
+          const result =
+            await askLocalMavi(
+              text
+            );
+
+          const reply =
+            result.reply ||
+            "Non ho ricevuto una risposta.";
+
+          this.message(
+            reply
+          );
+
+          this.speak(
+            reply
+          );
+
+          this.setState(
+            "speaking"
+          );
+
+          return;
+
+        } catch (error) {
+
+          console.error(
+            "MAVI LOCAL ENGINE ERROR:",
+            error
+          );
+
+          /*
+           * Se il motore locale non è ancora
+           * pronto, non utilizziamo OpenAI.
+           */
+
+          const message =
+            error?.message ||
+            "Il motore locale di Mavi non è ancora pronto.";
+
+          this.message(
+            message
+          );
+
+          this.speak(
+            message
+          );
+
+          this.setState(
+            "idle"
+          );
+
+        }
+
+      };
+
+  }
+
+
+  /* ==========================================================
+     PRECARICAMENTO
+     ========================================================== */
+
+  function preloadMaviEngine() {
+
+    if (
+      !window.MaviAI ||
+      typeof window.MaviAI.preload !==
+        "function"
+    ) {
+
+      return;
+
+    }
+
+    /*
+     * Il caricamento parte senza bloccare
+     * l'apertura dell'app.
+     */
+
+    window.MaviAI
+      .preload()
+      .catch(
+        function (error) {
+
+          console.warn(
+            "Mavi Engine preload:",
+            error
+          );
+
+        }
+      );
+
+  }
+
+
+  /* ==========================================================
+     PULIZIA CONVERSAZIONE
+     ========================================================== */
+
+  window.MaviLocal =
+    {
+
+      ask:
+        askLocalMavi,
+
+      clearHistory:
+        function () {
+
+          try {
+
+            localStorage.removeItem(
+              "maviConversation"
+            );
+
+          } catch (error) {}
+
+        },
+
+      isReady:
+        function () {
+
+          return !!(
+            window.MaviAI &&
+            typeof window.MaviAI.isReady ===
+              "function" &&
+            window.MaviAI.isReady()
+          );
+
+        },
+
+      device:
+        function () {
+
+          if (
+            window.MaviAI &&
+            typeof window.MaviAI.getDevice ===
+              "function"
+          ) {
+
+            return window.MaviAI.getDevice();
+
+          }
+
+          return "unknown";
+
+        }
+
+    };
+
+
+  /* ==========================================================
+     PRELOAD DOPO IL CARICAMENTO PAGINA
+     ========================================================== */
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      preloadMaviEngine,
+      {
+        once: true
+      }
+    );
+
+  } else {
+
+    preloadMaviEngine();
+
+  }
+
+})();
+</script>
 </body>
 </html>
