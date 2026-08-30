@@ -3,162 +3,180 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#082B5C">
-<meta name="description" content="Maviri — manager digitale con Mavi">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="Maviri — gestione intelligente dell'attività con Mavi">
 <link rel="manifest" href="manifest.json">
 <title>Maviri — Mavi</title>
 
 <style>
 *{box-sizing:border-box}
+
 :root{
-  --navy:#082B5C;
-  --navy2:#0D4F91;
-  --blue:#1479C9;
-  --cyan:#19B7D5;
-  --green:#72B82A;
-  --teal:#12A995;
-  --orange:#F2A05B;
-  --bg:#F4F8FC;
+  --bg:#f4f7fb;
   --surface:#fff;
-  --ink:#152238;
-  --muted:#68778D;
-  --line:#DCE5EF;
-  --soft:#EEF5FB;
-  --soft2:#E7F7F4;
-  --red:#C93636;
-  --shadow:0 10px 30px rgba(8,43,92,.08);
-  --radius:19px
+  --surface2:#f8faff;
+  --ink:#172033;
+  --muted:#69758a;
+  --line:#e2e7ef;
+  --dark:#101827;
+  --dark2:#18243a;
+  --blue:#315efb;
+  --blue2:#2449d8;
+  --violet:#715cff;
+  --cyan:#38bdf8;
+  --green:#169c5b;
+  --red:#d63b3b;
+  --amber:#b97800;
+  --radius:18px;
+  --shadow:0 8px 28px rgba(20,32,51,.07);
 }
 
-html{scroll-behavior:smooth}
+html{
+  scroll-behavior:smooth;
+}
 
 body{
   margin:0;
   background:var(--bg);
   color:var(--ink);
-  font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif
+  font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 }
 
-button,input,textarea,select{font:inherit}
+button,
+input,
+textarea,
+select{
+  font:inherit;
+}
 
 button{
   border:0;
   cursor:pointer;
   border-radius:12px;
   padding:10px 14px;
-  font-weight:750
+  font-weight:750;
 }
 
 button:disabled{
   opacity:.5;
-  cursor:not-allowed
+  cursor:not-allowed;
 }
 
 header{
+  background:
+    radial-gradient(circle at 80% 0%,rgba(113,92,255,.22),transparent 35%),
+    radial-gradient(circle at 20% 100%,rgba(56,189,248,.12),transparent 35%),
+    var(--dark);
   color:#fff;
-  padding:13px max(12px,calc((100% - 1180px)/2));
-  background:linear-gradient(
-    115deg,
-    var(--navy),
-    var(--navy2) 55%,
-    var(--teal)
-  );
-  box-shadow:0 5px 20px rgba(8,43,92,.15)
+  padding:13px max(14px,calc((100% - 1180px)/2));
+  position:relative;
 }
 
 .header-row{
   display:flex;
   align-items:center;
-  gap:13px;
-  min-height:62px
+  gap:14px;
+  min-height:58px;
 }
 
 .brand{
   display:flex;
   align-items:center;
   gap:12px;
-  min-width:0
+  min-width:0;
 }
 
 .brand-logo{
-  width:54px;
-  height:54px;
-  object-fit:cover;
+  width:50px;
+  height:50px;
+  flex:0 0 50px;
   border-radius:15px;
-  background:#fff;
-  box-shadow:0 7px 20px rgba(0,0,0,.18);
-  flex:none
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#315efb,#715cff);
+  box-shadow:0 8px 24px rgba(49,94,251,.25);
+}
+
+.brand-logo svg{
+  width:100%;
+  height:100%;
+  display:block;
 }
 
 .brand h1{
   font-size:21px;
   margin:0;
-  letter-spacing:-.3px
+  letter-spacing:-.3px;
 }
 
 .brand small{
+  color:#aeb8c8;
   display:block;
-  color:#DDEBFA;
-  margin-top:1px
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .engine-pill{
   margin-left:auto;
-  border:1px solid #ffffff32;
-  background:#ffffff14;
-  padding:8px 11px;
+  border:1px solid #ffffff20;
+  background:#ffffff0d;
+  padding:8px 12px;
   border-radius:999px;
   font-size:12px;
-  color:#EFF8FF;
-  white-space:nowrap
+  color:#dbe4f3;
+  white-space:nowrap;
 }
 
 nav{
   position:sticky;
   top:0;
   z-index:50;
-  background:#ffffffee;
+  background:#ffffffed;
   backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line);
   display:flex;
   gap:5px;
   overflow:auto;
-  padding:8px max(10px,calc((100% - 1180px)/2))
+  padding:8px max(10px,calc((100% - 1180px)/2));
 }
 
 nav button{
   background:transparent;
-  color:#59697F;
+  color:#566176;
   white-space:nowrap;
-  padding:9px 13px
+  padding:9px 13px;
 }
 
 nav button.active{
-  background:#E6F1FB;
-  color:var(--navy)
+  background:#eaf0ff;
+  color:var(--blue);
 }
 
 main{
   width:min(1180px,100%);
   margin:auto;
-  padding:22px 14px 70px
+  padding:22px 14px 70px;
 }
 
-.page{display:none}
+.page{
+  display:none;
+}
 
 .page.active{
   display:block;
-  animation:in .16s ease
+  animation:pageIn .16s ease;
 }
 
-@keyframes in{
+@keyframes pageIn{
   from{
-    opacity:.45;
-    transform:translateY(4px)
+    opacity:.5;
+    transform:translateY(4px);
   }
   to{
     opacity:1;
-    transform:none
+    transform:none;
   }
 }
 
@@ -167,18 +185,18 @@ main{
   justify-content:space-between;
   gap:15px;
   align-items:flex-start;
-  margin:3px 0 18px
+  margin:3px 0 18px;
 }
 
 .heading h2{
   margin:0;
   font-size:27px;
-  letter-spacing:-.7px
+  letter-spacing:-.7px;
 }
 
 .heading p{
   margin:4px 0;
-  color:var(--muted)
+  color:var(--muted);
 }
 
 .card{
@@ -187,88 +205,51 @@ main{
   border-radius:var(--radius);
   padding:19px;
   margin-bottom:15px;
-  box-shadow:var(--shadow)
+  box-shadow:var(--shadow);
 }
 
 .hero{
-  background:linear-gradient(
-    135deg,
-    var(--navy),
-    #0D5EA8 55%,
-    var(--teal)
-  );
+  background:
+    radial-gradient(circle at 90% 15%,rgba(113,92,255,.42),transparent 28%),
+    radial-gradient(circle at 10% 100%,rgba(56,189,248,.2),transparent 30%),
+    linear-gradient(135deg,#101827,#263f83);
   color:#fff;
   border:0;
   overflow:hidden;
-  position:relative
-}
-
-.hero:after{
-  content:"";
-  position:absolute;
-  width:210px;
-  height:210px;
-  border-radius:50%;
-  right:-70px;
-  top:-80px;
-  background:linear-gradient(
-    135deg,
-    #9ED33E55,
-    #19B7D555
-  )
+  position:relative;
 }
 
 .hero h2{
   margin:0 0 5px;
   font-size:27px;
-  position:relative;
-  z-index:1
 }
 
 .hero p{
-  color:#E1F0FF;
+  color:#d9e3ff;
   margin:0;
-  position:relative;
-  z-index:1
 }
 
 .hero-logo{
-  width:92px;
-  height:92px;
-  object-fit:cover;
-  border-radius:23px;
-  background:#fff;
-  float:right;
-  margin:-4px 0 12px 15px;
-  position:relative;
-  z-index:2;
-  box-shadow:0 10px 25px rgba(0,0,0,.18)
-}
-
-.quick{
+  width:74px;
+  height:74px;
+  border-radius:21px;
+  background:linear-gradient(135deg,#315efb,#715cff);
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin-top:17px;
-  position:relative;
-  z-index:2
+  place-items:center;
+  margin-bottom:15px;
+  box-shadow:0 12px 28px rgba(0,0,0,.22);
+  overflow:hidden;
 }
 
-.quick button{
-  text-align:left;
-  background:#ffffff12;
-  color:#fff;
-  border:1px solid #ffffff28
+.hero-logo svg{
+  width:100%;
+  height:100%;
 }
-
-.quick strong{display:block}
-
-.quick small{color:#D6E7F8}
 
 .grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:12px
+  gap:12px;
 }
 
 .stat{
@@ -276,20 +257,41 @@ main{
   border:1px solid var(--line);
   border-radius:16px;
   background:#fff;
-  box-shadow:var(--shadow)
+  box-shadow:var(--shadow);
 }
 
 .stat b{
   display:block;
   font-size:29px;
   line-height:1.1;
-  color:var(--navy)
 }
 
 .stat span{
   color:var(--muted);
   font-size:12px;
-  font-weight:700
+  font-weight:700;
+}
+
+.quick{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:17px;
+}
+
+.quick button{
+  text-align:left;
+  background:#ffffff12;
+  color:#fff;
+  border:1px solid #ffffff20;
+}
+
+.quick strong{
+  display:block;
+}
+
+.quick small{
+  color:#cdd8ee;
 }
 
 label{
@@ -297,76 +299,80 @@ label{
   font-size:12px;
   font-weight:800;
   color:#566176;
-  margin:8px 0 4px
+  margin:8px 0 4px;
 }
 
-input,textarea,select{
+input,
+textarea,
+select{
   width:100%;
-  border:1px solid #CBD7E3;
+  border:1px solid #cfd6e2;
   border-radius:12px;
   padding:11px 12px;
   background:#fff;
   color:var(--ink);
-  outline:none
+  outline:none;
 }
 
 input:focus,
 textarea:focus,
 select:focus{
-  border-color:#62A9DA;
-  box-shadow:0 0 0 3px #1479C914
+  border-color:#6b8cff;
+  box-shadow:0 0 0 3px #315efb12;
 }
 
-textarea{resize:vertical}
+textarea{
+  resize:vertical;
+}
 
 .row{
   display:flex;
   gap:9px;
-  align-items:center
+  align-items:center;
 }
 
-.row>*{flex:1}
+.row>*{
+  flex:1;
+}
 
 .primary{
-  background:linear-gradient(
-    135deg,
-    var(--blue),
-    var(--navy2)
-  );
-  color:#fff
+  background:var(--blue);
+  color:#fff;
 }
 
-.primary:hover{filter:brightness(.96)}
+.primary:hover{
+  background:var(--blue2);
+}
 
 .secondary{
-  background:#EDF2F7;
-  color:#344054
+  background:#eef1f6;
+  color:#344054;
 }
 
 .success{
-  background:#DFF5E9;
-  color:#12683E
+  background:#dff7e9;
+  color:#12683e;
 }
 
 .danger{
-  background:#FDE8E8;
-  color:#A32121
+  background:#fee8e8;
+  color:#a32121;
 }
 
 .warning{
-  background:#FFF2CF;
-  color:#805800
+  background:#fff2cf;
+  color:#805800;
 }
 
 .muted{
   color:var(--muted);
-  font-size:13px
+  font-size:13px;
 }
 
 .divider{
   border:0;
   border-top:1px solid var(--line);
-  margin:20px 0
+  margin:20px 0;
 }
 
 .section-title{
@@ -374,18 +380,21 @@ textarea{resize:vertical}
   justify-content:space-between;
   align-items:center;
   gap:10px;
-  margin-bottom:12px
+  margin-bottom:12px;
 }
 
-.section-title h3{margin:0}
+.section-title h3{
+  margin:0;
+}
 
 .chat{
-  height:430px;
+  height:440px;
   overflow:auto;
   border:1px solid var(--line);
   border-radius:16px;
-  background:#F8FBFE;
-  padding:13px
+  background:#f8faff;
+  padding:13px;
+  scroll-behavior:smooth;
 }
 
 .msg{
@@ -393,18 +402,26 @@ textarea{resize:vertical}
   padding:11px 13px;
   border-radius:15px;
   margin:8px 0;
-  white-space:pre-wrap
+  white-space:pre-wrap;
+  word-break:break-word;
 }
 
-.bot{background:#EAF1F6}
-
-.user{
-  background:#DCECFB;
-  color:#123E69;
-  margin-left:auto
+.msg.bot{
+  background:#e9edf3;
 }
 
-.thinking{opacity:.65}
+.msg.user{
+  background:#dbe7ff;
+  color:#193d91;
+  margin-left:auto;
+}
+
+.msg.system{
+  background:#fff4d6;
+  color:#765300;
+  max-width:100%;
+  font-size:13px;
+}
 
 .voice{
   display:flex;
@@ -414,7 +431,7 @@ textarea{resize:vertical}
   padding:11px 13px;
   border:1px solid var(--line);
   border-radius:14px;
-  background:#FBFDFF
+  background:#fbfcff;
 }
 
 .mic{
@@ -422,71 +439,80 @@ textarea{resize:vertical}
   height:48px;
   border-radius:50%;
   padding:0;
-  background:var(--navy);
+  background:#101827;
   color:#fff;
-  font-size:19px
+  font-size:19px;
+  flex:0 0 48px;
 }
 
 .mic.listening{
-  background:var(--red);
-  animation:pulse 1.2s infinite
+  background:#d63b3b;
+  animation:pulse 1.2s infinite;
 }
 
 @keyframes pulse{
   50%{
-    box-shadow:0 0 0 8px #C9363618
+    box-shadow:0 0 0 8px #d63b3b18;
   }
 }
 
 .engine-status{
   font-size:12px;
-  color:var(--muted)
+  color:var(--muted);
 }
 
-.engine-status.ready{color:var(--green)}
+.engine-status.ready{
+  color:var(--green);
+}
 
-.engine-status.error{color:var(--red)}
+.engine-status.error{
+  color:var(--red);
+}
 
 .list-item{
   border:1px solid var(--line);
-  background:#FAFCFE;
+  background:#fafbfe;
   border-radius:14px;
   padding:13px;
-  margin:8px 0
+  margin:8px 0;
 }
 
-.list-item b{display:block}
+.list-item b{
+  display:block;
+}
 
 .actions{
   display:flex;
   flex-wrap:wrap;
   gap:7px;
-  margin-top:10px
+  margin-top:10px;
 }
 
 .small{
   font-size:12px;
-  padding:7px 10px
+  padding:7px 10px;
 }
 
 .calendar-head{
   display:flex;
   gap:8px;
-  align-items:center
+  align-items:center;
 }
 
-.calendar-head input{margin:0}
+.calendar-head input{
+  margin:0;
+}
 
 .calendar{
   display:grid;
   gap:6px;
-  margin-top:15px
+  margin-top:15px;
 }
 
 .slot{
   display:grid;
   grid-template-columns:60px 1fr;
-  gap:7px
+  gap:7px;
 }
 
 .slot-time{
@@ -494,7 +520,7 @@ textarea{resize:vertical}
   place-items:center;
   color:var(--muted);
   font-size:12px;
-  font-weight:800
+  font-weight:800;
 }
 
 .slot-box{
@@ -502,24 +528,26 @@ textarea{resize:vertical}
   border:1px solid var(--line);
   border-radius:12px;
   padding:9px 11px;
-  background:#F9FBFD
+  background:#f9fafc;
 }
 
-.slot-box.free{cursor:pointer}
+.slot-box.free{
+  cursor:pointer;
+}
 
 .slot-box.free:hover{
-  background:#EDF7FC;
-  border-color:#8CC5E6
+  background:#edf3ff;
+  border-color:#9bb1ff;
 }
 
 .slot-box.busy{
-  background:#E5F0FA;
-  border-color:#A5C7E5
+  background:#e6edff;
+  border-color:#a7baff;
 }
 
 .slot-box.closed{
-  color:#9AA4B2;
-  background:#F0F2F5
+  color:#9aa4b2;
+  background:#f0f2f5;
 }
 
 .badge{
@@ -527,48 +555,50 @@ textarea{resize:vertical}
   border-radius:999px;
   padding:3px 8px;
   font-size:11px;
-  font-weight:800
+  font-weight:800;
 }
 
 .confirmed{
-  background:#DFF5E9;
-  color:#12683E
+  background:#dff7e9;
+  color:#12683e;
 }
 
 .completed{
-  background:#E3ECFF;
-  color:#2449A5
+  background:#e3ecff;
+  color:#2449a5;
 }
 
 .cancelled{
-  background:#FDE8E8;
-  color:#A32121
+  background:#fee8e8;
+  color:#a32121;
 }
 
 .two{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:14px
+  gap:14px;
 }
 
 .three{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:10px
+  gap:10px;
 }
 
 .modal-bg{
   display:none;
   position:fixed;
   inset:0;
-  background:#082B5C99;
+  background:#10182799;
   z-index:100;
   align-items:center;
   justify-content:center;
-  padding:14px
+  padding:14px;
 }
 
-.modal-bg.open{display:flex}
+.modal-bg.open{
+  display:flex;
+}
 
 .modal{
   width:min(620px,100%);
@@ -576,96 +606,133 @@ textarea{resize:vertical}
   overflow:auto;
   background:#fff;
   border-radius:20px;
-  padding:20px
+  padding:20px;
 }
 
-.post-result{min-height:260px}
+.booking-box{
+  display:none;
+  margin-top:12px;
+  border:1px solid #9bb1ff;
+  background:linear-gradient(135deg,#f5f8ff,#faf9ff);
+  border-radius:16px;
+  padding:15px;
+}
+
+.booking-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:850;
+  margin-bottom:8px;
+}
+
+.booking-icon{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  background:#eaf0ff;
+  color:var(--blue);
+}
+
+.booking-summary{
+  padding:11px 12px;
+  border-radius:12px;
+  background:#fff;
+  border:1px solid #e1e7f2;
+}
 
 .platforms{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:8px
+  gap:8px;
 }
 
 .platforms button{
-  background:#F6F9FC;
-  border:1px solid var(--line)
+  background:#f6f8fb;
+  border:1px solid var(--line);
 }
 
 .platforms button.active{
-  background:#E7F6F4;
-  color:#087E70;
-  border-color:#72CBBF
+  background:#eaf0ff;
+  color:var(--blue);
+  border-color:#9bb1ff;
 }
 
-.logo-note{
-  display:flex;
-  gap:12px;
-  align-items:center;
-  padding:12px;
-  border-radius:15px;
-  background:linear-gradient(
-    135deg,
-    #EFF6FF,
-    #EDF9F4
-  );
-  border:1px solid #D7E9E6
+.empty{
+  padding:15px;
+  text-align:center;
+  color:var(--muted);
 }
 
-.logo-note img{
-  width:54px;
-  height:54px;
-  object-fit:cover;
-  border-radius:13px;
-  background:#fff
+.loading-dot{
+  display:inline-block;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:currentColor;
+  animation:dot 1s infinite alternate;
+}
+
+@keyframes dot{
+  from{opacity:.25;transform:translateY(0)}
+  to{opacity:1;transform:translateY(-2px)}
 }
 
 @media(max-width:800px){
   .grid{
-    grid-template-columns:repeat(2,1fr)
+    grid-template-columns:repeat(2,1fr);
   }
 
   .quick,
   .two{
-    grid-template-columns:1fr
+    grid-template-columns:1fr;
   }
 
   .three{
-    grid-template-columns:1fr
+    grid-template-columns:1fr;
   }
 
   .engine-pill{
-    display:none
+    display:none;
   }
 }
 
 @media(max-width:560px){
   main{
-    padding:16px 10px 50px
+    padding:16px 10px 50px;
   }
 
-  .card{padding:15px}
+  .card{
+    padding:15px;
+  }
 
-  .heading h2{font-size:23px}
+  .heading h2{
+    font-size:23px;
+  }
 
   .row{
     flex-direction:column;
-    align-items:stretch
+    align-items:stretch;
   }
 
-  .row>*{width:100%}
+  .row>*{
+    width:100%;
+  }
 
   .platforms{
-    grid-template-columns:repeat(2,1fr)
+    grid-template-columns:repeat(2,1fr);
   }
 
   .slot{
-    grid-template-columns:52px 1fr
+    grid-template-columns:52px 1fr;
   }
 
-  .hero-logo{
-    width:70px;
-    height:70px
+  .brand-logo{
+    width:44px;
+    height:44px;
+    flex-basis:44px;
   }
 }
 </style>
@@ -678,24 +745,106 @@ textarea{resize:vertical}
 
     <div class="brand">
 
-      <img
-        class="brand-logo"
-        src="./mavi-logo.png"
-        alt="Mavi">
+      <!-- LOGO MAVI INLINE: NON DIPENDE DA FILE ESTERNI -->
+      <div class="brand-logo" aria-label="Mavi">
+
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+
+          <defs>
+            <linearGradient id="maviG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#38bdf8"/>
+              <stop offset=".5" stop-color="#315efb"/>
+              <stop offset="1" stop-color="#715cff"/>
+            </linearGradient>
+          </defs>
+
+          <!-- figura titolare -->
+          <path
+            d="M25 33
+               C25 25 31 19 39 19
+               C47 19 52 25 52 33
+               C52 41 47 46 39 46
+               C31 46 25 41 25 33Z"
+            fill="url(#maviG)"/>
+
+          <path
+            d="M18 73
+               C19 57 27 49 39 49
+               C48 49 54 54 58 62
+               L49 73Z"
+            fill="url(#maviG)"/>
+
+          <!-- figura cliente -->
+          <path
+            d="M61 35
+               C61 28 67 22 74 22
+               C82 22 87 28 87 35
+               C87 42 82 48 74 48
+               C67 48 61 42 61 35Z"
+            fill="#f7b267"/>
+
+          <path
+            d="M55 75
+               C56 59 64 51 75 51
+               C85 51 91 59 92 75Z"
+            fill="#f7b267"/>
+
+          <!-- mani che proteggono/avvolgono -->
+          <path
+            d="M7 60
+               C16 49 25 48 34 54
+               L50 68
+               C54 72 51 78 46 78
+               C42 78 37 73 33 70
+               L24 63
+               C21 61 19 63 21 66
+               L32 79
+               C36 84 32 90 27 88
+               C20 85 13 77 8 70
+               C5 66 5 63 7 60Z"
+            fill="#ffffff"/>
+
+          <path
+            d="M93 61
+               C84 50 75 49 66 55
+               L51 68
+               C47 72 50 78 55 78
+               C59 78 64 73 68 70
+               L77 63
+               C80 61 82 63 80 66
+               L69 79
+               C65 84 69 90 74 88
+               C81 85 88 77 93 70
+               C96 66 96 63 93 61Z"
+            fill="#ffffff"/>
+
+          <!-- nucleo centrale -->
+          <circle
+            cx="50"
+            cy="56"
+            r="13"
+            fill="#fff"
+            opacity=".98"/>
+
+          <circle
+            cx="50"
+            cy="56"
+            r="8"
+            fill="url(#maviG)"/>
+
+        </svg>
+
+      </div>
 
       <div>
         <h1>Maviri</h1>
-        <small>
-          Mavi · intelligenza locale dell'attività
-        </small>
+        <small>Mavi · intelligenza locale dell'attività</small>
       </div>
 
     </div>
 
-    <div
-      id="enginePill"
-      class="engine-pill">
-      Mavi · avvio…
+    <div id="enginePill" class="engine-pill">
+      Mavi · preparazione…
     </div>
 
   </div>
@@ -703,39 +852,27 @@ textarea{resize:vertical}
 
 <nav id="nav">
 
-  <button
-    data-page="home"
-    onclick="showPage('home')">
+  <button data-page="home" onclick="showPage('home')">
     Home
   </button>
 
-  <button
-    data-page="mavi"
-    onclick="showPage('mavi')">
+  <button data-page="mavi" onclick="showPage('mavi')">
     Mavi
   </button>
 
-  <button
-    data-page="calendar"
-    onclick="showPage('calendar')">
+  <button data-page="calendar" onclick="showPage('calendar')">
     Calendario
   </button>
 
-  <button
-    data-page="clients"
-    onclick="showPage('clients')">
+  <button data-page="clients" onclick="showPage('clients')">
     Clienti
   </button>
 
-  <button
-    data-page="post"
-    onclick="showPage('post')">
+  <button data-page="post" onclick="showPage('post')">
     Contenuti
   </button>
 
-  <button
-    data-page="settings"
-    onclick="showPage('settings')">
+  <button data-page="settings" onclick="showPage('settings')">
     Impostazioni
   </button>
 
@@ -743,72 +880,79 @@ textarea{resize:vertical}
 
 <main>
 
+<!-- ============================================================
+     HOME
+============================================================ -->
+
 <section id="home" class="page active">
 
   <div class="heading">
     <div>
       <h2>Dashboard</h2>
-      <p>
-        Il centro operativo di Maviri.
-      </p>
+      <p>Il centro operativo di Maviri.</p>
     </div>
   </div>
 
   <div class="card hero">
 
-    <img
-      class="hero-logo"
-      src="./mavi-logo.png"
-      alt="">
+    <div class="hero-logo">
+
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+
+        <defs>
+          <linearGradient id="heroG" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#38bdf8"/>
+            <stop offset=".5" stop-color="#315efb"/>
+            <stop offset="1" stop-color="#715cff"/>
+          </linearGradient>
+        </defs>
+
+        <circle cx="50" cy="50" r="46" fill="#ffffff12"/>
+
+        <circle cx="37" cy="34" r="13" fill="url(#heroG)"/>
+        <path d="M18 72C20 56 27 49 39 49C49 49 55 55 59 65L48 75H22Z"
+              fill="url(#heroG)"/>
+
+        <circle cx="74" cy="35" r="12" fill="#f7b267"/>
+        <path d="M56 75C57 59 64 51 75 51C85 51 91 59 92 75Z"
+              fill="#f7b267"/>
+
+        <path d="M7 59C17 48 26 49 35 55L51 69C55 73 51 79 46 78L31 67C27 64 25 65 29 70L36 79C39 84 34 89 29 87C21 84 12 76 7 68C5 65 5 62 7 59Z"
+              fill="#fff"/>
+
+        <path d="M93 59C83 48 74 49 65 55L49 69C45 73 49 79 54 78L69 67C73 64 75 65 71 70L64 79C61 84 66 89 71 87C79 84 88 76 93 68C95 65 95 62 93 59Z"
+              fill="#fff"/>
+
+        <circle cx="50" cy="56" r="13" fill="#fff"/>
+        <circle cx="50" cy="56" r="8" fill="url(#heroG)"/>
+
+      </svg>
+
+    </div>
 
     <h2 id="welcome">
       La tua attività
     </h2>
 
     <p>
-      Clienti, appuntamenti e informazioni
-      sotto il controllo di Mavi.
+      Clienti, appuntamenti e informazioni sotto il controllo di Mavi.
     </p>
 
     <div class="quick">
 
-      <button
-        onclick="showPage('calendar')">
-
-        <strong>
-          Calendario
-        </strong>
-
-        <small>
-          Appuntamenti e disponibilità
-        </small>
-
+      <button onclick="showPage('calendar')">
+        <strong>Calendario</strong>
+        <small>Appuntamenti e disponibilità</small>
       </button>
 
-      <button
-        onclick="showPage('clients')">
-
-        <strong>
-          Clienti
-        </strong>
-
-        <small>
-          Schede e storico
-        </small>
-
+      <button onclick="showPage('clients')">
+        <strong>Clienti</strong>
+        <small>Schede e storico</small>
       </button>
 
-      <button
-        onclick="showPage('mavi')">
-
-        <strong>
-          Parla con Mavi
-        </strong>
-
-        <small>
-          Chat o voce
-        </small>
-
+      <button onclick="showPage('mavi')">
+        <strong>Parla con Mavi</strong>
+        <small>Chat o voce</small>
       </button>
 
     </div>
@@ -843,37 +987,18 @@ textarea{resize:vertical}
 
     <div class="section-title">
 
-      <h3>
-        Stato Mavi
-      </h3>
+      <h3>Stato Mavi</h3>
 
-      <span
-        id="homeEngineStatus"
-        class="engine-status">
-        Avvio…
+      <span id="homeEngineStatus" class="engine-status">
+        Preparazione…
       </span>
 
     </div>
 
-    <div class="logo-note">
-
-      <img
-        src="./mavi-logo.png"
-        alt="">
-
-      <div>
-
-        <b>
-          Mavi si occupa delle informazioni.
-        </b>
-
-        <div class="muted">
-          Il motore locale funziona nel browser,
-          senza OpenAI.
-        </div>
-
-      </div>
-
+    <div class="muted">
+      Mavi lavora con il motore locale dell'app.
+      I dati dell'attività restano disponibili a Mavi per gestire clienti,
+      servizi e appuntamenti.
     </div>
 
   </div>
@@ -881,50 +1006,102 @@ textarea{resize:vertical}
 </section>
 
 
+<!-- ============================================================
+     MAVI
+============================================================ -->
+
 <section id="mavi" class="page">
 
   <div class="heading">
 
     <div>
-
       <h2>Mavi</h2>
-
       <p>
-        La tua assistente locale per parlare,
-        verificare e gestire l'attività.
+        La tua assistente per parlare, verificare e gestire l'attività.
       </p>
-
     </div>
 
   </div>
 
   <div class="card">
 
-    <div
-      id="chat"
-      class="chat">
+    <div id="chat" class="chat">
 
       <div class="msg bot">
-        Sono Mavi. Posso consultare i dati
-        di Maviri e aiutarti con clienti,
-        servizi e appuntamenti.
+        Sono Mavi. Posso consultare i dati di Maviri e aiutarti con clienti,
+        servizi, appuntamenti e informazioni dell'attività.
       </div>
 
     </div>
+
+
+    <!-- CONFERMA PRENOTAZIONE -->
+
+    <div id="maviBookingBox" class="booking-box">
+
+      <div class="booking-title">
+
+        <div class="booking-icon">
+          ✓
+        </div>
+
+        <div>
+          Conferma prenotazione
+        </div>
+
+      </div>
+
+      <div
+        id="maviBookingSummary"
+        class="booking-summary">
+      </div>
+
+      <div
+        id="maviBookingStatus"
+        class="muted"
+        style="margin-top:8px">
+      </div>
+
+      <div class="actions">
+
+        <button
+          id="maviConfirmBooking"
+          class="primary"
+          onclick="confirmMaviBooking()">
+
+          Conferma prenotazione
+
+        </button>
+
+        <button
+          id="maviCancelBooking"
+          class="secondary"
+          onclick="cancelMaviBooking()">
+
+          Annulla
+
+        </button>
+
+      </div>
+
+    </div>
+
 
     <div
       id="maviStatus"
       class="engine-status"
       style="margin:10px 0">
 
-      Preparazione…
+      Mavi si sta preparando…
 
     </div>
+
 
     <div class="row">
 
       <input
         id="maviInput"
+        autocomplete="off"
         placeholder="Scrivi a Mavi…"
         onkeydown="if(event.key==='Enter')askMavi()">
 
@@ -938,6 +1115,7 @@ textarea{resize:vertical}
       </button>
 
     </div>
+
 
     <div class="voice">
 
@@ -965,6 +1143,7 @@ textarea{resize:vertical}
 
     </div>
 
+
     <div class="actions">
 
       <button
@@ -990,23 +1169,23 @@ textarea{resize:vertical}
 </section>
 
 
+<!-- ============================================================
+     CALENDARIO
+============================================================ -->
+
 <section id="calendar" class="page">
 
   <div class="heading">
 
     <div>
-
-      <h2>
-        Calendario
-      </h2>
-
+      <h2>Calendario</h2>
       <p>
         Controllo visivo e gestione appuntamenti.
       </p>
-
     </div>
 
   </div>
+
 
   <div class="card">
 
@@ -1044,6 +1223,7 @@ textarea{resize:vertical}
 
   </div>
 
+
   <div class="card">
 
     <div class="section-title">
@@ -1066,6 +1246,7 @@ textarea{resize:vertical}
 
   </div>
 
+
   <div class="card">
 
     <h3>
@@ -1086,20 +1267,19 @@ textarea{resize:vertical}
 </section>
 
 
+<!-- ============================================================
+     CLIENTI
+============================================================ -->
+
 <section id="clients" class="page">
 
   <div class="heading">
 
     <div>
-
-      <h2>
-        Clienti
-      </h2>
-
+      <h2>Clienti</h2>
       <p>
         Schede cliente, note e storico appuntamenti.
       </p>
-
     </div>
 
     <button
@@ -1111,6 +1291,7 @@ textarea{resize:vertical}
     </button>
 
   </div>
+
 
   <div class="card">
 
@@ -1126,24 +1307,23 @@ textarea{resize:vertical}
 </section>
 
 
+<!-- ============================================================
+     CONTENUTI
+============================================================ -->
+
 <section id="post" class="page">
 
   <div class="heading">
 
     <div>
-
-      <h2>
-        Contenuti
-      </h2>
-
+      <h2>Contenuti</h2>
       <p>
-        Mavi crea testi usando i dati locali
-        dell'attività.
+        Mavi può creare testi usando i dati locali dell'attività.
       </p>
-
     </div>
 
   </div>
+
 
   <div class="card">
 
@@ -1166,6 +1346,7 @@ textarea{resize:vertical}
 
         </select>
 
+
         <label>
           Stile
         </label>
@@ -1181,6 +1362,7 @@ textarea{resize:vertical}
         </select>
 
       </div>
+
 
       <div>
 
@@ -1233,6 +1415,7 @@ textarea{resize:vertical}
 
     </div>
 
+
     <label>
       Argomento
     </label>
@@ -1240,6 +1423,7 @@ textarea{resize:vertical}
     <input
       id="postTopic"
       placeholder="Es. voglio promuovere il taglio uomo del sabato">
+
 
     <label>
       Indicazioni aggiuntive
@@ -1251,6 +1435,7 @@ textarea{resize:vertical}
       placeholder="Pubblico, call to action, tono…">
     </textarea>
 
+
     <button
       id="postButton"
       class="primary"
@@ -1261,12 +1446,14 @@ textarea{resize:vertical}
 
     </button>
 
+
     <p
       id="postStatus"
       class="muted">
     </p>
 
   </div>
+
 
   <div class="card">
 
@@ -1298,20 +1485,19 @@ textarea{resize:vertical}
 </section>
 
 
+<!-- ============================================================
+     IMPOSTAZIONI
+============================================================ -->
+
 <section id="settings" class="page">
 
   <div class="heading">
 
     <div>
-
-      <h2>
-        Impostazioni
-      </h2>
-
+      <h2>Impostazioni</h2>
       <p>
         Configurazione locale di Maviri.
       </p>
-
     </div>
 
   </div>
@@ -1333,11 +1519,13 @@ textarea{resize:vertical}
 
         <input id="setName">
 
+
         <label>
           Tipo
         </label>
 
         <input id="setType">
+
 
         <label>
           Descrizione
@@ -1350,6 +1538,7 @@ textarea{resize:vertical}
 
       </div>
 
+
       <div>
 
         <label>
@@ -1358,11 +1547,13 @@ textarea{resize:vertical}
 
         <input id="setAddress">
 
+
         <label>
           Telefono
         </label>
 
         <input id="setPhone">
+
 
         <label>
           WhatsApp
@@ -1374,6 +1565,7 @@ textarea{resize:vertical}
 
     </div>
 
+
     <button
       class="primary"
       onclick="saveSettings()">
@@ -1381,6 +1573,7 @@ textarea{resize:vertical}
       Salva
 
     </button>
+
 
     <p
       id="settingsStatus"
@@ -1419,6 +1612,7 @@ textarea{resize:vertical}
       Servizi
     </h3>
 
+
     <div class="three">
 
       <input
@@ -1441,11 +1635,13 @@ textarea{resize:vertical}
 
     </div>
 
+
     <textarea
       id="serviceDescription"
       rows="2"
       placeholder="Descrizione">
     </textarea>
+
 
     <button
       class="primary"
@@ -1454,6 +1650,7 @@ textarea{resize:vertical}
       Aggiungi servizio
 
     </button>
+
 
     <div id="servicesList"></div>
 
@@ -1465,6 +1662,7 @@ textarea{resize:vertical}
     <h3>
       Promozioni
     </h3>
+
 
     <div class="two">
 
@@ -1478,11 +1676,13 @@ textarea{resize:vertical}
 
     </div>
 
+
     <textarea
       id="promoDescription"
       rows="2"
       placeholder="Descrizione">
     </textarea>
+
 
     <label>
       Fine
@@ -1492,6 +1692,7 @@ textarea{resize:vertical}
       id="promoEnd"
       type="date">
 
+
     <button
       class="primary"
       onclick="savePromotion()">
@@ -1499,6 +1700,7 @@ textarea{resize:vertical}
       Aggiungi promozione
 
     </button>
+
 
     <div id="promotionsList"></div>
 
@@ -1508,6 +1710,10 @@ textarea{resize:vertical}
 
 </main>
 
+
+<!-- ============================================================
+     MODALE
+============================================================ -->
 
 <div
   id="modalBg"
@@ -1522,18 +1728,28 @@ textarea{resize:vertical}
 </div>
 
 
+<!-- ============================================================
+     MAVI ENGINE
+============================================================ -->
+
 <script src="./mavi-engine.js"></script>
+
 
 <script>
 "use strict";
 
-const $=id=>document.getElementById(id);
+/* ============================================================
+   RIFERIMENTI
+============================================================ */
 
-const KEY="appData";
-const BACKUP="appData_backup";
-const HIST="maviConversation";
+const $ = id => document.getElementById(id);
 
-const DAYS=[
+const KEY = "appData";
+const BACKUP = "appData_backup";
+const HIST = "maviConversation";
+const PENDING = "pendingMaviAppointment";
+
+const DAYS = [
   "sunday",
   "monday",
   "tuesday",
@@ -1543,7 +1759,7 @@ const DAYS=[
   "saturday"
 ];
 
-const DAY_LABEL=[
+const DAY_LABEL = [
   "Domenica",
   "Lunedì",
   "Martedì",
@@ -1553,13 +1769,27 @@ const DAY_LABEL=[
   "Sabato"
 ];
 
-let data={};
-let selectedPlatform="Instagram";
-let recognition=null;
-let listening=false;
-let busy=false;
-let visualThinkingTimer=null;
 
+/* ============================================================
+   STATO
+============================================================ */
+
+let data = {};
+let selectedPlatform = "Instagram";
+
+let recognition = null;
+let listening = false;
+
+let busy = false;
+
+let pendingMaviAppointment = null;
+
+let visualThinkingTimer = null;
+
+
+/* ============================================================
+   DATA
+============================================================ */
 
 function today(){
 
@@ -1576,31 +1806,30 @@ function today(){
 function uid(){
 
   return crypto.randomUUID
-    ?crypto.randomUUID()
-    :Date.now()+"-"+Math.random()
-      .toString(36)
-      .slice(2);
+    ? crypto.randomUUID()
+    : Date.now()+"-"+Math.random().toString(36).slice(2);
 
 }
 
 
 function defaultHours(){
 
-  const h={};
+  const h = {};
 
   DAYS.forEach((d,i)=>{
 
-    h[d]=i===0
-
-      ?{
+    h[d] =
+      i===0
+      ?
+      {
         closed:true,
         start:"09:00",
         end:"18:00",
         breakStart:"",
         breakEnd:""
       }
-
-      :{
+      :
+      {
         closed:false,
         start:"09:00",
         end:"18:00",
@@ -1619,12 +1848,11 @@ function defaults(){
 
   return {
 
-    version:3,
+    version:4,
 
     revision:1,
 
-    updatedAt:
-      new Date().toISOString(),
+    updatedAt:new Date().toISOString(),
 
     business:{
       name:"",
@@ -1657,72 +1885,119 @@ function defaults(){
 
 function normalizeData(d){
 
-  const x=defaults();
-  const z=d||{};
+  const x = defaults();
 
-  x.version=z.version||3;
+  const z = d || {};
 
-  x.revision=
-    z.revision||1;
+  x.version = z.version || 4;
 
-  x.updatedAt=
-    z.updatedAt||
+  x.revision = z.revision || 1;
+
+  x.updatedAt =
+    z.updatedAt ||
     new Date().toISOString();
 
-  x.business={
+
+  x.business = {
     ...x.business,
     ...(z.business||{})
   };
 
-  x.settings={
+
+  x.settings = {
     ...x.settings,
     ...(z.settings||{})
   };
 
-  x.settings.hours={
+
+  x.settings.hours = {
     ...defaultHours(),
     ...(z.settings?.hours||{})
   };
 
-  x.services=
+
+  x.services =
     Array.isArray(z.services)
-      ?z.services
-      :[];
+    ? z.services
+    : [];
 
-  x.promotions=
+
+  x.promotions =
     Array.isArray(z.promotions)
-      ?z.promotions
-      :[];
+    ? z.promotions
+    : [];
 
-  x.appointments=
+
+  x.appointments =
     Array.isArray(z.appointments)
-      ?z.appointments
-      :[];
+    ? z.appointments
+    : [];
 
-  x.clients=
+
+  x.clients =
     Array.isArray(z.clients)
-      ?z.clients
-      :[];
+    ? z.clients
+    : [];
+
 
   if(
-    !x.business.name&&
+    !x.business.name &&
     x.settings.name
   ){
 
-    x.business.name=
+    x.business.name =
       x.settings.name;
 
   }
 
+
   if(
-    !x.settings.name&&
+    !x.settings.name &&
     x.business.name
   ){
 
-    x.settings.name=
+    x.settings.name =
       x.business.name;
 
   }
+
+
+  /*
+   * Compatibilità con vecchie strutture
+   * n/d/t/s.
+   */
+
+  x.appointments =
+    x.appointments.map(a=>({
+
+      ...a,
+
+      name:
+        a.name ??
+        a.n ??
+        "",
+
+      date:
+        a.date ??
+        a.d ??
+        "",
+
+      time:
+        a.time ??
+        a.t ??
+        "",
+
+      service:
+        a.service ??
+        a.s ??
+        "",
+
+      status:
+        a.status ??
+        "confermato"
+
+    }));
+
 
   return x;
 
@@ -1733,28 +2008,31 @@ function load(){
 
   try{
 
-    const a=
+    const a =
       JSON.parse(
         localStorage.getItem(KEY)||"null"
       );
 
-    const b=
+    const b =
       JSON.parse(
         localStorage.getItem(BACKUP)||"null"
       );
 
-    data=
-      normalizeData(
-        a&&typeof a==="object"
-          ?a
-          :(b||defaults())
-      );
+    data =
+      a &&
+      typeof a==="object"
+      ? a
+      : (b||defaults());
 
   }catch{
 
-    data=defaults();
+    data = defaults();
 
   }
+
+
+  data =
+    normalizeData(data);
 
   persist(false);
 
@@ -1765,10 +2043,10 @@ function persist(update=true){
 
   if(update){
 
-    data.revision=
+    data.revision =
       (data.revision||0)+1;
 
-    data.updatedAt=
+    data.updatedAt =
       new Date().toISOString();
 
   }
@@ -1795,168 +2073,161 @@ function save(){
 }
 
 
-function activeAppointments(){
-
-  return data.appointments.filter(
-
-    a=>
-
-      ![
-        "cancellato",
-        "cancelled",
-        "annullato"
-      ].includes(
-        String(
-          a.status||
-          "confermato"
-        ).toLowerCase()
-      )
-
-  );
-
-}
-
-
-function showPage(id){
-
-  document
-    .querySelectorAll(".page")
-    .forEach(
-      p=>p.classList.remove("active")
-    );
-
-  $(id).classList.add("active");
-
-  document
-    .querySelectorAll("nav button")
-    .forEach(
-      b=>
-        b.classList.toggle(
-          "active",
-          b.dataset.page===id
-        )
-    );
-
-  if(id==="calendar")
-    renderCalendar();
-
-  if(id==="clients")
-    renderClients();
-
-}
-
+/* ============================================================
+   UTILITÀ
+============================================================ */
 
 function esc(s){
 
   return String(s??"")
-    .replace(
-      /[&<>"']/g,
-      c=>({
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#39;"
-      }[c])
-    );
+    .replace(/[&<>"']/g,c=>({
+
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+
+    }[c]));
 
 }
 
 
-function safeDate(value){
+function norm(s){
 
-  const s=
-    String(value||"")
-      .trim();
-
-  if(
-    !/^\d{4}-\d{2}-\d{2}$/.test(s)
-  )
-    return null;
-
-  const d=
-    new Date(
-      s+"T12:00:00"
-    );
-
-  return Number.isNaN(
-    d.getTime()
-  )
-    ?null
-    :d;
+  return String(s??"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase()
+    .trim();
 
 }
 
 
 function formatDate(d){
 
-  const dt=
-    safeDate(d);
+  if(!d)
+    return "";
 
-  return dt
-    ?new Intl.DateTimeFormat(
-      "it-IT",
-      {
-        dateStyle:"medium"
-      }
-    ).format(dt)
-    :"Data non valida";
-
-}
-
-
-function serviceByName(n){
-
-  const t=
-    String(n||"")
-      .trim()
-      .toLowerCase();
-
-  if(!t)
-    return null;
-
-  return data.services.find(
-
-    s=>
-      String(s.name||"")
-        .trim()
-        .toLowerCase()===t
-
-  )||
-
-  data.services.find(
-
-    s=>
-      String(s.name||"")
-        .toLowerCase()
-        .includes(t)
-
-      ||
-
-      t.includes(
-        String(s.name||"")
-          .toLowerCase()
-      )
-
+  return new Intl.DateTimeFormat(
+    "it-IT",
+    {
+      dateStyle:"medium"
+    }
+  ).format(
+    new Date(d+"T12:00:00")
   );
 
 }
 
 
-function clientForName(n){
+function toMin(v){
 
-  const t=
-    String(n||"")
-      .trim()
-      .toLowerCase();
+  const m =
+    String(v||"")
+      .match(/^(\d{1,2}):(\d{2})$/);
+
+  if(!m)
+    return null;
+
+  const hh = Number(m[1]);
+  const mm = Number(m[2]);
+
+  if(
+    hh<0||
+    hh>23||
+    mm<0||
+    mm>59
+  )
+    return null;
+
+  return hh*60+mm;
+
+}
+
+
+function fmt(m){
+
+  return String(
+    Math.floor(m/60)
+  ).padStart(2,"0")
+  +
+  ":"
+  +
+  String(
+    m%60
+  ).padStart(2,"0");
+
+}
+
+
+function validDate(v){
+
+  return /^\d{4}-\d{2}-\d{2}$/.test(
+    String(v||"")
+  );
+
+}
+
+
+function validTime(v){
+
+  return /^\d{2}:\d{2}$/.test(
+    String(v||"")
+  );
+
+}
+
+
+/* ============================================================
+   APPUNTAMENTI
+============================================================ */
+
+function activeAppointments(){
+
+  return data.appointments.filter(a=>{
+
+    const status =
+      norm(a.status||"confermato");
+
+    return ![
+      "cancellato",
+      "annullato",
+      "cancelled"
+    ].includes(status);
+
+  });
+
+}
+
+
+function serviceByName(name){
+
+  const t = norm(name);
+
+  if(!t)
+    return null;
+
+  return data.services.find(
+    s=>norm(s.name)===t
+  )
+  ||
+  data.services.find(
+    s=>{
+      const n=norm(s.name);
+      return n.includes(t)||t.includes(n);
+    }
+  );
+
+}
+
+
+function clientForName(name){
+
+  const t=norm(name);
 
   return data.clients.find(
-
-    c=>
-      String(c.name||"")
-        .trim()
-        .toLowerCase()===t
-
+    c=>norm(c.name)===t
   );
 
 }
@@ -1967,20 +2238,28 @@ function ensureClient(name){
   if(!name)
     return null;
 
-  let c=
+  let c =
     clientForName(name);
 
   if(!c){
 
     c={
+
       id:uid(),
+
       name:name.trim(),
+
       phone:"",
+
       whatsapp:"",
+
       email:"",
+
       notes:"",
+
       createdAt:
         new Date().toISOString()
+
     };
 
     data.clients.push(c);
@@ -1992,34 +2271,90 @@ function ensureClient(name){
 }
 
 
+/* ============================================================
+   PAGINE
+============================================================ */
+
+function showPage(id){
+
+  document
+    .querySelectorAll(".page")
+    .forEach(
+      p=>p.classList.remove("active")
+    );
+
+  const page=$(id);
+
+  if(page)
+    page.classList.add("active");
+
+
+  document
+    .querySelectorAll("nav button")
+    .forEach(
+      b=>
+        b.classList.toggle(
+          "active",
+          b.dataset.page===id
+        )
+    );
+
+
+  if(id==="calendar")
+    renderCalendar();
+
+  if(id==="clients")
+    renderClients();
+
+}
+
+
+/* ============================================================
+   RENDER GENERALE
+============================================================ */
+
 function renderAll(){
 
-  $("welcome").textContent=
-    data.business.name||
-    data.settings.name||
+  $("welcome").textContent =
+    data.business.name ||
+    data.settings.name ||
     "La tua attività";
 
-  $("stServices").textContent=
+
+  $("stServices").textContent =
     data.services.length;
 
-  $("stClients").textContent=
+
+  $("stClients").textContent =
     data.clients.length;
 
-  $("stAppointments").textContent=
+
+  $("stAppointments").textContent =
     activeAppointments().length;
 
-  $("stPromotions").textContent=
+
+  $("stPromotions").textContent =
     data.promotions.length;
 
+
   fillSettings();
+
   renderHours();
+
   renderServices();
+
   renderPromotions();
+
   renderCalendar();
+
   renderClients();
 
 }
 
+
+/* ============================================================
+   IMPOSTAZIONI
+============================================================ */
 
 function fillSettings(){
 
@@ -2029,28 +2364,16 @@ function fillSettings(){
   [
     ["setName",b.name||s.name],
     ["setType",b.type||s.type],
-    [
-      "setDescription",
-      b.description||s.description
-    ],
-    [
-      "setAddress",
-      b.address||s.address
-    ],
-    [
-      "setPhone",
-      b.phone||s.phone
-    ],
-    [
-      "setWhatsapp",
-      b.whatsapp||s.whatsapp
-    ]
+    ["setDescription",b.description||s.description],
+    ["setAddress",b.address||s.address],
+    ["setPhone",b.phone||s.phone],
+    ["setWhatsapp",b.whatsapp||s.whatsapp]
   ]
+  .forEach(([id,v])=>{
 
-  .forEach(
-    ([id,v])=>
-      $(id).value=v||""
-  );
+    $(id).value=v||"";
+
+  });
 
 }
 
@@ -2059,42 +2382,34 @@ function saveSettings(){
 
   const b={
 
-    name:
-      $("setName")
-        .value
-        .trim(),
+    name:$("setName").value.trim(),
 
-    type:
-      $("setType")
-        .value
-        .trim(),
+    type:$("setType").value.trim(),
 
     description:
       $("setDescription")
-        .value
-        .trim(),
+        .value.trim(),
 
     address:
       $("setAddress")
-        .value
-        .trim(),
+        .value.trim(),
 
     phone:
       $("setPhone")
-        .value
-        .trim(),
+        .value.trim(),
 
     whatsapp:
       $("setWhatsapp")
-        .value
-        .trim()
+        .value.trim()
 
   };
+
 
   data.business={
     ...data.business,
     ...b
   };
+
 
   data.settings={
     ...data.settings,
@@ -2102,86 +2417,88 @@ function saveSettings(){
     hours:data.settings.hours
   };
 
+
   save();
 
-  $("settingsStatus")
-    .textContent=
-      "Impostazioni salvate.";
+
+  $("settingsStatus").textContent =
+    "Impostazioni salvate.";
 
 }
 
 
+/* ============================================================
+   ORARI
+============================================================ */
+
 function renderHours(){
 
-  const h=
-    data.settings.hours;
+  const h=data.settings.hours;
 
-  $("hours").innerHTML=
-
+  $("hours").innerHTML =
     DAYS.map((d,i)=>{
 
-      const x=
-        h[d]||{};
+      const x=h[d]||{};
 
       return `
 
-<div class="list-item">
+        <div class="list-item">
 
-<b>
-${DAY_LABEL[i]}
-</b>
+          <b>
+            ${DAY_LABEL[i]}
+          </b>
 
-<div class="three">
+          <div class="three">
 
-<label>
+            <label>
 
-<input
-type="checkbox"
-data-day="${d}"
-data-field="closed"
-${x.closed?"checked":""}>
+              <input
+                type="checkbox"
+                data-day="${d}"
+                data-field="closed"
+                ${x.closed?"checked":""}>
 
-Chiuso
+              Chiuso
 
-</label>
+            </label>
 
-<input
-data-day="${d}"
-data-field="start"
-type="time"
-value="${x.start||""}">
+            <input
+              data-day="${d}"
+              data-field="start"
+              type="time"
+              value="${x.start||""}">
 
-<input
-data-day="${d}"
-data-field="end"
-type="time"
-value="${x.end||""}">
+            <input
+              data-day="${d}"
+              data-field="end"
+              type="time"
+              value="${x.end||""}">
 
-</div>
+          </div>
 
-<div class="three">
+          <div class="three">
 
-<span class="muted">
-Pausa
-</span>
+            <span class="muted">
+              Pausa
+            </span>
 
-<input
-data-day="${d}"
-data-field="breakStart"
-type="time"
-value="${x.breakStart||""}">
+            <input
+              data-day="${d}"
+              data-field="breakStart"
+              type="time"
+              value="${x.breakStart||""}">
 
-<input
-data-day="${d}"
-data-field="breakEnd"
-type="time"
-value="${x.breakEnd||""}">
+            <input
+              data-day="${d}"
+              data-field="breakEnd"
+              type="time"
+              value="${x.breakEnd||""}">
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-`;
+      `;
 
     }).join("");
 
@@ -2194,120 +2511,124 @@ function saveHours(){
     .querySelectorAll("[data-day]")
     .forEach(el=>{
 
-      const d=
-        el.dataset.day;
-
-      const f=
-        el.dataset.field;
+      const d=el.dataset.day;
+      const f=el.dataset.field;
 
       if(!data.settings.hours[d])
         data.settings.hours[d]={};
 
-      data.settings.hours[d][f]=
+      data.settings.hours[d][f] =
         el.type==="checkbox"
-          ?el.checked
-          :el.value;
+        ? el.checked
+        : el.value;
 
     });
+
 
   save();
 
 }
 
 
+/* ============================================================
+   SERVIZI
+============================================================ */
+
 function renderServices(){
 
-  $("servicesList").innerHTML=
-
+  $("servicesList").innerHTML =
     data.services.length
 
-      ?data.services.map(
-        (s,i)=>`
+    ?
 
-<div class="list-item">
+    data.services.map((s,i)=>`
 
-<b>
-${esc(s.name)}
-</b>
+      <div class="list-item">
 
-<div class="muted">
+        <b>
+          ${esc(s.name)}
+        </b>
 
-${s.duration||30}
-min ·
+        <div class="muted">
 
-${
-  s.price!==""&&
-  s.price!=null
+          ${s.duration||30} min ·
 
-    ?"€"+esc(s.price)
+          ${
+            s.price!=="" &&
+            s.price!=null
+            ?
+            "€"+s.price
+            :
+            "Prezzo non impostato"
+          }
 
-    :"Prezzo non impostato"
-}
+          ${
+            s.description
+            ?
+            " · "+esc(s.description)
+            :
+            ""
+          }
 
-${
-  s.description
-    ?" · "+esc(s.description)
-    :""
-}
+        </div>
 
-</div>
+        <div class="actions">
 
-<div class="actions">
+          <button
+            class="danger small"
+            onclick="deleteService(${i})">
 
-<button
-class="danger small"
-onclick="deleteService(${i})">
+            Elimina
 
-Elimina
+          </button>
 
-</button>
+        </div>
 
-</div>
+      </div>
 
-</div>
+    `).join("")
 
-`
-      ).join("")
+    :
 
-      :
-
-      `<div class="muted">
-        Nessun servizio.
-      </div>`;
+    `<div class="empty">
+      Nessun servizio.
+    </div>`;
 
 }
 
 
 function saveService(){
 
-  const name=
+  const name =
     $("serviceName")
-      .value
-      .trim();
+      .value.trim();
 
   if(!name)
     return;
+
 
   data.services.push({
 
     id:uid(),
 
-    name,
+    name:name,
 
     duration:
       Number(
-        $("serviceDuration").value
+        $("serviceDuration")
+          .value
       )||30,
 
     price:
-      $("servicePrice").value,
+      $("servicePrice")
+        .value,
 
     description:
       $("serviceDescription")
-        .value
-        .trim()
+        .value.trim()
 
   });
+
 
   [
     "serviceName",
@@ -2315,10 +2636,10 @@ function saveService(){
     "servicePrice",
     "serviceDescription"
   ]
+  .forEach(id=>{
+    $(id).value="";
+  });
 
-  .forEach(
-    id=>$(id).value=""
-  );
 
   save();
 
@@ -2342,85 +2663,88 @@ function deleteService(i){
 }
 
 
+/* ============================================================
+   PROMOZIONI
+============================================================ */
+
 function renderPromotions(){
 
-  $("promotionsList").innerHTML=
-
+  $("promotionsList").innerHTML =
     data.promotions.length
 
-      ?data.promotions.map(
-        (p,i)=>`
+    ?
 
-<div class="list-item">
+    data.promotions.map((p,i)=>`
 
-<b>
-${esc(p.title)}
-</b>
+      <div class="list-item">
 
-<div>
-${esc(p.description||"")}
-</div>
+        <b>
+          ${esc(p.title)}
+        </b>
 
-<div class="muted">
-${esc(p.start||"")}
-→
-${esc(p.end||"")}
-</div>
+        <div>
+          ${esc(p.description||"")}
+        </div>
 
-<div class="actions">
+        <div class="muted">
+          ${p.start||""} → ${p.end||""}
+        </div>
 
-<button
-class="danger small"
-onclick="deletePromotion(${i})">
+        <div class="actions">
 
-Elimina
+          <button
+            class="danger small"
+            onclick="deletePromotion(${i})">
 
-</button>
+            Elimina
 
-</div>
+          </button>
 
-</div>
+        </div>
 
-`
-      ).join("")
+      </div>
 
-      :
+    `).join("")
 
-      `<div class="muted">
-        Nessuna promozione.
-      </div>`;
+    :
+
+    `<div class="empty">
+      Nessuna promozione.
+    </div>`;
 
 }
 
 
 function savePromotion(){
 
-  const title=
+  const title =
     $("promoTitle")
-      .value
-      .trim();
+      .value.trim();
 
   if(!title)
     return;
+
 
   data.promotions.push({
 
     id:uid(),
 
-    title,
+    title:title,
 
     description:
       $("promoDescription")
-        .value
-        .trim(),
+        .value.trim(),
 
     start:
-      $("promoStart").value,
+      $("promoStart")
+        .value,
 
     end:
-      $("promoEnd").value
+      $("promoEnd")
+        .value
 
   });
+
 
   [
     "promoTitle",
@@ -2428,10 +2752,10 @@ function savePromotion(){
     "promoStart",
     "promoEnd"
   ]
+  .forEach(id=>{
+    $(id).value="";
+  });
 
-  .forEach(
-    id=>$(id).value=""
-  );
 
   save();
 
@@ -2442,7 +2766,7 @@ function deletePromotion(i){
 
   if(
     confirm(
-      "Eliminare questo promozione?"
+      "Eliminare questa promozione?"
     )
   ){
 
@@ -2455,61 +2779,64 @@ function deletePromotion(i){
 }
 
 
+/* ============================================================
+   BUSINESS ENGINE
+============================================================ */
+
 async function businessApi(
   action,
   extra={}
 ){
 
-  const appointments=
-    extra.__appointments||
+  const appointments =
+    extra.__appointments ||
     data.appointments;
+
 
   const payload={
 
-    action,
+    action:action,
 
-    settings:
-      data.settings,
+    settings:data.settings,
 
-    services:
-      data.services,
+    services:data.services,
 
-    appointments,
+    appointments:appointments,
 
-    clients:
-      data.clients,
+    clients:data.clients,
 
-    promotions:
-      data.promotions,
+    promotions:data.promotions,
 
     business:
-      data.business?.name||
-      data.settings?.name||
+      data.business?.name ||
+      data.settings?.name ||
       "",
 
     ...extra
 
   };
 
+
   delete payload.__appointments;
 
-  const r=
+
+  const r =
     await fetch(
       "/api/chat",
       {
         method:"POST",
-
         headers:{
           "Content-Type":
             "application/json"
         },
-
         body:
           JSON.stringify(payload)
       }
     );
 
+
   let j={};
+
 
   try{
 
@@ -2518,26 +2845,34 @@ async function businessApi(
   }catch{
 
     throw Error(
-      "Risposta del server non valida."
+      "Risposta del Business Engine non valida."
     );
 
   }
 
-  if(!r.ok)
+
+  if(!r.ok){
 
     throw Error(
-      j.error||
+      j.error ||
       "Errore del Business Engine."
     );
+
+  }
+
 
   return j;
 
 }
 
 
+/* ============================================================
+   PRENOTAZIONE DEFINITIVA
+============================================================ */
+
 async function bookAppointment(a){
 
-  const r=
+  const r =
     await businessApi(
       "book",
       {
@@ -2549,79 +2884,119 @@ async function bookAppointment(a){
       }
     );
 
-  if(!r.bookingConfirmed)
+
+  if(
+    !r ||
+    !r.bookingConfirmed
+  ){
 
     throw Error(
-      r.error||
-      "L'orario non è disponibile."
+      r?.error ||
+      "La prenotazione non è stata confermata."
     );
+
+  }
+
 
   const ap={
 
-    ...r.appointment,
+    ...(r.appointment||{}),
 
     id:
-      r.appointment?.id||
+      r.appointment?.id ||
+      r.appointment?.bookingKey ||
       uid(),
 
-    name:
-      a.name,
+    name:a.name,
 
-    date:
-      a.date,
+    date:a.date,
 
-    time:
-      a.time,
+    time:a.time,
 
-    service:
-      a.service,
+    service:a.service,
 
-    status:
-      "confermato",
+    status:"confermato",
 
     createdAt:
+      r.appointment?.createdAt ||
+      new Date().toISOString(),
+
+    updatedAt:
       new Date().toISOString()
 
   };
 
-  data.appointments.push(ap);
+
+  /*
+   * DOPPIA PROTEZIONE LOCALE.
+   */
+
+  const duplicate =
+    data.appointments.some(x=>
+
+      x.date===ap.date &&
+
+      x.time===ap.time &&
+
+      norm(x.status||"confermato")
+        !=="cancellato"
+
+    );
+
+
+  if(!duplicate){
+
+    data.appointments.push(ap);
+
+  }
+
+
+  /*
+   * CREA / RECUPERA CLIENTE.
+   */
 
   ensureClient(a.name);
 
-  save();
+
+  /*
+   * SALVATAGGIO PERSISTENTE.
+   */
+
+  persist();
+
+
+  renderAll();
+
 
   return ap;
 
 }
 
 
+/* ============================================================
+   CALENDARIO
+============================================================ */
+
 function changeDay(n){
 
-  const current=
-    safeDate(
-      $("calendarDate").value
-    )||
-    safeDate(today());
+  const d =
+    new Date(
+      (
+        $("calendarDate").value ||
+        today()
+      )+"T12:00:00"
+    );
 
-  current.setDate(
-    current.getDate()+n
+
+  d.setDate(
+    d.getDate()+n
   );
 
-  const y=
-    current.getFullYear();
 
-  const m=
-    String(
-      current.getMonth()+1
-    ).padStart(2,"0");
+  $("calendarDate").value =
+    d.toISOString()
+      .slice(0,10);
 
-  const d=
-    String(
-      current.getDate()
-    ).padStart(2,"0");
-
-  $("calendarDate").value=
-    `${y}-${m}-${d}`;
 
   renderCalendar();
 
@@ -2630,70 +3005,76 @@ function changeDay(n){
 
 function renderCalendar(){
 
-  const date=
-    $("calendarDate").value||
+  const date =
+    $("calendarDate").value ||
     today();
 
-  $("calendarDate").value=
+
+  $("calendarDate").value =
     date;
 
-  const dt=
-    safeDate(date);
 
-  if(!dt){
+  const dt =
+    new Date(
+      date+"T12:00:00"
+    );
 
-    $("dayTitle").textContent=
-      "Data non valida";
 
-    $("calendarGrid").innerHTML="";
-
-    return;
-
-  }
-
-  const idx=
+  const idx =
     dt.getDay();
 
-  const h=
+
+  const h =
     data.settings.hours[
       DAYS[idx]
     ]||{};
 
-  $("dayTitle").textContent=
 
-    `${DAY_LABEL[idx]} ${formatDate(date)}`+
-    `${h.closed?" · Chiuso":""}`;
+  $("dayTitle").textContent =
+    `${DAY_LABEL[idx]} ${formatDate(date)}`
+    +
+    (
+      h.closed
+      ?
+      " · Chiuso"
+      :
+      ""
+    );
 
-  const ap=
+
+  const ap =
     activeAppointments()
       .filter(
         a=>a.date===date
       );
 
-  $("dayAppointments").innerHTML=
 
+  $("dayAppointments").innerHTML =
     ap.length
 
-      ?ap
-        .sort(
-          (a,b)=>
-            String(a.time)
-              .localeCompare(
-                String(b.time)
-              )
-        )
-        .map(appointmentHtml)
-        .join("")
+    ?
 
-      :
+    ap
+      .sort(
+        (a,b)=>
+          (a.time||"")
+            .localeCompare(
+              b.time||""
+            )
+      )
+      .map(appointmentHtml)
+      .join("")
 
-      `<div class="muted">
-        Nessun appuntamento.
-      </div>`;
+    :
+
+    `<div class="empty">
+      Nessun appuntamento.
+    </div>`;
+
 
   if(h.closed){
 
-    $("calendarGrid").innerHTML=
+    $("calendarGrid").innerHTML =
       `<div class="slot-box closed">
         Attività chiusa.
       </div>`;
@@ -2702,18 +3083,20 @@ function renderCalendar(){
 
   }
 
-  const open=
+
+  const open =
     toMin(h.start);
 
-  const close=
+  const close =
     toMin(h.end);
 
+
   if(
-    open==null||
+    open==null ||
     close==null
   ){
 
-    $("calendarGrid").innerHTML=
+    $("calendarGrid").innerHTML =
       `<div class="slot-box closed">
         Configura gli orari nelle Impostazioni.
       </div>`;
@@ -2722,7 +3105,9 @@ function renderCalendar(){
 
   }
 
+
   let out="";
+
 
   for(
     let m=open;
@@ -2730,177 +3115,155 @@ function renderCalendar(){
     m+=30
   ){
 
-    const t=
-      fmt(m);
+    const t=fmt(m);
 
-    const a=
+
+    const a =
       ap.find(
         x=>x.time===t
       );
 
-    out+=`
 
-<div class="slot">
+    out += `
 
-<div class="slot-time">
-${t}
-</div>
+      <div class="slot">
 
-<div
-class="slot-box ${a?"busy":"free"}"
+        <div class="slot-time">
+          ${t}
+        </div>
 
-${
-  a
+        <div
+          class="slot-box ${a?"busy":"free"}"
 
-    ?`onclick="openAppointment('${esc(a.id)}')"`
+          ${
+            a
+            ?
+            `onclick="openAppointment('${esc(a.id)}')"`
+            :
+            `onclick="quickAppointment('${date}','${t}')"`
+          }
+        >
 
-    :`onclick="quickAppointment('${date}','${t}')"`
-}
+          ${
+            a
 
->
+            ?
 
-${
-  a
+            `
+              <b>
+                ${esc(a.name)}
+              </b>
 
-    ?`
+              <div class="muted">
+                ${esc(a.service)}
+              </div>
+            `
 
-<b>
-${esc(a.name)}
-</b>
+            :
 
-<div class="muted">
-${esc(a.service)}
-</div>
+            `Disponibile`
+          }
 
-`
+        </div>
 
-    :`Disponibile`
-}
+      </div>
 
-</div>
-
-</div>
-
-`;
+    `;
 
   }
 
-  $("calendarGrid").innerHTML=
+
+  $("calendarGrid").innerHTML =
     out;
-
-}
-
-
-function toMin(v){
-
-  const m=
-    String(v||"")
-      .match(
-        /^(\d{1,2}):(\d{2})$/
-      );
-
-  return m
-    ?Number(m[1])*60+
-      Number(m[2])
-    :null;
-
-}
-
-
-function fmt(m){
-
-  return String(
-    Math.floor(m/60)
-  )
-  .padStart(2,"0")
-  +
-  ":"
-  +
-  String(
-    m%60
-  )
-  .padStart(2,"0");
 
 }
 
 
 function appointmentHtml(a){
 
-  const st=
-    String(
+  const st =
+    norm(
       a.status||
       "confermato"
     );
 
-  const cls=
+
+  const cls =
     st==="completato"
-      ?"completed"
-      :
+    ?
+    "completed"
+    :
     st==="cancellato"
-      ?"cancelled"
-      :
-      "confirmed";
+    ?
+    "cancelled"
+    :
+    "confirmed";
+
 
   return `
 
-<div class="list-item">
+    <div class="list-item">
 
-<b>
-${esc(a.time)}
-·
-${esc(a.name)}
-</b>
+      <b>
+        ${esc(a.time)} ·
+        ${esc(a.name)}
+      </b>
 
-<div class="muted">
-${esc(a.service)}
-</div>
+      <div class="muted">
+        ${esc(a.service)}
+      </div>
 
-<span class="badge ${cls}">
-${esc(st)}
-</span>
+      <span class="badge ${cls}">
+        ${esc(a.status||"confermato")}
+      </span>
 
-<div class="actions">
+      <div class="actions">
 
-<button
-class="secondary small"
-onclick="openAppointment('${esc(a.id)}')">
+        <button
+          class="secondary small"
+          onclick="openAppointment('${esc(a.id)}')">
 
-Modifica
+          Modifica
 
-</button>
+        </button>
 
-<button
-class="danger small"
-onclick="cancelAppointment('${esc(a.id)}')">
+        <button
+          class="danger small"
+          onclick="cancelAppointment('${esc(a.id)}')">
 
-Annulla
+          Annulla
 
-</button>
+        </button>
 
-<button
-class="success small"
-onclick="completeAppointment('${esc(a.id)}')">
+        <button
+          class="success small"
+          onclick="completeAppointment('${esc(a.id)}')">
 
-Completa
+          Completa
 
-</button>
+        </button>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-`;
+  `;
 
 }
 
 
+/* ============================================================
+   RICERCA APPUNTAMENTI
+============================================================ */
+
 function renderAppointmentSearch(){
 
-  const q=
-    $("appointmentSearch")
-      .value
-      .trim()
-      .toLowerCase();
+  const q =
+    norm(
+      $("appointmentSearch")
+        .value
+    );
+
 
   if(!q){
 
@@ -2911,61 +3274,66 @@ function renderAppointmentSearch(){
 
   }
 
-  const a=
+
+  const arr =
     data.appointments
       .filter(
-        x=>
-          String(x.name||"")
-            .toLowerCase()
+        a=>
+          norm(a.name)
             .includes(q)
       );
 
-  $("appointmentSearchResults").innerHTML=
 
-    a.length
+  $("appointmentSearchResults")
+    .innerHTML =
 
-      ?a
+    arr.length
 
-        .sort(
-          (x,y)=>
-            (x.date+x.time)
-              .localeCompare(
-                y.date+y.time
-              )
-        )
+    ?
 
-        .map(
-          x=>`
+    arr
+      .sort(
+        (x,y)=>
+          (
+            x.date+x.time
+          )
+          .localeCompare(
+            y.date+y.time
+          )
+      )
+      .map(x=>`
 
-<div class="list-item">
+        <div class="list-item">
 
-<b>
-${esc(x.name)}
-·
-${formatDate(x.date)}
-${" "}
-${esc(x.time)}
-</b>
+          <b>
+            ${esc(x.name)}
+            ·
+            ${formatDate(x.date)}
+            ${" "}
+            ${esc(x.time)}
+          </b>
 
-<div class="muted">
-${esc(x.service)}
-</div>
+          <div class="muted">
+            ${esc(x.service)}
+          </div>
 
-</div>
+        </div>
 
-`
-        )
+      `)
+      .join("")
 
-        .join("")
+    :
 
-      :
-
-      `<div class="muted">
-        Nessun risultato.
-      </div>`;
+    `<div class="empty">
+      Nessun risultato.
+    </div>`;
 
 }
 
+
+/* ============================================================
+   MODIFICA APPUNTAMENTO
+============================================================ */
 
 function openNewAppointment(
   date=today(),
@@ -2975,10 +3343,15 @@ function openNewAppointment(
   openAppointmentModal({
 
     id:"",
+
     name:"",
-    date,
-    time,
+
+    date:date,
+
+    time:time,
+
     service:"",
+
     status:"confermato"
 
   });
@@ -3001,12 +3374,13 @@ function quickAppointment(
 
 function openAppointment(id){
 
-  const a=
+  const a =
     data.appointments.find(
       x=>
         String(x.id)===
         String(id)
     );
+
 
   if(a)
     openAppointmentModal(a);
@@ -3018,119 +3392,125 @@ function openAppointmentModal(a){
 
   openModal(`
 
-<h3>
+    <h3>
+      ${a.id?"Modifica":"Nuovo"}
+      appuntamento
+    </h3>
 
-${a.id?"Modifica":"Nuovo"}
-appuntamento
+    <label>
+      Cliente
+    </label>
 
-</h3>
+    <input
+      id="mName"
+      value="${esc(a.name)}">
 
-<label>
-Cliente
-</label>
 
-<input
-id="mName"
-value="${esc(a.name)}">
+    <label>
+      Data
+    </label>
 
-<label>
-Data
-</label>
+    <input
+      id="mDate"
+      type="date"
+      value="${esc(a.date)}">
 
-<input
-id="mDate"
-type="date"
-value="${esc(a.date)}">
 
-<label>
-Ora
-</label>
+    <label>
+      Ora
+    </label>
 
-<input
-id="mTime"
-type="time"
-value="${esc(a.time)}">
+    <input
+      id="mTime"
+      type="time"
+      value="${esc(a.time)}">
 
-<label>
-Servizio
-</label>
 
-<select id="mService">
+    <label>
+      Servizio
+    </label>
 
-${
-  data.services
-    .map(
-      s=>`
+    <select id="mService">
 
-<option
-${s.name===a.service?"selected":""}>
+      <option value="">
+        Seleziona servizio
+      </option>
 
-${esc(s.name)}
+      ${data.services.map(s=>`
 
-</option>
+        <option
+          value="${esc(s.name)}"
+          ${norm(s.name)===norm(a.service)?"selected":""}>
 
-`
-    )
-    .join("")
-}
+          ${esc(s.name)}
 
-</select>
+        </option>
 
-<label>
-Stato
-</label>
+      `).join("")}
 
-<select id="mStatus">
+    </select>
 
-<option
-${a.status==="confermato"?"selected":""}>
 
-confermato
+    <label>
+      Stato
+    </label>
 
-</option>
+    <select id="mStatus">
 
-<option
-${a.status==="completato"?"selected":""}>
+      <option
+        value="confermato"
+        ${norm(a.status)==="confermato"?"selected":""}>
 
-completato
+        confermato
 
-</option>
+      </option>
 
-<option
-${a.status==="cancellato"?"selected":""}>
+      <option
+        value="completato"
+        ${norm(a.status)==="completato"?"selected":""}>
 
-cancellato
+        completato
 
-</option>
+      </option>
 
-</select>
+      <option
+        value="cancellato"
+        ${norm(a.status)==="cancellato"?"selected":""}>
 
-<p
-id="mError"
-class="muted">
-</p>
+        cancellato
 
-<div class="actions">
+      </option>
 
-<button
-class="primary"
-onclick="saveAppointmentModal('${esc(a.id)}')">
+    </select>
 
-Salva
 
-</button>
+    <p
+      id="mError"
+      class="muted">
+    </p>
 
-<button
-class="secondary"
-onclick="closeModal()">
 
-Chiudi
+    <div class="actions">
 
-</button>
+      <button
+        class="primary"
+        onclick="saveAppointmentModal('${esc(a.id)}')">
 
-</div>
+        Salva
 
-`);
+      </button>
+
+      <button
+        class="secondary"
+        onclick="closeModal()">
+
+        Chiudi
+
+      </button>
+
+    </div>
+
+  `);
 
 }
 
@@ -3139,12 +3519,11 @@ async function saveAppointmentModal(id){
 
   const a={
 
-    id,
+    id:id,
 
     name:
       $("mName")
-        .value
-        .trim(),
+        .value.trim(),
 
     date:
       $("mDate").value,
@@ -3160,6 +3539,7 @@ async function saveAppointmentModal(id){
 
   };
 
+
   if(
     !a.name||
     !a.date||
@@ -3167,38 +3547,31 @@ async function saveAppointmentModal(id){
     !a.service
   ){
 
-    $("mError").textContent=
+    $("mError").textContent =
       "Compila tutti i campi.";
 
     return;
 
   }
 
-  if(!safeDate(a.date)){
-
-    $("mError").textContent=
-      "Data non valida.";
-
-    return;
-
-  }
 
   try{
 
     if(id){
 
-      const old=
+      const old =
         data.appointments.find(
           x=>
             String(x.id)===
             String(id)
         );
 
-      if(!old)
 
+      if(!old)
         throw Error(
           "Appuntamento non trovato."
         );
+
 
       if(
         a.status==="cancellato"||
@@ -3210,9 +3583,7 @@ async function saveAppointmentModal(id){
           a
         );
 
-        ensureClient(
-          a.name
-        );
+        ensureClient(a.name);
 
         save();
 
@@ -3222,14 +3593,17 @@ async function saveAppointmentModal(id){
 
       }
 
-      const withoutOld=
-        data.appointments.filter(
-          x=>
-            String(x.id)!==
-            String(id)
-        );
 
-      const check=
+      const withoutOld =
+        data.appointments
+          .filter(
+            x=>
+              String(x.id)!==
+              String(id)
+          );
+
+
+      const check =
         await businessApi(
           "availability",
           {
@@ -3240,30 +3614,39 @@ async function saveAppointmentModal(id){
           }
         );
 
+
       if(
         !check.available||
-        !Array.isArray(check.slots)||
+        !Array.isArray(
+          check.slots
+        )||
         !check.slots.includes(
           a.time
         )
-      )
+      ){
 
         throw Error(
           "L'orario scelto non è disponibile."
         );
+
+      }
+
 
       Object.assign(
         old,
         a
       );
 
+
       ensureClient(
         a.name
       );
 
+
       save();
 
       closeModal();
+
 
     }else{
 
@@ -3275,8 +3658,8 @@ async function saveAppointmentModal(id){
 
   }catch(e){
 
-    $("mError").textContent=
-      e.message||
+    $("mError").textContent =
+      e.message ||
       "Errore.";
 
   }
@@ -3286,16 +3669,17 @@ async function saveAppointmentModal(id){
 
 function cancelAppointment(id){
 
-  const a=
+  const a =
     data.appointments.find(
       x=>
         String(x.id)===
         String(id)
     );
 
+
   if(a){
 
-    a.status=
+    a.status =
       "cancellato";
 
     save();
@@ -3307,16 +3691,17 @@ function cancelAppointment(id){
 
 function completeAppointment(id){
 
-  const a=
+  const a =
     data.appointments.find(
       x=>
         String(x.id)===
         String(id)
     );
 
+
   if(a){
 
-    a.status=
+    a.status =
       "completato";
 
     save();
@@ -3326,126 +3711,135 @@ function completeAppointment(id){
 }
 
 
+/* ============================================================
+   CLIENTI
+============================================================ */
+
 function renderClients(){
 
-  const q=
-    $("clientSearch")
-      .value
-      .trim()
-      .toLowerCase();
+  const q =
+    norm(
+      $("clientSearch")
+        ?.value||""
+    );
 
-  const arr=
+
+  const arr =
     data.clients.filter(
-
       c=>
-
-        !q||
-
+        !q ||
         [
           c.name,
           c.phone,
           c.whatsapp,
           c.email
         ]
-
         .join(" ")
         .toLowerCase()
         .includes(q)
-
     );
 
-  $("clientsList").innerHTML=
+
+  $("clientsList").innerHTML =
 
     arr.length
 
-      ?arr.map(c=>{
+    ?
 
-        const hist=
-          data.appointments.filter(
-            a=>a.name===c.name
+    arr.map(c=>{
+
+      const hist =
+        data.appointments
+          .filter(
+            a=>
+              norm(a.name)===
+              norm(c.name)
           );
 
-        const next=
-          hist
 
-            .filter(
-              a=>
-                a.date>=today()&&
-                a.status!=="cancellato"
-            )
+      const next =
+        hist
+          .filter(
+            a=>
+              a.date>=today() &&
+              norm(a.status)
+                !=="cancellato"
+          )
+          .sort(
+            (a,b)=>
+              (
+                a.date+a.time
+              )
+              .localeCompare(
+                b.date+b.time
+              )
+          )[0];
 
-            .sort(
-              (a,b)=>
-                (a.date+a.time)
-                  .localeCompare(
-                    b.date+b.time
-                  )
-            )[0];
 
-        return `
+      return `
 
-<div class="list-item">
+        <div class="list-item">
 
-<b>
-${esc(c.name)}
-</b>
+          <b>
+            ${esc(c.name)}
+          </b>
 
-<div class="muted">
+          <div class="muted">
 
-${esc(
-  c.phone||
-  "Nessun telefono"
-)}
+            ${esc(
+              c.phone||
+              "Nessun telefono"
+            )}
 
-·
+            ·
 
-${esc(
-  c.email||
-  "Nessuna email"
-)}
+            ${esc(
+              c.email||
+              "Nessuna email"
+            )}
 
-</div>
+          </div>
 
-<div>
+          <div class="muted">
 
-${hist.length}
-appuntamenti
+            ${hist.length}
+            appuntamenti
 
-${
-  next
+            ${
+              next
+              ?
+              ` · prossimo
+                ${formatDate(next.date)}
+                ${next.time}`
+              :
+              ""
+            }
 
-    ?` · prossimo
-      ${formatDate(next.date)}
-      ${esc(next.time)}`
+          </div>
 
-    :""
-}
+          <div class="actions">
 
-</div>
+            <button
+              class="primary small"
+              onclick="openClient('${esc(c.id)}')">
 
-<div class="actions">
+              Apri scheda
 
-<button
-class="primary small"
-onclick="openClient('${esc(c.id)}')">
+            </button>
 
-Apri scheda
+          </div>
 
-</button>
+        </div>
 
-</div>
+      `;
 
-</div>
+    }).join("")
 
-`;
+    :
 
-      }).join("")
-
-      :
-
-      `<div class="muted">
-        Nessun cliente.
-      </div>`;
+    `<div class="empty">
+      Nessun cliente.
+    </div>`;
 
 }
 
@@ -3455,10 +3849,15 @@ function openNewClient(){
   openClientModal({
 
     id:"",
+
     name:"",
+
     phone:"",
+
     whatsapp:"",
+
     email:"",
+
     notes:""
 
   });
@@ -3468,10 +3867,11 @@ function openNewClient(){
 
 function openClient(id){
 
-  const c=
+  const c =
     data.clients.find(
       x=>x.id===id
     );
+
 
   if(c)
     openClientModal(c);
@@ -3481,131 +3881,143 @@ function openClient(id){
 
 function openClientModal(c){
 
-  const hist=
+  const hist =
     data.appointments
-
       .filter(
-        a=>a.name===c.name
+        a=>
+          norm(a.name)===
+          norm(c.name)
       )
-
       .sort(
         (a,b)=>
-          (b.date+b.time)
-            .localeCompare(
-              a.date+a.time
-            )
+          (
+            b.date+b.time
+          )
+          .localeCompare(
+            a.date+a.time
+          )
       );
+
 
   openModal(`
 
-<h3>
-Scheda cliente
-</h3>
+    <h3>
+      Scheda cliente
+    </h3>
 
-<label>
-Nome
-</label>
 
-<input
-id="cName"
-value="${esc(c.name)}">
+    <label>
+      Nome
+    </label>
 
-<label>
-Telefono
-</label>
+    <input
+      id="cName"
+      value="${esc(c.name)}">
 
-<input
-id="cPhone"
-value="${esc(c.phone)}">
 
-<label>
-WhatsApp
-</label>
+    <label>
+      Telefono
+    </label>
 
-<input
-id="cWhatsapp"
-value="${esc(c.whatsapp)}">
+    <input
+      id="cPhone"
+      value="${esc(c.phone)}">
 
-<label>
-Email
-</label>
 
-<input
-id="cEmail"
-value="${esc(c.email)}">
+    <label>
+      WhatsApp
+    </label>
 
-<label>
-Note
-</label>
+    <input
+      id="cWhatsapp"
+      value="${esc(c.whatsapp)}">
 
-<textarea
-id="cNotes"
-rows="5">${esc(c.notes)}</textarea>
 
-<hr class="divider">
+    <label>
+      Email
+    </label>
 
-<h4>
-Storico
-</h4>
+    <input
+      id="cEmail"
+      value="${esc(c.email)}">
 
-${
-  hist.length
 
-    ?hist.map(
-      a=>`
+    <label>
+      Note
+    </label>
 
-<div class="list-item">
+    <textarea
+      id="cNotes"
+      rows="5">${esc(c.notes)}</textarea>
 
-<b>
-${formatDate(a.date)}
-·
-${esc(a.time)}
-</b>
 
-<div class="muted">
+    <hr class="divider">
 
-${esc(a.service)}
-·
-${esc(
-  a.status||
-  "confermato"
-)}
 
-</div>
+    <h4>
+      Storico
+    </h4>
 
-</div>
 
-`
-    ).join("")
+    ${
+      hist.length
 
-    :
+      ?
 
-    `<div class="muted">
-      Nessun appuntamento.
-    </div>`
-}
+      hist.map(a=>`
 
-<div class="actions">
+        <div class="list-item">
 
-<button
-class="primary"
-onclick="saveClientModal('${esc(c.id)}')">
+          <b>
+            ${formatDate(a.date)}
+            ·
+            ${esc(a.time)}
+          </b>
 
-Salva
+          <div class="muted">
 
-</button>
+            ${esc(a.service)}
+            ·
+            ${esc(
+              a.status||
+              "confermato"
+            )}
 
-<button
-class="secondary"
-onclick="closeModal()">
+          </div>
 
-Chiudi
+        </div>
 
-</button>
+      `).join("")
 
-</div>
+      :
 
-`);
+      `<div class="empty">
+        Nessun appuntamento.
+      </div>`
+    }
+
+
+    <div class="actions">
+
+      <button
+        class="primary"
+        onclick="saveClientModal('${esc(c.id)}')">
+
+        Salva
+
+      </button>
+
+      <button
+        class="secondary"
+        onclick="closeModal()">
+
+        Chiudi
+
+      </button>
+
+    </div>
+
+  `);
 
 }
 
@@ -3614,73 +4026,79 @@ function saveClientModal(id){
 
   const c={
 
-    id:
-      id||
-      uid(),
+    id:id||uid(),
 
     name:
       $("cName")
-        .value
-        .trim(),
+        .value.trim(),
 
     phone:
       $("cPhone")
-        .value
-        .trim(),
+        .value.trim(),
 
     whatsapp:
       $("cWhatsapp")
-        .value
-        .trim(),
+        .value.trim(),
 
     email:
       $("cEmail")
-        .value
-        .trim(),
+        .value.trim(),
 
     notes:
       $("cNotes")
-        .value
-        .trim(),
+        .value.trim(),
 
     createdAt:
       new Date().toISOString()
 
   };
 
+
   if(!c.name)
     return;
 
+
   if(id){
 
-    const old=
+    const old =
       data.clients.find(
         x=>x.id===id
       );
 
-    const oldName=
-      old.name;
 
-    Object.assign(
-      old,
-      c
-    );
+    if(old){
 
-    data.appointments
-      .forEach(
-        a=>{
-          if(
-            a.name===oldName
-          )
-            a.name=c.name;
-        }
+      const oldName =
+        old.name;
+
+      Object.assign(
+        old,
+        c
       );
+
+
+      data.appointments
+        .forEach(a=>{
+
+          if(
+            norm(a.name)===
+            norm(oldName)
+          ){
+
+            a.name=c.name;
+
+          }
+
+        });
+
+    }
 
   }else{
 
     data.clients.push(c);
 
   }
+
 
   save();
 
@@ -3689,15 +4107,17 @@ function saveClientModal(id){
 }
 
 
+/* ============================================================
+   STORICO MAVI
+============================================================ */
+
 function history(){
 
   try{
 
     return JSON.parse(
-      localStorage.getItem(
-        HIST
-      )||"[]"
-    ).slice(-12);
+      localStorage.getItem(HIST)||"[]"
+    ).slice(-20);
 
   }catch{
 
@@ -3708,26 +4128,29 @@ function history(){
 }
 
 
-function saveHistory(u,a){
+function saveHistory(
+  user,
+  assistant
+){
 
-  const h=
-    history();
+  const h=history();
 
   h.push(
     {
       role:"user",
-      content:u
+      content:user
     },
     {
       role:"assistant",
-      content:a
+      content:assistant
     }
   );
+
 
   localStorage.setItem(
     HIST,
     JSON.stringify(
-      h.slice(-12)
+      h.slice(-20)
     )
   );
 
@@ -3740,135 +4163,789 @@ function clearMaviHistory(){
     HIST
   );
 
-  $("chat").innerHTML=
 
-    '<div class="msg bot">'+
-    'Conversazione cancellata. Sono pronta.'+
-    '</div>';
+  $("chat").innerHTML =
+    `
+      <div class="msg bot">
+        Conversazione cancellata.
+        Sono Mavi, pronta.
+      </div>
+    `;
 
-}
 
-
-async function preloadMavi(){
-
-  if(
-    window.MaviAI?.preload
-  )
-
-    try{
-
-      await window.MaviAI.preload();
-
-    }catch(e){
-
-      console.warn(e);
-
-    }
+  setMaviState(
+    "ready"
+  );
 
 }
 
 
-function addChat(
-  text,
-  role
+/* ============================================================
+   STATO VISIVO MAVI
+============================================================ */
+
+function setMaviState(
+  state,
+  detail=""
 ){
-
-  const d=
-    document.createElement(
-      "div"
-    );
-
-  d.className=
-    "msg "+role;
-
-  d.textContent=
-    text;
-
-  $("chat")
-    .appendChild(d);
-
-  $("chat").scrollTop=
-    $("chat").scrollHeight;
-
-}
-
-
-function setVisualThinking(on){
 
   clearTimeout(
     visualThinkingTimer
   );
 
-  if(on){
 
-    $("maviStatus")
-      .textContent=
-        "Mavi sta elaborando…";
+  const labels={
+
+    ready:
+      "Mavi è pronta",
+
+    processing:
+      "Mavi sta elaborando…",
+
+    loading:
+      "Mavi si sta preparando…",
+
+    listening:
+      "Mavi ti sta ascoltando…",
+
+    speaking:
+      "Mavi sta parlando…",
+
+    error:
+      "Mavi è pronta"
+
+  };
+
+
+  const label =
+    detail ||
+    labels[state] ||
+    labels.ready;
+
+
+  $("maviStatus")
+    .textContent=label;
+
+
+  $("homeEngineStatus")
+    .textContent=label;
+
+
+  $("maviStatus")
+    .className =
+      "engine-status "+
+      (
+        state==="error"
+        ?
+        "error"
+        :
+        state==="ready"
+        ?
+        "ready"
+        :
+        ""
+      );
+
+
+  if(state==="processing"){
 
     $("enginePill")
-      .textContent=
+      .textContent =
         "Mavi · al lavoro…";
 
-    visualThinkingTimer=
-      setTimeout(
-        ()=>{
+  }else if(
+    state==="listening"
+  ){
 
-          if(busy){
+    $("enginePill")
+      .textContent =
+        "Mavi · ascolto…";
 
-            $("maviStatus")
-              .textContent=
-                "Mavi è ancora al lavoro…";
+  }else if(
+    state==="speaking"
+  ){
 
-            $("enginePill")
-              .textContent=
-                "Mavi · attiva";
+    $("enginePill")
+      .textContent =
+        "Mavi · parla…";
 
-          }
+  }else if(
+    state==="loading"
+  ){
 
-        },
-        12000
-      );
+    $("enginePill")
+      .textContent =
+        "Mavi · preparazione…";
+
+  }else if(
+    state==="error"
+  ){
+
+    $("enginePill")
+      .textContent =
+        "Mavi · attiva";
+
+  }else{
+
+    $("enginePill")
+      .textContent =
+        "Mavi · pronta";
 
   }
 
 }
 
 
+/* ============================================================
+   PENDING PRENOTAZIONE
+============================================================ */
+
+function normalizeBookingDate(
+  value
+){
+
+  if(!value)
+    return "";
+
+  const v=
+    String(value)
+      .trim();
+
+
+  if(
+    /^\d{4}-\d{2}-\d{2}$/
+      .test(v)
+  ){
+
+    return v;
+
+  }
+
+
+  return "";
+
+}
+
+
+function normalizeBookingTime(
+  value
+){
+
+  if(!value)
+    return "";
+
+  const v =
+    String(value)
+      .trim();
+
+
+  const m =
+    v.match(
+      /^(\d{1,2})(?::(\d{2}))?$/
+    );
+
+
+  if(!m)
+    return "";
+
+
+  const hh =
+    Number(m[1]);
+
+  const mm =
+    Number(m[2]||"00");
+
+
+  if(
+    hh<0||
+    hh>23||
+    mm<0||
+    mm>59
+  ){
+
+    return "";
+
+  }
+
+
+  return String(hh)
+    .padStart(2,"0")
+    +
+    ":"
+    +
+    String(mm)
+      .padStart(2,"0");
+
+}
+
+
+function setMaviPendingAppointment(
+  a
+){
+
+  if(!a)
+    return;
+
+
+  const appointment={
+
+    name:
+      String(
+        a.name||
+        a.clientName||
+        ""
+      ).trim(),
+
+    date:
+      normalizeBookingDate(
+        a.date
+      ),
+
+    time:
+      normalizeBookingTime(
+        a.time
+      ),
+
+    service:
+      String(
+        a.service||
+        ""
+      ).trim()
+
+  };
+
+
+  if(
+    !appointment.name||
+    !appointment.date||
+    !appointment.time||
+    !appointment.service
+  ){
+
+    return;
+
+  }
+
+
+  pendingMaviAppointment =
+    appointment;
+
+
+  localStorage.setItem(
+    PENDING,
+    JSON.stringify(
+      appointment
+    )
+  );
+
+
+  showMaviBookingButton();
+
+}
+
+
+function restoreMaviPendingAppointment(){
+
+  try{
+
+    const p =
+      JSON.parse(
+        localStorage.getItem(
+          PENDING
+        )||"null"
+      );
+
+
+    if(
+      p &&
+      p.name &&
+      p.date &&
+      p.time &&
+      p.service
+    ){
+
+      pendingMaviAppointment=p;
+
+      showMaviBookingButton();
+
+    }
+
+  }catch{}
+
+}
+
+
+function showMaviBookingButton(){
+
+  const p =
+    pendingMaviAppointment;
+
+
+  if(!p)
+    return;
+
+
+  const box =
+    $("maviBookingBox");
+
+
+  if(!box)
+    return;
+
+
+  $("maviBookingSummary")
+    .innerHTML =
+
+      `
+        <b>
+          ${esc(p.name)}
+        </b>
+
+        <br>
+
+        ${esc(
+          formatDate(p.date)
+        )}
+
+        ·
+
+        ${esc(p.time)}
+
+        <br>
+
+        <b>
+          ${esc(p.service)}
+        </b>
+      `;
+
+
+  $("maviBookingStatus")
+    .textContent =
+      "L'orario è stato verificato. La prenotazione verrà salvata solo dopo la tua conferma.";
+
+
+  const button =
+    $("maviConfirmBooking");
+
+
+  button.disabled=false;
+
+  button.textContent =
+    "Conferma prenotazione";
+
+
+  box.style.display =
+    "block";
+
+
+  box.scrollIntoView({
+    behavior:"smooth",
+    block:"nearest"
+  });
+
+}
+
+
+function hideMaviBookingButton(){
+
+  const box =
+    $("maviBookingBox");
+
+
+  if(box)
+    box.style.display =
+      "none";
+
+}
+
+
+/* ============================================================
+   CONFERMA PRENOTAZIONE
+============================================================ */
+
+async function confirmMaviBooking(){
+
+  if(
+    busy||
+    !pendingMaviAppointment
+  ){
+
+    return;
+
+  }
+
+
+  const p={
+    ...pendingMaviAppointment
+  };
+
+
+  const button =
+    $("maviConfirmBooking");
+
+
+  const status =
+    $("maviBookingStatus");
+
+
+  busy=true;
+
+
+  button.disabled=true;
+
+  button.textContent =
+    "Verifico e salvo…";
+
+
+  status.textContent =
+    "Mavi sta verificando nuovamente la disponibilità…";
+
+
+  try{
+
+    /*
+     * SECONDO CONTROLLO DI DISPONIBILITÀ.
+     */
+
+    const check =
+      await businessApi(
+        "availability",
+        {
+          date:p.date,
+          service:p.service
+        }
+      );
+
+
+    if(
+      !check||
+      !check.available||
+      !Array.isArray(
+        check.slots
+      )||
+      !check.slots.includes(
+        p.time
+      )
+    ){
+
+      throw Error(
+        "L'orario non è più disponibile. Non ho effettuato la prenotazione."
+      );
+
+    }
+
+
+    /*
+     * PRENOTAZIONE DEFINITIVA.
+     */
+
+    await bookAppointment(p);
+
+
+    pendingMaviAppointment =
+      null;
+
+
+    localStorage.removeItem(
+      PENDING
+    );
+
+
+    hideMaviBookingButton();
+
+
+    const confirmation =
+      `Prenotazione confermata.\n\n`+
+      `${p.name}, ${formatDate(p.date)} alle ${p.time}.\n`+
+      `Servizio: ${p.service}.\n\n`+
+      `L'appuntamento è stato salvato nel calendario.`;
+
+
+    addChat(
+      confirmation,
+      "bot"
+    );
+
+
+    saveHistory(
+      "Conferma prenotazione",
+      confirmation
+    );
+
+
+    setMaviState(
+      "ready",
+      "Prenotazione salvata nel calendario."
+    );
+
+
+    /*
+     * PORTA IL CALENDARIO
+     * SULLA DATA PRENOTATA.
+     */
+
+    $("calendarDate").value =
+      p.date;
+
+
+    renderCalendar();
+
+
+    /*
+     * AGGIORNA LA DASHBOARD.
+     */
+
+    renderAll();
+
+
+    /*
+     * RISPOSTA VOCALE.
+     */
+
+    speakText(
+      `Prenotazione confermata per ${p.name}, `+
+      `${formatDate(p.date)} alle ${p.time}.`
+    );
+
+
+  }catch(e){
+
+    button.disabled=false;
+
+    button.textContent =
+      "Conferma prenotazione";
+
+
+    status.textContent =
+      e.message||
+      "Non è stato possibile completare la prenotazione.";
+
+
+    setMaviState(
+      "error",
+      e.message||
+      "Prenotazione non completata."
+    );
+
+
+  }finally{
+
+    busy=false;
+
+  }
+
+}
+
+
+/* ============================================================
+   ANNULLA PRENOTAZIONE PENDENTE
+============================================================ */
+
+function cancelMaviBooking(){
+
+  pendingMaviAppointment =
+    null;
+
+
+  localStorage.removeItem(
+    PENDING
+  );
+
+
+  hideMaviBookingButton();
+
+
+  addChat(
+    "Va bene. Non ho effettuato alcuna prenotazione.",
+    "bot"
+  );
+
+
+  saveHistory(
+    "Annulla prenotazione",
+    "Va bene. Non ho effettuato alcuna prenotazione."
+  );
+
+}
+
+
+/* ============================================================
+   MAVI ENGINE
+============================================================ */
+
+async function preloadMavi(){
+
+  if(
+    !window.MaviAI?.preload
+  ){
+
+    setMaviState(
+      "ready",
+      "Mavi è pronta"
+    );
+
+    return;
+
+  }
+
+
+  setMaviState(
+    "loading"
+  );
+
+
+  try{
+
+    await window.MaviAI.preload();
+
+    setMaviState(
+      "ready"
+    );
+
+  }catch(e){
+
+    /*
+     * Il preload non deve bloccare
+     * l'interfaccia.
+     */
+
+    console.warn(
+      "Preload Mavi:",
+      e
+    );
+
+
+    setMaviState(
+      "ready"
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   CHAT
+============================================================ */
+
+function addChat(
+  text,
+  role
+){
+
+  const d =
+    document.createElement(
+      "div"
+    );
+
+
+  d.className =
+    "msg "+role;
+
+
+  d.textContent =
+    text;
+
+
+  $("chat")
+    .appendChild(d);
+
+
+  $("chat")
+    .scrollTop =
+      $("chat").scrollHeight;
+
+}
+
+
+/* ============================================================
+   MAVI
+============================================================ */
+
 async function askMavi(
-  text=$("maviInput").value.trim(),
+  text=
+    $("maviInput")
+      .value.trim(),
   speak=true
 ){
 
   if(
     busy||
     !text
-  )
+  ){
+
     return;
+
+  }
+
+
+  /*
+   * "prenoto" / "confermo"
+   * dopo una prenotazione pendente
+   * deve aprire direttamente la
+   * conferma, non ripartire da zero.
+   */
+
+  if(
+    pendingMaviAppointment &&
+    /^(prenoto|prenotiamo|confermo|conferma|va bene|ok|si|sì)$/i
+      .test(
+        text.trim()
+      )
+  ){
+
+    $("maviInput").value="";
+
+    addChat(
+      text,
+      "user"
+    );
+
+
+    addChat(
+      "Ho preparato la prenotazione. Usa il pulsante qui sopra per confermarla.",
+      "bot"
+    );
+
+
+    showMaviBookingButton();
+
+    return;
+
+  }
+
 
   busy=true;
 
-  $("maviInput")
-    .value="";
 
-  $("maviSend")
-    .disabled=true;
+  $("maviInput").value="";
+
+  $("maviSend").disabled=true;
+
 
   addChat(
     text,
     "user"
   );
 
-  setVisualThinking(true);
+
+  setMaviState(
+    "processing"
+  );
+
 
   try{
 
     if(
       !window.MaviAI?.ask
-    )
+    ){
 
       throw Error(
         "Mavi Engine non disponibile."
       );
+
+    }
+
 
     const ctx={
 
@@ -3881,7 +4958,8 @@ async function askMavi(
 
     };
 
-    const r=
+
+    const r =
       await window.MaviAI.ask({
 
         message:text,
@@ -3889,258 +4967,603 @@ async function askMavi(
         history:
           history(),
 
-        businessData:
-          ctx,
+        businessData:ctx,
 
-        temperature:.35
+        temperature:.35,
+
+        /*
+         * Il motore riceve esplicitamente
+         * la regola della prenotazione.
+         */
+
+        intentRules:{
+
+          appointments:{
+
+            requireUserConfirmation:true,
+
+            neverSaveBeforeConfirmation:true,
+
+            afterAvailabilityConfirmed:
+              "show_confirmation_button",
+
+            confirmationAction:
+              "confirmMaviBooking"
+
+          }
+
+        }
 
       });
 
-    if(!r.ok)
+
+    if(!r?.ok){
 
       throw Error(
-        r.error||
+        r?.error||
         "Errore Mavi."
       );
 
+    }
+
+
+    const reply =
+      r.reply||
+      "Non ho ricevuto una risposta da Mavi.";
+
+
     addChat(
-      r.reply,
+      reply,
       "bot"
     );
+
 
     saveHistory(
       text,
-      r.reply
+      reply
     );
 
-    $("maviStatus")
-      .textContent=
-        `Mavi è pronta · ${
-          r.device||
-          "locale"
-        }`;
 
-    $("enginePill")
-      .textContent=
-        "Mavi · pronta";
+    /*
+     * SUPPORTO A PIÙ FORMATI DI RISPOSTA
+     * DEL MOTORE.
+     */
+
+    if(
+      r.pendingAppointment
+    ){
+
+      setMaviPendingAppointment(
+        r.pendingAppointment
+      );
+
+    }
+
+
+    if(
+      r.booking
+    ){
+
+      setMaviPendingAppointment(
+        r.booking
+      );
+
+    }
+
+
+    if(
+      r.appointmentDraft
+    ){
+
+      setMaviPendingAppointment(
+        r.appointmentDraft
+      );
+
+    }
+
+
+    /*
+     * Se il motore restituisce
+     * confirmed + appointment,
+     * la prenotazione è definitiva
+     * solo se il backend l'ha realmente
+     * confermata.
+     */
+
+    if(
+      r.confirmed===true &&
+      r.appointment
+    ){
+
+      await finalizeEngineAppointment(
+        r.appointment
+      );
+
+    }
+
+
+    setMaviState(
+      "ready"
+    );
+
 
     if(speak)
-      speakText(
-        r.reply
-      );
+      speakText(reply);
+
 
   }catch(e){
 
-    addChat(
+    const msg =
       e.message||
-      "Errore Mavi.",
+      "Non riesco a completare la richiesta.";
+
+
+    addChat(
+      msg,
       "bot"
     );
 
-    $("maviStatus")
-      .textContent=
-        e.message||
-        "Errore Mavi.";
+
+    setMaviState(
+      "error",
+      msg
+    );
+
 
   }finally{
-
-    setVisualThinking(false);
 
     busy=false;
 
     $("maviSend")
       .disabled=false;
 
+
+    if(
+      !listening
+    ){
+
+      setTimeout(
+        ()=>{
+          if(!busy)
+            setMaviState(
+              "ready"
+            );
+        },
+        250
+      );
+
+    }
+
   }
 
 }
 
 
+/* ============================================================
+   RISPOSTA CON PRENOTAZIONE GIÀ CONFERMATA
+============================================================ */
+
+async function finalizeEngineAppointment(
+  a
+){
+
+  if(
+    !a||
+    !validDate(a.date)||
+    !validTime(a.time)
+  ){
+
+    return;
+
+  }
+
+
+  /*
+   * Il backend deve aver restituito
+   * una conferma reale.
+   */
+
+  const duplicate =
+    data.appointments.some(
+      x=>
+        x.date===a.date&&
+        x.time===a.time&&
+        norm(x.status||"confermato")
+          !=="cancellato"
+    );
+
+
+  if(!duplicate){
+
+    const c =
+      ensureClient(
+        a.name||
+        a.clientName||
+        ""
+      );
+
+
+    data.appointments.push({
+
+      id:
+        a.bookingKey||
+        a.id||
+        uid(),
+
+      name:
+        a.name||
+        a.clientName||
+        "",
+
+      date:a.date,
+
+      time:a.time,
+
+      service:
+        a.service||
+        "",
+
+      clientId:
+        c?.id||
+        "",
+
+      status:
+        "confermato",
+
+      createdAt:
+        new Date().toISOString(),
+
+      updatedAt:
+        new Date().toISOString()
+
+    });
+
+
+    persist();
+
+    renderAll();
+
+  }
+
+
+  pendingMaviAppointment =
+    null;
+
+
+  localStorage.removeItem(
+    PENDING
+  );
+
+
+  hideMaviBookingButton();
+
+}
+
+
+/* ============================================================
+   VOCE
+============================================================ */
+
 function speakText(text){
 
   if(
-    !("speechSynthesis" in window)
+    !("speechSynthesis"in window)
   )
     return;
 
+
+  if(!text)
+    return;
+
+
   speechSynthesis.cancel();
 
-  const u=
+
+  const u =
     new SpeechSynthesisUtterance(
       text
     );
 
-  u.lang=
+
+  u.lang =
     "it-IT";
 
-  u.rate=
+
+  u.rate =
     .98;
+
+
+  u.onstart=()=>{
+
+    setMaviState(
+      "speaking"
+    );
+
+  };
+
+
+  u.onend=()=>{
+
+    if(!busy)
+      setMaviState(
+        "ready"
+      );
+
+  };
+
+
+  u.onerror=()=>{
+
+    if(!busy)
+      setMaviState(
+        "ready"
+      );
+
+  };
+
 
   speechSynthesis.speak(u);
 
 }
 
 
+/* ============================================================
+   VOICE INPUT
+============================================================ */
+
 function toggleVoice(){
 
   if(listening){
 
-    recognition?.stop();
+    stopVoice();
 
     return;
 
   }
 
-  if(
-    !(
-      "SpeechRecognition" in window||
-      "webkitSpeechRecognition" in window
-    )
-  ){
 
-    alert(
-      "Il riconoscimento vocale non è supportato da questo browser."
+  const SR =
+    window.SpeechRecognition||
+    window.webkitSpeechRecognition;
+
+
+  if(!SR){
+
+    addChat(
+      "Il riconoscimento vocale non è disponibile in questo browser.",
+      "bot"
     );
 
     return;
 
   }
 
-  const SR=
-    window.SpeechRecognition||
-    window.webkitSpeechRecognition;
 
-  recognition=
+  recognition =
     new SR();
 
-  recognition.lang=
+
+  recognition.lang =
     "it-IT";
 
-  recognition.interimResults=
+
+  recognition.continuous =
     false;
 
-  recognition.continuous=
+
+  recognition.interimResults =
     false;
+
 
   if(
     "processLocally" in recognition
-  )
+  ){
 
-    recognition.processLocally=
-      true;
+    try{
+
+      recognition.processLocally =
+        true;
+
+    }catch{}
+
+  }
+
 
   recognition.onstart=()=>{
 
     listening=true;
 
+
     $("micButton")
       .classList
       .add("listening");
 
+
     $("voiceLabel")
-      .textContent=
-        "Sto ascoltando…";
+      .textContent =
+      "Sto ascoltando…";
+
+
+    setMaviState(
+      "listening"
+    );
 
   };
 
-  recognition.onresult=e=>
 
-    askMavi(
-      e.results[0][0]
-        .transcript,
-      true
-    );
+  recognition.onresult=e=>{
+
+    const text =
+      e.results?.[0]?.[0]
+        ?.transcript
+        ?.trim();
+
+
+    if(text){
+
+      $("maviInput")
+        .value=text;
+
+
+      askMavi(
+        text,
+        true
+      );
+
+    }
+
+  };
+
 
   recognition.onerror=e=>{
 
-    $("voiceLabel")
-      .textContent=
-        e.error===
-        "language-not-supported"
+    console.warn(
+      "SpeechRecognition:",
+      e
+    );
 
-          ?"Riconoscimento locale non disponibile"
 
-          :"Errore microfono";
-
-    console.warn(e);
+    stopVoice();
 
   };
+
 
   recognition.onend=()=>{
 
-    listening=false;
-
-    $("micButton")
-      .classList
-      .remove("listening");
-
-    $("voiceLabel")
-      .textContent=
-        "Premi il microfono";
+    stopVoice();
 
   };
 
-  recognition.start();
+
+  try{
+
+    recognition.start();
+
+  }catch(e){
+
+    console.warn(e);
+
+  }
 
 }
 
 
+function stopVoice(){
+
+  if(recognition){
+
+    try{
+      recognition.stop();
+    }catch{}
+
+  }
+
+
+  listening=false;
+
+
+  $("micButton")
+    .classList
+    .remove("listening");
+
+
+  $("voiceLabel")
+    .textContent =
+      "Premi il microfono";
+
+
+  if(!busy){
+
+    setMaviState(
+      "ready"
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   CONTENUTI
+============================================================ */
+
 async function generatePost(){
 
-  const topic=
+  const topic =
     $("postTopic")
-      .value
-      .trim();
+      .value.trim();
 
-  const extra=
+
+  const extra =
     $("postExtra")
-      .value
-      .trim();
+      .value.trim();
 
-  const type=
-    $("postType").value;
 
-  const style=
-    $("postStyle").value;
+  const type =
+    $("postType")
+      .value;
 
-  const platform=
+
+  const style =
+    $("postStyle")
+      .value;
+
+
+  const platform =
     selectedPlatform;
 
+
   if(
-    !topic&&
-    !data.services.length&&
+    !topic &&
+    !data.services.length &&
     !data.promotions.length
   ){
 
     $("postStatus")
-      .textContent=
+      .textContent =
         "Inserisci un argomento.";
 
     return;
 
   }
 
-  const b=
+
+  const button =
     $("postButton");
 
-  b.disabled=true;
+
+  button.disabled=true;
+
 
   $("postStatus")
-    .textContent=
+    .textContent =
       "Mavi sta creando il contenuto…";
+
 
   try{
 
-    const prompt=
+    if(
+      !window.MaviAI?.ask
+    ){
 
+      throw Error(
+        "Mavi Engine non disponibile."
+      );
+
+    }
+
+
+    const prompt =
 `Crea un contenuto per ${platform}.
 Tipo: ${type}.
 Stile: ${style}.
 Argomento: ${topic||"usa i dati disponibili dell'attività"}.
 Indicazioni: ${extra||"nessuna"}.
-Usa solo dati reali presenti nei dati dell'attività.
-Non inventare prezzi, servizi o promozioni.
-Restituisci solo il testo pronto da pubblicare.`;
+
+Usa esclusivamente dati reali presenti nei dati dell'attività.
+Non inventare prezzi, servizi, promozioni, orari o informazioni.
+Restituisci direttamente il testo pronto da pubblicare.`;
+
 
     const ctx={
 
@@ -4153,46 +5576,50 @@ Restituisci solo il testo pronto da pubblicare.`;
 
     };
 
-    const r=
+
+    const r =
       await window.MaviAI.ask({
 
-        message:
-          prompt,
+        message:prompt,
 
         history:[],
 
-        businessData:
-          ctx,
+        businessData:ctx,
 
         temperature:.6
 
       });
 
-    if(!r.ok)
+
+    if(!r?.ok){
 
       throw Error(
-        r.error||
+        r?.error||
         "Errore Mavi."
       );
 
+    }
+
+
     $("postOutput")
-      .value=
-        r.reply;
+      .value =
+        r.reply||"";
+
 
     $("postStatus")
-      .textContent=
-        "Contenuto generato localmente da Mavi.";
+      .textContent =
+        "Contenuto generato da Mavi.";
 
   }catch(e){
 
     $("postStatus")
-      .textContent=
+      .textContent =
         e.message||
-        "Errore.";
+        "Errore Mavi.";
 
   }finally{
 
-    b.disabled=false;
+    button.disabled=false;
 
   }
 
@@ -4207,16 +5634,17 @@ function selectPlatform(el){
     )
     .forEach(
       b=>
-        b.classList.remove(
-          "active"
-        )
+        b.classList
+          .remove("active")
     );
+
 
   el.classList.add(
     "active"
   );
 
-  selectedPlatform=
+
+  selectedPlatform =
     el.dataset.platform;
 
 }
@@ -4224,21 +5652,34 @@ function selectPlatform(el){
 
 function copyText(id){
 
-  const t=
+  const t =
     $(id).value;
 
-  navigator
-    .clipboard
-    ?.writeText(t);
+
+  if(
+    navigator.clipboard
+  ){
+
+    navigator.clipboard
+      .writeText(t);
+
+  }
 
 }
 
 
-function openModal(content){
+/* ============================================================
+   MODALE
+============================================================ */
+
+function openModal(
+  content
+){
 
   $("modal")
-    .innerHTML=
+    .innerHTML =
       content;
+
 
   $("modalBg")
     .classList
@@ -4253,1328 +5694,159 @@ function closeModal(){
     .classList
     .remove("open");
 
+
   $("modal")
     .innerHTML="";
 
 }
 
 
+/* ============================================================
+   STATO ENGINE
+============================================================ */
+
 window.addEventListener(
   "mavi-engine-status",
   e=>{
 
-    const d=
+    const d =
       e.detail||{};
 
-    const s=
+
+    const s =
       d.status||"";
 
-    const t=
+
+    const t =
       d.detail||"";
 
+
     /*
-     * Evita che gli aggiornamenti del
-     * motore durante una richiesta
-     * sovrascrivano lo stato della chat.
+     * Il vecchio problema:
+     * "Mavi · elaborazione…" fisso.
+     *
+     * Se una risposta è arrivata,
+     * il risultato non può più essere
+     * sovrascritto da uno stato thinking
+     * tardivo.
      */
 
     if(
-      busy&&
+      busy &&
       s==="thinking"
-    )
+    ){
+
       return;
 
-    $("maviStatus")
-      .textContent=
-        t||s;
+    }
 
-    $("homeEngineStatus")
-      .textContent=
-        s==="ready"
-          ?"Mavi è pronta"
-          :t||s;
 
-    $("homeEngineStatus")
-      .className=
-        "engine-status "+
-        (
-          s==="ready"
-            ?"ready"
-            :
-          s==="error"
-            ?"error"
-            :""
+    if(
+      s==="ready"||
+      s==="idle"
+    ){
+
+      if(!busy){
+
+        setMaviState(
+          "ready",
+          t||
+          "Mavi è pronta"
         );
 
-    $("enginePill")
-      .textContent=
+      }
 
-        s==="ready"
+      return;
 
-          ?"Mavi · pronta"
+    }
 
-          :
 
-        s==="thinking"
+    if(
+      s==="loading"
+    ){
 
-          ?(
-            busy
-              ?"Mavi · al lavoro…"
-              :"Mavi · attiva"
-          )
+      if(!busy)
+        setMaviState(
+          "loading",
+          t||
+          "Mavi si sta preparando…"
+        );
 
-          :
+      return;
 
-        s==="error"
+    }
 
-          ?"Mavi · errore"
 
-          :
+    if(
+      s==="thinking"
+    ){
 
-        s==="idle"
+      if(busy)
+        setMaviState(
+          "processing",
+          t||
+          "Mavi sta elaborando…"
+        );
 
-          ?"Mavi · locale"
+      return;
 
-          :
+    }
 
-          "Mavi · preparazione…";
+
+    if(
+      s==="error"
+    ){
+
+      if(!busy)
+        setMaviState(
+          "ready",
+          "Mavi è pronta"
+        );
+
+    }
 
   }
 );
 
 
+/* ============================================================
+   AVVIO
+============================================================ */
+
 load();
 
+
 $("calendarDate")
-  .value=
+  .value =
     today();
+
 
 renderAll();
 
-showPage("home");
+
+restoreMaviPendingAppointment();
+
+
+showPage(
+  "home"
+);
+
 
 /*
- * Il caricamento del motore parte
- * in background e non blocca l'app.
+ * PREPARAZIONE NON BLOCCANTE.
+ *
+ * La pagina viene mostrata subito.
+ * Mavi viene preparata in background.
  */
 
-preloadMavi();
+setTimeout(
+  ()=>{
+    preloadMavi();
+  },
+  80
+);
 
 </script>
-<script>
-/* ============================================================
-   MAVIRI — MAVI BUSINESS BRAIN 2.1
-   Conversational memory + appointment intelligence
-   ------------------------------------------------------------
-   Obiettivo:
-   - mantenere il contesto tra messaggi
-   - comprendere prenotazioni multi-turno
-   - capire "prenoto", "confermo", "sì"
-   - mantenere giorno/ora/servizio/cliente
-   - controllare sempre la disponibilità
-   - usare il motore locale solo quando serve
-   ============================================================ */
 
-(function(){
-
-"use strict";
-
-const MAVI_PENDING_KEY="maviPendingBooking";
-
-let maviPending=null;
-
-
-/* ============================================================
-   NORMALIZZAZIONE
-   ============================================================ */
-
-function mNorm(value){
-
-return String(value||"")
-.toLowerCase()
-.normalize("NFD")
-.replace(/[\u0300-\u036f]/g,"")
-.trim();
-
-}
-
-
-/* ============================================================
-   CARICA CONTESTO
-   ============================================================ */
-
-function loadMaviPending(){
-
-try{
-
-const x=
-JSON.parse(
-localStorage.getItem(MAVI_PENDING_KEY)||"null"
-);
-
-maviPending=
-x&&typeof x==="object"
-?x
-:null;
-
-}catch{
-
-maviPending=null;
-
-}
-
-return maviPending;
-
-}
-
-
-/* ============================================================
-   SALVA CONTESTO
-   ============================================================ */
-
-function saveMaviPending(){
-
-if(maviPending){
-
-localStorage.setItem(
-MAVI_PENDING_KEY,
-JSON.stringify(maviPending)
-);
-
-}else{
-
-localStorage.removeItem(
-MAVI_PENDING_KEY
-);
-
-}
-
-}
-
-
-/* ============================================================
-   DATA ITALIANA
-   ============================================================ */
-
-function mToday(){
-
-return new Intl.DateTimeFormat(
-"en-CA",
-{
-timeZone:"Europe/Rome"
-}
-).format(new Date());
-
-}
-
-
-function mDateFromParts(
-year,
-month,
-day
-){
-
-return `${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-
-}
-
-
-/* ============================================================
-   PROSSIMO GIORNO DELLA SETTIMANA
-   ============================================================ */
-
-function mWeekdayDate(name){
-
-const map={
-domenica:0,
-lunedi:1,
-martedi:2,
-mercoledi:3,
-giovedi:4,
-venerdi:5,
-sabato:6
-};
-
-const target=map[mNorm(name)];
-
-if(target===undefined)
-return null;
-
-const now=
-new Date(
-mToday()+"T12:00:00"
-);
-
-const current=
-now.getDay();
-
-let delta=
-(target-current+7)%7;
-
-/*
- * Se oggi è il giorno richiesto,
- * "lunedì" significa normalmente il prossimo lunedì.
- */
-if(delta===0)
-delta=7;
-
-now.setDate(
-now.getDate()+delta
-);
-
-return now.toISOString().slice(0,10);
-
-}
-
-
-/* ============================================================
-   DATA DAL TESTO
-   ============================================================ */
-
-function mDetectDate(text){
-
-const lower=mNorm(text);
-
-if(/\boggi\b/.test(lower))
-return mToday();
-
-if(/\bdomani\b/.test(lower)){
-
-const d=
-new Date(
-mToday()+"T12:00:00"
-);
-
-d.setDate(d.getDate()+1);
-
-return d.toISOString().slice(0,10);
-
-}
-
-const weekdays=[
-"domenica",
-"lunedi",
-"martedi",
-"mercoledi",
-"giovedi",
-"venerdi",
-"sabato"
-];
-
-for(const day of weekdays){
-
-if(
-new RegExp(
-"\\b"+day+"\\b"
-).test(lower)
-){
-
-return mWeekdayDate(day);
-
-}
-
-}
-
-let match=
-lower.match(
-/\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{4}))?\b/
-);
-
-if(match){
-
-const day=Number(match[1]);
-const month=Number(match[2]);
-const year=
-Number(match[3])||
-Number(
-mToday().slice(0,4)
-);
-
-return mDateFromParts(
-year,
-month,
-day
-);
-
-}
-
-return null;
-
-}
-
-
-/* ============================================================
-   ORA
-   ============================================================ */
-
-function mDetectTime(text){
-
-const lower=mNorm(text);
-
-let m=
-lower.match(
-/\b(?:alle|ore)\s*(\d{1,2})(?:[:\.](\d{2}))?\b/
-);
-
-if(!m){
-
-m=
-lower.match(
-/\b(\d{1,2})(?:[:\.](\d{2}))?\s*(?:h|ora)?\b/
-);
-
-}
-
-if(!m)
-return null;
-
-let hour=
-Number(m[1]);
-
-let minute=
-Number(m[2]||0);
-
-if(
-hour<0||
-hour>23||
-minute<0||
-minute>59
-)
-return null;
-
-return (
-String(hour).padStart(2,"0")+
-":"+
-String(minute).padStart(2,"0")
-);
-
-}
-
-
-/* ============================================================
-   SERVIZIO
-   ============================================================ */
-
-function mDetectService(text){
-
-const lower=mNorm(text);
-
-if(!Array.isArray(data.services))
-return null;
-
-let found=
-data.services.find(
-s=>{
-
-const name=mNorm(s.name);
-
-return name &&
-(
-lower.includes(name) ||
-(
-name.includes("taglio") &&
-lower.includes("taglio")
-)
-);
-
-});
-
-return found||null;
-
-}
-
-
-/* ============================================================
-   NOME CLIENTE
-   ============================================================ */
-
-function mDetectName(text){
-
-let value=
-String(text||"").trim();
-
-/*
- * "simone, taglio uomo..."
- */
-let m=
-value.match(
-/^\s*([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,40})\s*,/
-);
-
-if(m){
-
-const candidate=m[1].trim();
-
-if(
-!/\b(vorrei|voglio|prenotare|prenoto|taglio|servizio|lunedi|domani|oggi|alle|ore)\b/i
-.test(candidate)
-){
-
-return candidate;
-
-}
-
-}
-
-/*
- * "per Simone"
- */
-m=
-value.match(
-/\bper\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'-]{1,30})\b/i
-);
-
-if(m)
-return m[1].trim();
-
-/*
- * Se il messaggio è semplicemente un nome.
- */
-if(
-/^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{2,35}$/.test(value)&&
-!/\b(taglio|prenoto|prenotare|servizio|lunedi|domani|oggi)\b/i
-.test(value)
-){
-
-return value;
-
-}
-
-return null;
-
-}
-
-
-/* ============================================================
-   INTENTO PRENOTAZIONE
-   ============================================================ */
-
-function mBookingIntent(text){
-
-const lower=mNorm(text);
-
-return (
-/prenot/.test(lower) ||
-/fissare/.test(lower) ||
-/appuntamento/.test(lower) ||
-/vorrei.*ore/.test(lower) ||
-/vorrei.*alle/.test(lower)
-);
-
-}
-
-
-/* ============================================================
-   CONFERMA
-   ============================================================ */
-
-function mConfirmation(text){
-
-const lower=mNorm(text);
-
-return (
-/^(si|sì|ok|okay|va bene|confermo|conferma|prenoto|prenotiamo|procedi|procediamo|fallo|fatto)$/i
-.test(String(text||"").trim())
-||
-/^(si|sì).*prenot/.test(lower)
-);
-
-}
-
-
-/* ============================================================
-   ANNULLAMENTO
-   ============================================================ */
-
-function mCancelPending(text){
-
-const lower=mNorm(text);
-
-return (
-/^(no|annulla|annulliamo|lascia perdere|non prenotare)$/i
-.test(String(text||"").trim())
-||
-/non.*prenot/.test(lower)
-);
-
-}
-
-
-/* ============================================================
-   STATO PRENOTAZIONE
-   ============================================================ */
-
-function mPendingText(){
-
-if(!maviPending)
-return "";
-
-const parts=[];
-
-if(maviPending.name)
-parts.push(`cliente ${maviPending.name}`);
-
-if(maviPending.service)
-parts.push(`servizio ${maviPending.service}`);
-
-if(maviPending.date)
-parts.push(formatDate(maviPending.date));
-
-if(maviPending.time)
-parts.push(maviPending.time);
-
-return parts.join(" · ");
-
-}
-
-
-/* ============================================================
-   FORMAT
-   ============================================================ */
-
-function mDateLabel(date){
-
-if(!date)
-return "";
-
-return new Intl.DateTimeFormat(
-"it-IT",
-{
-weekday:"long",
-day:"2-digit",
-month:"2-digit",
-year:"numeric",
-timeZone:"Europe/Rome"
-}
-).format(
-new Date(date+"T12:00:00")
-);
-
-}
-
-
-/* ============================================================
-   PRENOTAZIONE CONVERSAZIONALE
-   ============================================================ */
-
-async function mHandleBooking(text){
-
-const date=
-mDetectDate(text);
-
-const time=
-mDetectTime(text);
-
-const service=
-mDetectService(text);
-
-const name=
-mDetectName(text);
-
-const isIntent=
-mBookingIntent(text);
-
-if(!isIntent && !maviPending)
-return null;
-
-
-/*
- * Inizia o aggiorna il contesto.
- */
-
-if(!maviPending){
-
-maviPending={
-name:null,
-service:null,
-date:null,
-time:null,
-createdAt:Date.now()
-};
-
-}
-
-
-/*
- * Aggiorna SOLO ciò che è stato realmente riconosciuto.
- */
-
-if(date)
-maviPending.date=date;
-
-if(time)
-maviPending.time=time;
-
-if(service)
-maviPending.service=service.name;
-
-if(name)
-maviPending.name=name;
-
-
-/*
- * "prenoto" / "confermo"
- */
-
-if(
-mConfirmation(text) &&
-maviPending.name &&
-maviPending.service &&
-maviPending.date &&
-maviPending.time
-){
-
-const candidate={
-...maviPending
-};
-
-try{
-
-maviStatusLocal(
-"thinking",
-"Controllo nuovamente la disponibilità..."
-);
-
-const check=
-await businessApi(
-"availability",
-{
-date:candidate.date,
-service:candidate.service
-}
-);
-
-if(
-!check.available||
-!Array.isArray(check.slots)||
-!check.slots.includes(candidate.time)
-){
-
-maviPending=null;
-saveMaviPending();
-
-return {
-reply:
-`L'orario delle ${candidate.time} non è più disponibile. Posso cercarti un altro orario.`,
-type:"booking-unavailable"
-};
-
-}
-
-
-/*
- * Salvataggio definitivo.
- */
-
-const ap=
-await bookAppointment({
-name:candidate.name,
-date:candidate.date,
-time:candidate.time,
-service:candidate.service
-});
-
-maviPending=null;
-saveMaviPending();
-
-return {
-reply:
-`Prenotazione confermata. ${ap.name}, ${ap.service}, ${mDateLabel(ap.date)} alle ${ap.time}.`,
-type:"booking-confirmed"
-};
-
-}catch(error){
-
-return {
-reply:
-error?.message||
-"Non riesco a completare la prenotazione.",
-type:"booking-error"
-};
-
-}
-
-}
-
-
-/*
- * Annullamento.
- */
-
-if(
-mCancelPending(text)
-){
-
-maviPending=null;
-saveMaviPending();
-
-return {
-reply:"Va bene. Ho annullato la prenotazione in preparazione.",
-type:"booking-cancelled"
-};
-
-}
-
-
-/*
- * Mancano informazioni.
- */
-
-const missing=[];
-
-if(!maviPending.name)
-missing.push("il nome del cliente");
-
-if(!maviPending.service)
-missing.push("il servizio");
-
-if(!maviPending.date)
-missing.push("il giorno");
-
-if(!maviPending.time)
-missing.push("l'orario");
-
-
-/*
- * Se abbiamo tutto:
- * controlliamo la disponibilità e chiediamo conferma.
- */
-
-if(missing.length===0){
-
-try{
-
-const check=
-await businessApi(
-"availability",
-{
-date:maviPending.date,
-service:maviPending.service
-}
-);
-
-if(
-!check.available||
-!Array.isArray(check.slots)||
-!check.slots.includes(maviPending.time)
-){
-
-const requested=
-maviPending.time;
-
-return {
-reply:
-`Alle ${requested} non risulta disponibile per ${maviPending.service}. Posso cercarti un altro orario.`,
-type:"booking-unavailable"
-};
-
-}
-
-return {
-reply:
-`Sì. ${maviPending.name}, ${maviPending.service}, ${mDateLabel(maviPending.date)} alle ${maviPending.time} risulta libero. Vuoi che prenoti?`,
-type:"booking-confirm"
-};
-
-}catch(error){
-
-return {
-reply:
-error?.message||
-"Non riesco a verificare la disponibilità.",
-type:"booking-error"
-};
-
-}
-
-}
-
-
-/*
- * Domanda mirata.
- */
-
-if(
-missing.length===1
-){
-
-return {
-reply:
-`Mi manca solo ${missing[0]}.`,
-type:"booking-missing"
-};
-
-}
-
-return {
-reply:
-`Per completare la prenotazione mi servono ${missing.join(", ")}.`,
-type:"booking-missing"
-};
-
-}
-
-
-/* ============================================================
-   APPUNTAMENTI
-   ============================================================ */
-
-function mAppointmentQuery(text){
-
-const lower=mNorm(text);
-
-return (
-/che appuntamenti/.test(lower) ||
-/quali appuntamenti/.test(lower) ||
-/appuntamenti ho/.test(lower) ||
-/appuntamenti.*domani/.test(lower) ||
-/appuntamenti.*oggi/.test(lower)
-);
-
-}
-
-
-function mAnswerAppointments(text){
-
-if(!mAppointmentQuery(text))
-return null;
-
-const date=
-mDetectDate(text)||mToday();
-
-const list=
-activeAppointments()
-.filter(
-a=>a.date===date
-)
-.sort(
-(a,b)=>
-String(a.time||"")
-.localeCompare(
-String(b.time||"")
-)
-);
-
-if(!list.length){
-
-return {
-reply:
-`Non risultano appuntamenti per ${mDateLabel(date)}.`,
-type:"appointments"
-};
-
-}
-
-const lines=
-list.map(
-a=>
-`${a.time} · ${a.name} · ${a.service}`
-);
-
-return {
-reply:
-`Gli appuntamenti per ${mDateLabel(date)} sono:\n${lines.join("\n")}`,
-type:"appointments"
-};
-
-}
-
-
-/* ============================================================
-   SERVIZI
-   ============================================================ */
-
-function mAnswerServices(text){
-
-const lower=mNorm(text);
-
-if(
-!/che servizi|quali servizi|servizi offri|cosa offri|cosa fate|cosa offrite/
-.test(lower)
-)
-return null;
-
-if(!data.services.length){
-
-return {
-reply:"Al momento non risultano servizi configurati.",
-type:"services"
-};
-
-}
-
-const lines=
-data.services.map(
-s=>{
-const price=
-s.price!==""&&s.price!=null
-?`€${s.price}`
-:"prezzo non impostato";
-
-const duration=
-s.duration
-?`${s.duration} min`
-:"";
-
-return `${s.name} — ${price}${duration?" — "+duration:""}`;
-}
-);
-
-return {
-reply:
-`Questi sono i servizi disponibili:\n${lines.join("\n")}`,
-type:"services"
-};
-
-}
-
-
-/* ============================================================
-   STATUS LOCALE
-   ============================================================ */
-
-function maviStatusLocal(
-status,
-detail=""
-){
-
-try{
-
-window.dispatchEvent(
-new CustomEvent(
-"mavi-engine-status",
-{
-detail:{
-status,
-detail,
-version:
-window.MaviAI?.version||
-"2.0.0",
-model:
-window.MaviAI?.model||
-"mavi-local",
-device:
-window.MaviAI?.getDevice?.()||
-"local",
-ready:
-window.MaviAI?.isReady?.()||
-false
-}
-}
-)
-);
-
-}catch{}
-
-}
-
-
-/* ============================================================
-   NUOVA ASK MAVI
-   ============================================================ */
-
-const originalAskMavi=
-window.askMavi;
-
-
-/*
- * La funzione globale viene sostituita.
- */
-
-window.askMavi=
-async function(
-text=$("maviInput").value.trim(),
-speak=true
-){
-
-if(busy||!text)
-return;
-
-busy=true;
-
-$("maviInput").value="";
-
-$("maviSend").disabled=true;
-
-addChat(text,"user");
-
-$("maviStatus").textContent=
-"Mavi sta elaborando…";
-
-try{
-
-let result=null;
-
-
-/*
- * 1. APPUNTAMENTI
- */
-
-result=
-mAnswerAppointments(text);
-
-if(result){
-
-addChat(result.reply,"bot");
-
-saveHistory(text,result.reply);
-
-$("maviStatus").textContent=
-"Mavi è pronta";
-
-if(speak)
-speakText(result.reply);
-
-return;
-
-}
-
-
-/*
- * 2. SERVIZI
- */
-
-result=
-mAnswerServices(text);
-
-if(result){
-
-addChat(result.reply,"bot");
-
-saveHistory(text,result.reply);
-
-$("maviStatus").textContent=
-"Mavi è pronta";
-
-if(speak)
-speakText(result.reply);
-
-return;
-
-}
-
-
-/*
- * 3. PRENOTAZIONE CONVERSAZIONALE
- */
-
-if(
-mBookingIntent(text)||
-maviPending
-){
-
-result=
-await mHandleBooking(text);
-
-if(result){
-
-addChat(result.reply,"bot");
-
-saveHistory(text,result.reply);
-
-$("maviStatus").textContent=
-"Mavi è pronta";
-
-if(speak)
-speakText(result.reply);
-
-return;
-
-}
-
-}
-
-
-/*
- * 4. MOTORE AI LOCALE
- */
-
-if(
-typeof originalAskMavi==="function"
-){
-
-await originalAskMavi(
-text,
-speak
-);
-
-return;
-
-}
-
-throw Error(
-"Mavi Engine non disponibile."
-);
-
-}catch(error){
-
-addChat(
-error?.message||
-"Errore Mavi.",
-"bot"
-);
-
-$("maviStatus").textContent=
-error?.message||
-"Errore Mavi.";
-
-}finally{
-
-busy=false;
-
-$("maviSend").disabled=false;
-
-}
-
-};
-
-
-/* ============================================================
-   LOGO MAVI
-   ------------------------------------------------------------
-   Il file deve chiamarsi mavi-logo.png
-   e trovarsi nella stessa cartella di index.html.
-   ============================================================ */
-
-function installMaviLogo(){
-
-const headerBrand=
-document.querySelector(".brand");
-
-if(!headerBrand)
-return;
-
-
-/*
- * Evita duplicati.
- */
-
-if(
-headerBrand.querySelector(".mavi-logo-image")
-)
-return;
-
-
-const logo=
-document.createElement("img");
-
-logo.className="mavi-logo-image";
-
-logo.src="./mavi-logo.png";
-
-logo.alt="";
-
-logo.width=52;
-logo.height=52;
-
-logo.style.cssText=
-`
-width:52px;
-height:52px;
-object-fit:contain;
-display:block;
-flex:none;
-`;
-
-
-/*
- * Sostituisce il vecchio quadrato "M".
- */
-
-const old=
-headerBrand.querySelector(".brand-logo");
-
-if(old){
-
-old.replaceWith(logo);
-
-}else{
-
-headerBrand.prepend(logo);
-
-}
-
-}
-
-
-/* ============================================================
-   LOGO + COLORI
-   ============================================================ */
-
-function installMaviVisuals(){
-
-if(
-document.getElementById("maviVisualPatch")
-)
-return;
-
-const style=
-document.createElement("style");
-
-style.id="maviVisualPatch";
-
-style.textContent=`
-
-.mavi-logo-image{
-filter:drop-shadow(0 5px 12px rgba(0,0,0,.18));
-}
-
-.brand{
-min-width:0;
-}
-
-.brand h1{
-letter-spacing:-.4px;
-}
-
-.engine-pill{
-border-color:rgba(255,255,255,.16);
-}
-
-nav button.active{
-background:#eef1ff;
-}
-
-.msg.bot{
-border-left:3px solid #315efb;
-}
-
-`;
-
-document.head.appendChild(style);
-
-}
-
-
-/* ============================================================
-   INIT
-   ============================================================ */
-
-loadMaviPending();
-
-installMaviVisuals();
-
-installMaviLogo();
-
-
-/*
- * Aggiorna il logo anche se il DOM viene ricostruito.
- */
-
-new MutationObserver(
-()=>{
-installMaviLogo();
-}
-)
-.observe(
-document.body,
-{
-childList:true,
-subtree:true
-}
-);
-
-})();
-</script>
 </body>
 </html>
