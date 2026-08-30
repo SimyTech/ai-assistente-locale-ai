@@ -2,6907 +2,2433 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0f172a">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101827">
 <link rel="manifest" href="manifest.json">
-<title>AI Assistente Locale</title>
-
+<title>Maviri — Mavi</title>
 <style>
 *{box-sizing:border-box}
-:root{
-  --bg:#f4f6f8;
-  --surface:#fff;
-  --surface2:#f8fafc;
-  --text:#172033;
-  --muted:#64748b;
-  --line:#e2e8f0;
-  --primary:#2563eb;
-  --primary-dark:#1d4ed8;
-  --success:#16a34a;
-  --danger:#dc2626;
-  --warning:#d97706;
-  --radius:18px;
-  --shadow:0 4px 18px rgba(15,23,42,.06)
-}
-html{scroll-behavior:smooth}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  font-size:15px;line-height:1.5
-}
-button,input,textarea,select{font:inherit}
-button{border:0;cursor:pointer;transition:.18s ease}
-button:disabled{opacity:.5;cursor:not-allowed}
-button:hover:not(:disabled){transform:translateY(-1px)}
-header{
-  background:#0f172a;color:white;
-  padding:20px max(18px,calc((100% - 1100px)/2))
-}
-.header-inner{display:flex;align-items:center;justify-content:space-between;gap:15px}
-.brand{display:flex;align-items:center;gap:12px}
-.brand-icon{
-  width:42px;height:42px;border-radius:13px;background:#2563eb;
-  display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800
-}
-header h1{margin:0;font-size:20px;line-height:1.2}
-.header-subtitle{margin-top:3px;color:#cbd5e1;font-size:13px}
-nav{
-  position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);
-  backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
-  display:flex;justify-content:center;gap:5px;padding:8px 10px;overflow-x:auto
-}
-nav button{
-  flex:0 0 auto;background:transparent;color:#475569;padding:9px 13px;
-  border-radius:11px;font-weight:700;white-space:nowrap
-}
-nav button:hover{background:#f1f5f9;color:var(--text)}
-nav button.active{background:#e8efff;color:var(--primary)}
-main{width:min(1100px,100%);margin:auto;padding:22px 16px 50px}
-.page{display:none}
-.page.active{display:block;animation:pageIn .18s ease}
-@keyframes pageIn{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
-.page-heading{
-  display:flex;align-items:flex-start;justify-content:space-between;
-  gap:15px;margin:4px 0 18px
-}
-.page-heading h2{margin:0;font-size:25px;letter-spacing:-.5px}
-.page-heading p{margin:4px 0 0;color:var(--muted)}
-.card{
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-  padding:20px;margin-bottom:15px;box-shadow:var(--shadow)
-}
-.card h2,.card h3{margin-top:0}
-.card h2{font-size:20px;letter-spacing:-.2px}
-.card h3{font-size:17px}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.stat-card{
-  background:var(--surface);border:1px solid var(--line);border-radius:16px;
-  padding:17px;box-shadow:var(--shadow)
-}
-.stat{font-size:30px;font-weight:800;line-height:1;margin-bottom:7px}
-.stat-label{color:var(--muted);font-size:13px;font-weight:600}
-.stat-icon{
-  width:38px;height:38px;border-radius:11px;display:flex;align-items:center;
-  justify-content:center;background:#eff6ff;color:var(--primary);font-weight:800;margin-bottom:13px
-}
-.muted{color:var(--muted);font-size:13px}
-input,textarea,select{
-  width:100%;padding:12px 13px;margin:6px 0 12px;border:1px solid #cbd5e1;
-  border-radius:11px;background:white;color:var(--text);outline:none;transition:.15s ease
-}
-input:focus,textarea:focus,select:focus{
-  border-color:#60a5fa;box-shadow:0 0 0 3px rgba(37,99,235,.10)
-}
-textarea{resize:vertical}
-label{display:block;font-size:13px;font-weight:700;color:#475569;margin-bottom:3px}
-button{padding:10px 14px;border-radius:11px;font-weight:750}
-.primary{background:var(--primary);color:white}
-.primary:hover{background:var(--primary-dark)}
-.secondary{background:#eef2f7;color:#334155}
-.success{background:#dcfce7;color:#166534}
-.danger{background:#fee2e2;color:#991b1b}
-.warning{background:#fef3c7;color:#92400e}
-.row{display:flex;gap:9px;align-items:center}
-.row>*{flex:1}
-.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:white;border:0;padding:25px}
-.hero h2{margin-bottom:5px;font-size:26px}
-.hero p{margin:0;color:#dbeafe}
-.storage-box{
-  margin-top:13px;padding:11px 13px;border-radius:11px;background:#f0fdf4;
-  color:#166534;border:1px solid #bbf7d0;font-size:13px
-}
-.chat{
-  height:390px;overflow:auto;background:#f8fafc;border:1px solid var(--line);
-  border-radius:15px;padding:13px
-}
-.msg{
-  padding:11px 13px;border-radius:14px;margin:8px 0;max-width:86%;
-  white-space:pre-wrap;line-height:1.5
-}
-.bot{background:#e8edf3;color:#1e293b}
-.user{background:#dbeafe;margin-left:auto;color:#1e3a8a}
-.ai-busy{opacity:.7;pointer-events:none}
-.ai-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.available-title{width:100%;font-weight:750;margin:4px 0}
-.ai-slot-button{background:var(--primary);color:white;min-width:72px}
-.ai-confirm-button{background:var(--success);color:white;width:100%}
-.ai-cancel-button{background:#fee2e2;color:#991b1b;width:100%}
-.pending-box{
-  background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;
-  padding:13px;border-radius:13px;margin-bottom:12px
-}
-.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
-.section-title h3{margin:0}
-.calendar-header{display:flex;align-items:center;gap:8px;margin-bottom:16px}
-.calendar-header input{margin:0;flex:1}
-.calendar-grid{display:flex;flex-direction:column;gap:6px}
-.slot{display:grid;grid-template-columns:65px 1fr;gap:8px}
-.slot-time{
-  display:flex;align-items:center;justify-content:center;color:#64748b;
-  font-size:13px;font-weight:750
-}
-.slot-box{
-  min-height:48px;border:1px solid var(--line);border-radius:12px;
-  background:#f8fafc;padding:10px 12px
-}
-.slot-box.free{cursor:pointer}
-.slot-box.free:hover{background:#eff6ff;border-color:#93c5fd}
-.slot-box.busy{background:#dbeafe;border-color:#93c5fd}
-.slot-box.closed{background:#f1f5f9;color:#94a3b8}
-.calendar-empty,.empty-state{
-  padding:24px;text-align:center;background:#f8fafc;
-  border:1px dashed #cbd5e1;border-radius:13px;color:var(--muted)
-}
-.day-summary{background:#eff6ff;border:1px solid #bfdbfe;border-radius:13px;padding:12px;margin-bottom:12px}
-.appointment-item,.service-item,.promotion-item,.client-item{
-  background:#f8fafc;border:1px solid var(--line);border-radius:13px;padding:14px;margin:8px 0
-}
-.appointment-item b,.service-item>b,.promotion-item>b,.client-item>b{font-size:15px}
-.appointment-actions,.service-actions,.promotion-actions,.client-actions{
-  display:flex;flex-wrap:wrap;gap:7px;margin-top:11px
-}
-.small-button{padding:7px 10px;font-size:12px}
-.badge{display:inline-block;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800;margin-top:7px}
-.status-confirmed{background:#dcfce7;color:#166534}
-.status-completed{background:#dbeafe;color:#1d4ed8}
-.status-cancelled{background:#fee2e2;color:#991b1b}
-.search-box{background:#f8fafc;border:1px solid var(--line);border-radius:13px;padding:11px;margin-bottom:12px}
-.client-stat{color:#475569;font-size:13px;font-weight:700;margin-top:8px}
-.client-history{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-.divider{border:0;border-top:1px solid var(--line);margin:20px 0}
-.hour-row{
-  display:grid;grid-template-columns:115px 110px 1fr 1fr;gap:8px;
-  align-items:center;margin-bottom:8px
-}
-.hour-row input,.hour-row select{margin:0}
-.modal-backdrop{
-  position:fixed;inset:0;background:rgba(15,23,42,.58);display:none;
-  align-items:center;justify-content:center;padding:15px;z-index:100
-}
-.modal-backdrop.open{display:flex}
-.modal{
-  width:min(600px,100%);max-height:90vh;overflow:auto;background:white;
-  border-radius:20px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)
-}
-.modal-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.modal-header h3{margin:0}
-.close-button{background:#f1f5f9;color:#334155;padding:7px 11px}
-.form-error{color:#991b1b;background:#fee2e2;border-radius:10px;padding:10px;margin:8px 0;display:none}
-.form-error.show{display:block}
-.quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
-.quick-action{text-align:left;background:#f8fafc;border:1px solid var(--line);padding:15px;border-radius:14px}
-.quick-action strong{display:block;margin-bottom:3px}
-.quick-action span{color:var(--muted);font-size:12px}
-
-/* POST AI */
-.post-mode{
-  display:flex;gap:8px;margin-bottom:18px;
-  background:#f1f5f9;padding:5px;border-radius:13px
-}
-.post-mode button{
-  flex:1;background:transparent;color:#64748b
-}
-.post-mode button.active{
-  background:white;color:var(--primary);
-  box-shadow:0 2px 7px rgba(15,23,42,.08)
-}
-.post-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:13px
-}
-.post-platforms{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  margin:7px 0 14px
-}
-.post-platform{
-  border:1px solid var(--line);
-  background:#f8fafc;
-  color:#475569;
-  padding:12px 8px;
-  border-radius:12px;
-  text-align:center;
-  font-weight:700
-}
-.post-platform.active{
-  background:#e8efff;
-  border-color:#93c5fd;
-  color:var(--primary)
-}
-.post-platform small{
-  display:block;
-  font-size:11px;
-  font-weight:600;
-  margin-top:2px;
-  color:var(--muted)
-}
-.post-platform.active small{color:#2563eb}
-.post-result{
-  background:#f8fafc;
-  border:1px solid var(--line);
-  border-radius:15px;
-  padding:15px
-}
-.post-result textarea{
-  min-height:300px;
-  margin-bottom:8px;
-  background:white
-}
-.post-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:10px
-}
-.post-actions button{flex:1 1 130px}
-.post-history-item{
-  border:1px solid var(--line);
-  background:#f8fafc;
-  border-radius:13px;
-  padding:13px;
-  margin:8px 0
-}
-.post-history-item b{display:block;margin-bottom:3px}
-.post-history-meta{font-size:12px;color:var(--muted)}
-.post-history-actions{display:flex;gap:7px;margin-top:9px}
-.post-tip{
-  padding:12px 13px;
-  border-radius:12px;
-  background:#eff6ff;
-  border:1px solid #bfdbfe;
-  color:#1e40af;
-  font-size:13px;
-  margin-bottom:14px
-}
-.post-loading{
-  display:inline-flex;
-  align-items:center;
-  gap:8px
-}
-.post-dot{
-  width:7px;height:7px;border-radius:50%;
-  background:currentColor;
-  animation:postPulse 1s infinite
-}
-@keyframes postPulse{
-  0%,100%{opacity:.25}
-  50%{opacity:1}
-}
-
-@media(max-width:800px){
-  .grid{grid-template-columns:repeat(2,1fr)}
-  .quick-actions{grid-template-columns:1fr}
-  .post-grid{grid-template-columns:1fr}
-}
-@media(max-width:600px){
-  header{padding:16px}
-  main{padding:17px 11px 40px}
-  .card{padding:16px;border-radius:16px}
-  .page-heading h2{font-size:22px}
-  .grid{grid-template-columns:repeat(2,1fr);gap:9px}
-  .stat-card{padding:14px}
-  .stat{font-size:25px}
-  .row{flex-direction:column;align-items:stretch}
-  .row>*{width:100%}
-  .hour-row{grid-template-columns:1fr 1fr}
-  .hour-row b{grid-column:1/-1}
-  .slot{grid-template-columns:55px 1fr}
-  .appointment-actions button{flex:1 1 45%}
-  .header-subtitle{display:none}
-  nav{justify-content:flex-start}
-  .post-platforms{grid-template-columns:repeat(2,1fr)}
-}
+:root{--bg:#f5f7fb;--surface:#fff;--ink:#142033;--muted:#667085;--line:#e4e8ef;--dark:#101827;--blue:#315efb;--blue2:#2449d8;--green:#169c5b;--red:#d63b3b;--amber:#b97800;--radius:18px;--shadow:0 8px 28px rgba(20,32,51,.07)}
+html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,textarea,select{font:inherit}button{border:0;cursor:pointer;border-radius:12px;padding:10px 14px;font-weight:750}button:disabled{opacity:.5;cursor:not-allowed}
+header{background:var(--dark);color:#fff;padding:16px max(14px,calc((100% - 1180px)/2));position:relative}
+.brand{display:flex;align-items:center;gap:12px}.brand-logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#4774ff,#6b5cff);display:grid;place-items:center;font-size:21px;font-weight:900;box-shadow:0 8px 22px #0003}.brand h1{font-size:21px;margin:0}.brand small{color:#aeb8c8}
+.engine-pill{margin-left:auto;border:1px solid #ffffff20;background:#ffffff0d;padding:8px 11px;border-radius:999px;font-size:12px;color:#dbe4f3}
+.header-row{display:flex;align-items:center;gap:14px}
+nav{position:sticky;top:0;z-index:50;background:#ffffffee;backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;gap:5px;overflow:auto;padding:8px max(10px,calc((100% - 1180px)/2))}
+nav button{background:transparent;color:#566176;white-space:nowrap;padding:9px 13px}nav button.active{background:#eaf0ff;color:var(--blue)}
+main{width:min(1180px,100%);margin:auto;padding:22px 14px 70px}.page{display:none}.page.active{display:block;animation:in .16s ease}@keyframes in{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
+.heading{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin:3px 0 18px}.heading h2{margin:0;font-size:27px;letter-spacing:-.7px}.heading p{margin:4px 0;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:19px;margin-bottom:15px;box-shadow:var(--shadow)}
+.hero{background:linear-gradient(135deg,#101827,#253e83);color:#fff;border:0}.hero h2{margin:0 0 5px;font-size:27px}.hero p{color:#d9e3ff;margin:0}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{padding:17px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:var(--shadow)}.stat b{display:block;font-size:29px;line-height:1.1}.stat span{color:var(--muted);font-size:12px;font-weight:700}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:17px}.quick button{text-align:left;background:#ffffff12;color:#fff;border:1px solid #ffffff20}.quick strong{display:block}.quick small{color:#cdd8ee}
+label{display:block;font-size:12px;font-weight:800;color:#566176;margin:8px 0 4px}input,textarea,select{width:100%;border:1px solid #cfd6e2;border-radius:12px;padding:11px 12px;background:#fff;color:var(--ink);outline:none}input:focus,textarea:focus,select:focus{border-color:#6b8cff;box-shadow:0 0 0 3px #315efb12}textarea{resize:vertical}
+.row{display:flex;gap:9px;align-items:center}.row>*{flex:1}.primary{background:var(--blue);color:#fff}.primary:hover{background:var(--blue2)}.secondary{background:#eef1f6;color:#344054}.success{background:#dff7e9;color:#12683e}.danger{background:#fee8e8;color:#a32121}.warning{background:#fff2cf;color:#805800}
+.muted{color:var(--muted);font-size:13px}.divider{border:0;border-top:1px solid var(--line);margin:20px 0}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.section-title h3{margin:0}
+.chat{height:430px;overflow:auto;border:1px solid var(--line);border-radius:16px;background:#f8faff;padding:13px}.msg{max-width:88%;padding:11px 13px;border-radius:15px;margin:8px 0;white-space:pre-wrap}.bot{background:#e9edf3}.user{background:#dbe7ff;color:#193d91;margin-left:auto}.thinking{opacity:.65}
+.voice{display:flex;align-items:center;gap:10px;margin-top:10px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#fbfcff}.mic{width:48px;height:48px;border-radius:50%;padding:0;background:#101827;color:#fff;font-size:19px}.mic.listening{background:#d63b3b;animation:pulse 1.2s infinite}@keyframes pulse{50%{box-shadow:0 0 0 8px #d63b3b18}}
+.engine-status{font-size:12px;color:var(--muted)}.engine-status.ready{color:var(--green)}.engine-status.error{color:var(--red)}
+.list-item{border:1px solid var(--line);background:#fafbfe;border-radius:14px;padding:13px;margin:8px 0}.list-item b{display:block}.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.small{font-size:12px;padding:7px 10px}
+.calendar-head{display:flex;gap:8px;align-items:center}.calendar-head input{margin:0}.calendar{display:grid;gap:6px;margin-top:15px}.slot{display:grid;grid-template-columns:60px 1fr;gap:7px}.slot-time{display:grid;place-items:center;color:var(--muted);font-size:12px;font-weight:800}.slot-box{min-height:46px;border:1px solid var(--line);border-radius:12px;padding:9px 11px;background:#f9fafc}.slot-box.free{cursor:pointer}.slot-box.free:hover{background:#edf3ff;border-color:#9bb1ff}.slot-box.busy{background:#e6edff;border-color:#a7baff}.slot-box.closed{color:#9aa4b2;background:#f0f2f5}
+.badge{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800}.confirmed{background:#dff7e9;color:#12683e}.completed{background:#e3ecff;color:#2449a5}.cancelled{background:#fee8e8;color:#a32121}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.modal-bg{display:none;position:fixed;inset:0;background:#10182799;z-index:100;align-items:center;justify-content:center;padding:14px}.modal-bg.open{display:flex}.modal{width:min(620px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:20px}
+.post-result{min-height:260px}.platforms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.platforms button{background:#f6f8fb;border:1px solid var(--line)}.platforms button.active{background:#eaf0ff;color:var(--blue);border-color:#9bb1ff}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.quick,.two{grid-template-columns:1fr}.three{grid-template-columns:1fr}.engine-pill{display:none}}
+@media(max-width:560px){main{padding:16px 10px 50px}.card{padding:15px}.heading h2{font-size:23px}.row{flex-direction:column;align-items:stretch}.row>*{width:100%}.platforms{grid-template-columns:repeat(2,1fr)}.slot{grid-template-columns:52px 1fr}}
 </style>
 </head>
-
 <body>
 
 <header>
-  <div class="header-inner">
-    <div class="brand">
-      <div class="brand-icon">AI</div>
-      <div>
-        <h1>AI Assistente Locale</h1>
-        <div class="header-subtitle">Gestione intelligente della tua attività</div>
-      </div>
-    </div>
-  </div>
+<div class="header-row">
+<div class="brand">
+<div class="brand-logo">M</div>
+<div>
+<h1>Maviri</h1>
+<small>Mavi · intelligenza locale dell'attività</small>
+</div>
+</div>
+<div id="enginePill" class="engine-pill">Mavi: avvio…</div>
+</div>
 </header>
 
-<nav id="mainNav">
-  <button data-page="home" onclick="showPage('home')">Home</button>
-  <button data-page="ai" onclick="showPage('ai')">Assistente AI</button>
-  <button data-page="app" onclick="showPage('app')">Calendario</button>
-  <button data-page="clients" onclick="showPage('clients')">Clienti</button>
-  <button data-page="post" onclick="showPage('post')">Post AI</button>
-  <button data-page="settings" onclick="showPage('settings')">Impostazioni</button>
+<nav id="nav">
+<button data-page="home" onclick="showPage('home')">Home</button>
+<button data-page="mavi" onclick="showPage('mavi')">Mavi</button>
+<button data-page="calendar" onclick="showPage('calendar')">Calendario</button>
+<button data-page="clients" onclick="showPage('clients')">Clienti</button>
+<button data-page="post" onclick="showPage('post')">Contenuti</button>
+<button data-page="settings" onclick="showPage('settings')">Impostazioni</button>
 </nav>
 
 <main>
 
 <section id="home" class="page active">
-  <div class="page-heading">
-    <div>
-      <h2>Dashboard</h2>
-      <p>Una vista semplice di ciò che sta succedendo nella tua attività.</p>
-    </div>
-  </div>
+<div class="heading">
+<div>
+<h2>Dashboard</h2>
+<p>Il centro operativo di Maviri.</p>
+</div>
+</div>
 
-  <div class="card hero">
-    <h2 id="dashboardWelcome">La tua attività</h2>
-    <p>Gestisci clienti, appuntamenti, servizi e contenuti da un unico posto.</p>
+<div class="card hero">
+<h2 id="welcome">La tua attività</h2>
+<p>Clienti, appuntamenti e informazioni sotto il controllo di Mavi.</p>
+<div class="quick">
+<button onclick="showPage('calendar')">
+<strong>Calendario</strong>
+<small>Appuntamenti e disponibilità</small>
+</button>
+<button onclick="showPage('clients')">
+<strong>Clienti</strong>
+<small>Schede e storico</small>
+</button>
+<button onclick="showPage('mavi')">
+<strong>Parla con Mavi</strong>
+<small>Chat o voce</small>
+</button>
+</div>
+</div>
 
-    <div class="quick-actions">
-      <button class="quick-action" onclick="showPage('app')">
-        <strong>Calendario</strong>
-        <span>Gestisci gli appuntamenti</span>
-      </button>
-      <button class="quick-action" onclick="showPage('clients')">
-        <strong>Clienti</strong>
-        <span>Apri le schede cliente</span>
-      </button>
-      <button class="quick-action" onclick="showPage('ai')">
-        <strong>Assistente AI</strong>
-        <span>Parla con il tuo assistente</span>
-      </button>
-    </div>
-  </div>
+<div class="grid">
+<div class="stat"><b id="stServices">0</b><span>Servizi</span></div>
+<div class="stat"><b id="stClients">0</b><span>Clienti</span></div>
+<div class="stat"><b id="stAppointments">0</b><span>Appuntamenti attivi</span></div>
+<div class="stat"><b id="stPromotions">0</b><span>Promozioni</span></div>
+</div>
 
-  <div class="grid">
-    <div class="stat-card">
-      <div class="stat-icon">S</div>
-      <div class="stat" id="dashboardServices">0</div>
-      <div class="stat-label">Servizi</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">P</div>
-      <div class="stat" id="dashboardPromotions">0</div>
-      <div class="stat-label">Promozioni</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">A</div>
-      <div class="stat" id="dashboardAppointments">0</div>
-      <div class="stat-label">Appuntamenti attivi</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">C</div>
-      <div class="stat" id="dashboardClients">0</div>
-      <div class="stat-label">Clienti</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="section-title">
-      <div>
-        <h3>Attività</h3>
-        <div class="muted">Nome visualizzato nell'app e utilizzato dall'assistente AI.</div>
-      </div>
-    </div>
-
-    <label>Nome attività</label>
-    <input id="biz" value="Salone Bella Linea">
-
-    <button class="primary" onclick="saveBusiness()">Salva attività</button>
-
-    <div id="storageStatus" class="storage-box">
-      Archivio dati protetto con doppio salvataggio.
-    </div>
-  </div>
+<div class="card">
+<div class="section-title">
+<h3>Stato Mavi</h3>
+<span id="homeEngineStatus" class="engine-status">Caricamento…</span>
+</div>
+<div class="muted">Il motore locale gira nel browser. Nessuna chiamata a OpenAI.</div>
+</div>
 </section>
 
+<section id="mavi" class="page">
+<div class="heading">
+<div>
+<h2>Mavi</h2>
+<p>La tua assistente locale per parlare, verificare e gestire l'attività.</p>
+</div>
+</div>
 
-<section id="ai" class="page">
-  <div class="page-heading">
-    <div>
-      <h2>Assistente AI</h2>
-      <p>Gestisci richieste, informazioni e prenotazioni.</p>
-    </div>
-  </div>
+<div class="card">
+<div id="chat" class="chat">
+<div class="msg bot">Sono Mavi. Posso consultare i dati di Maviri e aiutarti con clienti, servizi e appuntamenti.</div>
+</div>
 
-  <div class="card">
-    <div id="pendingBox"></div>
+<div id="maviStatus" class="engine-status" style="margin:10px 0">
+Caricamento del motore locale…
+</div>
 
-    <div id="chat" class="chat">
-      <div class="msg bot">Ciao! Come posso aiutarti?</div>
-    </div>
+<div class="row">
+<input id="maviInput" placeholder="Scrivi a Mavi…" onkeydown="if(event.key==='Enter')askMavi()">
+<button id="maviSend" class="primary" onclick="askMavi()">Invia</button>
+</div>
 
-    <p id="status" class="muted"></p>
+<div class="voice">
+<button id="micButton" class="mic" onclick="toggleVoice()" title="Parla con Mavi">●</button>
+<div>
+<b id="voiceLabel">Premi il microfono</b>
+<div class="muted">Voce → Mavi → risposta vocale</div>
+</div>
+</div>
 
-    <div class="row">
-      <input id="clientName" placeholder="Nome cliente">
-      <input id="q" placeholder="Scrivi una domanda..." onkeydown="if(event.key==='Enter')send()">
-      <button id="sendButton" class="primary" onclick="send()">Invia</button>
-    </div>
-  </div>
+<div class="actions">
+<button class="secondary small" onclick="clearMaviHistory()">Cancella conversazione</button>
+<button class="secondary small" onclick="preloadMavi()">Carica motore</button>
+</div>
+</div>
 </section>
 
+<section id="calendar" class="page">
+<div class="heading">
+<div>
+<h2>Calendario</h2>
+<p>Controllo visivo e gestione appuntamenti.</p>
+</div>
+</div>
 
-<section id="app" class="page">
-  <div class="page-heading">
-    <div>
-      <h2>Calendario</h2>
-      <p>Visualizza e gestisci gli appuntamenti.</p>
-    </div>
-  </div>
+<div class="card">
+<div class="calendar-head">
+<button class="secondary" onclick="changeDay(-1)">‹</button>
+<input id="calendarDate" type="date" onchange="renderCalendar()">
+<button class="secondary" onclick="changeDay(1)">›</button>
+</div>
+<div id="dayTitle" class="muted" style="margin-top:10px"></div>
+<div id="calendarGrid" class="calendar"></div>
+</div>
 
-  <div class="card">
-    <div class="calendar-header">
-      <button class="secondary" onclick="changeDay(-1)">‹</button>
-      <input id="calendarDate" type="date" onchange="renderCalendar();renderDayAppointments()">
-      <button class="secondary" onclick="changeDay(1)">›</button>
-    </div>
+<div class="card">
+<div class="section-title">
+<h3>Appuntamenti del giorno</h3>
+<button class="primary small" onclick="openNewAppointment()">Nuovo</button>
+</div>
+<div id="dayAppointments"></div>
+</div>
 
-    <div id="calendarTitle" class="day-summary"></div>
-    <div id="calendar" class="calendar-grid"></div>
-  </div>
-
-  <div class="card">
-    <div class="section-title"><h3>Appuntamenti del giorno</h3></div>
-    <div id="dayAppointments"></div>
-  </div>
-
-  <div class="card">
-    <div class="section-title">
-      <div>
-        <h3>Ricerca appuntamenti</h3>
-        <div class="muted">Trova rapidamente un cliente.</div>
-      </div>
-    </div>
-
-    <div class="search-box">
-      <input id="appointmentSearch" placeholder="Cerca per nome cliente..." oninput="renderAppointments()">
-    </div>
-    <div id="searchResults"></div>
-  </div>
-
-  <div class="card">
-    <div class="section-title">
-      <div>
-        <h3>Nuovo appuntamento</h3>
-        <div class="muted">Inserisci manualmente una prenotazione.</div>
-      </div>
-    </div>
-
-    <input id="n" placeholder="Nome cliente">
-    <input id="d" type="date">
-    <input id="t" type="time">
-
-    <select id="s">
-      <option value="">Seleziona servizio</option>
-    </select>
-
-    <button class="primary" id="manualSaveButton" onclick="addAppointment()">Salva appuntamento</button>
-    <p id="appointmentStatus" class="muted"></p>
-  </div>
-
-  <div class="card">
-    <div class="section-title"><h3>Appuntamenti salvati</h3></div>
-    <div id="list"></div>
-  </div>
+<div class="card">
+<h3>Ricerca appuntamenti</h3>
+<input id="appointmentSearch" placeholder="Nome cliente…" oninput="renderAppointmentSearch()">
+<div id="appointmentSearchResults"></div>
+</div>
 </section>
-
 
 <section id="clients" class="page">
-  <div class="page-heading">
-    <div>
-      <h2>Clienti</h2>
-      <p>Le schede cliente vengono collegate automaticamente agli appuntamenti.</p>
-    </div>
-  </div>
+<div class="heading">
+<div>
+<h2>Clienti</h2>
+<p>Schede cliente, note e storico appuntamenti.</p>
+</div>
+<button class="primary" onclick="openNewClient()">Nuovo cliente</button>
+</div>
 
-  <div class="card">
-    <div class="section-title">
-      <div>
-        <h3>Archivio clienti</h3>
-        <div class="muted">Cerca per nome, telefono o email.</div>
-      </div>
-    </div>
-
-    <input id="clientSearch" placeholder="Cerca cliente..." oninput="renderClients()">
-    <div id="clientsList"></div>
-  </div>
-
-  <div class="card">
-    <div class="section-title">
-      <div>
-        <h3>Nuovo cliente</h3>
-        <div class="muted">Crea una nuova scheda cliente.</div>
-      </div>
-    </div>
-
-    <input id="newClientName" placeholder="Nome e cognome">
-    <input id="newClientPhone" type="tel" placeholder="Telefono">
-    <input id="newClientEmail" type="email" placeholder="Email">
-    <textarea id="newClientNotes" rows="4" placeholder="Note cliente"></textarea>
-
-    <button class="primary" onclick="saveClient()">Salva cliente</button>
-    <p id="clientStatus" class="muted"></p>
-  </div>
+<div class="card">
+<input id="clientSearch" placeholder="Cerca nome, telefono o email…" oninput="renderClients()">
+<div id="clientsList"></div>
+</div>
 </section>
 
-
-<!-- POST AI -->
 <section id="post" class="page">
+<div class="heading">
+<div>
+<h2>Contenuti</h2>
+<p>Mavi può creare testi usando esclusivamente i dati locali dell'attività.</p>
+</div>
+</div>
 
-  <div class="page-heading">
-    <div>
-      <h2>Post AI</h2>
-      <p>Crea contenuti personalizzati per i canali della tua attività.</p>
-    </div>
-  </div>
+<div class="card">
+<div class="two">
+<div>
+<label>Tipo</label>
+<select id="postType">
+<option>Servizio</option>
+<option>Promozione</option>
+<option>Novità</option>
+<option>Evento</option>
+<option>Informazione</option>
+<option>Post generico</option>
+</select>
 
-  <div class="card">
+<label>Stile</label>
+<select id="postStyle">
+<option>Professionale</option>
+<option>Elegante</option>
+<option>Amichevole</option>
+<option>Diretto</option>
+<option>Promozionale</option>
+</select>
+</div>
 
-    <div class="post-tip">
-      L'AI utilizza automaticamente i dati della tua attività, dei servizi e delle promozioni già presenti nell'app.
-    </div>
+<div>
+<label>Piattaforma</label>
+<div class="platforms">
+<button class="active" data-platform="Instagram" onclick="selectPlatform(this)">Instagram</button>
+<button data-platform="Facebook" onclick="selectPlatform(this)">Facebook</button>
+<button data-platform="WhatsApp" onclick="selectPlatform(this)">WhatsApp</button>
+<button data-platform="Google" onclick="selectPlatform(this)">Google</button>
+<button data-platform="TikTok" onclick="selectPlatform(this)">TikTok</button>
+<button data-platform="Generico" onclick="selectPlatform(this)">Generico</button>
+</div>
+</div>
+</div>
 
-    <div class="post-mode">
-      <button id="postModeQuick" class="active" onclick="setPostMode('quick')">
-        Modalità Rapida
-      </button>
-      <button id="postModeAdvanced" onclick="setPostMode('advanced')">
-        Modalità Avanzata
-      </button>
-    </div>
+<label>Argomento</label>
+<input id="postTopic" placeholder="Es. voglio promuovere il taglio uomo del sabato">
 
-    <div class="post-grid">
+<label>Indicazioni aggiuntive</label>
+<textarea id="postExtra" rows="3" placeholder="Pubblico, call to action, tono…"></textarea>
 
-      <div>
-        <label>Cosa vuoi promuovere?</label>
+<button id="postButton" class="primary" style="width:100%;margin-top:8px" onclick="generatePost()">Genera con Mavi</button>
 
-        <select id="postContentType" onchange="updatePostContentOptions()">
-          <option value="servizio">Servizio</option>
-          <option value="promozione">Promozione</option>
-          <option value="novita">Novità</option>
-          <option value="evento">Evento</option>
-          <option value="informazione">Informazione utile</option>
-          <option value="generico">Post generico</option>
-        </select>
+<p id="postStatus" class="muted"></p>
+</div>
 
-        <div id="postContentSelection"></div>
-      </div>
-
-      <div>
-        <label>Dove vuoi pubblicarlo?</label>
-
-        <div class="post-platforms">
-
-          <button class="post-platform active" data-platform="instagram" onclick="selectPostPlatform('instagram')">
-            Instagram
-            <small>Post social</small>
-          </button>
-
-          <button class="post-platform" data-platform="facebook" onclick="selectPostPlatform('facebook')">
-            Facebook
-            <small>Post social</small>
-          </button>
-
-          <button class="post-platform" data-platform="whatsapp" onclick="selectPostPlatform('whatsapp')">
-            WhatsApp
-            <small>Messaggio</small>
-          </button>
-
-          <button class="post-platform" data-platform="google" onclick="selectPostPlatform('google')">
-            Google
-            <small>Profilo attività</small>
-          </button>
-
-          <button class="post-platform" data-platform="tiktok" onclick="selectPostPlatform('tiktok')">
-            TikTok
-            <small>Video + caption</small>
-          </button>
-
-          <button class="post-platform" data-platform="generic" onclick="selectPostPlatform('generic')">
-            Generico
-            <small>Multiuso</small>
-          </button>
-
-        </div>
-      </div>
-
-    </div>
-
-    <div class="post-grid">
-
-      <div>
-        <label>Stile</label>
-        <select id="postStyle">
-          <option value="professionale">Professionale</option>
-          <option value="elegante">Elegante</option>
-          <option value="amichevole">Amichevole</option>
-          <option value="diretto">Diretto</option>
-          <option value="promozionale">Promozionale</option>
-          <option value="coinvolgente">Coinvolgente</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Obiettivo</label>
-        <select id="postGoal">
-          <option value="promuovere">Promuovere un servizio</option>
-          <option value="clienti">Portare nuovi clienti</option>
-          <option value="novita">Far conoscere una novità</option>
-          <option value="appuntamenti">Riempire gli appuntamenti</option>
-          <option value="fidelizzazione">Fidelizzare i clienti</option>
-          <option value="interazioni">Aumentare le interazioni</option>
-        </select>
-      </div>
-
-    </div>
-
-    <div id="postAdvancedFields" style="display:none">
-
-      <div class="post-grid">
-
-        <div>
-          <label>Pubblico</label>
-          <input id="postAudience" placeholder="Es. donne 25-45 anni della zona">
-        </div>
-
-        <div>
-          <label>Call to action</label>
-          <input id="postCTA" placeholder="Es. Prenota il tuo appuntamento">
-        </div>
-
-      </div>
-
-      <label>Messaggio o indicazione personalizzata</label>
-      <textarea
-        id="postCustomMessage"
-        rows="3"
-        placeholder="Aggiungi qualcosa che vuoi comunicare nel post..."
-      ></textarea>
-
-    </div>
-
-    <label>Argomento aggiuntivo</label>
-    <input
-      id="postTopic"
-      placeholder="Es. voglio mettere in evidenza il risultato del trattamento"
-    >
-
-    <button
-      id="generatePostButton"
-      class="primary"
-      onclick="generatePost()"
-      style="width:100%;margin-top:5px"
-    >
-      ✨ Genera post con AI
-    </button>
-
-    <p id="postStatus" class="muted"></p>
-
-  </div>
-
-
-  <div class="card" id="postResultCard" style="display:none">
-
-    <div class="section-title">
-      <div>
-        <h3>Post generato</h3>
-        <div id="postResultMeta" class="muted"></div>
-      </div>
-    </div>
-
-    <div class="post-result">
-
-      <textarea
-        id="out"
-        rows="14"
-        placeholder="Il contenuto generato apparirà qui..."
-      ></textarea>
-
-      <div class="post-actions">
-
-        <button class="primary" onclick="copyPost()">
-          📋 Copia
-        </button>
-
-        <button class="secondary" onclick="editPost()">
-          ✏️ Modifica
-        </button>
-
-        <button class="secondary" onclick="regeneratePost()">
-          🔄 Rigenera
-        </button>
-
-        <button class="success" onclick="saveGeneratedPost()">
-          💾 Salva
-        </button>
-
-        <button class="warning" onclick="generateAnotherPost()">
-          ✨ Genera un altro
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div class="card">
-
-    <div class="section-title">
-      <div>
-        <h3>Post salvati</h3>
-        <div class="muted">I contenuti che hai deciso di conservare.</div>
-      </div>
-    </div>
-
-    <div id="postHistory"></div>
-
-  </div>
-
+<div class="card">
+<div class="section-title">
+<h3>Risultato</h3>
+<button class="secondary small" onclick="copyText('postOutput')">Copia</button>
+</div>
+<textarea id="postOutput" class="post-result" rows="14" placeholder="Il contenuto apparirà qui…"></textarea>
+</div>
 </section>
-
 
 <section id="settings" class="page">
+<div class="heading">
+<div>
+<h2>Impostazioni</h2>
+<p>Configurazione locale di Maviri.</p>
+</div>
+</div>
 
-  <div class="page-heading">
-    <div>
-      <h2>Impostazioni</h2>
-      <p>Configura l'attività, i servizi e le promozioni.</p>
-    </div>
-  </div>
+<div class="card">
+<h3>Attività</h3>
 
-  <div class="card">
+<div class="two">
+<div>
+<label>Nome</label>
+<input id="setName">
 
-    <div class="section-title">
-      <div>
-        <h3>Informazioni attività</h3>
-        <div class="muted">Questi dati possono essere utilizzati dall'assistente AI.</div>
-      </div>
-    </div>
+<label>Tipo</label>
+<input id="setType">
 
-    <label>Nome attività</label>
-    <input id="settingsName" placeholder="Es. Barber Shop Rossi">
+<label>Descrizione</label>
+<textarea id="setDescription" rows="3"></textarea>
+</div>
 
-    <label>Tipo di attività</label>
-    <input id="settingsType" placeholder="Es. Parrucchiere, estetista, barbiere">
+<div>
+<label>Indirizzo</label>
+<input id="setAddress">
 
-    <label>Descrizione</label>
-    <textarea id="settingsDescription" rows="3" placeholder="Descrizione dell'attività"></textarea>
+<label>Telefono</label>
+<input id="setPhone">
 
-    <label>Indirizzo</label>
-    <input id="settingsAddress" placeholder="Indirizzo">
+<label>WhatsApp</label>
+<input id="setWhatsapp">
+</div>
+</div>
 
-    <label>Telefono</label>
-    <input id="settingsPhone" type="tel" placeholder="Telefono">
+<button class="primary" onclick="saveSettings()">Salva</button>
+<p id="settingsStatus" class="muted"></p>
+</div>
 
-    <label>WhatsApp</label>
-    <input id="settingsWhatsapp" type="tel" placeholder="Numero WhatsApp">
+<div class="card">
+<div class="section-title">
+<h3>Orari</h3>
+<button class="primary small" onclick="saveHours()">Salva orari</button>
+</div>
+<div id="hours"></div>
+</div>
 
-    <hr class="divider">
+<div class="card">
+<h3>Servizi</h3>
 
-    <h3>Orari di apertura</h3>
+<div class="three">
+<input id="serviceName" placeholder="Nome">
+<input id="serviceDuration" type="number" min="5" step="5" placeholder="Durata min">
+<input id="servicePrice" type="number" min="0" step=".01" placeholder="Prezzo">
+</div>
 
-    <div id="hours"></div>
+<textarea id="serviceDescription" rows="2" placeholder="Descrizione"></textarea>
 
-    <button class="primary" onclick="saveSettings()">Salva impostazioni</button>
-    <p id="settingsStatus" class="muted"></p>
+<button class="primary" onclick="saveService()">Aggiungi servizio</button>
 
-  </div>
+<div id="servicesList"></div>
+</div>
 
+<div class="card">
+<h3>Promozioni</h3>
 
-  <div class="card">
+<div class="two">
+<input id="promoTitle" placeholder="Titolo">
+<input id="promoStart" type="date">
+</div>
 
-    <div class="section-title">
-      <div>
-        <h3>Servizi</h3>
-        <div class="muted">Durata, prezzo e descrizione dei trattamenti.</div>
-      </div>
-    </div>
+<textarea id="promoDescription" rows="2" placeholder="Descrizione"></textarea>
 
-    <input id="serviceName" placeholder="Nome servizio">
+<label>Fine</label>
+<input id="promoEnd" type="date">
 
-    <input id="serviceDuration" type="number" min="5" step="5" placeholder="Durata in minuti">
+<button class="primary" onclick="savePromotion()">Aggiungi promozione</button>
 
-    <input id="servicePrice" type="number" min="0" step="0.01" placeholder="Prezzo">
-
-    <textarea id="serviceDescription" rows="3" placeholder="Descrizione servizio"></textarea>
-
-    <button class="primary" onclick="saveService()">Salva servizio</button>
-
-    <div id="services"></div>
-
-  </div>
-
-
-  <div class="card">
-
-    <div class="section-title">
-      <div>
-        <h3>Promozioni</h3>
-        <div class="muted">Gestisci le offerte da utilizzare anche con l'AI.</div>
-      </div>
-    </div>
-
-    <input id="promotionTitle" placeholder="Titolo promozione">
-
-    <textarea id="promotionDescription" rows="3" placeholder="Descrizione promozione"></textarea>
-
-    <label>Data inizio</label>
-    <input id="promotionStart" type="date">
-
-    <label>Data fine</label>
-    <input id="promotionEnd" type="date">
-
-    <button class="primary" onclick="savePromotion()">Salva promozione</button>
-
-    <div id="promotions"></div>
-
-  </div>
-
+<div id="promotionsList"></div>
+</div>
 </section>
 
 </main>
 
-
-<div id="appointmentModal" class="modal-backdrop">
-
-  <div class="modal">
-
-    <div class="modal-header">
-      <h3>Modifica appuntamento</h3>
-
-      <button class="close-button" onclick="closeAppointmentModal()">✕</button>
-    </div>
-
-    <input type="hidden" id="editAppointmentId">
-
-    <label>Nome cliente</label>
-    <input id="editAppointmentName" placeholder="Nome cliente">
-
-    <label>Data</label>
-    <input id="editAppointmentDate" type="date">
-
-    <label>Orario</label>
-    <input id="editAppointmentTime" type="time">
-
-    <label>Servizio</label>
-    <select id="editAppointmentService">
-      <option value="">Seleziona servizio</option>
-    </select>
-
-    <label>Stato</label>
-    <select id="editAppointmentStatus">
-      <option value="confermato">Confermato</option>
-      <option value="completato">Completato</option>
-      <option value="cancellato">Cancellato</option>
-    </select>
-
-    <div id="editAppointmentError" class="form-error"></div>
-
-    <div class="row">
-      <button class="secondary" onclick="closeAppointmentModal()">Annulla</button>
-      <button class="primary" onclick="saveEditedAppointment()">Salva modifiche</button>
-    </div>
-
-  </div>
-
+<div id="modalBg" class="modal-bg" onclick="if(event.target===this)closeModal()">
+<div class="modal" id="modal"></div>
 </div>
 
+<script src="./mavi-engine.js"></script>
 
 <script>
-
-const STORAGE_PRIMARY="appData";
-const STORAGE_BACKUP="appData_backup";
-const STORAGE_VERSION=3;
-
-let appData=null;
-let chatHistory=[];
-let pendingAppointment=readJSON(localStorage.getItem("pendingAppointment"),null);
-let requiresConfirmation=localStorage.getItem("requiresConfirmation")==="true";
-let requestInProgress=false;
-
-/* POST AI */
-let postMode="quick";
-let postPlatform="instagram";
-let lastPostConfig=null;
-
+"use strict";
 
 const $=id=>document.getElementById(id);
+const KEY="appData";
+const BACKUP="appData_backup";
+const HIST="maviConversation";
 
+const DAYS=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
 
-function readJSON(value,fallback){
-  try{
-    if(value===undefined||value===null||value==="")return fallback;
-    return JSON.parse(value);
-  }catch{
-    return fallback;
-  }
+const DAY_LABEL=[
+"Domenica",
+"Lunedì",
+"Martedì",
+"Mercoledì",
+"Giovedì",
+"Venerdì",
+"Sabato"
+];
+
+let data={};
+let selectedPlatform="Instagram";
+let recognition=null;
+let listening=false;
+let busy=false;
+
+function today(){
+return new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome"}).format(new Date())
 }
 
-
-function createEmptyAppData(){
-  return{
-    version:STORAGE_VERSION,
-    revision:0,
-    updatedAt:null,
-    business:{name:"Salone Bella Linea"},
-    settings:{
-      name:"Salone Bella Linea",
-      type:"Parrucchiere",
-      description:"",
-      address:"",
-      phone:"",
-      whatsapp:"",
-      hours:{}
-    },
-    services:[],
-    promotions:[],
-    appointments:[],
-    clients:[],
-    postHistory:[]
-  };
+function uid(){
+return crypto.randomUUID
+?crypto.randomUUID()
+:Date.now()+"-"+Math.random().toString(36).slice(2)
 }
 
+function defaultHours(){
+const h={};
 
-function isValidAppData(data){
-  if(
-    !data||
-    typeof data!=="object"||
-    typeof data.business!=="object"||
-    typeof data.settings!=="object"||
-    !Array.isArray(data.services)||
-    !Array.isArray(data.promotions)||
-    !Array.isArray(data.appointments)
-  )return false;
+DAYS.forEach((d,i)=>{
+h[d]=i===0
+?{
+closed:true,
+start:"09:00",
+end:"18:00",
+breakStart:"",
+breakEnd:""
+}
+:{
+closed:false,
+start:"09:00",
+end:"18:00",
+breakStart:"13:00",
+breakEnd:"14:00"
+}
+});
 
-  if(!Array.isArray(data.clients))data.clients=[];
-  if(!Array.isArray(data.postHistory))data.postHistory=[];
-
-  return true;
+return h
 }
 
+function defaults(){
+return {
+version:3,
+revision:1,
+updatedAt:new Date().toISOString(),
 
-function migrateLegacyData(){
+business:{
+name:"",
+type:"",
+description:"",
+address:"",
+phone:"",
+whatsapp:""
+},
 
-  const data=createEmptyAppData();
+settings:{
+name:"",
+type:"",
+description:"",
+address:"",
+phone:"",
+whatsapp:"",
+hours:defaultHours()
+},
 
-  const oldSettings=readJSON(localStorage.getItem("settings"),{});
-  const oldServices=readJSON(localStorage.getItem("services"),[]);
-  const oldPromotions=readJSON(localStorage.getItem("promotions"),[]);
-  const oldAppointments=readJSON(localStorage.getItem("a"),[]);
-  const oldBackupAppointments=readJSON(localStorage.getItem("a_backup"),[]);
-  const oldBusiness=localStorage.getItem("biz");
-
-  if(oldSettings&&typeof oldSettings==="object"){
-    data.settings={...data.settings,...oldSettings};
-  }
-
-  if(oldBusiness){
-    data.business.name=oldBusiness;
-    if(!data.settings.name)data.settings.name=oldBusiness;
-  }
-
-  if(Array.isArray(oldServices))data.services=oldServices;
-  if(Array.isArray(oldPromotions))data.promotions=oldPromotions;
-
-  if(Array.isArray(oldAppointments)&&oldAppointments.length){
-    data.appointments=oldAppointments;
-  }else if(Array.isArray(oldBackupAppointments)){
-    data.appointments=oldBackupAppointments;
-  }
-
-  return data;
+services:[],
+promotions:[],
+appointments:[],
+clients:[]
+}
 }
 
+function load(){
 
-function normalizeAppointment(appointment,index){
+try{
 
-  const now=new Date().toISOString();
+const a=JSON.parse(localStorage.getItem(KEY)||"null");
 
-  return{
-    id:appointment?.id||"apt_migrated_"+Date.now()+"_"+index,
-    n:String(appointment?.n||appointment?.name||"").trim(),
-    d:appointment?.d||appointment?.date||"",
-    t:appointment?.t||appointment?.time||"",
-    s:appointment?.s||appointment?.service||"",
-    clientId:appointment?.clientId||"",
-    status:normalizeAppointmentStatus(appointment?.status),
-    createdAt:appointment?.createdAt||now,
-    updatedAt:appointment?.updatedAt||now
-  };
+const b=JSON.parse(localStorage.getItem(BACKUP)||"null");
+
+data=a&&typeof a==="object"
+?a
+:(b||defaults());
+
+}catch{
+
+data=defaults();
+
 }
 
+data=normalizeData(data);
 
-function normalizeAppointmentStatus(status){
+persist(false);
 
-  const value=String(status||"").trim().toLowerCase();
-
-  if(value==="cancellato"||value==="cancelled"||value==="canceled")return"cancellato";
-  if(value==="completato"||value==="completed")return"completato";
-
-  return"confermato";
 }
 
+function normalizeData(d){
 
-function normalizeClient(client,index){
+const x=defaults();
 
-  const now=new Date().toISOString();
+const z=d||{};
 
-  return{
-    id:String(client?.id||"cli_migrated_"+Date.now()+"_"+index),
-    name:String(client?.name||client?.n||"").trim(),
-    phone:String(client?.phone||"").trim(),
-    email:String(client?.email||"").trim(),
-    notes:String(client?.notes||"").trim(),
-    createdAt:client?.createdAt||now,
-    updatedAt:client?.updatedAt||now
-  };
-}
+x.version=z.version||3;
+x.revision=z.revision||1;
+x.updatedAt=z.updatedAt||new Date().toISOString();
 
-
-function normalizeAppData(data){
-
-  const base=createEmptyAppData();
-
-  const normalized={
-    ...base,
-    ...data,
-    business:{...base.business,...(data.business||{})},
-    settings:{
-      ...base.settings,
-      ...(data.settings||{}),
-      hours:{...(data.settings?.hours||{})}
-    },
-    services:Array.isArray(data.services)?data.services:[],
-    promotions:Array.isArray(data.promotions)?data.promotions:[],
-    appointments:Array.isArray(data.appointments)
-      ?data.appointments.map(normalizeAppointment):[],
-    clients:Array.isArray(data.clients)
-      ?data.clients.map(normalizeClient):[],
-    postHistory:Array.isArray(data.postHistory)?data.postHistory:[]
-  };
-
-  const clientMap=new Map(
-    normalized.clients.map(c=>[c.name.toLowerCase(),c])
-  );
-
-  normalized.appointments.forEach(a=>{
-
-    if(!a.clientId&&a.n){
-
-      const key=a.n.trim().toLowerCase();
-      let c=clientMap.get(key);
-
-      if(!c){
-        c=normalizeClient({name:a.n},normalized.clients.length);
-        normalized.clients.push(c);
-        clientMap.set(key,c);
-      }
-
-      a.clientId=c.id;
-    }
-
-  });
-
-  if(!normalized.settings.name&&normalized.business.name){
-    normalized.settings.name=normalized.business.name;
-  }
-
-  if(!normalized.business.name&&normalized.settings.name){
-    normalized.business.name=normalized.settings.name;
-  }
-
-  normalized.version=STORAGE_VERSION;
-
-  return normalized;
-}
-
-
-function loadAppData(){
-
-  const primary=readJSON(localStorage.getItem(STORAGE_PRIMARY),null);
-  const backup=readJSON(localStorage.getItem(STORAGE_BACKUP),null);
-
-  if(isValidAppData(primary)){
-    appData=normalizeAppData(primary);
-    return appData;
-  }
-
-  if(isValidAppData(backup)){
-    appData=normalizeAppData(backup);
-
-    try{
-      localStorage.setItem(STORAGE_PRIMARY,JSON.stringify(appData));
-    }catch{}
-
-    return appData;
-  }
-
-  appData=normalizeAppData(migrateLegacyData());
-  saveAppDataSafely(appData);
-
-  return appData;
-}
-
-
-function saveAppDataSafely(data){
-
-  const normalized=normalizeAppData(data);
-
-  normalized.version=STORAGE_VERSION;
-  normalized.revision=Number(normalized.revision||0)+1;
-  normalized.updatedAt=new Date().toISOString();
-
-  const value=JSON.stringify(normalized);
-
-  localStorage.setItem(STORAGE_BACKUP,value);
-  localStorage.setItem(STORAGE_PRIMARY,value);
-
-  appData=normalized;
-
-  updateStorageStatus();
-}
-
-
-function getAppData(){
-
-  if(!isValidAppData(appData))appData=loadAppData();
-
-  return appData;
-}
-
-
-function updateAppData(mutator){
-
-  const data=getAppData();
-
-  mutator(data);
-
-  saveAppDataSafely(data);
-
-  return data;
-}
-
-
-function getServices(){return getAppData().services}
-function getPromotions(){return getAppData().promotions}
-function getAppointments(){return getAppData().appointments}
-function getSettings(){return getAppData().settings}
-function getClients(){return getAppData().clients}
-
-
-function upsertClient(name,extra={}){
-
-  name=String(name||"").trim();
-
-  if(!name)return null;
-
-  let result=null;
-
-  updateAppData(data=>{
-
-    let c=data.clients.find(
-      x=>x.name.trim().toLowerCase()===name.toLowerCase()
-    );
-
-    const now=new Date().toISOString();
-
-    if(!c){
-
-      c={
-        id:"cli_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
-        name,
-        phone:"",
-        email:"",
-        notes:"",
-        createdAt:now,
-        updatedAt:now
-      };
-
-      data.clients.push(c);
-    }
-
-    for(const k of Object.keys(extra)){
-      if(extra[k]!==undefined)c[k]=String(extra[k]||"").trim();
-    }
-
-    c.updatedAt=now;
-    result=c;
-  });
-
-  return result;
-}
-
-
-function syncLegacyKeys(){
-
-  const data=getAppData();
-
-  try{
-
-    localStorage.setItem(
-      "biz",
-      data.business.name||data.settings.name||"Attività locale"
-    );
-
-    localStorage.setItem("settings",JSON.stringify(data.settings));
-    localStorage.setItem("services",JSON.stringify(data.services));
-    localStorage.setItem("promotions",JSON.stringify(data.promotions));
-    localStorage.setItem("a",JSON.stringify(data.appointments));
-    localStorage.setItem("a_backup",JSON.stringify(data.appointments));
-
-  }catch{}
-}
-
-
-function updateStorageStatus(){
-
-  const element=$("storageStatus");
-
-  if(!element||!isValidAppData(appData))return;
-
-  element.innerHTML=
-    "Archivio dati protetto con doppio salvataggio. Revisione "+
-    esc(appData.revision)+".";
-}
-
-
-function savePendingState(){
-
-  if(pendingAppointment){
-    localStorage.setItem("pendingAppointment",JSON.stringify(pendingAppointment));
-  }else{
-    localStorage.removeItem("pendingAppointment");
-  }
-
-  if(requiresConfirmation){
-    localStorage.setItem("requiresConfirmation","true");
-  }else{
-    localStorage.removeItem("requiresConfirmation");
-  }
-}
-
-
-function clearPendingState(){
-
-  pendingAppointment=null;
-  requiresConfirmation=false;
-
-  localStorage.removeItem("pendingAppointment");
-  localStorage.removeItem("requiresConfirmation");
-
-  const actions=$("confirmationActions");
-
-  if(actions)actions.remove();
-
-  renderPendingBox();
-}
-
-
-const dayConfig={
-  monday:{prefix:"mon",label:"Lunedì"},
-  tuesday:{prefix:"tue",label:"Martedì"},
-  wednesday:{prefix:"wed",label:"Mercoledì"},
-  thursday:{prefix:"thu",label:"Giovedì"},
-  friday:{prefix:"fri",label:"Venerdì"},
-  saturday:{prefix:"sat",label:"Sabato"},
-  sunday:{prefix:"sun",label:"Domenica"}
+x.business={
+...x.business,
+...(z.business||{})
 };
 
+x.settings={
+...x.settings,
+...(z.settings||{})
+};
 
-function showPage(page){
+x.settings.hours={
+...defaultHours(),
+...(z.settings?.hours||{})
+};
 
-  document.querySelectorAll(".page")
-    .forEach(element=>element.classList.remove("active"));
+x.services=Array.isArray(z.services)
+?z.services
+:[];
 
-  const target=$(page);
+x.promotions=Array.isArray(z.promotions)
+?z.promotions
+:[];
 
-  if(target)target.classList.add("active");
+x.appointments=Array.isArray(z.appointments)
+?z.appointments
+:[];
 
-  document.querySelectorAll("#mainNav button")
-    .forEach(button=>{
-      button.classList.toggle("active",button.dataset.page===page);
-    });
+x.clients=Array.isArray(z.clients)
+?z.clients
+:[];
 
-  if(page==="app"){
-    renderCalendar();
-    renderDayAppointments();
-    renderAppointments();
-  }
+if(!x.business.name&&x.settings.name)
+x.business.name=x.settings.name;
 
-  if(page==="settings"){
-    loadSettings();
-    renderServices();
-    renderPromotions();
-  }
+if(!x.settings.name&&x.business.name)
+x.settings.name=x.business.name;
 
-  if(page==="ai")renderPendingBox();
-
-  if(page==="clients")renderClients();
-
-  if(page==="post"){
-    updatePostContentOptions();
-    renderPostHistory();
-  }
-
-  updateDashboard();
-}
-
-
-function esc(value){
-
-  return String(value??"")
-    .replace(/[&<>"']/g,char=>({
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#39;"
-    }[char]));
-}
-
-
-function updateDashboard(){
-
-  $("dashboardServices").textContent=getServices().length;
-  $("dashboardPromotions").textContent=getPromotions().length;
-
-  $("dashboardAppointments").textContent=
-    getAppointments().filter(a=>a.status!=="cancellato").length;
-
-  $("dashboardClients").textContent=getClients().length;
-
-  const name=
-    getAppData().business.name||
-    getSettings().name||
-    "La tua attività";
-
-  $("dashboardWelcome").textContent="Benvenuto in "+name;
-  $("biz").value=name;
-}
-
-
-function saveBusiness(){
-
-  const name=$("biz").value.trim();
-
-  if(!name){
-    $("storageStatus").textContent="Inserisci il nome dell'attività.";
-    return;
-  }
-
-  updateAppData(data=>{
-    data.business.name=name;
-    data.settings.name=name;
-  });
-
-  syncLegacyKeys();
-
-  $("storageStatus").textContent="Attività salvata.";
-}
-
-
-function loadSettings(){
-
-  const s=getSettings();
-
-  $("settingsName").value=s.name||"";
-  $("settingsType").value=s.type||"";
-  $("settingsDescription").value=s.description||"";
-  $("settingsAddress").value=s.address||"";
-  $("settingsPhone").value=s.phone||"";
-  $("settingsWhatsapp").value=s.whatsapp||"";
-
-  setupBreakRows();
-}
-
-
-function setupBreakRows(){
-
-  const box=$("hours");
-
-  if(!box)return;
-
-  box.innerHTML=Object.entries(dayConfig).map(([key,c])=>{
-
-    const h=getSettings().hours?.[key]||{};
-
-    return`
-      <div class="hour-row">
-        <b>${c.label}</b>
-
-        <select id="${c.prefix}Open">
-          <option value="true"${h.closed!==true?" selected":""}>Aperto</option>
-          <option value="false"${h.closed===true?" selected":""}>Chiuso</option>
-        </select>
-
-        <input id="${c.prefix}Start" type="time" value="${esc(h.start||"09:00")}">
-        <input id="${c.prefix}End" type="time" value="${esc(h.end||"19:00")}">
-      </div>
-    `;
-
-  }).join("");
-}
-
-
-function saveSettings(){
-
-  const hours={};
-
-  Object.entries(dayConfig).forEach(([key,c])=>{
-
-    hours[key]={
-      closed:$(c.prefix+"Open").value!=="true",
-      start:$(c.prefix+"Start").value,
-      end:$(c.prefix+"End").value
-    };
-
-  });
-
-  updateAppData(data=>{
-
-    data.settings.name=
-      $("settingsName").value.trim()||
-      data.business.name;
-
-    data.business.name=data.settings.name;
-
-    data.settings.type=$("settingsType").value.trim();
-    data.settings.description=$("settingsDescription").value.trim();
-    data.settings.address=$("settingsAddress").value.trim();
-    data.settings.phone=$("settingsPhone").value.trim();
-    data.settings.whatsapp=$("settingsWhatsapp").value.trim();
-    data.settings.hours=hours;
-
-  });
-
-  syncLegacyKeys();
-
-  $("biz").value=getAppData().business.name;
-  $("settingsStatus").textContent="Impostazioni salvate.";
-}
-
-
-function serviceDuration(service){
-  return Number(service?.duration)||30;
-}
-
-
-function getService(name){
-
-  return getServices().find(
-    s=>String(s.name||"").toLowerCase()===
-       String(name||"").toLowerCase()
-  );
-}
-
-
-function populateServiceSelects(){
-
-  const html=
-    '<option value="">Seleziona servizio</option>'+
-    getServices().map(
-      s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`
-    ).join("");
-
-  $("s").innerHTML=html;
-  $("editAppointmentService").innerHTML=html;
-}
-
-
-function renderServices(){
-
-  const box=$("services");
-
-  if(!box)return;
-
-  populateServiceSelects();
-
-  const list=getServices();
-
-  box.innerHTML=list.length
-    ?list.map((s,i)=>`
-
-      <div class="service-item">
-
-        <b>${esc(s.name)}</b>
-
-        <div>
-          ${serviceDuration(s)} minuti
-          ${
-            s.price!==""&&s.price!==undefined
-              ?` · € ${esc(s.price)}`
-              :""
-          }
-        </div>
-
-        ${
-          s.description
-            ?`<div class="muted">${esc(s.description)}</div>`
-            :""
-        }
-
-        <div class="service-actions">
-
-          <button class="secondary small-button" onclick="editService(${i})">
-            Modifica
-          </button>
-
-          <button class="danger small-button" onclick="deleteService(${i})">
-            Elimina
-          </button>
-
-        </div>
-
-      </div>
-
-    `).join("")
-    :`<div class="empty-state">Nessun servizio configurato.</div>`;
-}
-
-
-function saveService(){
-
-  const name=$("serviceName").value.trim();
-
-  if(!name)return;
-
-  const duration=Number($("serviceDuration").value)||30;
-  const price=$("servicePrice").value;
-  const description=$("serviceDescription").value.trim();
-
-  updateAppData(data=>
-    data.services.push({
-      id:"srv_"+Date.now(),
-      name,
-      duration,
-      price,
-      description
-    })
-  );
-
-  ["serviceName","serviceDuration","servicePrice","serviceDescription"]
-    .forEach(id=>$(id).value="");
-
-  renderServices();
-  renderAppointments();
-  updateDashboard();
-  syncLegacyKeys();
-}
-
-
-function editService(i){
-
-  const s=getServices()[i];
-
-  if(!s)return;
-
-  const name=prompt("Nome servizio",s.name);
-  if(name===null)return;
-
-  const duration=prompt("Durata in minuti",s.duration);
-  if(duration===null)return;
-
-  const price=prompt("Prezzo",s.price??"");
-  if(price===null)return;
-
-  const description=prompt("Descrizione",s.description||"");
-  if(description===null)return;
-
-  updateAppData(data=>{
-
-    const x=data.services[i];
-
-    if(x){
-      x.name=name.trim()||x.name;
-      x.duration=Number(duration)||30;
-      x.price=price;
-      x.description=description.trim();
-    }
-
-  });
-
-  renderServices();
-  renderAppointments();
-  syncLegacyKeys();
-}
-
-
-function deleteService(i){
-
-  const s=getServices()[i];
-
-  if(!s||!confirm(`Eliminare il servizio ${s.name}?`))return;
-
-  updateAppData(data=>data.services.splice(i,1));
-
-  renderServices();
-  renderAppointments();
-  syncLegacyKeys();
-}
-
-
-function renderPromotions(){
-
-  const box=$("promotions");
-
-  if(!box)return;
-
-  const list=getPromotions();
-
-  box.innerHTML=list.length
-    ?list.map((p,i)=>`
-
-      <div class="promotion-item">
-
-        <b>${esc(p.title)}</b>
-
-        ${
-          p.start||p.end
-            ?`
-              <div class="muted">
-                ${esc(p.start||"")}
-                ${p.end?" → "+esc(p.end):""}
-              </div>
-            `
-            :""
-        }
-
-        ${
-          p.description
-            ?`<div class="muted">${esc(p.description)}</div>`
-            :""
-        }
-
-        <div class="promotion-actions">
-
-          <button class="secondary small-button" onclick="editPromotion(${i})">
-            Modifica
-          </button>
-
-          <button class="danger small-button" onclick="deletePromotion(${i})">
-            Elimina
-          </button>
-
-        </div>
-
-      </div>
-
-    `).join("")
-    :`<div class="empty-state">Nessuna promozione configurata.</div>`;
-}
-
-
-function savePromotion(){
-
-  const title=$("promotionTitle").value.trim();
-
-  if(!title)return;
-
-  updateAppData(data=>
-    data.promotions.push({
-      id:"pro_"+Date.now(),
-      title,
-      description:$("promotionDescription").value.trim(),
-      start:$("promotionStart").value,
-      end:$("promotionEnd").value
-    })
-  );
-
-  ["promotionTitle","promotionDescription","promotionStart","promotionEnd"]
-    .forEach(id=>$(id).value="");
-
-  renderPromotions();
-  updateDashboard();
-  syncLegacyKeys();
-}
-
-
-function editPromotion(i){
-
-  const p=getPromotions()[i];
-
-  if(!p)return;
-
-  const title=prompt("Titolo",p.title);
-  if(title===null)return;
-
-  const description=prompt("Descrizione",p.description||"");
-  if(description===null)return;
-
-  updateAppData(data=>{
-
-    const x=data.promotions[i];
-
-    if(x){
-      x.title=title.trim()||x.title;
-      x.description=description.trim();
-    }
-
-  });
-
-  renderPromotions();
-  syncLegacyKeys();
-}
-
-
-function deletePromotion(i){
-
-  const p=getPromotions()[i];
-
-  if(!p||!confirm(`Eliminare la promozione ${p.title}?`))return;
-
-  updateAppData(data=>data.promotions.splice(i,1));
-
-  renderPromotions();
-  updateDashboard();
-  syncLegacyKeys();
-}
-
-
-function dateKey(date){
-
-  return date instanceof Date
-    ?date.toISOString().slice(0,10)
-    :String(date||"").slice(0,10);
-}
-
-
-function formatAppointmentDate(date){
-
-  if(!date)return"";
-
-  const d=new Date(date+"T12:00:00");
-
-  return d.toLocaleDateString(
-    "it-IT",
-    {
-      weekday:"short",
-      day:"2-digit",
-      month:"2-digit",
-      year:"numeric"
-    }
-  );
-}
-
-
-function toMinutes(time){
-
-  if(!time||!/^\d{2}:\d{2}$/.test(time))return null;
-
-  const p=time.split(":").map(Number);
-
-  return p[0]*60+p[1];
-}
-
-
-function addMinutes(time,minutes){
-
-  const m=toMinutes(time);
-
-  if(m===null)return time;
-
-  const total=m+minutes;
-
-  return(
-    String(Math.floor(total/60)%24).padStart(2,"0")+
-    ":"+
-    String(total%60).padStart(2,"0")
-  );
-}
-
-
-function getDayKey(date){
-
-  const day=new Date(date+"T12:00:00").getDay();
-
-  return[
-    "sunday",
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday"
-  ][day];
-}
-
-
-function getHoursForDate(date){
-
-  const key=getDayKey(date);
-
-  return getSettings().hours?.[key]||{
-    closed:false,
-    start:"09:00",
-    end:"19:00"
-  };
-}
-
-
-function isWithinHours(date,time,duration){
-
-  const h=getHoursForDate(date);
-
-  if(h.closed)return false;
-
-  const start=toMinutes(h.start);
-  const end=toMinutes(h.end);
-  const t=toMinutes(time);
-
-  return(
-    start!==null&&
-    end!==null&&
-    t!==null&&
-    t>=start&&
-    t+duration<=end
-  );
-}
-
-
-function isAppointmentFree(date,time,duration,ignoreId=""){
-
-  if(!isWithinHours(date,time,duration))return false;
-
-  const start=toMinutes(time);
-  const end=start+duration;
-
-  return!getAppointments().some(a=>{
-
-    if(
-      a.id===ignoreId||
-      a.status==="cancellato"||
-      a.d!==date
-    )return false;
-
-    const s=toMinutes(a.t);
-
-    if(s===null)return false;
-
-    const e=s+serviceDuration(getService(a.s));
-
-    return start<e&&end>s;
-
-  });
-}
-
-
-function getSlots(date,serviceName){
-
-  const service=getService(serviceName);
-  const duration=serviceDuration(service);
-  const h=getHoursForDate(date);
-  const slots=[];
-
-  if(h.closed)return slots;
-
-  const start=toMinutes(h.start);
-  const end=toMinutes(h.end);
-
-  if(start===null||end===null)return slots;
-
-  for(let m=start;m+duration<=end;m+=30){
-
-    const t=
-      String(Math.floor(m/60)).padStart(2,"0")+
-      ":"+
-      String(m%60).padStart(2,"0");
-
-    if(isAppointmentFree(date,t,duration))slots.push(t);
-  }
-
-  return slots;
-}
-
-
-function renderCalendar(){
-
-  const date=$("calendarDate").value||dateKey(new Date());
-  const box=$("calendar");
-  const title=$("calendarTitle");
-
-  if(!box)return;
-
-  title.textContent=formatAppointmentDate(date);
-
-  const h=getHoursForDate(date);
-
-  if(h.closed){
-    box.innerHTML='<div class="calendar-empty">Attività chiusa.</div>';
-    return;
-  }
-
-  const start=toMinutes(h.start);
-  const end=toMinutes(h.end);
-
-  if(start===null||end===null){
-    box.innerHTML='<div class="calendar-empty">Configura gli orari nelle impostazioni.</div>';
-    return;
-  }
-
-  let html="";
-
-  for(let m=start;m<end;m+=30){
-
-    const t=
-      String(Math.floor(m/60)).padStart(2,"0")+
-      ":"+
-      String(m%60).padStart(2,"0");
-
-    const a=getAppointments().find(
-      x=>x.d===date&&x.t===t&&x.status!=="cancellato"
-    );
-
-    html+=`
-
-      <div class="slot">
-
-        <div class="slot-time">${t}</div>
-
-        <div
-          class="slot-box ${a?"busy":"free"}"
-          ${a?"":`onclick="selectCalendarSlot('${t}')"`}>
-
-          ${
-            a
-              ?`
-                <b>${esc(a.n)}</b>
-                <br>
-                <span class="muted">${esc(a.s)}</span>
-              `
-              :"Disponibile"
-          }
-
-        </div>
-
-      </div>
-    `;
-  }
-
-  box.innerHTML=
-    html||
-    '<div class="calendar-empty">Nessun orario.</div>';
-}
-
-
-function selectCalendarSlot(time){
-
-  const date=$("calendarDate").value;
-
-  if(!date)return;
-
-  $("d").value=date;
-  $("t").value=time;
-
-  $("appointmentStatus").textContent=`Orario ${time} selezionato.`;
-
-  $("n").focus();
-}
-
-
-function changeDay(offset){
-
-  const input=$("calendarDate");
-
-  const d=new Date(
-    (input.value||dateKey(new Date()))+"T12:00:00"
-  );
-
-  d.setDate(d.getDate()+offset);
-
-  input.value=dateKey(d);
-  $("d").value=input.value;
-
-  renderCalendar();
-  renderDayAppointments();
-}
-
-
-function createAppointmentRecord(
-  name,
-  date,
-  time,
-  service,
-  status="confermato"
-){
-
-  const client=upsertClient(name);
-
-  return{
-    id:"apt_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),
-    n:name,
-    d:date,
-    t:time,
-    s:service,
-    clientId:client?.id||"",
-    status,
-    createdAt:new Date().toISOString(),
-    updatedAt:new Date().toISOString()
-  };
-}
-
-
-function addAppointment(){
-
-  const name=$("n").value.trim();
-  const date=$("d").value;
-  const time=$("t").value;
-  const service=$("s").value;
-
-  if(!name||!date||!time||!service){
-    $("appointmentStatus").textContent=
-      "Compila nome, data, orario e servizio.";
-    return;
-  }
-
-  const duration=serviceDuration(getService(service));
-
-  if(!isAppointmentFree(date,time,duration)){
-    $("appointmentStatus").textContent=
-      "L'orario non è disponibile.";
-    return;
-  }
-
-  updateAppData(
-    data=>data.appointments.push(
-      createAppointmentRecord(name,date,time,service)
-    )
-  );
-
-  syncLegacyKeys();
-
-  ["n","d","t"].forEach(id=>$(id).value="");
-  $("s").value="";
-
-  $("appointmentStatus").textContent="Appuntamento salvato.";
-
-  renderAppointments();
-  renderDayAppointments();
-  renderCalendar();
-  renderClients();
-  updateDashboard();
-}
-
-
-function statusLabel(status){
-
-  if(status==="completato")return"Completato";
-  if(status==="cancellato")return"Cancellato";
-
-  return"Confermato";
-}
-
-
-function appointmentHTML(a,history=false){
-
-  const cls=
-    a.status==="completato"
-      ?"status-completed"
-      :a.status==="cancellato"
-        ?"status-cancelled"
-        :"status-confirmed";
-
-  return`
-
-    <div class="appointment-item">
-
-      <b>${esc(a.n)}</b>
-
-      <div>
-        ${esc(formatAppointmentDate(a.d))}
-        ·
-        ${esc(a.t)}
-      </div>
-
-      <div>${esc(a.s)}</div>
-
-      <span class="badge ${cls}">
-        ${statusLabel(a.status)}
-      </span>
-
-      ${
-        history
-          ?""
-          :`
-            <div class="appointment-actions">
-
-              ${
-                a.status!=="completato"&&
-                a.status!=="cancellato"
-                  ?`
-                    <button class="success small-button"
-                      onclick="completeAppointment('${esc(a.id)}')">
-                      Completa
-                    </button>
-                  `
-                  :""
-              }
-
-              <button class="secondary small-button"
-                onclick="moveAppointment('${esc(a.id)}')">
-                Modifica
-              </button>
-
-              ${
-                a.status==="cancellato"
-                  ?`
-                    <button class="warning small-button"
-                      onclick="restoreAppointment('${esc(a.id)}')">
-                      Ripristina
-                    </button>
-                  `
-                  :`
-                    <button class="danger small-button"
-                      onclick="cancelAppointmentRecord('${esc(a.id)}')">
-                      Cancella
-                    </button>
-                  `
-              }
-
-            </div>
-          `
-      }
-
-    </div>
-  `;
-}
-
-
-function renderDayAppointments(){
-
-  const date=$("calendarDate").value;
-  const box=$("dayAppointments");
-
-  if(!box)return;
-
-  const list=getAppointments()
-    .filter(a=>a.d===date)
-    .sort((a,b)=>a.t.localeCompare(b.t));
-
-  box.innerHTML=
-    list.length
-      ?list.map(a=>appointmentHTML(a)).join("")
-      :`
-        <div class="empty-state">
-          Nessun appuntamento per questa giornata.
-        </div>
-      `;
-}
-
-
-function renderAppointments(){
-
-  const box=$("list");
-  const searchBox=$("searchResults");
-
-  const q=(
-    $("appointmentSearch")?.value||""
-  ).trim().toLowerCase();
-
-  const list=getAppointments()
-    .filter(
-      a=>!q||a.n.toLowerCase().includes(q)
-    )
-    .sort(
-      (a,b)=>
-        `${b.d}${b.t}`.localeCompare(`${a.d}${a.t}`)
-    );
-
-  if(box){
-    box.innerHTML=
-      list.length
-        ?list.map(a=>appointmentHTML(a)).join("")
-        :`
-          <div class="empty-state">
-            Nessun appuntamento.
-          </div>
-        `;
-  }
-
-  if(searchBox){
-    searchBox.innerHTML=
-      q
-        ?(
-          list.length
-            ?list.map(a=>appointmentHTML(a)).join("")
-            :`
-              <div class="empty-state">
-                Nessun risultato.
-              </div>
-            `
-        )
-        :"";
-  }
-}
-
-
-function openEditAppointment(id){
-
-  const a=getAppointments().find(x=>x.id===id);
-
-  if(!a)return;
-
-  $("editAppointmentId").value=a.id;
-  $("editAppointmentName").value=a.n;
-  $("editAppointmentDate").value=a.d;
-  $("editAppointmentTime").value=a.t;
-  $("editAppointmentStatus").value=a.status;
-
-  populateServiceSelects();
-
-  $("editAppointmentService").value=a.s;
-
-  $("editAppointmentError").classList.remove("show");
-
-  $("appointmentModal").classList.add("open");
-}
-
-
-function closeAppointmentModal(){
-  $("appointmentModal").classList.remove("open");
-}
-
-
-function saveEditedAppointment(){
-
-  const id=$("editAppointmentId").value;
-  const name=$("editAppointmentName").value.trim();
-  const date=$("editAppointmentDate").value;
-  const time=$("editAppointmentTime").value;
-  const service=$("editAppointmentService").value;
-  const status=$("editAppointmentStatus").value;
-  const error=$("editAppointmentError");
-
-  if(!name||!date||!time||!service){
-
-    error.textContent="Compila tutti i campi.";
-    error.classList.add("show");
-
-    return;
-  }
-
-  const duration=serviceDuration(getService(service));
-
-  if(
-    status!=="cancellato"&&
-    !isAppointmentFree(date,time,duration,id)
-  ){
-
-    error.textContent="L'orario scelto non è disponibile.";
-    error.classList.add("show");
-
-    return;
-  }
-
-  const client=upsertClient(name);
-
-  updateAppData(data=>{
-
-    const a=data.appointments.find(x=>x.id===id);
-
-    if(a){
-
-      a.n=name;
-      a.d=date;
-      a.t=time;
-      a.s=service;
-      a.clientId=client?.id||a.clientId;
-      a.status=status;
-      a.updatedAt=new Date().toISOString();
-
-    }
-
-  });
-
-  syncLegacyKeys();
-
-  closeAppointmentModal();
-
-  renderAppointments();
-  renderDayAppointments();
-  renderCalendar();
-  renderClients();
-  updateDashboard();
-}
-
-
-function completeAppointment(id){
-
-  updateAppData(data=>{
-
-    const a=data.appointments.find(x=>x.id===id);
-
-    if(a){
-      a.status="completato";
-      a.updatedAt=new Date().toISOString();
-    }
-
-  });
-
-  syncLegacyKeys();
-
-  renderAppointments();
-  renderDayAppointments();
-  renderCalendar();
-  updateDashboard();
-}
-
-
-function cancelAppointmentRecord(id){
-
-  const appointment=getAppointments().find(item=>item.id===id);
-
-  if(!appointment||appointment.status==="cancellato")return;
-
-  if(
-    !confirm(
-      `Cancellare l'appuntamento di ${appointment.n} del ${formatAppointmentDate(appointment.d)} alle ${appointment.t}?`
-    )
-  )return;
-
-  updateAppData(data=>{
-
-    const item=data.appointments.find(a=>a.id===id);
-
-    if(item){
-      item.status="cancellato";
-      item.updatedAt=new Date().toISOString();
-    }
-
-  });
-
-  syncLegacyKeys();
-
-  renderCalendar();
-  renderDayAppointments();
-  renderAppointments();
-  updateDashboard();
-
-  $("appointmentStatus").textContent="Appuntamento cancellato.";
-}
-
-
-function restoreAppointment(id){
-
-  const appointment=getAppointments().find(item=>item.id===id);
-
-  if(!appointment)return;
-
-  const service=getService(appointment.s);
-  const duration=service?Number(service.duration)||30:30;
-
-  if(
-    !isAppointmentFree(
-      appointment.d,
-      appointment.t,
-      duration,
-      id
-    )
-  ){
-
-    alert(
-      "Non è possibile ripristinare l'appuntamento: lo stesso orario non è più disponibile."
-    );
-
-    return;
-  }
-
-  if(!confirm(`Ripristinare l'appuntamento di ${appointment.n}?`))return;
-
-  updateAppData(data=>{
-
-    const item=data.appointments.find(a=>a.id===id);
-
-    if(item){
-      item.status="confermato";
-      item.updatedAt=new Date().toISOString();
-    }
-
-  });
-
-  syncLegacyKeys();
-
-  renderCalendar();
-  renderDayAppointments();
-  renderAppointments();
-  updateDashboard();
-}
-
-
-function moveAppointment(id){
-  openEditAppointment(id);
-}
-
-
-function showAvailableSlots(slots,date,service){
-
-  if(!Array.isArray(slots)||!slots.length)return;
-
-  document.querySelectorAll(".available-slot-actions")
-    .forEach(e=>e.remove());
-
-  const container=document.createElement("div");
-  container.className="ai-actions available-slot-actions";
-
-  const title=document.createElement("div");
-  title.className="available-title";
-
-  title.textContent=
-    service
-      ?`${service} — orari disponibili`
-      :"Orari disponibili";
-
-  container.appendChild(title);
-
-  slots.forEach(time=>{
-
-    const button=document.createElement("button");
-
-    button.className="ai-slot-button";
-    button.textContent=time;
-
-    button.onclick=()=>selectAISlot(
-      button,
-      time,
-      date,
-      service
-    );
-
-    container.appendChild(button);
-
-  });
-
-  $("chat").appendChild(container);
-  $("chat").scrollTop=$("chat").scrollHeight;
-}
-
-
-function selectAISlot(button,time,date,service){
-
-  if(requestInProgress||button.disabled)return;
-
-  document.querySelectorAll(".ai-slot-button")
-    .forEach(b=>b.disabled=true);
-
-  let selectedService=
-    service||
-    pendingAppointment?.service||
-    $("s").value||
-    "";
-
-  const selectedDate=
-    date||
-    pendingAppointment?.date||
-    $("d").value||
-    $("calendarDate").value;
-
-  const selectedName=
-    pendingAppointment?.name||
-    $("clientName").value.trim()||
-    $("n").value.trim()||
-    "";
-
-  const serviceObject=getService(selectedService);
-
-  if(serviceObject){
-
-    selectedService=serviceObject.name;
-    $("s").value=serviceObject.name;
-  }
-
-  pendingAppointment={
-    name:selectedName,
-    date:selectedDate,
-    time,
-    service:selectedService
-  };
-
-  requiresConfirmation=false;
-
-  savePendingState();
-
-  $("d").value=selectedDate;
-  $("t").value=time;
-
-  $("appointmentStatus").textContent=
-    `Orario ${time} selezionato per ${selectedService||"il servizio"}.`;
-
-  $("q").value=`Scelgo le ${time}`;
-
-  send();
-}
-
-
-function renderPendingBox(){
-
-  const box=$("pendingBox");
-
-  if(!box)return;
-
-  if(!pendingAppointment){
-    box.innerHTML="";
-    return;
-  }
-
-  const service=pendingAppointment.service||"Servizio";
-  const date=pendingAppointment.date||"";
-  const time=pendingAppointment.time||"";
-  const name=pendingAppointment.name||"";
-
-  box.innerHTML=`
-
-    <div class="pending-box">
-
-      <b>Prenotazione in corso</b>
-
-      <br>
-
-      ${esc(service)}
-
-      ${
-        date
-          ?`<br>${esc(formatAppointmentDate(date))}`
-          :""
-      }
-
-      ${
-        time
-          ?` · ${esc(time)}`
-          :""
-      }
-
-      ${
-        name
-          ?`<br>Cliente: ${esc(name)}`
-          :""
-      }
-
-    </div>
-  `;
-}
-
-
-function showConfirmationButtons(){
-
-  document.getElementById("confirmationActions")?.remove();
-
-  const container=document.createElement("div");
-
-  container.id="confirmationActions";
-  container.className="ai-actions";
-
-  const confirm=document.createElement("button");
-
-  confirm.className="ai-confirm-button";
-  confirm.textContent="Conferma appuntamento";
-  confirm.onclick=()=>confirmAppointment(confirm);
-
-  const cancel=document.createElement("button");
-
-  cancel.className="ai-cancel-button";
-  cancel.textContent="Annulla";
-  cancel.onclick=()=>cancelAppointment(cancel);
-
-  container.append(confirm,cancel);
-
-  $("chat").appendChild(container);
-  $("chat").scrollTop=$("chat").scrollHeight;
-}
-
-
-function confirmAppointment(button){
-
-  if(
-    requestInProgress||
-    !pendingAppointment||
-    !requiresConfirmation
-  )return;
-
-  button.disabled=true;
-  button.textContent="Conferma in corso...";
-
-  $("q").value="Confermo l'appuntamento";
-
-  send();
-}
-
-
-function cancelAppointment(button){
-
-  if(
-    requestInProgress||
-    !pendingAppointment||
-    !requiresConfirmation
-  )return;
-
-  button.disabled=true;
-  button.textContent="Annullamento...";
-
-  $("q").value="Annulla";
-
-  send();
-}
-
-
-async function send(){
-
-  if(requestInProgress)return;
-
-  const message=$("q").value.trim();
-
-  if(!message)return;
-
-  requestInProgress=true;
-
-  $("q").disabled=true;
-  $("sendButton").disabled=true;
-
-  $("chat").classList.add("ai-busy");
-
-  $("chat").innerHTML+=
-    `<div class="msg user">${esc(message)}</div>`;
-
-  chatHistory.push({
-    role:"user",
-    content:message
-  });
-
-  chatHistory=chatHistory.slice(-20);
-
-  $("status").textContent=
-    "L'assistente sta verificando i dati...";
-
-  try{
-
-    const settings=getSettings();
-
-    const payload={
-
-      message,
-
-      business:
-        getAppData().business.name||
-        settings.name||
-        "Attività locale",
-
-      clientName:$("clientName").value.trim(),
-
-      settings,
-
-      services:getServices(),
-
-      appointments:getAppointments(),
-
-      promotions:getPromotions(),
-
-      clients:getClients(),
-
-      history:chatHistory.slice(0,-1),
-
-      pendingAppointment:
-        pendingAppointment
-          ?{
-            name:pendingAppointment.name||"",
-            date:pendingAppointment.date||"",
-            time:pendingAppointment.time||"",
-            service:pendingAppointment.service||""
-          }
-          :null,
-
-      requiresConfirmation:Boolean(requiresConfirmation)
-
-    };
-
-    const response=await fetch(
-      "/api/chat",
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(payload)
-      }
-    );
-
-    let data;
-
-    try{
-      data=await response.json();
-    }catch{
-      throw new Error(
-        "Il server ha restituito una risposta non valida."
-      );
-    }
-
-    if(!response.ok){
-      throw new Error(data.error||"Errore del server.");
-    }
-
-    const reply=
-      data.reply||
-      "Non ho ricevuto una risposta dall'assistente.";
-
-    chatHistory.push({
-      role:"assistant",
-      content:reply
-    });
-
-    $("chat").innerHTML+=
-      `<div class="msg bot">${esc(reply)}</div>`;
-
-    if(
-      Array.isArray(data.availableSlots)&&
-      data.availableSlots.length
-    ){
-
-      const alternativeDate=
-        data.availableDate||
-        pendingAppointment?.date||
-        "";
-
-      const alternativeService=
-        data.availableService||
-        pendingAppointment?.service||
-        "";
-
-      pendingAppointment={
-
-        name:
-          pendingAppointment?.name||
-          $("clientName").value.trim()||
-          "",
-
-        date:alternativeDate,
-
-        time:
-          pendingAppointment?.time||
-          "",
-
-        service:alternativeService
-      };
-
-      requiresConfirmation=false;
-
-      savePendingState();
-      renderPendingBox();
-
-      showAvailableSlots(
-        data.availableSlots,
-        alternativeDate,
-        alternativeService
-      );
-    }
-
-    if(data.pendingAppointment){
-
-      pendingAppointment={
-
-        name:
-          data.pendingAppointment.name||
-          pendingAppointment?.name||
-          $("clientName").value.trim()||
-          "",
-
-        date:
-          data.pendingAppointment.date||
-          pendingAppointment?.date||
-          "",
-
-        time:
-          data.pendingAppointment.time||
-          pendingAppointment?.time||
-          "",
-
-        service:
-          data.pendingAppointment.service||
-          pendingAppointment?.service||
-          ""
-      };
-
-      requiresConfirmation=Boolean(
-        data.requiresConfirmation
-      );
-
-      savePendingState();
-      renderPendingBox();
-
-      if(requiresConfirmation)showConfirmationButtons();
-    }
-
-    if(data.confirmed===true&&data.appointment){
-
-      const appointment=data.appointment;
-      const appointments=getAppointments();
-
-      const duplicate=appointments.some(
-        existing=>
-          existing.status!=="cancellato"&&
-          existing.d===appointment.date&&
-          existing.t===appointment.time
-      );
-
-      if(!duplicate){
-
-        const client=upsertClient(appointment.name);
-
-        updateAppData(dataStore=>{
-
-          dataStore.appointments.push({
-
-            id:
-              appointment.bookingKey||
-              "apt_"+Date.now(),
-
-            n:appointment.name,
-            d:appointment.date,
-            t:appointment.time,
-            s:appointment.service,
-
-            clientId:client?.id||"",
-
-            status:"confermato",
-
-            createdAt:new Date().toISOString(),
-            updatedAt:new Date().toISOString()
-
-          });
-
-        });
-      }
-
-      syncLegacyKeys();
-
-      clearPendingState();
-
-      renderAppointments();
-      renderDayAppointments();
-      renderCalendar();
-      renderClients();
-      updateDashboard();
-
-      if(!$("clientName").value.trim()){
-        $("clientName").value=appointment.name||"";
-      }
-    }
-
-    if(
-      data.confirmed===false&&
-      data.requiresConfirmation===false&&
-      !data.pendingAppointment&&
-      message.toLowerCase().includes("annulla")
-    ){
-      clearPendingState();
-    }
-
-  }catch(error){
-
-    chatHistory.pop();
-
-    $("chat").innerHTML+=
-      `<div class="msg bot">
-        Si è verificato un problema:
-        ${esc(error.message)}
-      </div>`;
-  }
-
-  finally{
-
-    requestInProgress=false;
-
-    $("q").disabled=false;
-    $("sendButton").disabled=false;
-
-    $("chat").classList.remove("ai-busy");
-
-    $("status").textContent="";
-    $("q").value="";
-
-    $("chat").scrollTop=$("chat").scrollHeight;
-
-    document.querySelectorAll(".ai-slot-button")
-      .forEach(button=>button.disabled=false);
-  }
-}
-
-
-function clientAppointments(id){
-
-  return getAppointments().filter(
-    a=>a.clientId===id
-  );
-}
-
-
-function renderClients(){
-
-  const box=$("clientsList");
-
-  if(!box)return;
-
-  const q=(
-    $("clientSearch")?.value||""
-  ).trim().toLowerCase();
-
-  const list=getClients().filter(
-    c=>
-      !q||
-      [c.name,c.phone,c.email].some(
-        v=>String(v||"").toLowerCase().includes(q)
-      )
-  );
-
-  box.innerHTML=
-    list.length
-      ?list.map(c=>{
-
-        const n=clientAppointments(c.id).length;
-
-        return`
-
-          <div class="client-item">
-
-            <b>${esc(c.name)}</b>
-
-            ${
-              c.phone
-                ?`<div class="muted">${esc(c.phone)}</div>`
-                :""
-            }
-
-            ${
-              c.email
-                ?`<div class="muted">${esc(c.email)}</div>`
-                :""
-            }
-
-            <div class="client-stat">
-              ${n}
-              ${n===1?" appuntamento":" appuntamenti"}
-            </div>
-
-            <div class="client-actions">
-
-              <button class="primary small-button"
-                onclick="openClient('${esc(c.id)}')">
-                Apri scheda
-              </button>
-
-              <button class="secondary small-button"
-                onclick="editClient('${esc(c.id)}')">
-                Modifica
-              </button>
-
-            </div>
-
-          </div>
-        `;
-
-      }).join("")
-      :`
-        <div class="empty-state">
-          Nessun cliente trovato.
-        </div>
-      `;
-}
-
-
-function openClient(id){
-
-  const c=getClients().find(x=>x.id===id);
-
-  if(!c)return;
-
-  const a=clientAppointments(id).sort(
-    (x,y)=>
-      `${y.d}${y.t}`.localeCompare(`${x.d}${x.t}`)
-  );
-
-  $("clientsList").innerHTML=`
-
-    <div class="client-item">
-
-      <b>${esc(c.name)}</b>
-
-      ${
-        c.phone
-          ?`<div>Telefono: ${esc(c.phone)}</div>`
-          :""
-      }
-
-      ${
-        c.email
-          ?`<div>Email: ${esc(c.email)}</div>`
-          :""
-      }
-
-      ${
-        c.notes
-          ?`<p class="muted">${esc(c.notes)}</p>`
-          :""
-      }
-
-      <div class="client-stat">
-        ${a.length}
-        ${a.length===1?" appuntamento":" appuntamenti"}
-      </div>
-
-      <div class="client-history">
-
-        ${
-          a.length
-            ?a.map(
-              x=>appointmentHTML(x,true)
-            ).join("")
-            :`
-              <p class="muted">
-                Nessun appuntamento.
-              </p>
-            `
-        }
-
-      </div>
-
-      <div class="client-actions">
-
-        <button class="secondary small-button"
-          onclick="editClient('${esc(c.id)}')">
-          Modifica dati
-        </button>
-
-        <button class="danger small-button"
-          onclick="deleteClient('${esc(c.id)}')">
-          Elimina cliente
-        </button>
-
-        <button class="secondary small-button"
-          onclick="renderClients()">
-          Torna all'elenco
-        </button>
-
-      </div>
-
-    </div>
-  `;
-}
-
-
-function saveClient(){
-
-  const name=$("newClientName").value.trim();
-
-  if(!name){
-    $("clientStatus").textContent=
-      "Inserisci il nome del cliente.";
-    return;
-  }
-
-  upsertClient(
-    name,
-    {
-      phone:$("newClientPhone").value,
-      email:$("newClientEmail").value,
-      notes:$("newClientNotes").value
-    }
-  );
-
-  [
-    "newClientName",
-    "newClientPhone",
-    "newClientEmail",
-    "newClientNotes"
-  ].forEach(id=>$(id).value="");
-
-  $("clientStatus").textContent="Cliente salvato.";
-
-  renderClients();
-  updateDashboard();
-}
-
-
-function editClient(id){
-
-  const c=getClients().find(x=>x.id===id);
-
-  if(!c)return;
-
-  const name=prompt("Nome e cognome",c.name);
-  if(name===null)return;
-
-  const phone=prompt("Telefono",c.phone||"");
-  if(phone===null)return;
-
-  const email=prompt("Email",c.email||"");
-  if(email===null)return;
-
-  const notes=prompt("Note",c.notes||"");
-  if(notes===null)return;
-
-  updateAppData(data=>{
-
-    const x=data.clients.find(v=>v.id===id);
-
-    if(x){
-
-      x.name=name.trim()||x.name;
-      x.phone=phone.trim();
-      x.email=email.trim();
-      x.notes=notes.trim();
-      x.updatedAt=new Date().toISOString();
-
-      data.appointments.forEach(a=>{
-        if(a.clientId===id)a.n=x.name;
-      });
-    }
-
-  });
-
-  renderClients();
-  renderAppointments();
-  updateDashboard();
-  syncLegacyKeys();
-}
-
-
-function deleteClient(id){
-
-  const c=getClients().find(x=>x.id===id);
-
-  if(!c)return;
-
-  if(
-    !confirm(
-      `Eliminare la scheda di ${c.name}? Gli appuntamenti resteranno archiviati.`
-    )
-  )return;
-
-  updateAppData(data=>{
-
-    data.clients=data.clients.filter(x=>x.id!==id);
-
-    data.appointments.forEach(a=>{
-      if(a.clientId===id)a.clientId="";
-    });
-
-  });
-
-  renderClients();
-  renderAppointments();
-  updateDashboard();
-  syncLegacyKeys();
-}
-
-
-/* =========================
-   POST AI
-========================= */
-
-
-function setPostMode(mode){
-
-  postMode=mode;
-
-  $("postModeQuick").classList.toggle(
-    "active",
-    mode==="quick"
-  );
-
-  $("postModeAdvanced").classList.toggle(
-    "active",
-    mode==="advanced"
-  );
-
-  $("postAdvancedFields").style.display=
-    mode==="advanced"
-      ?"block"
-      :"none";
-}
-
-
-function selectPostPlatform(platform){
-
-  postPlatform=platform;
-
-  document.querySelectorAll(".post-platform")
-    .forEach(button=>{
-      button.classList.toggle(
-        "active",
-        button.dataset.platform===platform
-      );
-    });
-}
-
-
-function updatePostContentOptions(){
-
-  const type=$("postContentType").value;
-  const box=$("postContentSelection");
-
-  if(!box)return;
-
-  if(type==="servizio"){
-
-    const services=getServices();
-
-    box.innerHTML=`
-
-      <label>Servizio</label>
-
-      <select id="postService">
-
-        <option value="">Seleziona un servizio</option>
-
-        ${
-          services.map(
-            s=>`
-              <option value="${esc(s.name)}">
-                ${esc(s.name)}
-              </option>
-            `
-          ).join("")
-        }
-
-      </select>
-    `;
-
-    return;
-  }
-
-
-  if(type==="promozione"){
-
-    const promotions=getPromotions();
-
-    box.innerHTML=`
-
-      <label>Promozione</label>
-
-      <select id="postPromotion">
-
-        <option value="">Seleziona una promozione</option>
-
-        ${
-          promotions.map(
-            p=>`
-              <option value="${esc(p.id)}">
-                ${esc(p.title)}
-              </option>
-            `
-          ).join("")
-        }
-
-      </select>
-    `;
-
-    return;
-  }
-
-
-  box.innerHTML="";
-
-}
-
-
-function getSelectedPostData(){
-
-  const type=$("postContentType").value;
-
-  let selected=null;
-
-  if(type==="servizio"){
-
-    const name=
-      $("postService")?.value||"";
-
-    selected=getServices().find(
-      s=>
-        String(s.name||"").toLowerCase()===
-        name.toLowerCase()
-    );
-
-  }
-
-
-  if(type==="promozione"){
-
-    const id=
-      $("postPromotion")?.value||"";
-
-    selected=getPromotions().find(
-      p=>String(p.id)===String(id)
-    );
-
-  }
-
-  return selected;
-}
-
-
-function getPostPlatformLabel(){
-
-  return{
-    instagram:"Instagram",
-    facebook:"Facebook",
-    whatsapp:"WhatsApp",
-    google:"Google",
-    tiktok:"TikTok",
-    generic:"Generico"
-  }[postPlatform]||"Generico";
-}
-
-
-function getPostTypeLabel(){
-
-  return{
-    servizio:"Servizio",
-    promozione:"Promozione",
-    novita:"Novità",
-    evento:"Evento",
-    informazione:"Informazione",
-    generico:"Post generico"
-  }[$("postContentType").value]||"Post";
-}
-
-
-function buildPostPayload(){
-
-  const settings=getSettings();
-  const selected=getSelectedPostData();
-  const contentType=$("postContentType").value;
-
-  return{
-
-    action:"post",
-
-    business:
-      getAppData().business.name||
-      settings.name||
-      "Attività locale",
-
-    settings,
-
-    contentType,
-
-    contentTypeLabel:getPostTypeLabel(),
-
-    selectedContent:selected||null,
-
-    topic:
-      $("postTopic").value.trim(),
-
-    platform:postPlatform,
-
-    platformLabel:getPostPlatformLabel(),
-
-    style:
-      $("postStyle").value,
-
-    goal:
-      $("postGoal").value,
-
-    advanced:
-      postMode==="advanced",
-
-    audience:
-      postMode==="advanced"
-        ?$("postAudience").value.trim()
-        :"",
-
-    callToAction:
-      postMode==="advanced"
-        ?$("postCTA").value.trim()
-        :"",
-
-    customMessage:
-      postMode==="advanced"
-        ?$("postCustomMessage").value.trim()
-        :"",
-
-    services:getServices(),
-
-    promotions:getPromotions(),
-
-    appointments:getAppointments()
-
-  };
-}
-
-
-async function generatePost(){
-
-  const button=$("generatePostButton");
-  const status=$("postStatus");
-
-  if(button.disabled)return;
-
-  const payload=buildPostPayload();
-
-  lastPostConfig=JSON.parse(
-    JSON.stringify(payload)
-  );
-
-  button.disabled=true;
-
-  button.innerHTML=`
-    <span class="post-loading">
-      <span class="post-dot"></span>
-      Generazione in corso...
-    </span>
-  `;
-
-  status.textContent=
-    "L'AI sta preparando un contenuto adatto alla piattaforma selezionata...";
-
-  try{
-
-    const response=await fetch(
-      "/api/chat",
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify(payload)
-      }
-    );
-
-    let data;
-
-    try{
-      data=await response.json();
-    }catch{
-      throw new Error(
-        "Il server ha restituito una risposta non valida."
-      );
-    }
-
-    if(!response.ok){
-      throw new Error(
-        data.error||
-        "Errore nella generazione."
-      );
-    }
-
-    const result=
-      data.reply||
-      data.post||
-      "";
-
-    if(!result){
-      throw new Error(
-        "L'AI non ha restituito alcun contenuto."
-      );
-    }
-
-    $("out").value=result;
-
-    $("postResultMeta").textContent=
-      `${getPostPlatformLabel()} · ${getPostTypeLabel()}`;
-
-    $("postResultCard").style.display="block";
-
-    status.textContent="Post generato.";
-
-    $("postResultCard").scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
-
-  }catch(error){
-
-    status.textContent=
-      "Errore: "+error.message;
-
-  }finally{
-
-    button.disabled=false;
-
-    button.textContent=
-      "✨ Genera post con AI";
-  }
-}
-
-
-function regeneratePost(){
-
-  if(!lastPostConfig){
-
-    generatePost();
-
-    return;
-  }
-
-  generatePost();
+return x
 }
 
+function persist(update=true){
 
-function generateAnotherPost(){
+if(update){
 
-  const topic=$("postTopic");
+data.revision=(data.revision||0)+1;
 
-  if(topic){
+data.updatedAt=new Date().toISOString();
 
-    const old=topic.value.trim();
-
-    topic.value=
-      old
-        ?old+" — crea una variante completamente diversa"
-        :"Crea una variante completamente diversa";
-  }
-
-  generatePost();
 }
-
-
-function editPost(){
 
-  const output=$("out");
+localStorage.setItem(KEY,JSON.stringify(data));
 
-  if(!output)return;
+localStorage.setItem(BACKUP,JSON.stringify(data));
 
-  output.focus();
-
-  output.scrollIntoView({
-    behavior:"smooth",
-    block:"center"
-  });
 }
-
-
-async function copyPost(){
-
-  const text=$("out").value;
-
-  if(!text){
-
-    $("postStatus").textContent=
-      "Non c'è ancora nessun post da copiare.";
-
-    return;
-  }
-
-  try{
-
-    await navigator.clipboard.writeText(text);
-
-    $("postStatus").textContent=
-      "Post copiato negli appunti.";
-
-  }catch{
-
-    $("out").select();
 
-    document.execCommand("copy");
-
-    $("postStatus").textContent=
-      "Post copiato negli appunti.";
-  }
+function settings(){
+return data.settings
 }
-
-
-function saveGeneratedPost(){
-
-  const text=$("out").value.trim();
-
-  if(!text){
-
-    $("postStatus").textContent=
-      "Genera prima un post.";
-
-    return;
-  }
-
-  const now=new Date();
-
-  const item={
-
-    id:
-      "post_"+
-      Date.now()+
-      "_"+
-      Math.random()
-        .toString(36)
-        .slice(2,7),
-
-    text,
-
-    platform:postPlatform,
-
-    platformLabel:getPostPlatformLabel(),
-
-    contentType:$("postContentType").value,
-
-    contentTypeLabel:getPostTypeLabel(),
-
-    style:$("postStyle").value,
 
-    goal:$("postGoal").value,
-
-    createdAt:now.toISOString()
-
-  };
-
-  updateAppData(data=>{
-
-    if(!Array.isArray(data.postHistory)){
-      data.postHistory=[];
-    }
-
-    data.postHistory.unshift(item);
-
-    data.postHistory=
-      data.postHistory.slice(0,20);
-
-  });
-
-  $("postStatus").textContent=
-    "Post salvato.";
-
-  renderPostHistory();
+function save(){
+persist();
+renderAll();
 }
-
-
-function renderPostHistory(){
-
-  const box=$("postHistory");
-
-  if(!box)return;
-
-  const history=
-    getAppData().postHistory||[];
-
-  if(!history.length){
-
-    box.innerHTML=`
-      <div class="empty-state">
-        Nessun post salvato.
-      </div>
-    `;
 
-    return;
-  }
+function activeAppointments(){
 
-  box.innerHTML=
-    history.map(item=>{
+return data.appointments.filter(
+a=>!["cancellato","cancelled","annullato"]
+.includes(String(a.status||"confermato").toLowerCase())
+)
 
-      const date=item.createdAt
-        ?new Date(item.createdAt)
-            .toLocaleDateString(
-              "it-IT",
-              {
-                day:"2-digit",
-                month:"2-digit",
-                year:"numeric"
-              }
-            )
-        :"";
-
-      const preview=
-        String(item.text||"")
-          .replace(/\s+/g," ")
-          .slice(0,180);
-
-      return`
-
-        <div class="post-history-item">
-
-          <b>
-            ${esc(item.platformLabel||item.platform||"Post")}
-            ·
-            ${esc(item.contentTypeLabel||"Contenuto")}
-          </b>
-
-          <div class="post-history-meta">
-            ${esc(date)}
-            ${
-              item.style
-                ?" · "+esc(item.style)
-                :""
-            }
-          </div>
-
-          <div class="muted" style="margin-top:7px">
-            ${esc(preview)}${item.text.length>180?"…":""}
-          </div>
-
-          <div class="post-history-actions">
-
-            <button
-              class="primary small-button"
-              onclick="loadSavedPost('${esc(item.id)}')"
-            >
-              Apri
-            </button>
-
-            <button
-              class="danger small-button"
-              onclick="deleteSavedPost('${esc(item.id)}')"
-            >
-              Elimina
-            </button>
-
-          </div>
-
-        </div>
-      `;
-
-    }).join("");
 }
-
-
-function loadSavedPost(id){
-
-  const item=
-    (getAppData().postHistory||[])
-      .find(x=>x.id===id);
-
-  if(!item)return;
 
-  $("out").value=item.text||"";
+function showPage(id){
 
-  postPlatform=item.platform||"instagram";
+document.querySelectorAll(".page")
+.forEach(p=>p.classList.remove("active"));
 
-  selectPostPlatform(postPlatform);
+$(id).classList.add("active");
 
-  if(item.contentType){
+document.querySelectorAll("nav button")
+.forEach(b=>b.classList.toggle("active",b.dataset.page===id));
 
-    $("postContentType").value=
-      item.contentType;
+if(id==="calendar")
+renderCalendar();
 
-    updatePostContentOptions();
-  }
+if(id==="clients")
+renderClients();
 
-  if(item.style){
-    $("postStyle").value=item.style;
-  }
-
-  if(item.goal){
-    $("postGoal").value=item.goal;
-  }
-
-  $("postResultMeta").textContent=
-    `${item.platformLabel||getPostPlatformLabel()} · ${item.contentTypeLabel||"Post"}`;
-
-  $("postResultCard").style.display="block";
-
-  $("postResultCard").scrollIntoView({
-    behavior:"smooth",
-    block:"start"
-  });
-
-  $("postStatus").textContent=
-    "Post salvato caricato.";
 }
-
-
-function deleteSavedPost(id){
-
-  const item=
-    (getAppData().postHistory||[])
-      .find(x=>x.id===id);
 
-  if(!item)return;
+function esc(s){
 
-  if(!confirm("Eliminare questo post salvato?"))return;
+return String(s??"")
+.replace(/[&<>"']/g,c=>({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#39;"
+}[c]));
 
-  updateAppData(data=>{
-
-    data.postHistory=
-      (data.postHistory||[])
-        .filter(x=>x.id!==id);
-
-  });
-
-  renderPostHistory();
 }
-
-
-/* STORAGE EVENT */
-
-window.addEventListener(
-  "storage",
-  event=>{
-
-    if(
-      event.key===STORAGE_PRIMARY||
-      event.key===STORAGE_BACKUP
-    ){
-
-      appData=loadAppData();
-
-      renderServices();
-      renderPromotions();
-      renderAppointments();
-      renderDayAppointments();
-      renderCalendar();
-      renderClients();
-      updateDashboard();
-      loadSettings();
-      renderPostHistory();
-      updatePostContentOptions();
-    }
 
-  }
+function formatDate(d){
+
+if(!d)
+return "";
+
+return new Intl.DateTimeFormat(
+"it-IT",
+{dateStyle:"medium"}
+).format(new Date(d+"T12:00:00"));
+
+}
+
+function serviceByName(n){
+
+const t=String(n||"")
+.trim()
+.toLowerCase();
+
+return data.services.find(
+s=>String(s.name||"")
+.trim()
+.toLowerCase()===t
+)
+||
+data.services.find(
+s=>String(s.name||"")
+.toLowerCase().includes(t)
+||
+t.includes(String(s.name||"").toLowerCase())
 );
 
+}
 
-/* MODAL */
+function clientForName(n){
 
-$("appointmentModal")
-  .addEventListener(
-    "click",
-    event=>{
+const t=String(n||"")
+.trim()
+.toLowerCase();
 
-      if(event.target===$("appointmentModal")){
-        closeAppointmentModal();
-      }
+return data.clients.find(
+c=>String(c.name||"")
+.trim()
+.toLowerCase()===t
+);
 
-    }
-  );
+}
 
+function ensureClient(name){
 
-/* INIT */
+if(!name)
+return null;
 
-setupBreakRows();
+let c=clientForName(name);
 
-loadAppData();
+if(!c){
 
-syncLegacyKeys();
+c={
+id:uid(),
+name:name.trim(),
+phone:"",
+whatsapp:"",
+email:"",
+notes:"",
+createdAt:new Date().toISOString()
+};
 
-$("biz").value=
-  getAppData().business.name||
-  "Salone Bella Linea";
+data.clients.push(c);
 
-loadSettings();
+}
+
+return c
+
+}
+
+function renderAll(){
+
+$("welcome").textContent=
+data.business.name||
+data.settings.name||
+"La tua attività";
+
+$("stServices").textContent=data.services.length;
+
+$("stClients").textContent=data.clients.length;
+
+$("stAppointments").textContent=
+activeAppointments().length;
+
+$("stPromotions").textContent=
+data.promotions.length;
+
+fillSettings();
+
+renderHours();
 
 renderServices();
 
 renderPromotions();
 
-renderAppointments();
-
-updatePostContentOptions();
-
-renderPostHistory();
-
-(function(){
-
-  const today=new Date();
-
-  const date=
-    today.toISOString().slice(0,10);
-
-  $("calendarDate").value=date;
-  $("d").value=date;
-
-  renderCalendar();
-  renderDayAppointments();
-
-})();
-
-updateDashboard();
-
-renderPendingBox();
-
-</script>
-<!-- =========================================================
-     MAVIRI 2.0 — CENTRO OPERATIVO + MAVI VOICE
-     MODULO AUTONOMO
-     Inserire una sola volta prima di </body>
-     ========================================================= -->
-
-<style>
-/* =========================
-   MAVIRI OPERATING CENTER
-   ========================= */
-
-#maviriOperatingCenter{
-  width:100%;
-  margin:0 0 18px;
-  border-radius:24px;
-  overflow:hidden;
-  color:#fff;
-  background:
-    radial-gradient(circle at 85% 10%,rgba(96,165,250,.22),transparent 32%),
-    radial-gradient(circle at 10% 90%,rgba(59,130,246,.16),transparent 35%),
-    linear-gradient(135deg,#0f172a,#172554 58%,#1d4ed8);
-  box-shadow:0 14px 40px rgba(15,23,42,.18);
-  position:relative;
-  box-sizing:border-box;
-}
-
-#maviriOperatingCenter *{
-  box-sizing:border-box;
-}
-
-.maviri-inner{
-  padding:20px;
-  position:relative;
-  z-index:2;
-}
-
-.maviri-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-}
-
-.maviri-brand{
-  min-width:0;
-}
-
-.maviri-brand-name{
-  margin:0;
-  font-size:26px;
-  line-height:1.1;
-  font-weight:850;
-  letter-spacing:-.7px;
-}
-
-.maviri-brand-subtitle{
-  margin:5px 0 0;
-  font-size:13px;
-  color:#bfdbfe;
-}
-
-.mavi-orb{
-  width:72px;
-  height:72px;
-  min-width:72px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  background:
-    radial-gradient(
-      circle at 34% 28%,
-      #ffffff 0%,
-      #dbeafe 20%,
-      #93c5fd 40%,
-      #3b82f6 67%,
-      #1e3a8a 100%
-    );
-  box-shadow:
-    0 0 0 7px rgba(147,197,253,.10),
-    0 0 34px rgba(96,165,250,.42);
-  transition:transform .25s ease,box-shadow .25s ease;
-}
-
-.mavi-orb:before{
-  content:"";
-  position:absolute;
-  inset:-8px;
-  border-radius:50%;
-  border:1px solid rgba(191,219,254,.18);
-}
-
-.mavi-orb-core{
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  background:#fff;
-  box-shadow:0 0 18px rgba(255,255,255,.95);
-}
-
-.mavi-status{
-  margin-top:14px;
-  min-height:20px;
-  color:#dbeafe;
-  font-size:13px;
-  position:relative;
-  z-index:2;
-}
-
-.mavi-actions{
-  display:flex;
-  gap:9px;
-  margin-top:15px;
-  position:relative;
-  z-index:2;
-}
-
-#maviTalkButton,
-#maviStopButton{
-  appearance:none;
-  border:0;
-  outline:none;
-  cursor:pointer;
-  font:inherit;
-  border-radius:14px;
-  padding:12px 16px;
-  min-height:46px;
-  font-weight:800;
-  transition:transform .15s ease,opacity .15s ease,background .15s ease;
-}
-
-#maviTalkButton{
-  flex:1;
-  color:#1d4ed8;
-  background:#fff;
-}
-
-#maviTalkButton:active,
-#maviStopButton:active{
-  transform:scale(.98);
-}
-
-#maviTalkButton:hover{
-  background:#eff6ff;
-}
-
-#maviStopButton{
-  display:none;
-  color:#fff;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.18);
-}
-
-.mavi-message{
-  display:none;
-  margin-top:12px;
-  padding:12px 14px;
-  border-radius:14px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.10);
-  color:#e0f2fe;
-  font-size:13px;
-  line-height:1.45;
-}
-
-.mavi-message.show{
-  display:block;
-}
-
-.maviri-summary{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:9px;
-  margin-top:15px;
-}
-
-.maviri-summary-card{
-  min-width:0;
-  padding:12px;
-  border-radius:15px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.10);
-}
-
-.maviri-summary-value{
-  font-size:21px;
-  line-height:1.15;
-  font-weight:850;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.maviri-summary-label{
-  margin-top:5px;
-  color:#bfdbfe;
-  font-size:11px;
-}
-
-/* =========================
-   MAVI STATES
-   ========================= */
-
-html[data-mavi-state="listening"] .mavi-orb{
-  transform:scale(1.06);
-  animation:maviListening 1.1s infinite ease-in-out;
-  box-shadow:
-    0 0 0 10px rgba(96,165,250,.12),
-    0 0 42px rgba(96,165,250,.62);
-}
-
-html[data-mavi-state="processing"] .mavi-orb{
-  animation:maviProcessing .8s infinite linear;
-  box-shadow:
-    0 0 0 9px rgba(96,165,250,.11),
-    0 0 40px rgba(96,165,250,.55);
-}
-
-html[data-mavi-state="speaking"] .mavi-orb{
-  animation:maviSpeaking .55s infinite ease-in-out;
-  box-shadow:
-    0 0 0 9px rgba(96,165,250,.14),
-    0 0 48px rgba(96,165,250,.70);
-}
-
-@keyframes maviListening{
-  0%,100%{
-    transform:scale(1);
-  }
-  50%{
-    transform:scale(1.10);
-  }
-}
-
-@keyframes maviProcessing{
-  0%{
-    transform:rotate(0deg) scale(1);
-  }
-  50%{
-    transform:rotate(180deg) scale(1.04);
-  }
-  100%{
-    transform:rotate(360deg) scale(1);
-  }
-}
-
-@keyframes maviSpeaking{
-  0%,100%{
-    transform:scale(1);
-  }
-  50%{
-    transform:scale(1.13);
-  }
-}
-
-/* =========================
-   RESPONSIVE
-   ========================= */
-
-@media(max-width:600px){
-
-  .maviri-inner{
-    padding:17px;
-  }
-
-  .maviri-brand-name{
-    font-size:23px;
-  }
-
-  .mavi-orb{
-    width:62px;
-    height:62px;
-    min-width:62px;
-  }
-
-  .maviri-summary{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .maviri-summary-card:last-child{
-    grid-column:1/-1;
-  }
+renderCalendar();
 
 }
 
-@media(max-width:380px){
+function fillSettings(){
 
-  .maviri-summary{
-    grid-template-columns:1fr;
-  }
+const s=data.settings;
+const b=data.business;
 
-  .maviri-summary-card:last-child{
-    grid-column:auto;
-  }
+[
+["setName",b.name||s.name],
+["setType",b.type||s.type],
+["setDescription",b.description||s.description],
+["setAddress",b.address||s.address],
+["setPhone",b.phone||s.phone],
+["setWhatsapp",b.whatsapp||s.whatsapp]
+]
+.forEach(([id,v])=>{
+$(id).value=v||"";
+});
 
 }
-</style>
 
+function saveSettings(){
 
-<!-- =========================================================
-     MAVIRI OPERATING CENTER
-     ========================================================= -->
+const b={
+name:$("setName").value.trim(),
+type:$("setType").value.trim(),
+description:$("setDescription").value.trim(),
+address:$("setAddress").value.trim(),
+phone:$("setPhone").value.trim(),
+whatsapp:$("setWhatsapp").value.trim()
+};
 
-<section
-  id="maviriOperatingCenter"
-  aria-label="Centro operativo Maviri"
+data.business={
+...data.business,
+...b
+};
+
+data.settings={
+...data.settings,
+...b,
+hours:data.settings.hours
+};
+
+save();
+
+$("settingsStatus").textContent=
+"Impostazioni salvate.";
+
+}
+
+function renderHours(){
+
+const h=data.settings.hours;
+
+$("hours").innerHTML=
+DAYS.map((d,i)=>{
+
+const x=h[d]||{};
+
+return `
+<div class="list-item">
+<b>${DAY_LABEL[i]}</b>
+
+<div class="three">
+
+<label>
+<input
+type="checkbox"
+data-day="${d}"
+data-field="closed"
+${x.closed?"checked":""}>
+Chiuso
+</label>
+
+<input
+data-day="${d}"
+data-field="start"
+type="time"
+value="${x.start||""}">
+
+<input
+data-day="${d}"
+data-field="end"
+type="time"
+value="${x.end||""}">
+
+</div>
+
+<div class="three">
+
+<span class="muted">Pausa</span>
+
+<input
+data-day="${d}"
+data-field="breakStart"
+type="time"
+value="${x.breakStart||""}">
+
+<input
+data-day="${d}"
+data-field="breakEnd"
+type="time"
+value="${x.breakEnd||""}">
+
+</div>
+
+</div>
+`
+
+}).join("");
+
+}
+
+function saveHours(){
+
+document.querySelectorAll("[data-day]")
+.forEach(el=>{
+
+const d=el.dataset.day;
+const f=el.dataset.field;
+
+if(!data.settings.hours[d])
+data.settings.hours[d]={};
+
+data.settings.hours[d][f]=
+el.type==="checkbox"
+?el.checked
+:el.value;
+
+});
+
+save();
+
+}
+
+function renderServices(){
+
+$("servicesList").innerHTML=
+data.services.length
+?
+data.services.map((s,i)=>`
+
+<div class="list-item">
+
+<b>${esc(s.name)}</b>
+
+<div class="muted">
+${s.duration||30} min ·
+${s.price!==""&&s.price!=null
+?"€"+s.price
+:"Prezzo non impostato"}
+${s.description
+?" · "+esc(s.description)
+:""}
+</div>
+
+<div class="actions">
+<button
+class="danger small"
+onclick="deleteService(${i})">
+Elimina
+</button>
+</div>
+
+</div>
+
+`).join("")
+:
+`<div class="muted">Nessun servizio.</div>`;
+
+}
+
+function saveService(){
+
+const name=$("serviceName")
+.value.trim();
+
+if(!name)
+return;
+
+data.services.push({
+
+id:uid(),
+
+name,
+
+duration:
+Number($("serviceDuration").value)||30,
+
+price:
+$("servicePrice").value,
+
+description:
+$("serviceDescription").value.trim()
+
+});
+
+[
+"serviceName",
+"serviceDuration",
+"servicePrice",
+"serviceDescription"
+]
+.forEach(id=>$(id).value="");
+
+save();
+
+}
+
+function deleteService(i){
+
+if(confirm("Eliminare questo servizio?")){
+
+data.services.splice(i,1);
+
+save();
+
+}
+
+}
+
+function renderPromotions(){
+
+$("promotionsList").innerHTML=
+data.promotions.length
+?
+data.promotions.map((p,i)=>`
+
+<div class="list-item">
+
+<b>${esc(p.title)}</b>
+
+<div>
+${esc(p.description||"")}
+</div>
+
+<div class="muted">
+${p.start||""} → ${p.end||""}
+</div>
+
+<div class="actions">
+
+<button
+class="danger small"
+onclick="deletePromotion(${i})">
+Elimina
+</button>
+
+</div>
+
+</div>
+
+`).join("")
+:
+`<div class="muted">Nessuna promozione.</div>`;
+
+}
+
+function savePromotion(){
+
+const title=$("promoTitle")
+.value.trim();
+
+if(!title)
+return;
+
+data.promotions.push({
+
+id:uid(),
+
+title,
+
+description:
+$("promoDescription").value.trim(),
+
+start:
+$("promoStart").value,
+
+end:
+$("promoEnd").value
+
+});
+
+[
+"promoTitle",
+"promoDescription",
+"promoStart",
+"promoEnd"
+]
+.forEach(id=>$(id).value="");
+
+save();
+
+}
+
+function deletePromotion(i){
+
+if(confirm("Eliminare questa promozione?")){
+
+data.promotions.splice(i,1);
+
+save();
+
+}
+
+}
+
+async function businessApi(action,extra={}){
+
+const appointments=
+extra.__appointments||data.appointments;
+
+const payload={
+
+action,
+
+settings:data.settings,
+
+services:data.services,
+
+appointments,
+
+clients:data.clients,
+
+promotions:data.promotions,
+
+business:
+data.business?.name||
+data.settings?.name||
+"",
+
+...extra
+
+};
+
+delete payload.__appointments;
+
+const r=await fetch(
+"/api/chat",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(payload)
+}
+);
+
+let j={};
+
+try{
+j=await r.json();
+}
+catch{
+throw Error(
+"Risposta del server non valida."
+);
+}
+
+if(!r.ok)
+throw Error(
+j.error||
+"Errore del Business Engine."
+);
+
+return j;
+
+}
+
+async function availability(date,service){
+
+return businessApi(
+"availability",
+{
+date,
+service:service.name
+}
+);
+
+}
+
+async function bookAppointment(a){
+
+const r=await businessApi(
+"book",
+{
+date:a.date,
+time:a.time,
+service:a.service,
+name:a.name,
+clientName:a.name
+}
+);
+
+if(!r.bookingConfirmed)
+throw Error(
+r.error||
+"L'orario non è disponibile."
+);
+
+const ap={
+
+...r.appointment,
+
+id:
+r.appointment?.id||
+uid(),
+
+name:a.name,
+
+date:a.date,
+
+time:a.time,
+
+service:a.service,
+
+status:"confermato",
+
+createdAt:
+new Date().toISOString()
+
+};
+
+data.appointments.push(ap);
+
+ensureClient(a.name);
+
+save();
+
+return ap;
+
+}
+
+function changeDay(n){
+
+const d=new Date(
+($("calendarDate").value||today())+
+"T12:00:00"
+);
+
+d.setDate(
+d.getDate()+n
+);
+
+$("calendarDate").value=
+d.toISOString().slice(0,10);
+
+renderCalendar();
+
+}
+
+function renderCalendar(){
+
+const date=
+$("calendarDate").value||today();
+
+$("calendarDate").value=date;
+
+const dt=
+new Date(date+"T12:00:00");
+
+const idx=dt.getDay();
+
+const h=
+data.settings.hours[DAYS[idx]]||{};
+
+$("dayTitle").textContent=
+`${DAY_LABEL[idx]} ${formatDate(date)}${h.closed?" · Chiuso":""}`;
+
+const ap=
+activeAppointments()
+.filter(a=>a.date===date);
+
+$("dayAppointments").innerHTML=
+ap.length
+?
+ap
+.sort((a,b)=>a.time.localeCompare(b.time))
+.map(appointmentHtml)
+.join("")
+:
+`<div class="muted">Nessun appuntamento.</div>`;
+
+if(h.closed){
+
+$("calendarGrid").innerHTML=
+`<div class="slot-box closed">Attività chiusa.</div>`;
+
+return;
+
+}
+
+const open=toMin(h.start);
+const close=toMin(h.end);
+
+if(open==null||close==null){
+
+$("calendarGrid").innerHTML=
+`<div class="slot-box closed">Configura gli orari nelle Impostazioni.</div>`;
+
+return;
+
+}
+
+let out="";
+
+for(
+let m=open;
+m<close;
+m+=30
+){
+
+const t=fmt(m);
+
+const a=
+ap.find(x=>x.time===t);
+
+out+=`
+
+<div class="slot">
+
+<div class="slot-time">
+${t}
+</div>
+
+<div
+class="slot-box ${a?"busy":"free"}"
+${
+a
+?
+`onclick="openAppointment('${esc(a.id)}')"`
+:
+`onclick="quickAppointment('${date}','${t}')"`
+}
 >
 
-  <div class="maviri-inner">
-
-    <div class="maviri-header">
-
-      <div class="maviri-brand">
-
-        <h2 class="maviri-brand-name">
-          Maviri
-        </h2>
-
-        <p class="maviri-brand-subtitle">
-          Il tuo manager digitale
-        </p>
-
-      </div>
-
-      <div
-        id="maviOrb"
-        class="mavi-orb"
-        aria-label="Mavi"
-        title="Mavi"
-      >
-
-        <div class="mavi-orb-core"></div>
-
-      </div>
-
-    </div>
-
-
-    <div
-      id="maviStatus"
-      class="mavi-status"
-      aria-live="polite"
-    >
-      Mavi è pronta
-    </div>
-
-
-    <div class="mavi-actions">
-
-      <button
-        id="maviTalkButton"
-        type="button"
-      >
-        Parla con Mavi
-      </button>
-
-      <button
-        id="maviStopButton"
-        type="button"
-      >
-        Interrompi
-      </button>
-
-    </div>
-
-
-    <div
-      id="maviMessage"
-      class="mavi-message"
-      aria-live="polite"
-    ></div>
-
-
-    <div class="maviri-summary">
-
-      <div class="maviri-summary-card">
-
-        <div
-          id="maviTodayCount"
-          class="maviri-summary-value"
-        >
-          0
-        </div>
-
-        <div class="maviri-summary-label">
-          Appuntamenti oggi
-        </div>
-
-      </div>
-
-
-      <div class="maviri-summary-card">
-
-        <div
-          id="maviNextClient"
-          class="maviri-summary-value"
-        >
-          —
-        </div>
-
-        <div class="maviri-summary-label">
-          Prossimo cliente
-        </div>
-
-      </div>
-
-
-      <div class="maviri-summary-card">
-
-        <div
-          id="maviNextTime"
-          class="maviri-summary-value"
-        >
-          —
-        </div>
-
-        <div class="maviri-summary-label">
-          Prossimo appuntamento
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<script>
-/* =========================================================
-   MAVIRI 2.0
-   MAVI — VOCE + CENTRO OPERATIVO
-   ========================================================= */
-
-(function(){
-
-  "use strict";
-
-
-  /* =======================================================
-     UTILITÀ
-     ======================================================= */
-
-  function getElement(id){
-
-    return document.getElementById(id);
-
-  }
-
-
-  function setText(id,text){
-
-    const element =
-      getElement(id);
-
-    if(element){
-
-      element.textContent =
-        text == null
-          ? ""
-          : String(text);
-
-    }
-
-  }
-
-
-  function getAppData(){
-
-    try{
-
-      const raw =
-        localStorage.getItem(
-          "appData"
-        );
-
-      if(!raw){
-
-        return null;
-
-      }
-
-      return JSON.parse(
-        raw
-      );
-
-    }catch(error){
-
-      return null;
-
-    }
-
-  }
-
-
-  function getTodayISO(){
-
-    const now =
-      new Date();
-
-    const year =
-      now.getFullYear();
-
-    const month =
-      String(
-        now.getMonth()+1
-      ).padStart(2,"0");
-
-    const day =
-      String(
-        now.getDate()
-      ).padStart(2,"0");
-
-    return (
-      year +
-      "-" +
-      month +
-      "-" +
-      day
-    );
-
-  }
-
-
-  function appointmentName(a){
-
-    return (
-      a.name ||
-      a.n ||
-      a.clientName ||
-      "Cliente"
-    );
-
-  }
-
-
-  function appointmentTime(a){
-
-    return (
-      a.time ||
-      a.t ||
-      ""
-    );
-
-  }
-
-
-  function appointmentDate(a){
-
-    return (
-      a.date ||
-      a.d ||
-      ""
-    );
-
-  }
-
-
-  function appointmentService(a){
-
-    return (
-      a.service ||
-      a.s ||
-      a.serviceName ||
-      ""
-    );
-
-  }
-
-
-  function appointmentStatus(a){
-
-    return (
-      a.status ||
-      "confirmed"
-    );
-
-  }
-
-
-  /* =======================================================
-     APPUNTAMENTI DI OGGI
-     ======================================================= */
-
-  function getTodayAppointments(){
-
-    const data =
-      getAppData();
-
-    if(
-      !data ||
-      !Array.isArray(
-        data.appointments
-      )
-    ){
-
-      return [];
-
-    }
-
-
-    const today =
-      getTodayISO();
-
-
-    return data.appointments
-
-      .filter(function(a){
-
-        return (
-          appointmentDate(a) === today &&
-          appointmentStatus(a) !== "cancelled"
-        );
-
-      })
-
-      .sort(function(a,b){
-
-        return appointmentTime(a)
-          .localeCompare(
-            appointmentTime(b)
-          );
-
-      });
-
-  }
-
-
-  /* =======================================================
-     AGGIORNA CENTRO OPERATIVO
-     ======================================================= */
-
-  function refreshMaviriCenter(){
-
-    const appointments =
-      getTodayAppointments();
-
-
-    setText(
-      "maviTodayCount",
-      appointments.length
-    );
-
-
-    if(!appointments.length){
-
-      setText(
-        "maviNextClient",
-        "—"
-      );
-
-      setText(
-        "maviNextTime",
-        "—"
-      );
-
-      return;
-
-    }
-
-
-    const next =
-      appointments[0];
-
-
-    setText(
-      "maviNextClient",
-      appointmentName(next)
-    );
-
-
-    setText(
-      "maviNextTime",
-      appointmentTime(next) || "—"
-    );
-
-  }
-
-
-  /* =======================================================
-     STATO MAVI
-     ======================================================= */
-
-  const Mavi = {
-
-    recognition:null,
-
-    listening:false,
-
-    speaking:false,
-
-
-    setState:function(state){
-
-      document.documentElement
-        .setAttribute(
-          "data-mavi-state",
-          state
-        );
-
-
-      const labels = {
-
-        idle:
-          "Mavi è pronta",
-
-        listening:
-          "Mavi ti sta ascoltando…",
-
-        processing:
-          "Mavi sta elaborando…",
-
-        speaking:
-          "Mavi sta parlando…"
-
-      };
-
-
-      setText(
-        "maviStatus",
-        labels[state] ||
-        labels.idle
-      );
-
-    },
-
-
-    message:function(text){
-
-      const box =
-        getElement(
-          "maviMessage"
-        );
-
-      if(!box){
-
-        return;
-
-      }
-
-
-      if(!text){
-
-        box.textContent =
-          "";
-
-        box.classList.remove(
-          "show"
-        );
-
-        return;
-
-      }
-
-
-      box.textContent =
-        text;
-
-      box.classList.add(
-        "show"
-      );
-
-    },
-
-
-    resetButtons:function(){
-
-      const talk =
-        getElement(
-          "maviTalkButton"
-        );
-
-      const stop =
-        getElement(
-          "maviStopButton"
-        );
-
-
-      if(talk){
-
-        talk.style.display =
-          "block";
-
-      }
-
-
-      if(stop){
-
-        stop.style.display =
-          "none";
-
-      }
-
-    },
-
-
-    stopSpeaking:function(){
-
-      if(
-        window.speechSynthesis
-      ){
-
-        window.speechSynthesis.cancel();
-
-      }
-
-
-      this.speaking =
-        false;
-
-      this.setState(
-        "idle"
-      );
-
-    },
-
-
-    speak:function(text){
-
-      if(!text){
-
-        return;
-
-      }
-
-
-      if(
-        !window.speechSynthesis
-      ){
-
-        this.message(
-          text
-        );
-
-        this.setState(
-          "idle"
-        );
-
-        return;
-
-      }
-
-
-      window.speechSynthesis.cancel();
-
-
-      this.speaking =
-        true;
-
-      this.setState(
-        "speaking"
-      );
-
-
-      const utterance =
-        new SpeechSynthesisUtterance(
-          String(text)
-        );
-
-
-      utterance.lang =
-        "it-IT";
-
-      utterance.rate =
-        1;
-
-      utterance.pitch =
-        1;
-
-
-      utterance.onend =
-        function(){
-
-          Mavi.speaking =
-            false;
-
-          Mavi.setState(
-            "idle"
-          );
-
-        };
-
-
-      utterance.onerror =
-        function(){
-
-          Mavi.speaking =
-            false;
-
-          Mavi.setState(
-            "idle"
-          );
-
-        };
-
-
-      window.speechSynthesis.speak(
-        utterance
-      );
-
-    },
-
-
-    start:function(){
-
-      const Recognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
-
-      if(!Recognition){
-
-        const message =
-          "Il riconoscimento vocale non è disponibile in questo browser.";
-
-        this.message(
-          message
-        );
-
-        this.speak(
-          message
-        );
-
-        return;
-
-      }
-
-
-      this.stopSpeaking();
-
-
-      if(this.recognition){
-
-        try{
-
-          this.recognition.abort();
-
-        }catch(error){}
-
-      }
-
-
-      const recognition =
-        new Recognition();
-
-
-      this.recognition =
-        recognition;
-
-
-      recognition.lang =
-        "it-IT";
-
-
-      recognition.continuous =
-        false;
-
-
-      recognition.interimResults =
-        true;
-
-
-      recognition.maxAlternatives =
-        1;
-
-
-      recognition.onstart =
-        function(){
-
-          Mavi.listening =
-            true;
-
-          Mavi.setState(
-            "listening"
-          );
-
-
-          Mavi.message(
-            "Parla normalmente con Mavi."
-          );
-
-
-          const talk =
-            getElement(
-              "maviTalkButton"
-            );
-
-          const stop =
-            getElement(
-              "maviStopButton"
-            );
-
-
-          if(talk){
-
-            talk.style.display =
-              "none";
-
-          }
-
-
-          if(stop){
-
-            stop.style.display =
-              "block";
-
-          }
-
-        };
-
-
-      recognition.onresult =
-        function(event){
-
-          let transcript =
-            "";
-
-
-          for(
-            let i =
-              event.resultIndex;
-
-            i <
-              event.results.length;
-
-            i++
-          ){
-
-            transcript +=
-              event.results[i][0]
-                .transcript;
-
-          }
-
-
-          transcript =
-            transcript.trim();
-
-
-          if(transcript){
-
-            Mavi.message(
-              transcript
-            );
-
-          }
-
-
-          const lastResult =
-            event.results[
-              event.results.length-1
-            ];
-
-
-          if(
-            lastResult &&
-            lastResult.isFinal
-          ){
-
-            Mavi.process(
-              transcript
-            );
-
-          }
-
-        };
-
-
-      recognition.onerror =
-        function(event){
-
-          Mavi.listening =
-            false;
-
-          Mavi.setState(
-            "idle"
-          );
-
-
-          let message =
-            "Non sono riuscita a comprendere la richiesta.";
-
-
-          if(
-            event &&
-            event.error ===
-              "not-allowed"
-          ){
-
-            message =
-              "Il microfono non è autorizzato. Controlla i permessi del browser.";
-
-          }
-
-
-          Mavi.message(
-            message
-          );
-
-
-          Mavi.resetButtons();
-
-        };
-
-
-      recognition.onend =
-        function(){
-
-          Mavi.listening =
-            false;
-
-
-          if(
-            document.documentElement
-              .getAttribute(
-                "data-mavi-state"
-              ) ===
-              "listening"
-          ){
-
-            Mavi.setState(
-              "idle"
-            );
-
-          }
-
-
-          Mavi.resetButtons();
-
-        };
-
-
-      try{
-
-        recognition.start();
-
-      }catch(error){
-
-        Mavi.listening =
-          false;
-
-        Mavi.setState(
-          "idle"
-        );
-
-        Mavi.resetButtons();
-
-      }
-
-    },
-
-
-    stop:function(){
-
-      if(this.recognition){
-
-        try{
-
-          this.recognition.stop();
-
-        }catch(error){}
-
-      }
-
-
-      this.stopSpeaking();
-
-
-      this.listening =
-        false;
-
-
-      this.resetButtons();
-
-
-      this.message(
-        ""
-      );
-
-    },
-
-
-    process:function(text){
-
-      if(!text){
-
-        this.setState(
-          "idle"
-        );
-
-        return;
-
-      }
-
-
-      this.setState(
-        "processing"
-      );
-
-
-      const query =
-        String(text)
-          .toLowerCase()
-          .trim();
-
-
-      /* ================================================
-         COSA HO OGGI?
-         ================================================ */
-
-      if(
-        /cosa ho oggi|appuntamenti di oggi|che appuntamenti ho oggi|che appuntamenti ho/.test(
-          query
-        )
-      ){
-
-        const answer =
-          this.todaySummary();
-
-
-        this.message(
-          answer
-        );
-
-
-        this.speak(
-          answer
-        );
-
-
-        return;
-
-      }
-
-
-      /* ================================================
-         CHI VIENE OGGI?
-         ================================================ */
-
-      if(
-        /chi viene oggi|quali clienti ho oggi|clienti di oggi/.test(
-          query
-        )
-      ){
-
-        const answer =
-          this.todayClients();
-
-
-        this.message(
-          answer
-        );
-
-
-        this.speak(
-          answer
-        );
-
-
-        return;
-
-      }
-
-
-      /* ================================================
-         QUANTI APPUNTAMENTI?
-         ================================================ */
-
-      if(
-        /quanti appuntamenti|quanti clienti/.test(
-          query
-        )
-      ){
-
-        const appointments =
-          getTodayAppointments();
-
-
-        const answer =
-          appointments.length === 0
-
-            ? "Oggi non risultano appuntamenti."
-
-            :
-
-              "Oggi hai " +
-              appointments.length +
-              (
-                appointments.length === 1
-                  ? " appuntamento."
-                  : " appuntamenti."
-              );
-
-
-        this.message(
-          answer
-        );
-
-
-        this.speak(
-          answer
-        );
-
-
-        return;
-
-      }
-
-
-      /* ================================================
-         SERVIZI
-         ================================================ */
-
-      if(
-        /quali servizi|che servizi|elenco servizi/.test(
-          query
-        )
-      ){
-
-        const data =
-          getAppData();
-
-
-        const services =
-          data &&
-          Array.isArray(
-            data.services
-          )
-            ? data.services
-            : [];
-
-
-        if(!services.length){
-
-          const answer =
-            "Non risultano servizi configurati nell'app.";
-
-          this.message(
-            answer
-          );
-
-          this.speak(
-            answer
-          );
-
-          return;
-
-        }
-
-
-        const names =
-          services
-            .map(function(service){
-
-              return (
-                service.name ||
-                service.title ||
-                "Servizio"
-              );
-
-            })
-            .slice(0,10);
-
-
-        const answer =
-          "I servizi configurati sono: " +
-          names.join(", ") +
-          ".";
-
-
-        this.message(
-          answer
-        );
-
-
-        this.speak(
-          answer
-        );
-
-
-        return;
-
-      }
-
-
-      /* ================================================
-         CLIENTI
-         ================================================ */
-
-      if(
-        /quanti clienti|quanti clienti ho/.test(
-          query
-        )
-      ){
-
-        const data =
-          getAppData();
-
-
-        const clients =
-          data &&
-          Array.isArray(
-            data.clients
-          )
-            ? data.clients
-            : [];
-
-
-        const answer =
-          "Nella tua anagrafica risultano " +
-          clients.length +
-          (
-            clients.length === 1
-              ? " cliente."
-              : " clienti."
-          );
-
-
-        this.message(
-          answer
-        );
-
-
-        this.speak(
-          answer
-        );
-
-
-        return;
-
-      }
-
-
-      /* ================================================
-         RICHIESTA NON ANCORA COLLEGATA
-         ================================================ */
-
-      const answer =
-        "Ho ascoltato la richiesta. In questa prima versione posso già consultare gli appuntamenti e i dati principali dell'attività. Il prossimo passo sarà permettermi di eseguire direttamente le operazioni che mi chiedi.";
-
-
-      this.message(
-        answer
-      );
-
-
-      this.speak(
-        answer
-      );
-
-    },
-
-
-    todaySummary:function(){
-
-      const appointments =
-        getTodayAppointments();
-
-
-      if(!appointments.length){
-
-        return (
-          "Oggi non risultano appuntamenti."
-        );
-
-      }
-
-
-      let answer =
-        "Oggi hai " +
-        appointments.length +
-        (
-          appointments.length === 1
-            ? " appuntamento. "
-            : " appuntamenti. "
-        );
-
-
-      const first =
-        appointments[0];
-
-
-      answer +=
-        "Il primo è alle " +
-        (
-          appointmentTime(first) ||
-          "orario non indicato"
-        ) +
-        " con " +
-        appointmentName(first) +
-        ".";
-
-
-      if(
-        appointments.length > 1
-      ){
-
-        const last =
-          appointments[
-            appointments.length-1
-          ];
-
-
-        answer +=
-          " L'ultimo è alle " +
-          (
-            appointmentTime(last) ||
-            "orario non indicato"
-          ) +
-          " con " +
-          appointmentName(last) +
-          ".";
-
-      }
-
-
-      return answer;
-
-    },
-
-
-    todayClients:function(){
-
-      const appointments =
-        getTodayAppointments();
-
-
-      if(!appointments.length){
-
-        return (
-          "Oggi non risultano clienti prenotati."
-        );
-
-      }
-
-
-      const names =
-        appointments.map(
-          appointmentName
-        );
-
-
-      return (
-        "Oggi hai: " +
-        names.join(", ") +
-        "."
-      );
-
-    }
-
-  };
-
-
-  /* =======================================================
-     EVENTI UI
-     ======================================================= */
-
-  const talkButton =
-    getElement(
-      "maviTalkButton"
-    );
-
-
-  const stopButton =
-    getElement(
-      "maviStopButton"
-    );
-
-
-  if(talkButton){
-
-    talkButton.addEventListener(
-      "click",
-      function(){
-
-        Mavi.start();
-
-      }
-    );
-
-  }
-
-
-  if(stopButton){
-
-    stopButton.addEventListener(
-      "click",
-      function(){
-
-        Mavi.stop();
-
-      }
-    );
-
-  }
-
-
-  /* =======================================================
-     AGGIORNAMENTO AUTOMATICO
-     ======================================================= */
-
-  refreshMaviriCenter();
-
-
-  /*
-   * Controlla periodicamente i dati locali.
-   * Non modifica alcun dato.
-   */
-
-  setInterval(
-    refreshMaviriCenter,
-    3000
-  );
-
-
-  /*
-   * Se l'app esistente salva appData e genera
-   * eventi personalizzati, aggiorniamo anche subito.
-   */
-
-  window.addEventListener(
-    "storage",
-    function(event){
-
-      if(
-        event.key === "appData"
-      ){
-
-        refreshMaviriCenter();
-
-      }
-
-    }
-  );
-
-
-  /* =======================================================
-     API PUBBLICA
-     ======================================================= */
-
-  window.Mavi =
-    Mavi;
-
-
-  window.Maviri =
-    {
-
-      refresh:
-        refreshMaviriCenter,
-
-      speak:
-        function(text){
-
-          Mavi.speak(
-            text
-          );
-
-        },
-
-      talk:
-        function(){
-
-          Mavi.start();
-
-        },
-
-      stop:
-        function(){
-
-          Mavi.stop();
-
-        },
-
-      getTodayAppointments:
-        getTodayAppointments
-
-    };
-
-
-  /* =======================================================
-     AVVIO
-     ======================================================= */
-
-  if(
-    document.readyState ===
-    "loading"
-  ){
-
-    document.addEventListener(
-      "DOMContentLoaded",
-      function(){
-
-        refreshMaviriCenter();
-
-        Mavi.setState(
-          "idle"
-        );
-
-      }
-    );
-
-  }else{
-
-    refreshMaviriCenter();
-
-    Mavi.setState(
-      "idle"
-    );
-
-  }
-
-})();
-</script>
-<!-- =========================================================
-     FINE MODULO MAVIRI 2.0
-     ========================================================= -->
-  <!-- =========================================================
-     MAVIRI / MAVI — VOICE AI BRIDGE + UI UPGRADE
-     VERSIONE 1.0
-     Incollare UNA SOLA VOLTA subito prima di </body>
-     ========================================================= -->
-
-<style>
-
-/* =========================================================
-   MAVI — NUOVA IDENTITÀ VISIVA PROVVISORIA
-   ========================================================= */
-
-#maviriOperatingCenter{
-  position:relative;
-  overflow:hidden;
-  background:
-    radial-gradient(
-      circle at 50% 42%,
-      rgba(96,165,250,.18),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 90% 0%,
-      rgba(59,130,246,.16),
-      transparent 32%
-    ),
-    linear-gradient(
-      145deg,
-      #0b1220 0%,
-      #111c35 52%,
-      #183b7a 100%
-    ) !important;
+${
+a
+?
+`
+<b>${esc(a.name)}</b>
+<div class="muted">
+${esc(a.service)}
+</div>
+`
+:
+`Disponibile`
 }
 
-/* luce ambientale */
+</div>
 
-#maviriOperatingCenter::before{
-  content:"";
-  position:absolute;
-  width:260px;
-  height:260px;
-  left:50%;
-  top:95px;
-  transform:translateX(-50%);
-  border-radius:50%;
-  background:
-    radial-gradient(
-      circle,
-      rgba(96,165,250,.16) 0%,
-      rgba(96,165,250,.07) 38%,
-      transparent 72%
-    );
-  pointer-events:none;
-  z-index:0;
-}
+</div>
 
-/* centro Mavi */
-
-#maviOrb{
-  width:86px !important;
-  height:86px !important;
-  min-width:86px !important;
-  border-radius:50% !important;
-
-  background:
-    radial-gradient(
-      circle at 32% 27%,
-      #ffffff 0%,
-      #eff6ff 13%,
-      #bfdbfe 31%,
-      #60a5fa 55%,
-      #2563eb 76%,
-      #172554 100%
-    ) !important;
-
-  border:2px solid rgba(255,255,255,.72);
-
-  box-shadow:
-    0 0 0 7px rgba(147,197,253,.07),
-    0 12px 34px rgba(37,99,235,.30),
-    0 0 42px rgba(96,165,250,.25);
-
-  transition:
-    transform .4s ease,
-    box-shadow .4s ease,
-    filter .4s ease !important;
-
-  z-index:3;
-}
-
-/* nucleo interno */
-
-#maviOrb .mavi-orb-core{
-  width:28px !important;
-  height:28px !important;
-  border-radius:50%;
-
-  background:
-    radial-gradient(
-      circle,
-      #ffffff 0%,
-      #ffffff 48%,
-      #dbeafe 100%
-    ) !important;
-
-  box-shadow:
-    0 0 16px rgba(255,255,255,.95),
-    0 0 32px rgba(147,197,253,.75);
-
-  transition:
-    transform .35s ease,
-    opacity .35s ease,
-    box-shadow .35s ease;
-}
-
-/* anello esterno */
-
-#maviOrb::before{
-  inset:-10px !important;
-  border-color:rgba(191,219,254,.14) !important;
-  transition:
-    transform .4s ease,
-    border-color .4s ease,
-    opacity .4s ease;
-}
-
-/* =========================================================
-   MAVI PRONTA
-   ========================================================= */
-
-html[data-mavi-state="idle"] #maviOrb{
-  transform:scale(1);
-  filter:saturate(.95);
-}
-
-html[data-mavi-state="idle"] #maviOrb .mavi-orb-core{
-  transform:scale(.92);
-  opacity:.90;
-}
-
-/* =========================================================
-   MAVI ASCOLTA
-   ========================================================= */
-
-html[data-mavi-state="listening"] #maviOrb{
-  transform:scale(1.10);
-
-  box-shadow:
-    0 0 0 10px rgba(96,165,250,.10),
-    0 0 0 22px rgba(96,165,250,.045),
-    0 15px 46px rgba(37,99,235,.40),
-    0 0 55px rgba(96,165,250,.42);
-
-  animation:
-    maviVoiceListening 1.35s ease-in-out infinite;
-}
-
-html[data-mavi-state="listening"] #maviOrb::before{
-  transform:scale(1.15);
-  border-color:rgba(191,219,254,.28) !important;
-}
-
-html[data-mavi-state="listening"] #maviOrb .mavi-orb-core{
-  transform:scale(1.22);
-  opacity:1;
-
-  animation:
-    maviVoiceCoreListening 1s ease-in-out infinite;
-}
-
-@keyframes maviVoiceListening{
-
-  0%,100%{
-    transform:scale(1.06);
-  }
-
-  50%{
-    transform:scale(1.12);
-  }
+`;
 
 }
 
-@keyframes maviVoiceCoreListening{
-
-  0%,100%{
-    transform:scale(1.05);
-  }
-
-  50%{
-    transform:scale(1.30);
-  }
+$("calendarGrid").innerHTML=out;
 
 }
 
-/* =========================================================
-   MAVI ELABORA
-   ========================================================= */
+function toMin(v){
 
-html[data-mavi-state="processing"] #maviOrb{
+const m=
+String(v||"")
+.match(/^(\d{1,2}):(\d{2})$/);
 
-  box-shadow:
-    0 0 0 9px rgba(96,165,250,.09),
-    0 0 0 20px rgba(96,165,250,.035),
-    0 15px 50px rgba(37,99,235,.40),
-    0 0 60px rgba(96,165,250,.38);
-
-  animation:
-    maviVoiceProcessing 1.4s linear infinite;
+return m
+?
+Number(m[1])*60+Number(m[2])
+:
+null;
 
 }
 
-html[data-mavi-state="processing"] #maviOrb::before{
+function fmt(m){
 
-  transform:scale(1.18);
-  border-color:rgba(191,219,254,.30) !important;
-
-}
-
-html[data-mavi-state="processing"] #maviOrb .mavi-orb-core{
-
-  transform:scale(.78);
-
-  animation:
-    maviVoiceProcessingCore .8s ease-in-out infinite alternate;
+return String(
+Math.floor(m/60)
+).padStart(2,"0")
++
+":"+
+String(m%60)
+.padStart(2,"0");
 
 }
 
-@keyframes maviVoiceProcessing{
+function appointmentHtml(a){
 
-  0%{
-    transform:rotate(0deg) scale(1.02);
-  }
+const st=
+String(a.status||"confermato");
 
-  50%{
-    transform:rotate(180deg) scale(1.08);
-  }
+const cls=
+st==="completato"
+?"completed"
+:
+st==="cancellato"
+?"cancelled"
+:
+"confirmed";
 
-  100%{
-    transform:rotate(360deg) scale(1.02);
-  }
+return `
 
-}
+<div class="list-item">
 
-@keyframes maviVoiceProcessingCore{
+<b>
+${esc(a.time)} · ${esc(a.name)}
+</b>
 
-  from{
-    transform:scale(.72);
-    opacity:.72;
-  }
+<div class="muted">
+${esc(a.service)}
+</div>
 
-  to{
-    transform:scale(1.16);
-    opacity:1;
-  }
+<span class="badge ${cls}">
+${esc(st)}
+</span>
 
-}
+<div class="actions">
 
-/* =========================================================
-   MAVI PARLA
-   ========================================================= */
+<button
+class="secondary small"
+onclick="openAppointment('${esc(a.id)}')">
+Modifica
+</button>
 
-html[data-mavi-state="speaking"] #maviOrb{
+<button
+class="danger small"
+onclick="cancelAppointment('${esc(a.id)}')">
+Annulla
+</button>
 
-  box-shadow:
-    0 0 0 10px rgba(96,165,250,.12),
-    0 0 0 23px rgba(96,165,250,.045),
-    0 16px 52px rgba(37,99,235,.44),
-    0 0 65px rgba(96,165,250,.48);
+<button
+class="success small"
+onclick="completeAppointment('${esc(a.id)}')">
+Completa
+</button>
 
-  animation:
-    maviVoiceSpeaking .55s ease-in-out infinite alternate;
+</div>
 
-}
+</div>
 
-html[data-mavi-state="speaking"] #maviOrb::before{
-
-  transform:scale(1.20);
-  border-color:rgba(191,219,254,.32) !important;
-
-}
-
-html[data-mavi-state="speaking"] #maviOrb .mavi-orb-core{
-
-  animation:
-    maviVoiceSpeakingCore .42s ease-in-out infinite alternate;
+`;
 
 }
 
-@keyframes maviVoiceSpeaking{
+function renderAppointmentSearch(){
 
-  from{
-    transform:scale(1.02);
-  }
+const q=
+$("appointmentSearch")
+.value
+.trim()
+.toLowerCase();
 
-  to{
-    transform:scale(1.11);
-  }
+if(!q){
 
-}
+$("appointmentSearchResults").innerHTML="";
 
-@keyframes maviVoiceSpeakingCore{
-
-  from{
-    transform:scale(.86);
-    opacity:.78;
-  }
-
-  to{
-    transform:scale(1.30);
-    opacity:1;
-  }
+return;
 
 }
 
-/* =========================================================
-   STATO TESTUALE
-   ========================================================= */
+const a=
+data.appointments
+.filter(x=>
+String(x.name||"")
+.toLowerCase()
+.includes(q)
+);
 
-#maviStatus{
-  font-weight:650;
-  letter-spacing:.05px;
-  transition:
-    opacity .25s ease,
-    transform .25s ease;
-}
+$("appointmentSearchResults").innerHTML=
+a.length
+?
+a
+.sort((x,y)=>
+(x.date+x.time)
+.localeCompare(y.date+y.time)
+)
+.map(x=>`
 
-html[data-mavi-state="listening"] #maviStatus{
-  color:#bfdbfe;
-}
+<div class="list-item">
 
-html[data-mavi-state="processing"] #maviStatus{
-  color:#dbeafe;
-}
+<b>
+${esc(x.name)}
+·
+${formatDate(x.date)}
+${" "}
+${esc(x.time)}
+</b>
 
-html[data-mavi-state="speaking"] #maviStatus{
-  color:#ffffff;
-}
+<div class="muted">
+${esc(x.service)}
+</div>
 
-/* =========================================================
-   PULSANTE MAVI
-   ========================================================= */
+</div>
 
-#maviTalkButton{
-
-  position:relative;
-  overflow:hidden;
-
-  box-shadow:
-    0 8px 22px rgba(0,0,0,.12);
-
-}
-
-#maviTalkButton::after{
-
-  content:"";
-  position:absolute;
-  inset:0;
-
-  background:
-    linear-gradient(
-      110deg,
-      transparent 20%,
-      rgba(255,255,255,.45) 50%,
-      transparent 80%
-    );
-
-  transform:translateX(-120%);
-  transition:transform .7s ease;
+`).join("")
+:
+`<div class="muted">Nessun risultato.</div>`;
 
 }
 
-#maviTalkButton:hover::after{
-  transform:translateX(120%);
-}
+function openNewAppointment(
+date=today(),
+time=""
+){
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
+openAppointmentModal({
 
-@media(max-width:600px){
+id:"",
 
-  #maviOrb{
+name:"",
 
-    width:76px !important;
-    height:76px !important;
-    min-width:76px !important;
+date,
 
-  }
+time,
 
-  #maviOrb .mavi-orb-core{
+service:"",
 
-    width:24px !important;
-    height:24px !important;
+status:"confermato"
 
-  }
+});
 
 }
 
-@media(max-width:380px){
+function quickAppointment(
+date,
+time
+){
 
-  #maviOrb{
-
-    width:70px !important;
-    height:70px !important;
-    min-width:70px !important;
-
-  }
-
-}
-
-/* =========================================================
-   ACCESSIBILITÀ
-   ========================================================= */
-
-@media(prefers-reduced-motion:reduce){
-
-  #maviOrb,
-  #maviOrb::before,
-  #maviOrb .mavi-orb-core{
-
-    animation:none !important;
-    transition:none !important;
-
-  }
+openNewAppointment(
+date,
+time
+);
 
 }
 
-</style>
-
+function openAppointment(id){
 
-<script>
+const a=
+data.appointments
+.find(
+x=>String(x.id)===String(id)
+);
 
-/* =========================================================
-   MAVI AI VOICE BRIDGE
-   ========================================================= */
+if(a)
+openAppointmentModal(a);
 
-(function(){
-
-  "use strict";
+}
 
-  /*
-   * Aspettiamo che il modulo Mavi originale sia già stato
-   * inizializzato.
-   */
-
-  function bootMaviAI(){
+function openAppointmentModal(a){
 
-    if(!window.Mavi){
-      setTimeout(bootMaviAI,100);
-      return;
-    }
+openModal(`
 
-    if(window.__MaviAIReady){
-      return;
-    }
+<h3>
+${a.id?"Modifica":"Nuovo"}
+appuntamento
+</h3>
 
-    window.__MaviAIReady=true;
+<label>Cliente</label>
 
-    const originalSend=
-      window.send;
+<input
+id="mName"
+value="${esc(a.name)}">
 
-    if(typeof originalSend!=="function"){
-      console.warn(
-        "Mavi AI Bridge: funzione send() non trovata."
-      );
-      return;
-    }
+<label>Data</label>
 
-    /*
-     * Flag utilizzato per distinguere:
-     *
-     * testo scritto manualmente
-     *
-     * da
-     *
-     * richiesta pronunciata a Mavi.
-     */
+<input
+id="mDate"
+type="date"
+value="${esc(a.date)}">
 
-    let maviVoiceRequest=false;
+<label>Ora</label>
 
-    /*
-     * Intercetta la risposta del sistema AI già esistente.
-     *
-     * NON sostituiamo send().
-     * Lo lasciamo fare tutto il suo lavoro:
-     *
-     * - invio API
-     * - storico
-     * - appuntamenti
-     * - clienti
-     * - conferme
-     * - disponibilità
-     * - salvataggio
-     *
-     * Alla fine Mavi legge vocalmente l'ultima risposta.
-     */
+<input
+id="mTime"
+type="time"
+value="${esc(a.time)}">
 
-    window.send=async function(){
+<label>Servizio</label>
 
-      const voiceRequest=
-        maviVoiceRequest;
+<select id="mService">
 
-      try{
+${data.services.map(s=>`
 
-        const result=
-          await originalSend.apply(
-            this,
-            arguments
-          );
+<option
+${s.name===a.service?"selected":""}>
+${esc(s.name)}
+</option>
 
-        if(voiceRequest){
+`).join("")}
 
-          /*
-           * Recupera l'ultimo messaggio AI
-           * direttamente dall'interfaccia.
-           */
+</select>
 
-          const chat=
-            document.getElementById("chat");
+<label>Stato</label>
 
-          if(chat){
+<select id="mStatus">
 
-            const messages=
-              chat.querySelectorAll(
-                ".msg.bot"
-              );
+<option
+${a.status==="confermato"?"selected":""}>
+confermato
+</option>
 
-            if(messages.length){
+<option
+${a.status==="completato"?"selected":""}>
+completato
+</option>
 
-              const last=
-                messages[
-                  messages.length-1
-                ];
+<option
+${a.status==="cancellato"?"selected":""}>
+cancellato
+</option>
 
-              const reply=
-                String(
-                  last.textContent||""
-                ).trim();
+</select>
 
-              if(reply){
+<p id="mError" class="muted"></p>
 
-                window.Mavi.message(
-                  reply
-                );
+<div class="actions">
 
-                window.Mavi.speak(
-                  reply
-                );
+<button
+class="primary"
+onclick="saveAppointmentModal('${esc(a.id)}')">
+Salva
+</button>
 
-              }
+<button
+class="secondary"
+onclick="closeModal()">
+Chiudi
+</button>
 
-            }
+</div>
 
-          }
+`);
 
-        }
+}
 
-        return result;
+async function saveAppointmentModal(id){
 
-      }catch(error){
+const a={
 
-        if(voiceRequest){
+id,
 
-          const message=
-            "Si è verificato un problema durante la comunicazione con Mavi.";
+name:
+$("mName").value.trim(),
 
-          window.Mavi.message(
-            message
-          );
+date:
+$("mDate").value,
 
-          window.Mavi.speak(
-            message
-          );
+time:
+$("mTime").value,
 
-        }
+service:
+$("mService").value,
 
-        throw error;
+status:
+$("mStatus").value
 
-      }finally{
+};
 
-        maviVoiceRequest=false;
+if(
+!a.name||
+!a.date||
+!a.time||
+!a.service
+){
 
-      }
+$("mError").textContent=
+"Compila tutti i campi.";
 
-    };
+return;
 
+}
 
-    /*
-     * Salviamo il process originale solo per sicurezza.
-     */
+try{
 
-    const originalProcess=
-      window.Mavi.process;
+if(id){
 
+const old=
+data.appointments
+.find(
+x=>String(x.id)===String(id)
+);
 
-    /*
-     * NUOVO PROCESSO VOCALE
-     *
-     * Prima Mavi interpretava soltanto alcune frasi
-     * attraverso una serie di regole locali.
-     *
-     * Ora:
-     *
-     * VOCE
-     * ↓
-     * TRASCRIZIONE
-     * ↓
-     * send()
-     * ↓
-     * /api/chat
-     * ↓
-     * AI REALE
-     * ↓
-     * RISPOSTA
-     * ↓
-     * VOCE MAVI
-     */
+if(!old)
+throw Error(
+"Appuntamento non trovato."
+);
 
-    window.Mavi.process=
-      async function(text){
+if(
+a.status==="cancellato"||
+a.status==="completato"
+){
 
-        text=
-          String(text||"")
-            .trim();
+Object.assign(old,a);
 
-        if(!text){
+ensureClient(a.name);
 
-          this.setState(
-            "idle"
-          );
+save();
 
-          return;
+closeModal();
 
-        }
+return;
 
-        /*
-         * Stato elaborazione.
-         */
+}
 
-        this.setState(
-          "processing"
-        );
+const withoutOld=
+data.appointments.filter(
+x=>String(x.id)!==String(id)
+);
 
-        this.message(
-          "Sto elaborando la richiesta…"
-        );
+const check=
+await businessApi(
+"availability",
+{
+date:a.date,
+service:a.service,
+__appointments:withoutOld
+}
+);
 
-        /*
-         * Mostra la richiesta anche nella chat
-         * principale.
-         */
+if(
+!check.available||
+!Array.isArray(check.slots)||
+!check.slots.includes(a.time)
+){
 
-        const questionInput=
-          document.getElementById("q");
+throw Error(
+"L'orario scelto non è disponibile."
+);
 
-        if(!questionInput){
+}
 
-          const message=
-            "Non riesco a collegarmi alla chat dell'assistente.";
+Object.assign(old,a);
 
-          this.message(
-            message
-          );
+ensureClient(a.name);
 
-          this.speak(
-            message
-          );
+save();
 
-          return;
+closeModal();
 
-        }
+}else{
 
-        /*
-         * Inserisce la richiesta nel campo chat.
-         */
+await bookAppointment(a);
 
-        questionInput.value=
-          text;
+closeModal();
 
-        /*
-         * Indica a send() che questa è una
-         * richiesta vocale e che quindi la
-         * risposta deve essere pronunciata.
-         */
+}
 
-        maviVoiceRequest=true;
+}catch(e){
 
-        /*
-         * Invio al sistema AI già esistente.
-         */
+$("mError").textContent=
+e.message;
 
-        try{
+}
 
-          await window.send();
+}
 
-        }catch(error){
+function cancelAppointment(id){
 
-          maviVoiceRequest=false;
+const a=
+data.appointments
+.find(
+x=>String(x.id)===String(id)
+);
 
-          console.error(
-            "Mavi AI error:",
-            error
-          );
+if(a){
 
-          const message=
-            "Non riesco a comunicare con l'intelligenza artificiale in questo momento.";
+a.status="cancellato";
 
-          this.message(
-            message
-          );
+save();
 
-          this.speak(
-            message
-          );
+}
 
-        }
+}
 
-      };
+function completeAppointment(id){
 
+const a=
+data.appointments
+.find(
+x=>String(x.id)===String(id)
+);
 
-    /*
-     * Miglioriamo anche il messaggio iniziale.
-     */
+if(a){
 
-    const status=
-      document.getElementById(
-        "maviStatus"
-      );
+a.status="completato";
 
-    if(status){
+save();
 
-      status.textContent=
-        "Mavi è pronta";
+}
 
-    }
+}
 
-    /*
-     * Informazione interna utile per debug.
-     */
+function renderClients(){
 
-    window.Mavi.aiConnected=true;
+const q=
+$("clientSearch")
+.value
+.trim()
+.toLowerCase();
 
-    window.Mavi.aiBridgeVersion=
-      "1.0";
+const arr=
+data.clients.filter(
+c=>
+!q||
+[c.name,c.phone,c.whatsapp,c.email]
+.join(" ")
+.toLowerCase()
+.includes(q)
+);
 
-    console.log(
-      "Mavi AI Bridge attivo."
-    );
+$("clientsList").innerHTML=
+arr.length
+?
+arr.map(c=>{
 
-  }
+const hist=
+data.appointments
+.filter(a=>a.name===c.name);
 
+const next=
+hist
+.filter(
+a=>
+a.date>=today()&&
+a.status!=="cancellato"
+)
+.sort(
+(a,b)=>
+(a.date+a.time)
+.localeCompare(
+b.date+b.time
+)
+)[0];
 
-  /*
-   * Avvio dopo il caricamento.
-   */
+return `
 
-  if(
-    document.readyState===
-    "loading"
-  ){
+<div class="list-item">
 
-    document.addEventListener(
-      "DOMContentLoaded",
-      bootMaviAI
-    );
+<b>${esc(c.name)}</b>
 
-  }else{
+<div class="muted">
 
-    bootMaviAI();
+${esc(c.phone||"Nessun telefono")}
+·
+${esc(c.email||"Nessuna email")}
 
-  }
+</div>
 
-})();
+<div class="client-stat">
+
+${hist.length}
+appuntamenti
+
+${
+next
+?
+` · prossimo ${formatDate(next.date)} ${next.time}`
+:
+""
+}
+
+</div>
+
+<div class="actions">
+
+<button
+class="primary small"
+onclick="openClient('${esc(c.id)}')">
+Apri scheda
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}).join("")
+:
+`<div class="muted">Nessun cliente.</div>`;
+
+}
+
+function openNewClient(){
+
+openClientModal({
+
+id:"",
+
+name:"",
+
+phone:"",
+
+whatsapp:"",
+
+email:"",
+
+notes:""
+
+});
+
+}
+
+function openClient(id){
+
+const c=
+data.clients
+.find(x=>x.id===id);
+
+if(c)
+openClientModal(c);
+
+}
+
+function openClientModal(c){
+
+const hist=
+data.appointments
+.filter(a=>a.name===c.name)
+.sort(
+(a,b)=>
+(b.date+b.time)
+.localeCompare(
+a.date+a.time
+)
+);
+
+openModal(`
+
+<h3>Scheda cliente</h3>
+
+<label>Nome</label>
+
+<input
+id="cName"
+value="${esc(c.name)}">
+
+<label>Telefono</label>
+
+<input
+id="cPhone"
+value="${esc(c.phone)}">
+
+<label>WhatsApp</label>
+
+<input
+id="cWhatsapp"
+value="${esc(c.whatsapp)}">
+
+<label>Email</label>
+
+<input
+id="cEmail"
+value="${esc(c.email)}">
+
+<label>Note</label>
+
+<textarea
+id="cNotes"
+rows="5">${esc(c.notes)}</textarea>
+
+<hr class="divider">
+
+<h4>Storico</h4>
+
+${
+hist.length
+?
+hist.map(a=>`
+
+<div class="list-item">
+
+<b>
+${formatDate(a.date)}
+·
+${esc(a.time)}
+</b>
+
+<div class="muted">
+${esc(a.service)}
+·
+${esc(a.status||"confermato")}
+</div>
+
+</div>
+
+`).join("")
+:
+`<div class="muted">Nessun appuntamento.</div>`
+}
+
+<div class="actions">
+
+<button
+class="primary"
+onclick="saveClientModal('${esc(c.id)}')">
+Salva
+</button>
+
+<button
+class="secondary"
+onclick="closeModal()">
+Chiudi
+</button>
+
+</div>
+
+`);
+
+}
+
+function saveClientModal(id){
+
+const c={
+
+id:id||uid(),
+
+name:
+$("cName").value.trim(),
+
+phone:
+$("cPhone").value.trim(),
+
+whatsapp:
+$("cWhatsapp").value.trim(),
+
+email:
+$("cEmail").value.trim(),
+
+notes:
+$("cNotes").value.trim(),
+
+createdAt:
+new Date().toISOString()
+
+};
+
+if(!c.name)
+return;
+
+if(id){
+
+const old=
+data.clients
+.find(x=>x.id===id);
+
+const oldName=old.name;
+
+Object.assign(old,c);
+
+data.appointments
+.forEach(a=>{
+if(a.name===oldName)
+a.name=c.name;
+});
+
+}else{
+
+data.clients.push(c);
+
+}
+
+save();
+
+closeModal();
+
+}
+
+function history(){
+
+try{
+
+return JSON.parse(
+localStorage.getItem(HIST)||"[]"
+).slice(-12);
+
+}catch{
+
+return [];
+
+}
+
+}
+
+function saveHistory(u,a){
+
+const h=history();
+
+h.push(
+{role:"user",content:u},
+{role:"assistant",content:a}
+);
+
+localStorage.setItem(
+HIST,
+JSON.stringify(h.slice(-12))
+);
+
+}
+
+function clearMaviHistory(){
+
+localStorage.removeItem(HIST);
+
+$("chat").innerHTML=
+`
+<div class="msg bot">
+Conversazione cancellata. Sono pronta.
+</div>
+`;
+
+}
+
+async function preloadMavi(){
+
+if(window.MaviAI?.preload)
+
+try{
+
+await window.MaviAI.preload();
+
+}catch(e){}
+
+}
+
+function engineContext(){
+
+return data;
+
+}
+
+function addChat(text,role){
+
+const d=document.createElement("div");
+
+d.className="msg "+role;
+
+d.textContent=text;
+
+$("chat").appendChild(d);
+
+$("chat").scrollTop=
+$("chat").scrollHeight;
+
+}
+
+async function askMavi(
+text=$("maviInput").value.trim(),
+speak=true
+){
+
+if(busy||!text)
+return;
+
+busy=true;
+
+$("maviInput").value="";
+
+$("maviSend").disabled=true;
+
+addChat(text,"user");
+
+$("maviStatus").textContent=
+"Mavi sta elaborando…";
+
+try{
+
+if(!window.MaviAI?.ask)
+throw Error(
+"Mavi Engine non disponibile."
+);
+
+const ctx={
+
+...data,
+
+business:
+data.business?.name||
+data.settings?.name||
+"Attività locale"
+
+};
+
+const r=
+await window.MaviAI.ask({
+
+message:text,
+
+history:history(),
+
+businessData:ctx,
+
+temperature:.35
+
+});
+
+if(!r.ok)
+throw Error(
+r.error||"Errore Mavi."
+);
+
+addChat(r.reply,"bot");
+
+saveHistory(
+text,
+r.reply
+);
+
+$("maviStatus").textContent=
+`Mavi è pronta · ${r.device||"locale"}`;
+
+if(speak)
+speakText(r.reply);
+
+}catch(e){
+
+addChat(
+e.message,
+"bot"
+);
+
+$("maviStatus").textContent=
+e.message;
+
+}finally{
+
+busy=false;
+
+$("maviSend").disabled=false;
+
+}
+
+}
+
+function speakText(text){
+
+if(!("speechSynthesis" in window))
+return;
+
+speechSynthesis.cancel();
+
+const u=
+new SpeechSynthesisUtterance(text);
+
+u.lang="it-IT";
+
+u.rate=.98;
+
+speechSynthesis.speak(u);
+
+}
+
+function toggleVoice(){
+
+if(listening){
+
+recognition?.stop();
+
+return;
+
+}
+
+if(
+!("SpeechRecognition"in window||
+"webkitSpeechRecognition"in window)
+){
+
+alert(
+"Il riconoscimento vocale non è supportato da questo browser."
+);
+
+return;
+
+}
+
+const SR=
+window.SpeechRecognition||
+window.webkitSpeechRecognition;
+
+recognition=new SR();
+
+recognition.lang="it-IT";
+
+recognition.interimResults=false;
+
+recognition.continuous=false;
+
+if("processLocally" in recognition)
+recognition.processLocally=true;
+
+recognition.onstart=()=>{
+
+listening=true;
+
+$("micButton")
+.classList.add("listening");
+
+$("voiceLabel").textContent=
+"Sto ascoltando…";
+
+};
+
+recognition.onresult=e=>{
+
+const t=
+e.results[0][0].transcript;
+
+askMavi(
+t,
+true
+);
+
+};
+
+recognition.onerror=e=>{
+
+$("voiceLabel").textContent=
+e.error==="language-not-supported"
+?
+"Riconoscimento locale non disponibile"
+:
+"Errore microfono";
+
+console.warn(e);
+
+};
+
+recognition.onend=()=>{
+
+listening=false;
+
+$("micButton")
+.classList.remove("listening");
+
+$("voiceLabel").textContent=
+"Premi il microfono";
+
+};
+
+recognition.start();
+
+}
+
+async function generatePost(){
+
+const topic=
+$("postTopic")
+.value
+.trim();
+
+const extra=
+$("postExtra")
+.value
+.trim();
+
+const type=
+$("postType").value;
+
+const style=
+$("postStyle").value;
+
+const platform=
+selectedPlatform;
+
+if(
+!topic&&
+!data.services.length&&
+!data.promotions.length
+){
+
+$("postStatus").textContent=
+"Inserisci un argomento.";
+
+return;
+
+}
+
+const b=$("postButton");
+
+b.disabled=true;
+
+$("postStatus").textContent=
+"Mavi sta creando il contenuto…";
+
+try{
+
+const prompt=
+
+`Crea un contenuto per ${platform}.
+Tipo: ${type}.
+Stile: ${style}.
+Argomento: ${topic||"usa i dati disponibili dell'attività"}.
+Indicazioni: ${extra||"nessuna"}.
+Usa solo dati reali presenti nei dati dell'attività.
+Non inventare prezzi, servizi o promozioni.
+Restituisci solo il testo pronto da pubblicare.`;
+
+const ctx={
+
+...data,
+
+business:
+data.business?.name||
+data.settings?.name||
+"Attività locale"
+
+};
+
+const r=
+await window.MaviAI.ask({
+
+message:prompt,
+
+history:[],
+
+businessData:ctx,
+
+temperature:.6
+
+});
+
+if(!r.ok)
+throw Error(
+r.error||"Errore Mavi."
+);
+
+$("postOutput").value=
+r.reply;
+
+$("postStatus").textContent=
+"Contenuto generato localmente da Mavi.";
+
+}catch(e){
+
+$("postStatus").textContent=
+e.message;
+
+}finally{
+
+b.disabled=false;
+
+}
+
+}
+
+function selectPlatform(el){
+
+document
+.querySelectorAll(".platforms button")
+.forEach(
+b=>b.classList.remove("active")
+);
+
+el.classList.add("active");
+
+selectedPlatform=
+el.dataset.platform;
+
+}
+
+function copyText(id){
+
+const t=$(id).value;
+
+navigator.clipboard?.writeText(t);
+
+}
+
+function openModal(content){
+
+$("modal").innerHTML=content;
+
+$("modalBg")
+.classList.add("open");
+
+}
+
+function closeModal(){
+
+$("modalBg")
+.classList.remove("open");
+
+$("modal").innerHTML="";
+
+}
+
+window.addEventListener(
+"mavi-engine-status",
+e=>{
+
+const d=e.detail||{};
+
+const s=d.status||"";
+
+const t=d.detail||"";
+
+$("maviStatus").textContent=
+t||s;
+
+$("homeEngineStatus").textContent=
+s==="ready"
+?
+"Mavi è pronta"
+:
+t||s;
+
+$("homeEngineStatus").className=
+"engine-status "+
+(
+s==="ready"
+?
+"ready"
+:
+s==="error"
+?
+"error"
+:
+""
+);
+
+$("enginePill").textContent=
+s==="ready"
+?
+"Mavi · pronta"
+:
+s==="thinking"
+?
+"Mavi · elaborazione…"
+:
+s==="error"
+?
+"Mavi · errore"
+:
+"Mavi · caricamento…";
+
+}
+);
+
+load();
+
+$("calendarDate").value=today();
+
+renderAll();
+
+showPage("home");
+
+preloadMavi();
 
 </script>
-  <!-- ============================================================
-     MAVIRI — MAVI LOCAL AI ENGINE
-     Nessuna OpenAI
-     Nessuna API key
-     Qwen3 ONNX + Transformers.js
-     WebGPU -> WASM
-     ============================================================ -->
 
-<script src="./mavi-engine.js"></script>
-
-<script>
-(function () {
-
-  "use strict";
-
-  /* ==========================================================
-     MAVI LOCAL ENGINE BRIDGE
-     ========================================================== */
-
-  function getAppDataSafe() {
-
-    try {
-
-      const raw =
-        localStorage.getItem("appData");
-
-      if (!raw) {
-        return {};
-      }
-
-      const data =
-        JSON.parse(raw);
-
-      return data &&
-        typeof data === "object"
-        ? data
-        : {};
-
-    } catch (error) {
-
-      console.warn(
-        "Mavi: impossibile leggere appData",
-        error
-      );
-
-      return {};
-
-    }
-
-  }
-
-
-  function getHistory() {
-
-    try {
-
-      const raw =
-        localStorage.getItem(
-          "maviConversation"
-        );
-
-      if (!raw) {
-        return [];
-      }
-
-      const history =
-        JSON.parse(raw);
-
-      return Array.isArray(history)
-        ? history.slice(-12)
-        : [];
-
-    } catch (error) {
-
-      return [];
-
-    }
-
-  }
-
-
-  function saveHistory(
-    userMessage,
-    assistantMessage
-  ) {
-
-    try {
-
-      const history =
-        getHistory();
-
-      history.push({
-        role: "user",
-        content: String(
-          userMessage || ""
-        ).slice(0, 2000)
-      });
-
-      history.push({
-        role: "assistant",
-        content: String(
-          assistantMessage || ""
-        ).slice(0, 2000)
-      });
-
-      localStorage.setItem(
-        "maviConversation",
-        JSON.stringify(
-          history.slice(-12)
-        )
-      );
-
-    } catch (error) {
-
-      console.warn(
-        "Mavi: impossibile salvare conversazione",
-        error
-      );
-
-    }
-
-  }
-
-
-  /* ==========================================================
-     STATO ENGINE
-     ========================================================== */
-
-  window.addEventListener(
-    "mavi-engine-status",
-    function (event) {
-
-      const detail =
-        event?.detail || {};
-
-      const status =
-        detail.status || "";
-
-      const text =
-        detail.detail || "";
-
-      const element =
-        document.getElementById(
-          "maviStatus"
-        );
-
-      if (!element) {
-        return;
-      }
-
-      if (
-        status === "loading"
-      ) {
-
-        element.textContent =
-          text ||
-          "Mavi sta caricando il motore locale…";
-
-      } else if (
-        status === "thinking"
-      ) {
-
-        element.textContent =
-          "Mavi sta elaborando…";
-
-      } else if (
-        status === "ready"
-      ) {
-
-        element.textContent =
-          "Mavi è pronta";
-
-      } else if (
-        status === "error"
-      ) {
-
-        element.textContent =
-          text ||
-          "Errore del motore Mavi.";
-
-      }
-
-    }
-  );
-
-
-  /* ==========================================================
-     MESSAGGIO CHAT
-     ========================================================== */
-
-  function showMaviMessage(
-    text
-  ) {
-
-    if (
-      window.Mavi &&
-      typeof window.Mavi.message ===
-        "function"
-    ) {
-
-      window.Mavi.message(
-        text
-      );
-
-    }
-
-    const chat =
-      document.getElementById(
-        "chat"
-      );
-
-    if (!chat) {
-      return;
-    }
-
-    const box =
-      document.createElement(
-        "div"
-      );
-
-    box.className =
-      "msg bot";
-
-    box.textContent =
-      String(text || "");
-
-    chat.appendChild(
-      box
-    );
-
-    chat.scrollTop =
-      chat.scrollHeight;
-
-  }
-
-
-  /* ==========================================================
-     MAVI ENGINE
-     ========================================================== */
-
-  async function askLocalMavi(
-    text
-  ) {
-
-    if (
-      !window.MaviAI ||
-      typeof window.MaviAI.ask !==
-        "function"
-    ) {
-
-      throw new Error(
-        "Mavi AI Engine non disponibile."
-      );
-
-    }
-
-    const data =
-      getAppDataSafe();
-
-    const result =
-      await window.MaviAI.ask({
-
-        message:
-          text,
-
-        history:
-          getHistory(),
-
-        businessData:
-          data,
-
-        temperature:
-          0.45
-
-      });
-
-    if (
-      !result ||
-      result.ok !== true
-    ) {
-
-      throw new Error(
-        result?.error ||
-        "Mavi non ha prodotto una risposta."
-      );
-
-    }
-
-    saveHistory(
-      text,
-      result.reply
-    );
-
-    return result;
-
-  }
-
-
-  /* ==========================================================
-     SOSTITUZIONE DEL PROCESSORE VOCALE
-     ========================================================== */
-
-  if (
-    window.Mavi
-  ) {
-
-    const originalProcess =
-      window.Mavi.process;
-
-    window.Mavi.process =
-      async function (
-        text
-      ) {
-
-        if (!text) {
-
-          this.setState(
-            "idle"
-          );
-
-          return;
-
-        }
-
-        this.setState(
-          "processing"
-        );
-
-        this.message(
-          text
-        );
-
-        try {
-
-          const result =
-            await askLocalMavi(
-              text
-            );
-
-          const reply =
-            result.reply ||
-            "Non ho ricevuto una risposta.";
-
-          this.message(
-            reply
-          );
-
-          this.speak(
-            reply
-          );
-
-          this.setState(
-            "speaking"
-          );
-
-          return;
-
-        } catch (error) {
-
-          console.error(
-            "MAVI LOCAL ENGINE ERROR:",
-            error
-          );
-
-          /*
-           * Se il motore locale non è ancora
-           * pronto, non utilizziamo OpenAI.
-           */
-
-          const message =
-            error?.message ||
-            "Il motore locale di Mavi non è ancora pronto.";
-
-          this.message(
-            message
-          );
-
-          this.speak(
-            message
-          );
-
-          this.setState(
-            "idle"
-          );
-
-        }
-
-      };
-
-  }
-
-
-  /* ==========================================================
-     PRECARICAMENTO
-     ========================================================== */
-
-  function preloadMaviEngine() {
-
-    if (
-      !window.MaviAI ||
-      typeof window.MaviAI.preload !==
-        "function"
-    ) {
-
-      return;
-
-    }
-
-    /*
-     * Il caricamento parte senza bloccare
-     * l'apertura dell'app.
-     */
-
-    window.MaviAI
-      .preload()
-      .catch(
-        function (error) {
-
-          console.warn(
-            "Mavi Engine preload:",
-            error
-          );
-
-        }
-      );
-
-  }
-
-
-  /* ==========================================================
-     PULIZIA CONVERSAZIONE
-     ========================================================== */
-
-  window.MaviLocal =
-    {
-
-      ask:
-        askLocalMavi,
-
-      clearHistory:
-        function () {
-
-          try {
-
-            localStorage.removeItem(
-              "maviConversation"
-            );
-
-          } catch (error) {}
-
-        },
-
-      isReady:
-        function () {
-
-          return !!(
-            window.MaviAI &&
-            typeof window.MaviAI.isReady ===
-              "function" &&
-            window.MaviAI.isReady()
-          );
-
-        },
-
-      device:
-        function () {
-
-          if (
-            window.MaviAI &&
-            typeof window.MaviAI.getDevice ===
-              "function"
-          ) {
-
-            return window.MaviAI.getDevice();
-
-          }
-
-          return "unknown";
-
-        }
-
-    };
-
-
-  /* ==========================================================
-     PRELOAD DOPO IL CARICAMENTO PAGINA
-     ========================================================== */
-
-  if (
-    document.readyState ===
-    "loading"
-  ) {
-
-    document.addEventListener(
-      "DOMContentLoaded",
-      preloadMaviEngine,
-      {
-        once: true
-      }
-    );
-
-  } else {
-
-    preloadMaviEngine();
-
-  }
-
-})();
-</script>
 </body>
 </html>
