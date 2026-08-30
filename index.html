@@ -1,678 +1,659 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1640">
-<meta name="description" content="Maviri — il manager digitale dell'attività con Mavi">
-<link rel="manifest" href="manifest.json">
-<title>Maviri — Mavi</title>
+<meta name="theme-color" content="#07142F">
+<title>Maviri — Manager digitale</title>
 
 <style>
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
 :root{
-  --bg:#f4f6ff;
-  --surface:#fff;
-  --surface2:#f7f8ff;
-  --ink:#111a35;
-  --muted:#68728b;
-  --line:#dfe4f2;
-  --navy:#0b1640;
-  --navy2:#15265a;
-  --blue:#2478f2;
-  --cyan:#16b9f4;
-  --violet:#7a4dff;
-  --green:#35b98b;
-  --lime:#73d62d;
-  --red:#d63b3b;
-  --amber:#b97800;
-  --radius:18px;
-  --shadow:0 8px 28px rgba(24,38,82,.07)
+  --navy:#07142f;
+  --navy2:#0b1d40;
+  --panel:#10254c;
+  --panel2:#132b57;
+  --text:#f5f8ff;
+  --muted:#9eafd0;
+  --line:rgba(255,255,255,.09);
+  --blue:#38a7ff;
+  --violet:#875cff;
+  --green:#39d98a;
+  --danger:#ff6578;
+  --gradient:linear-gradient(135deg,#38a7ff 0%,#875cff 52%,#39d98a 100%);
+  --shadow:0 18px 50px rgba(0,0,0,.28);
+  --radius:22px;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(56,167,255,.13),transparent 32%),
+    radial-gradient(circle at 90% 20%,rgba(135,92,255,.13),transparent 35%),
+    var(--navy);
+  color:var(--text);
 }
 
 body{
-  margin:0;
-  background:var(--bg);
-  color:var(--ink);
-  font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif
+  overflow-x:hidden;
 }
 
-button,input,textarea,select{font:inherit}
+button,
+input,
+textarea,
+select{
+  font:inherit;
+}
 
 button{
-  border:0;
   cursor:pointer;
-  border-radius:12px;
-  padding:10px 14px;
-  font-weight:750;
-  transition:.15s ease
 }
 
-button:hover{transform:translateY(-1px)}
-button:disabled{opacity:.5;cursor:not-allowed;transform:none}
-
-header{
-  background:
-    radial-gradient(circle at 78% 0%,rgba(122,77,255,.34),transparent 34%),
-    radial-gradient(circle at 15% 100%,rgba(22,185,244,.16),transparent 34%),
-    linear-gradient(135deg,var(--navy),var(--navy2));
-  color:#fff;
-  padding:12px max(14px,calc((100% - 1180px)/2));
-  position:relative
+.app{
+  min-height:100vh;
 }
 
-.header-row{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  min-height:58px
+/* =========================================================
+   LOGO
+========================================================= */
+
+.maviri-logo{
+  width:48px;
+  height:48px;
+  display:block;
+  flex:none;
+}
+
+.maviri-logo.large{
+  width:92px;
+  height:92px;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar{
+  position:fixed;
+  z-index:20;
+  left:0;
+  top:0;
+  bottom:0;
+  width:250px;
+  padding:22px 15px;
+  background:rgba(5,16,38,.94);
+  border-right:1px solid var(--line);
 }
 
 .brand{
   display:flex;
   align-items:center;
   gap:12px;
-  min-width:0
+  padding:4px 8px 22px;
 }
 
-.brand-logo,
-.hero-logo{
-  background:var(--navy);
-  overflow:hidden;
-  display:grid;
-  place-items:center
-}
-
-.brand-logo{
-  width:50px;
-  height:50px;
-  flex:0 0 50px;
-  border-radius:15px;
-  box-shadow:0 10px 28px rgba(36,120,242,.24)
-}
-
-.brand-logo svg,
-.hero-logo svg{
-  width:100%;
-  height:100%;
-  display:block
-}
-
-.brand h1{
+.brand-name{
   font-size:21px;
-  margin:0
+  font-weight:800;
 }
 
-.brand small{
-  color:#b9c5df;
-  display:block;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis
-}
-
-.engine-pill{
-  margin-left:auto;
-  border:1px solid #ffffff20;
-  background:#ffffff0d;
-  padding:8px 12px;
-  border-radius:999px;
+.brand-sub{
+  margin-top:2px;
+  color:var(--muted);
   font-size:12px;
-  color:#dbe4f3;
-  white-space:nowrap
 }
 
-.engine-pill.ready{
-  color:#bdf6d9;
-  border-color:#35b98b55
+.nav{
+  display:grid;
+  gap:7px;
+  margin-top:12px;
 }
 
-.engine-pill.error{
-  color:#ffd0d0;
-  border-color:#d63b3b55
-}
-
-nav{
-  position:sticky;
-  top:0;
-  z-index:50;
-  background:#ffffffed;
-  backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--line);
+.nav button{
+  width:100%;
   display:flex;
-  gap:5px;
-  overflow:auto;
-  padding:8px max(10px,calc((100% - 1180px)/2))
-}
-
-nav button{
+  align-items:center;
+  gap:12px;
+  padding:13px 14px;
+  border:0;
+  border-radius:14px;
   background:transparent;
-  color:#566176;
-  white-space:nowrap;
-  padding:9px 13px
+  color:var(--muted);
+  text-align:left;
 }
 
-nav button.active{
-  background:linear-gradient(135deg,#e9f5ff,#f0ebff);
-  color:#315edc
+.nav button:hover,
+.nav button.active{
+  background:rgba(255,255,255,.06);
+  color:#fff;
 }
 
-main{
-  width:min(1180px,100%);
-  margin:auto;
-  padding:22px 14px 70px
+.nav-icon{
+  width:22px;
+  text-align:center;
+  font-size:18px;
 }
 
-.page{display:none}
-.page.active{
-  display:block;
-  animation:in .16s ease
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main{
+  width:calc(100% - 250px);
+  margin-left:250px;
+  padding:28px;
+  max-width:1550px;
 }
 
-@keyframes in{
-  from{opacity:.5;transform:translateY(4px)}
-  to{opacity:1;transform:none}
-}
-
-.heading{
+.topbar{
   display:flex;
   justify-content:space-between;
-  gap:15px;
-  align-items:flex-start;
-  margin:3px 0 18px
+  align-items:center;
+  gap:20px;
+  margin-bottom:24px;
 }
 
-.heading h2{
+.topbar h1{
   margin:0;
-  font-size:27px;
-  letter-spacing:-.7px
+  font-size:29px;
 }
 
-.heading p{
-  margin:4px 0;
-  color:var(--muted)
+.topbar p{
+  margin:5px 0 0;
+  color:var(--muted);
 }
 
-.card,
-.stat{
-  background:var(--surface);
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(19,43,87,.95),
+      rgba(10,29,62,.95)
+    );
   border:1px solid var(--line);
   border-radius:var(--radius);
-  padding:19px;
-  margin-bottom:15px;
-  box-shadow:var(--shadow)
-}
-
-.hero{
-  background:
-    radial-gradient(circle at 88% 12%,rgba(122,77,255,.42),transparent 28%),
-    radial-gradient(circle at 8% 100%,rgba(22,185,244,.18),transparent 30%),
-    linear-gradient(135deg,var(--navy),#1b3474 58%,#173e61);
-  color:#fff;
-  border:0;
-  overflow:hidden;
-  position:relative
-}
-
-.hero h2{
-  margin:0 0 5px;
-  font-size:27px
-}
-
-.hero p{
-  color:#d9e3ff;
-  margin:0
-}
-
-.hero-logo{
-  width:88px;
-  height:88px;
-  border-radius:24px;
-  margin-bottom:15px;
-  box-shadow:0 12px 28px rgba(0,0,0,.22)
+  box-shadow:var(--shadow);
+  padding:21px;
 }
 
 .grid{
   display:grid;
+  gap:18px;
+}
+
+.grid-2{
+  grid-template-columns:1.2fr .8fr;
+}
+
+.grid-3{
+  grid-template-columns:repeat(3,1fr);
+}
+
+.stats{
   grid-template-columns:repeat(4,1fr);
-  gap:12px
 }
 
-.stat{padding:17px}
-.stat b{
-  display:block;
-  font-size:29px;
-  line-height:1.1
+.stat{
+  padding:20px;
 }
 
-.stat span{
+.stat-label{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.stat-number{
+  margin-top:8px;
+  font-size:31px;
+  font-weight:800;
+}
+
+.gradient-line{
+  height:4px;
+  margin-top:16px;
+  border-radius:10px;
+  background:var(--gradient);
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:25px;
+  min-height:235px;
+  padding:30px;
+}
+
+.hero h2{
+  margin:0 0 10px;
+  font-size:35px;
+}
+
+.gradient-text{
+  background:var(--gradient);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.hero p{
+  max-width:700px;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn{
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:11px 16px;
+  background:#193968;
+  color:#fff;
+}
+
+.btn:hover{
+  filter:brightness(1.12);
+}
+
+.btn.primary{
+  background:var(--gradient);
+  font-weight:750;
+}
+
+.btn.danger{
+  background:rgba(255,101,120,.12);
+  color:#ff8997;
+}
+
+.btn.secondary{
+  background:rgba(255,255,255,.05);
+}
+
+.btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.between{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+.form{
+  display:grid;
+  gap:12px;
+}
+
+.form.two{
+  grid-template-columns:1fr 1fr;
+}
+
+.field{
+  display:grid;
+  gap:6px;
+}
+
+.field.full{
+  grid-column:1/-1;
+}
+
+.field label{
   color:var(--muted);
   font-size:12px;
-  font-weight:700
-}
-
-.quick{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin-top:17px
-}
-
-.quick button{
-  text-align:left;
-  background:#ffffff12;
-  color:#fff;
-  border:1px solid #ffffff20
-}
-
-.quick strong{display:block}
-.quick small{color:#cdd8ee}
-
-label{
-  display:block;
-  font-size:12px;
-  font-weight:800;
-  color:#566176;
-  margin:8px 0 4px
 }
 
 input,
 textarea,
 select{
   width:100%;
-  border:1px solid #cfd6e2;
+  padding:12px;
+  border:1px solid var(--line);
   border-radius:12px;
-  padding:11px 12px;
-  background:#fff;
-  color:var(--ink);
-  outline:none
+  outline:none;
+  background:#091a39;
+  color:#fff;
+}
+
+textarea{
+  min-height:110px;
+  resize:vertical;
 }
 
 input:focus,
 textarea:focus,
 select:focus{
-  border-color:var(--violet);
-  box-shadow:0 0 0 3px #7a4dff1f
+  border-color:rgba(56,167,255,.7);
 }
 
-textarea{resize:vertical}
+/* =========================================================
+   LISTS
+========================================================= */
 
-.row{
-  display:flex;
-  gap:9px;
-  align-items:center
+.list{
+  display:grid;
+  gap:10px;
 }
 
-.row>*{flex:1}
-
-.primary{
-  background:linear-gradient(135deg,var(--blue),var(--violet));
-  color:#fff;
-  box-shadow:0 7px 18px #4b5be62e
+.item{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:rgba(255,255,255,.025);
 }
 
-.secondary{
-  background:#eef1f6;
-  color:#344054
+.item strong{
+  display:block;
 }
 
-.success{
-  background:#e0f8ee;
-  color:#12683e
-}
-
-.danger{
-  background:#fee8e8;
-  color:#a32121
-}
-
-.warning{
-  background:#fff2cf;
-  color:#805800
-}
-
-.muted{
+.meta{
+  margin-top:5px;
   color:var(--muted);
-  font-size:13px
+  font-size:12px;
 }
 
-.divider{
-  border:0;
-  border-top:1px solid var(--line);
-  margin:20px 0
+.empty{
+  padding:30px;
+  text-align:center;
+  color:var(--muted);
 }
 
-.section-title{
+/* =========================================================
+   BADGES
+========================================================= */
+
+.badge{
+  display:inline-flex;
+  padding:5px 9px;
+  border-radius:99px;
+  background:rgba(57,217,138,.12);
+  color:#72e9ae;
+  font-size:11px;
+}
+
+.badge.blue{
+  background:rgba(56,167,255,.12);
+  color:#79c7ff;
+}
+
+.badge.danger{
+  background:rgba(255,101,120,.12);
+  color:#ff8997;
+}
+
+/* =========================================================
+   CALENDAR
+========================================================= */
+
+.calendar-head{
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:10px;
-  margin-bottom:12px
+  margin-bottom:16px;
 }
-
-.section-title h3{margin:0}
-
-.chat{
-  height:440px;
-  overflow:auto;
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:#f7f8ff;
-  padding:13px
-}
-
-.msg{
-  max-width:88%;
-  padding:11px 13px;
-  border-radius:15px;
-  margin:8px 0;
-  white-space:pre-wrap;
-  word-break:break-word
-}
-
-.msg.bot{background:#eef2ff}
-
-.msg.user{
-  background:linear-gradient(135deg,#e5f4ff,#eee8ff);
-  color:#263f91;
-  margin-left:auto
-}
-
-.msg.system{
-  background:#fff4d6;
-  color:#765300;
-  max-width:100%;
-  font-size:13px
-}
-
-.voice{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-top:10px;
-  padding:11px 13px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:#fbfcff
-}
-
-.mic{
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  padding:0;
-  background:linear-gradient(135deg,var(--blue),var(--violet));
-  color:#fff;
-  font-size:19px;
-  flex:0 0 48px
-}
-
-.mic.listening{
-  background:var(--red);
-  animation:pulse 1.2s infinite
-}
-
-@keyframes pulse{
-  50%{box-shadow:0 0 0 8px #d63b3b18}
-}
-
-.engine-status{
-  font-size:12px;
-  color:var(--muted)
-}
-
-.engine-status.ready{color:var(--green)}
-.engine-status.error{color:var(--red)}
-
-.list-item{
-  border:1px solid var(--line);
-  background:#fafbfe;
-  border-radius:14px;
-  padding:13px;
-  margin:8px 0
-}
-
-.list-item b{display:block}
-
-.actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-  margin-top:10px
-}
-
-.small{
-  font-size:12px;
-  padding:7px 10px
-}
-
-.two{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px
-}
-
-.three{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px
-}
-
-.calendar-head{
-  display:flex;
-  gap:8px;
-  align-items:center
-}
-
-.calendar-head input{margin:0}
 
 .calendar{
   display:grid;
+  grid-template-columns:repeat(7,1fr);
   gap:6px;
-  margin-top:15px
 }
 
-.slot{
-  display:grid;
-  grid-template-columns:60px 1fr;
-  gap:7px
-}
-
-.slot-time{
-  display:grid;
-  place-items:center;
+.weekday{
+  padding:7px;
+  text-align:center;
   color:var(--muted);
-  font-size:12px;
-  font-weight:800
+  font-size:11px;
 }
 
-.slot-box{
-  min-height:46px;
+.day{
+  min-height:86px;
+  padding:8px;
   border:1px solid var(--line);
   border-radius:12px;
-  padding:9px 11px;
-  background:#f9fafc
+  background:rgba(255,255,255,.025);
+  cursor:pointer;
 }
 
-.slot-box.free{
-  cursor:pointer
+.day:hover,
+.day.selected{
+  border-color:rgba(56,167,255,.75);
 }
 
-.slot-box.free:hover{
-  background:#eef5ff;
-  border-color:#8ab6ff
+.day.muted{
+  opacity:.3;
 }
 
-.slot-box.busy{
-  background:#e9edff;
-  border-color:#b0b9ff
+.day-number{
+  font-size:12px;
 }
 
-.slot-box.closed{
-  color:#9aa4b2;
-  background:#f0f2f5
-}
-
-.badge{
+.event-dot{
   display:inline-block;
-  border-radius:999px;
-  padding:3px 8px;
-  font-size:11px;
-  font-weight:800
+  width:7px;
+  height:7px;
+  margin-top:7px;
+  border-radius:50%;
+  background:var(--green);
 }
 
-.confirmed{
-  background:#e0f8ee;
-  color:#12683e
-}
+/* =========================================================
+   MAVI
+========================================================= */
 
-.completed{
-  background:#e5edff;
-  color:#2449a5
-}
-
-.cancelled{
-  background:#fee8e8;
-  color:#a32121
-}
-
-.booking-box{
-  display:none;
-  margin-top:12px;
-  border:1px solid #b7a6ff;
-  background:linear-gradient(135deg,#f3f8ff,#f5efff);
-  border-radius:16px;
-  padding:15px
-}
-
-.booking-box.open{display:block}
-
-.booking-title{
+.chat{
+  height:600px;
   display:flex;
-  align-items:center;
-  gap:10px;
-  font-weight:850;
-  margin-bottom:8px
+  flex-direction:column;
 }
 
-.booking-icon{
-  width:34px;
-  height:34px;
-  border-radius:10px;
-  display:grid;
-  place-items:center;
-  background:#eee9ff;
-  color:#6a48e8
-}
-
-.booking-summary{
-  padding:11px 12px;
-  border-radius:12px;
-  background:#fff;
-  border:1px solid #e1e7f2
-}
-
-.empty{
-  padding:15px;
-  text-align:center;
-  color:var(--muted)
-}
-
-.modal-bg{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#0b164099;
-  z-index:100;
-  align-items:center;
-  justify-content:center;
-  padding:14px
-}
-
-.modal-bg.open{display:flex}
-
-.modal{
-  width:min(620px,100%);
-  max-height:90vh;
+.messages{
+  flex:1;
   overflow:auto;
-  background:#fff;
-  border-radius:20px;
-  padding:20px
+  display:grid;
+  align-content:start;
+  gap:10px;
+  padding:10px 4px;
 }
 
-.client-head{
+.bubble{
+  max-width:85%;
+  padding:12px 15px;
+  border-radius:17px;
+  line-height:1.45;
+  white-space:pre-wrap;
+}
+
+.bubble.mavi{
+  justify-self:start;
+  background:#0a1b3b;
+  border:1px solid var(--line);
+}
+
+.bubble.user{
+  justify-self:end;
+  background:var(--gradient);
+}
+
+.chatbar{
   display:flex;
-  gap:13px;
-  align-items:center
+  gap:8px;
+  margin-top:10px;
 }
 
-.client-avatar{
+.chatbar input{
+  flex:1;
+}
+
+.voice-button{
   width:48px;
-  height:48px;
+}
+
+.confirmation{
+  margin-top:10px;
+  padding:15px;
+  border:1px solid rgba(57,217,138,.4);
   border-radius:15px;
-  background:linear-gradient(135deg,#e7f7ff,#efe7ff);
-  color:#4b45a8;
+  background:rgba(57,217,138,.08);
+}
+
+.confirmation-title{
+  margin-bottom:8px;
+  font-weight:800;
+}
+
+/* =========================================================
+   CLIENT CARD
+========================================================= */
+
+.client-history{
   display:grid;
-  place-items:center;
-  font-weight:900
+  gap:8px;
+  margin-top:10px;
 }
 
-.search{margin-bottom:12px}
-
-.content-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px
-}
-
-.pill{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  border-radius:999px;
-  padding:5px 9px;
-  background:#edf5ff;
-  color:#2a65c7;
-  font-size:11px;
-  font-weight:800
-}
+/* =========================================================
+   TOAST
+========================================================= */
 
 .toast{
   position:fixed;
-  right:16px;
-  bottom:16px;
-  z-index:200;
+  z-index:100;
+  right:22px;
+  bottom:22px;
   display:none;
-  background:#101a38;
-  color:#fff;
+  padding:13px 16px;
+  border:1px solid var(--line);
   border-radius:14px;
-  padding:12px 15px;
-  box-shadow:0 12px 30px #0b164055
+  background:#10284f;
+  box-shadow:var(--shadow);
 }
 
-.toast.show{display:block}
-
-.loading{
-  opacity:.65;
-  pointer-events:none
+.toast.show{
+  display:block;
 }
 
-@media(max-width:800px){
-  .grid{grid-template-columns:repeat(2,1fr)}
-  .quick,.two,.content-grid{grid-template-columns:1fr}
-  .three{grid-template-columns:1fr}
-  .engine-pill{display:none}
-  .heading{flex-direction:column}
-  .slot{grid-template-columns:52px 1fr}
-  .brand-logo{
-    width:44px;
-    height:44px;
-    flex-basis:44px
+/* =========================================================
+   MOBILE
+========================================================= */
+
+.mobile-nav{
+  display:none;
+}
+
+@media(max-width:900px){
+
+  .sidebar{
+    display:none;
   }
-  .hero-logo{
-    width:76px;
-    height:76px
+
+  .main{
+    width:100%;
+    margin-left:0;
+    padding:18px 14px 90px;
+  }
+
+  .mobile-nav{
+    position:fixed;
+    z-index:50;
+    left:10px;
+    right:10px;
+    bottom:10px;
+    display:flex;
+    justify-content:space-around;
+    height:64px;
+    padding:5px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    background:rgba(6,18,42,.96);
+  }
+
+  .mobile-nav button{
+    border:0;
+    background:none;
+    color:var(--muted);
+    font-size:10px;
+  }
+
+  .mobile-nav button.active{
+    color:#fff;
+  }
+
+  .mobile-nav span{
+    display:block;
+    margin-bottom:2px;
+    font-size:19px;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .grid-2,
+  .grid-3{
+    grid-template-columns:1fr;
+  }
+
+  .form.two{
+    grid-template-columns:1fr;
+  }
+
+  .field.full{
+    grid-column:auto;
+  }
+
+  .hero{
+    min-height:auto;
+    padding:22px;
+  }
+
+  .hero h2{
+    font-size:27px;
+  }
+
+  .maviri-logo.large{
+    width:70px;
+    height:70px;
+  }
+
+  .calendar .day{
+    min-height:68px;
+    padding:6px;
   }
 }
 </style>
@@ -680,261 +661,419 @@ textarea{resize:vertical}
 
 <body>
 
-<header>
-  <div class="header-row">
+<div class="app">
 
-    <div class="brand">
+<!-- ======================================================
+     SIDEBAR
+====================================================== -->
 
-      <div class="brand-logo" aria-label="Logo Maviri">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <defs>
-            <linearGradient id="logoGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#16B9F4"/>
-              <stop offset=".35" stop-color="#2478F2"/>
-              <stop offset=".58" stop-color="#7A4DFF"/>
-              <stop offset=".78" stop-color="#35B98B"/>
-              <stop offset="1" stop-color="#73D62D"/>
-            </linearGradient>
+<aside class="sidebar">
 
-            <radialGradient id="logoGlow" cx="50%" cy="45%" r="60%">
-              <stop offset="0" stop-color="#5146B8" stop-opacity=".42"/>
-              <stop offset="1" stop-color="#0B1640" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
+  <div class="brand">
 
-          <rect width="100" height="100" rx="22" fill="#0B1640"/>
-          <rect x="2" y="2" width="96" height="96" rx="20" fill="url(#logoGlow)"/>
+    <!-- LOGO DEFINITIVO MAVIRI -->
+    <svg class="maviri-logo"
+         viewBox="0 0 100 100"
+         aria-label="Logo Maviri">
 
-          <path
-            d="M18 72V31c0-6 4-10 10-10h3c3 0 5 1 8 4l11 11 11-11c3-3 5-4 8-4h3c6 0 10 4 10 10v41c0 5-3 8-8 8s-8-3-8-8V47L56 59c-2 2-5 2-7 0L34 47v25c0 5-3 8-8 8s-8-3-8-8Z"
-            fill="url(#logoGradient)"
-          />
-        </svg>
-      </div>
+      <defs>
+        <linearGradient id="maviriGradient"
+                        x1="0"
+                        y1="0"
+                        x2="1"
+                        y2="1">
 
-      <div>
-        <h1>Maviri</h1>
-        <small>Mavi · assistente digitale dell'attività</small>
-      </div>
+          <stop offset="0%"
+                stop-color="#38A7FF"/>
 
-    </div>
+          <stop offset="52%"
+                stop-color="#875CFF"/>
 
-    <div class="engine-pill" id="enginePill">
-      Mavi locale
+          <stop offset="100%"
+                stop-color="#39D98A"/>
+
+        </linearGradient>
+      </defs>
+
+      <rect
+        width="100"
+        height="100"
+        rx="25"
+        fill="#07142F"/>
+
+      <path
+        d="M20 72V29
+           C20 23 28 20 32 25
+           L50 48
+           L68 25
+           C72 20 80 23 80 29
+           V72"
+        fill="none"
+        stroke="url(#maviriGradient)"
+        stroke-width="11"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+    </svg>
+
+    <div>
+      <div class="brand-name">Maviri</div>
+      <div class="brand-sub">Manager digitale</div>
     </div>
 
   </div>
-</header>
 
-<nav id="nav">
-  <button class="active" data-page="home">Home</button>
-  <button data-page="mavi">Mavi</button>
-  <button data-page="calendar">Calendario</button>
-  <button data-page="clients">Clienti</button>
-  <button data-page="content">Contenuti</button>
-  <button data-page="settings">Impostazioni</button>
-</nav>
+  <nav class="nav">
 
-<main>
+    <button data-page="home" class="active">
+      <span class="nav-icon">⌂</span>
+      Home
+    </button>
 
-<!-- =========================================================
+    <button data-page="mavi">
+      <span class="nav-icon">✦</span>
+      Mavi
+    </button>
+
+    <button data-page="calendar">
+      <span class="nav-icon">□</span>
+      Calendario
+    </button>
+
+    <button data-page="clients">
+      <span class="nav-icon">♙</span>
+      Clienti
+    </button>
+
+    <button data-page="content">
+      <span class="nav-icon">▤</span>
+      Contenuti
+    </button>
+
+    <button data-page="settings">
+      <span class="nav-icon">⚙</span>
+      Impostazioni
+    </button>
+
+  </nav>
+
+</aside>
+
+<!-- ======================================================
+     MAIN
+====================================================== -->
+
+<main class="main">
+
+  <div class="topbar">
+
+    <div>
+      <h1 id="pageTitle">Home</h1>
+      <p id="pageSubtitle">
+        Il tuo lavoro organizzato. Mavi al tuo fianco.
+      </p>
+    </div>
+
+    <div class="muted" id="saveStatus">
+      Dati locali
+    </div>
+
+  </div>
+
+<!-- ======================================================
      HOME
-========================================================= -->
+====================================================== -->
 
-<section id="home" class="page active">
+<section class="page active" id="page-home">
 
   <div class="card hero">
 
-    <div class="hero-logo">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="heroGradient" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#16B9F4"/>
-            <stop offset=".35" stop-color="#2478F2"/>
-            <stop offset=".58" stop-color="#7A4DFF"/>
-            <stop offset=".78" stop-color="#35B98B"/>
-            <stop offset="1" stop-color="#73D62D"/>
-          </linearGradient>
-        </defs>
+    <div>
 
-        <rect width="100" height="100" rx="22" fill="#0B1640"/>
+      <div class="meta">MAVIRI</div>
 
-        <path
-          d="M18 72V31c0-6 4-10 10-10h3c3 0 5 1 8 4l11 11 11-11c3-3 5-4 8-4h3c6 0 10 4 10 10v41c0 5-3 8-8 8s-8-3-8-8V47L56 59c-2 2-5 2-7 0L34 47v25c0 5-3 8-8 8s-8-3-8-8Z"
-          fill="url(#heroGradient)"
-        />
-      </svg>
+      <h2>
+        Tu lavori.
+        <span class="gradient-text">
+          Mavi pensa al resto.
+        </span>
+      </h2>
+
+      <p>
+        Clienti, appuntamenti, servizi, promozioni e contenuti
+        in un unico spazio. Mavi ti aiuta a gestire l'attività
+        senza inventare informazioni che non sono presenti
+        nei dati dell'attività.
+      </p>
+
+      <button class="btn primary"
+              onclick="openPage('mavi')">
+        Parla con Mavi
+      </button>
+
     </div>
 
-    <h2 id="homeTitle">Maviri</h2>
+    <!-- STESSO LOGO, NESSUNA M AGGIUNTIVA -->
 
-    <p>
-      Gestisci l'attività. Mavi pensa alle richieste,
-      tu mantieni il controllo.
-    </p>
+    <svg class="maviri-logo large"
+         viewBox="0 0 100 100"
+         aria-label="Maviri">
 
-    <div class="quick">
+      <defs>
 
-      <button onclick="showPage('mavi')">
-        <strong>Parla con Mavi</strong>
-        <small>Richieste e prenotazioni</small>
-      </button>
+        <linearGradient id="maviriGradientHero"
+                        x1="0"
+                        y1="0"
+                        x2="1"
+                        y2="1">
 
-      <button onclick="showPage('calendar')">
-        <strong>Calendario</strong>
-        <small>Controlla gli appuntamenti</small>
-      </button>
+          <stop offset="0%"
+                stop-color="#38A7FF"/>
 
-      <button onclick="showPage('clients')">
-        <strong>Clienti</strong>
-        <small>Schede e storico</small>
-      </button>
+          <stop offset="52%"
+                stop-color="#875CFF"/>
 
+          <stop offset="100%"
+                stop-color="#39D98A"/>
+
+        </linearGradient>
+
+      </defs>
+
+      <rect
+        width="100"
+        height="100"
+        rx="25"
+        fill="#07142F"/>
+
+      <path
+        d="M20 72V29
+           C20 23 28 20 32 25
+           L50 48
+           L68 25
+           C72 20 80 23 80 29
+           V72"
+        fill="none"
+        stroke="url(#maviriGradientHero)"
+        stroke-width="11"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+    </svg>
+
+  </div>
+
+  <div class="grid stats" style="margin-top:18px">
+
+    <div class="card stat">
+      <div class="stat-label">
+        Appuntamenti oggi
+      </div>
+
+      <div class="stat-number"
+           id="todayAppointments">
+        0
+      </div>
+
+      <div class="gradient-line"></div>
+    </div>
+
+    <div class="card stat">
+      <div class="stat-label">
+        Prenotazioni future
+      </div>
+
+      <div class="stat-number"
+           id="futureAppointments">
+        0
+      </div>
+
+      <div class="gradient-line"></div>
+    </div>
+
+    <div class="card stat">
+      <div class="stat-label">
+        Clienti
+      </div>
+
+      <div class="stat-number"
+           id="clientCount">
+        0
+      </div>
+
+      <div class="gradient-line"></div>
+    </div>
+
+    <div class="card stat">
+      <div class="stat-label">
+        Servizi
+      </div>
+
+      <div class="stat-number"
+           id="serviceCount">
+        0
+      </div>
+
+      <div class="gradient-line"></div>
     </div>
 
   </div>
 
-  <div class="grid">
+  <div class="grid grid-2"
+       style="margin-top:18px">
 
-    <div class="stat">
-      <b id="statToday">0</b>
-      <span>Oggi</span>
+    <div class="card">
+
+      <div class="between">
+
+        <h3>
+          Prossimi appuntamenti
+        </h3>
+
+        <button class="btn"
+                onclick="openPage('calendar')">
+          Calendario
+        </button>
+
+      </div>
+
+      <div id="homeAppointments"
+           class="list">
+      </div>
+
     </div>
 
-    <div class="stat">
-      <b id="statWeek">0</b>
-      <span>Prossimi 7 giorni</span>
+    <div class="card">
+
+      <h3>
+        Accesso rapido
+      </h3>
+
+      <div class="grid grid-2">
+
+        <button class="btn"
+                onclick="newAppointment()">
+          + Appuntamento
+        </button>
+
+        <button class="btn"
+                onclick="newClient()">
+          + Cliente
+        </button>
+
+        <button class="btn"
+                onclick="openPage('content')">
+          Nuovo contenuto
+        </button>
+
+        <button class="btn"
+                onclick="openPage('settings')">
+          Gestisci attività
+        </button>
+
+      </div>
+
     </div>
-
-    <div class="stat">
-      <b id="statClients">0</b>
-      <span>Clienti</span>
-    </div>
-
-    <div class="stat">
-      <b id="statServices">0</b>
-      <span>Servizi</span>
-    </div>
-
-  </div>
-
-  <div class="card">
-
-    <div class="section-title">
-      <h3>Prossimi appuntamenti</h3>
-
-      <button
-        class="secondary small"
-        onclick="showPage('calendar')">
-        Apri calendario
-      </button>
-    </div>
-
-    <div id="homeAppointments"></div>
 
   </div>
 
 </section>
 
-
-<!-- =========================================================
+<!-- ======================================================
      MAVI
-========================================================= -->
+====================================================== -->
 
-<section id="mavi" class="page">
+<section class="page" id="page-mavi">
 
-  <div class="heading">
+  <div class="grid grid-2">
 
-    <div>
-      <h2>Mavi</h2>
+    <div class="card chat">
 
-      <p>
-        Assistente locale per richieste, disponibilità,
-        prenotazioni e gestione dell'attività.
-      </p>
-    </div>
+      <div class="between">
 
-  </div>
+        <div>
 
-  <div class="card">
+          <h2>Mavi</h2>
 
-    <div id="chat" class="chat"></div>
+          <div class="meta">
+            Assistente digitale di Maviri
+          </div>
 
-    <div class="voice">
-
-      <button
-        id="mic"
-        class="mic"
-        title="Parla con Mavi">
-        ●
-      </button>
-
-      <div>
-        <b id="voiceState">Mavi pronta</b>
-
-        <div
-          id="engineStatus"
-          class="engine-status">
-          Controllo motore locale…
-        </div>
-      </div>
-
-    </div>
-
-    <div class="row" style="margin-top:10px">
-
-      <input
-        id="chatInput"
-        autocomplete="off"
-        placeholder="Scrivi a Mavi…">
-
-      <button
-        id="sendBtn"
-        class="primary">
-        Invia
-      </button>
-
-    </div>
-
-    <!-- =====================================================
-         CONFERMA PRENOTAZIONE
-         NON VIENE SALVATA PRIMA DEL CLICK
-    ====================================================== -->
-
-    <div
-      id="bookingBox"
-      class="booking-box">
-
-      <div class="booking-title">
-
-        <div class="booking-icon">
-          ✓
         </div>
 
-        <span>
-          Conferma prenotazione
+        <span class="badge"
+              id="maviStatus">
+          Pronta
         </span>
 
       </div>
 
-      <div
-        id="bookingSummary"
-        class="booking-summary">
+      <div class="messages"
+           id="messages">
       </div>
 
-      <div class="actions">
+      <div id="confirmationArea">
+      </div>
 
-        <button
-          id="confirmBooking"
-          class="primary">
-          Conferma prenotazione
+      <div class="chatbar">
+
+        <button class="btn voice-button"
+                id="voiceButton"
+                title="Parla con Mavi">
+          🎙
         </button>
 
-        <button
-          id="cancelBooking"
-          class="secondary">
-          Annulla
+        <input
+          id="maviInput"
+          autocomplete="off"
+          placeholder="Es. Vorrei taglio uomo lunedì alle 9">
+
+        <button class="btn primary"
+                id="maviSend">
+          Invia
         </button>
+
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <h3>
+        Mavi può aiutarti
+      </h3>
+
+      <div class="list">
+
+        <div class="item">
+          <strong>Prenotazioni</strong>
+          <div class="meta">
+            Raccoglie cliente, servizio, giorno e ora.
+          </div>
+        </div>
+
+        <div class="item">
+          <strong>Disponibilità</strong>
+          <div class="meta">
+            Controlla gli appuntamenti già presenti prima
+            di proporre o confermare un orario.
+          </div>
+        </div>
+
+        <div class="item">
+          <strong>Clienti</strong>
+          <div class="meta">
+            Collega automaticamente il cliente
+            all'appuntamento.
+          </div>
+        </div>
+
+        <div class="item">
+          <strong>Informazioni attività</strong>
+          <div class="meta">
+            Usa solamente i dati configurati in Maviri.
+          </div>
+        </div>
 
       </div>
 
@@ -944,192 +1083,220 @@ textarea{resize:vertical}
 
 </section>
 
-
-<!-- =========================================================
+<!-- ======================================================
      CALENDARIO
-========================================================= -->
+====================================================== -->
 
-<section id="calendar" class="page">
+<section class="page" id="page-calendar">
 
-  <div class="heading">
+  <div class="grid grid-2">
 
-    <div>
-      <h2>Calendario</h2>
+    <div class="card">
 
-      <p>
-        Appuntamenti e disponibilità.
-      </p>
-    </div>
+      <div class="calendar-head">
 
-    <button
-      class="primary"
-      onclick="openAppointment()">
-      + Appuntamento
-    </button>
+        <button class="btn"
+                id="previousMonth">
+          ‹
+        </button>
 
-  </div>
+        <strong id="calendarMonth">
+        </strong>
 
-  <div class="card">
+        <button class="btn"
+                id="nextMonth">
+          ›
+        </button>
 
-    <div class="calendar-head">
+      </div>
 
-      <button
-        class="secondary"
-        onclick="moveDay(-1)">
-        ‹
-      </button>
-
-      <input
-        id="calendarDate"
-        type="date">
-
-      <button
-        class="secondary"
-        onclick="moveDay(1)">
-        ›
-      </button>
+      <div class="calendar"
+           id="calendar">
+      </div>
 
     </div>
 
-    <div
-      id="dayTitle"
-      class="muted"
-      style="margin-top:8px">
-    </div>
+    <div class="card">
 
-    <div
-      id="calendarList"
-      class="calendar">
+      <div class="between">
+
+        <h3 id="selectedDayTitle">
+          Appuntamenti
+        </h3>
+
+        <button class="btn primary"
+                onclick="newAppointment()">
+          + Nuovo
+        </button>
+
+      </div>
+
+      <div id="dayAppointments"
+           class="list">
+      </div>
+
     </div>
 
   </div>
 
-  <div class="card">
+  <div class="card"
+       style="margin-top:18px">
 
-    <div class="section-title">
-      <h3>Ricerca appuntamenti</h3>
-    </div>
+    <h3>
+      Ricerca appuntamenti
+    </h3>
 
     <input
       id="appointmentSearch"
-      placeholder="Nome cliente, servizio, data…">
+      placeholder="Cerca cliente, servizio o data">
 
-    <div id="appointmentResults"></div>
+    <div id="appointmentResults"
+         class="list"
+         style="margin-top:12px">
+    </div>
 
   </div>
 
 </section>
 
-
-<!-- =========================================================
+<!-- ======================================================
      CLIENTI
-========================================================= -->
+====================================================== -->
 
-<section id="clients" class="page">
+<section class="page" id="page-clients">
 
-  <div class="heading">
+  <div class="grid grid-2">
 
-    <div>
-      <h2>Clienti</h2>
+    <div class="card">
 
-      <p>
-        Schede cliente, note e storico appuntamenti.
-      </p>
+      <div class="between">
+
+        <h2>
+          Clienti
+        </h2>
+
+        <button class="btn primary"
+                onclick="newClient()">
+          + Nuovo cliente
+        </button>
+
+      </div>
+
+      <input
+        id="clientSearch"
+        placeholder="Cerca cliente"
+        style="margin-bottom:12px">
+
+      <div id="clientsList"
+           class="list">
+      </div>
+
     </div>
 
-    <button
-      class="primary"
-      onclick="openClient()">
-      + Cliente
-    </button>
+    <div class="card">
 
-  </div>
+      <h2>
+        Scheda cliente
+      </h2>
 
-  <div class="card">
+      <div id="clientDetail"
+           class="empty">
 
-    <input
-      id="clientSearch"
-      class="search"
-      placeholder="Cerca cliente…">
+        Seleziona un cliente per aprire
+        la scheda.
 
-    <div id="clientsList"></div>
+      </div>
+
+    </div>
 
   </div>
 
 </section>
 
-
-<!-- =========================================================
+<!-- ======================================================
      CONTENUTI
-========================================================= -->
+====================================================== -->
 
-<section id="content" class="page">
+<section class="page" id="page-content">
 
-  <div class="heading">
+  <div class="grid grid-2">
 
-    <div>
-      <h2>Contenuti</h2>
+    <div class="card">
 
-      <p>
-        Promozioni e testi pronti per la comunicazione.
+      <h2>
+        Contenuti
+      </h2>
+
+      <p class="meta">
+        Crea una bozza per i tuoi canali social.
       </p>
-    </div>
 
-  </div>
+      <div class="form">
 
-  <div class="content-grid">
+        <div class="field">
 
-    <div class="card">
+          <label>
+            Argomento
+          </label>
 
-      <div class="section-title">
+          <input
+            id="postTopic"
+            placeholder="Es. promozione taglio uomo">
 
-        <h3>Promozioni</h3>
+        </div>
 
-        <button
-          class="primary small"
-          onclick="openPromotion()">
-          + Nuova
+        <div class="field">
+
+          <label>
+            Stile
+          </label>
+
+          <select id="postStyle">
+
+            <option>
+              Professionale
+            </option>
+
+            <option>
+              Amichevole
+            </option>
+
+            <option>
+              Promozionale
+            </option>
+
+          </select>
+
+        </div>
+
+        <button class="btn primary"
+                onclick="generatePost()">
+
+          Genera contenuto
+
         </button>
 
       </div>
 
-      <div id="promotionsList"></div>
-
     </div>
-
 
     <div class="card">
 
-      <div class="section-title">
-        <h3>Post AI</h3>
-      </div>
-
-      <label>
-        Argomento
-      </label>
-
-      <textarea
-        id="postTopic"
-        rows="4"
-        placeholder="Es. promozione taglio uomo di settembre">
-      </textarea>
-
-      <div class="actions">
-
-        <button
-          class="primary"
-          onclick="generatePost()">
-          Genera con Mavi
-        </button>
-
-      </div>
+      <h2>
+        Bozza
+      </h2>
 
       <textarea
         id="postOutput"
-        rows="9"
-        placeholder="Il testo generato apparirà qui…"
-        style="margin-top:10px">
+        placeholder="La bozza apparirà qui...">
       </textarea>
+
+      <button class="btn"
+              onclick="copyPost()">
+
+        Copia
+
+      </button>
 
     </div>
 
@@ -1137,108 +1304,194 @@ textarea{resize:vertical}
 
 </section>
 
-
-<!-- =========================================================
+<!-- ======================================================
      IMPOSTAZIONI
-========================================================= -->
+====================================================== -->
 
-<section id="settings" class="page">
+<section class="page" id="page-settings">
 
-  <div class="heading">
+  <div class="grid grid-2">
 
-    <div>
-      <h2>Impostazioni</h2>
+    <div class="card">
 
-      <p>
-        Dati attività, servizi, promozioni e orari.
-      </p>
-    </div>
+      <h2>
+        Attività
+      </h2>
 
-  </div>
+      <div class="form two">
 
+        <div class="field">
 
-  <div class="card">
+          <label>
+            Nome attività
+          </label>
 
-    <h3>Attività</h3>
+          <input id="businessName">
 
-    <div class="two">
+        </div>
 
-      <div>
-        <label>Nome</label>
-        <input id="businessName">
+        <div class="field">
+
+          <label>
+            Tipo attività
+          </label>
+
+          <input
+            id="businessType"
+            placeholder="Es. Parrucchiere">
+
+        </div>
+
+        <div class="field">
+
+          <label>
+            Telefono
+          </label>
+
+          <input id="businessPhone">
+
+        </div>
+
+        <div class="field">
+
+          <label>
+            WhatsApp
+          </label>
+
+          <input id="businessWhatsapp">
+
+        </div>
+
+        <div class="field full">
+
+          <label>
+            Indirizzo
+          </label>
+
+          <input id="businessAddress">
+
+        </div>
+
+        <div class="field full">
+
+          <label>
+            Descrizione
+          </label>
+
+          <textarea
+            id="businessDescription">
+          </textarea>
+
+        </div>
+
       </div>
-
-      <div>
-        <label>Tipo attività</label>
-        <input id="businessType">
-      </div>
-
-      <div>
-        <label>Telefono</label>
-        <input id="businessPhone">
-      </div>
-
-      <div>
-        <label>WhatsApp</label>
-        <input id="businessWhatsapp">
-      </div>
-
-    </div>
-
-    <label>
-      Descrizione
-    </label>
-
-    <textarea
-      id="businessDescription"
-      rows="3">
-    </textarea>
-
-    <div class="actions">
 
       <button
-        class="primary"
-        onclick="saveSettings()">
-        Salva impostazioni
+        class="btn primary"
+        style="margin-top:14px"
+        onclick="saveBusiness()">
+
+        Salva attività
+
       </button>
 
     </div>
 
-  </div>
+    <div class="card">
 
+      <div class="between">
 
-  <div class="card">
+        <h2>
+          Servizi
+        </h2>
 
-    <div class="section-title">
+        <button
+          class="btn primary"
+          onclick="addService()">
 
-      <h3>Servizi</h3>
+          + Servizio
 
-      <button
-        class="primary small"
-        onclick="openService()">
-        + Servizio
-      </button>
+        </button>
+
+      </div>
+
+      <div id="servicesList"
+           class="list">
+      </div>
 
     </div>
 
-    <div id="servicesList"></div>
-
   </div>
 
+  <div class="grid grid-2"
+       style="margin-top:18px">
 
-  <div class="card">
+    <div class="card">
 
-    <h3>Orari</h3>
+      <h2>
+        Orari
+      </h2>
 
-    <div id="hoursList"></div>
+      <div class="form two">
 
-    <div class="actions">
+        <div class="field">
+
+          <label>
+            Apertura
+          </label>
+
+          <input
+            id="openingTime"
+            type="time">
+
+        </div>
+
+        <div class="field">
+
+          <label>
+            Chiusura
+          </label>
+
+          <input
+            id="closingTime"
+            type="time">
+
+        </div>
+
+      </div>
 
       <button
-        class="primary"
+        class="btn primary"
+        style="margin-top:14px"
         onclick="saveHours()">
+
         Salva orari
+
       </button>
+
+    </div>
+
+    <div class="card">
+
+      <div class="between">
+
+        <h2>
+          Promozioni
+        </h2>
+
+        <button
+          class="btn primary"
+          onclick="addPromotion()">
+
+          + Promozione
+
+        </button>
+
+      </div>
+
+      <div id="promotionsList"
+           class="list">
+      </div>
 
     </div>
 
@@ -1248,2192 +1501,1403 @@ textarea{resize:vertical}
 
 </main>
 
-
-<!-- =========================================================
-     MODALE
-========================================================= -->
-
-<div
-  id="modalBg"
-  class="modal-bg">
-
-  <div class="modal">
-
-    <div class="section-title">
-
-      <h3 id="modalTitle">
-        Modifica
-      </h3>
-
-      <button
-        class="secondary"
-        onclick="closeModal()">
-        Chiudi
-      </button>
-
-    </div>
-
-    <div id="modalBody"></div>
-
-  </div>
-
 </div>
 
+<!-- ======================================================
+     MOBILE NAV
+====================================================== -->
 
-<div
-  id="toast"
-  class="toast">
+<nav class="mobile-nav">
+
+  <button data-page="home" class="active">
+    <span>⌂</span>
+    Home
+  </button>
+
+  <button data-page="mavi">
+    <span>✦</span>
+    Mavi
+  </button>
+
+  <button data-page="calendar">
+    <span>□</span>
+    Calendario
+  </button>
+
+  <button data-page="clients">
+    <span>♙</span>
+    Clienti
+  </button>
+
+  <button data-page="settings">
+    <span>⚙</span>
+    Impostazioni
+  </button>
+
+</nav>
+
+<div class="toast"
+     id="toast">
 </div>
-
-
-<!-- =========================================================
-     MAVI ENGINE LOCALE
-========================================================= -->
-
-<script src="mavi-engine.js"></script>
 
 <script>
-"use strict";
 
-/* ============================================================
-   MAVIRI — CORE
-============================================================ */
+/* =========================================================
+   MAVIRI CORE
+========================================================= */
 
-const KEY = "appData";
-const BACKUP = "appData_backup";
-const PENDING = "pendingAppointment";
-const CONF = "requiresConfirmation";
-const HISTORY_KEY = "maviConversation";
+const STORAGE_KEY = "maviri_appData";
+const BACKUP_KEY = "maviri_appData_backup";
 
-const STORAGE_VERSION = 4;
+const DEFAULT_DATA = {
 
-const days = [
-  ["monday","Lunedì"],
-  ["tuesday","Martedì"],
-  ["wednesday","Mercoledì"],
-  ["thursday","Giovedì"],
-  ["friday","Venerdì"],
-  ["saturday","Sabato"],
-  ["sunday","Domenica"]
-];
+  version: 3,
 
-const defaultHours = () =>
-  Object.fromEntries(
-    days.map(([key]) => [
-      key,
-      {
-        closed:key === "sunday",
-        start:"09:00",
-        end:"19:00",
-        breakStart:"13:00",
-        breakEnd:"14:00"
-      }
-    ])
-  );
+  revision: 0,
+
+  updatedAt: null,
+
+  business: {
+    name:"",
+    type:"",
+    phone:"",
+    whatsapp:"",
+    address:"",
+    description:""
+  },
+
+  hours:{
+    open:"09:00",
+    close:"19:00"
+  },
+
+  services:[],
+
+  promotions:[],
+
+  clients:[],
+
+  appointments:[],
+
+  contents:[]
+
+};
 
 let appData = loadData();
-let history = loadHistory();
-let recognition = null;
-let listening = false;
-let bookingBusy = false;
+
+let currentCalendarDate = new Date();
+
+let selectedDate = getTodayISO();
+
+let pendingBooking = null;
 
 
-/* ============================================================
+/* =========================================================
    UTILITY
-============================================================ */
+========================================================= */
 
-function uid(prefix="id"){
-  return prefix +
-    "_" +
-    Date.now().toString(36) +
-    "_" +
-    Math.random().toString(36).slice(2,8);
+function $(selector){
+  return document.querySelector(selector);
 }
 
-
-function baseData(){
-  return {
-    version:STORAGE_VERSION,
-    revision:0,
-    updatedAt:new Date().toISOString(),
-
-    business:{
-      name:"",
-      type:"",
-      description:"",
-      address:"",
-      phone:"",
-      whatsapp:"",
-      email:""
-    },
-
-    settings:{
-      name:"",
-      hours:defaultHours()
-    },
-
-    services:[],
-    promotions:[],
-    clients:[],
-    appointments:[]
-  };
+function $all(selector){
+  return document.querySelectorAll(selector);
 }
 
-
-function loadData(){
-
-  let data = null;
-
-  try{
-    data = JSON.parse(
-      localStorage.getItem(KEY) || "null"
-    );
-  }catch(e){
-    data = null;
-  }
-
-  if(!data){
-
-    try{
-      data = JSON.parse(
-        localStorage.getItem(BACKUP) || "null"
-      );
-    }catch(e){
-      data = null;
-    }
-
-  }
-
-  if(!data || typeof data !== "object"){
-    data = baseData();
-  }
-
-  data.version = STORAGE_VERSION;
-
-  data.business =
-    data.business &&
-    typeof data.business === "object"
-      ? data.business
-      : {};
-
-  data.settings =
-    data.settings &&
-    typeof data.settings === "object"
-      ? data.settings
-      : {};
-
-  data.settings.hours =
-    data.settings.hours &&
-    typeof data.settings.hours === "object"
-      ? data.settings.hours
-      : defaultHours();
-
-  days.forEach(([key]) => {
-
-    if(!data.settings.hours[key]){
-      data.settings.hours[key] =
-        defaultHours()[key];
-    }
-
-  });
-
-  data.services =
-    Array.isArray(data.services)
-      ? data.services
-      : [];
-
-  data.promotions =
-    Array.isArray(data.promotions)
-      ? data.promotions
-      : [];
-
-  data.clients =
-    Array.isArray(data.clients)
-      ? data.clients
-      : [];
-
-  data.appointments =
-    Array.isArray(data.appointments)
-      ? data.appointments
-      : [];
-
-  /*
-    Migrazione dei vecchi appuntamenti.
-  */
-
-  data.appointments =
-    data.appointments.map(a => {
-
-      if(!a.id){
-        a.id = uid("apt");
-      }
-
-      if(!a.status){
-        a.status = "confermato";
-      }
-
-      return a;
-    });
-
-  /*
-    Migrazione clienti.
-  */
-
-  data.clients =
-    data.clients.map(c => {
-
-      if(!c.id){
-        c.id = uid("cli");
-      }
-
-      if(!Array.isArray(c.history)){
-        c.history = [];
-      }
-
-      return c;
-    });
-
-  return data;
-}
-
-
-function loadHistory(){
-
-  try{
-
-    const value =
-      JSON.parse(
-        localStorage.getItem(HISTORY_KEY) || "[]"
-      );
-
-    return Array.isArray(value)
-      ? value.slice(-50)
-      : [];
-
-  }catch(e){
-
-    return [];
-  }
-}
-
-
-function saveHistory(){
-
-  try{
-
-    localStorage.setItem(
-      HISTORY_KEY,
-      JSON.stringify(history.slice(-50))
-    );
-
-  }catch(e){}
-}
-
-
-function saveData(){
-
-  appData.revision =
-    Number(appData.revision || 0) + 1;
-
-  appData.updatedAt =
-    new Date().toISOString();
-
-  /*
-    Backup prima del salvataggio principale.
-  */
-
-  try{
-    localStorage.setItem(
-      BACKUP,
-      JSON.stringify(appData)
-    );
-
-    localStorage.setItem(
-      KEY,
-      JSON.stringify(appData)
-    );
-  }catch(e){
-
-    toast(
-      "Impossibile salvare i dati localmente"
-    );
-
-    return false;
-  }
-
-  renderAll();
-
-  return true;
-}
-
-
-function esc(value){
+function escapeHTML(value){
 
   return String(value ?? "")
-    .replace(/[&<>"']/g, char => ({
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#39;"
-    }[char]));
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
 }
 
+function uid(){
 
-function toast(text){
+  return Date.now().toString(36)
+    + Math.random().toString(36).slice(2,8);
 
-  const element =
-    document.getElementById("toast");
-
-  element.textContent = text;
-  element.classList.add("show");
-
-  clearTimeout(element._timer);
-
-  element._timer =
-    setTimeout(() => {
-      element.classList.remove("show");
-    },2400);
 }
 
+function getTodayISO(){
 
-function localDate(date = new Date()){
+  const d = new Date();
 
-  return new Intl.DateTimeFormat(
-    "en-CA",
-    {
-      timeZone:"Europe/Rome",
-      year:"numeric",
-      month:"2-digit",
-      day:"2-digit"
-    }
-  ).format(date);
+  return d.getFullYear()
+    + "-"
+    + String(d.getMonth()+1).padStart(2,"0")
+    + "-"
+    + String(d.getDate()).padStart(2,"0");
+
 }
 
+function formatDate(date){
 
-function fmtDate(value){
+  if(!date) return "";
 
-  if(!value) return "";
-
-  try{
-
-    return new Intl.DateTimeFormat(
+  return new Date(date+"T12:00:00")
+    .toLocaleDateString(
       "it-IT",
       {
+        weekday:"short",
         day:"2-digit",
         month:"2-digit",
         year:"numeric"
       }
-    ).format(
-      new Date(value + "T12:00:00")
     );
 
-  }catch(e){
+}
 
-    return value;
-  }
+function minutes(time){
+
+  const parts = String(time).split(":");
+
+  return Number(parts[0])*60 + Number(parts[1]);
+
+}
+
+function overlap(startA,endA,startB,endB){
+
+  return startA < endB && startB < endA;
+
 }
 
 
-function addDays(value, amount){
+/* =========================================================
+   STORAGE
+========================================================= */
 
-  const date =
-    new Date(value + "T12:00:00");
+function loadData(){
 
-  date.setDate(
-    date.getDate() + amount
-  );
+  try{
 
-  return date.toISOString().slice(0,10);
-}
+    const stored =
+      localStorage.getItem(STORAGE_KEY);
 
+    if(stored){
 
-function active(appointment){
+      const parsed =
+        JSON.parse(stored);
 
-  const status =
-    String(
-      appointment.status || "confermato"
-    ).toLowerCase();
+      return normalizeData(parsed);
 
-  return ![
-    "cancellato",
-    "cancelled",
-    "annullato",
-    "deleted"
-  ].includes(status);
-}
-
-
-function clientByName(name){
-
-  const query =
-    String(name || "")
-      .trim()
-      .toLowerCase();
-
-  if(!query) return null;
-
-  return appData.clients.find(
-    client =>
-      String(client.name || "")
-        .trim()
-        .toLowerCase() === query
-  ) || null;
-}
-
-
-/* ============================================================
-   CLIENTI
-============================================================ */
-
-function ensureClient(appointment){
-
-  if(!appointment || !appointment.name){
-    return null;
-  }
-
-  let client =
-    clientByName(appointment.name);
-
-  if(!client){
-
-    client = {
-      id:uid("cli"),
-      name:appointment.name,
-      phone:appointment.phone || "",
-      whatsapp:appointment.whatsapp || "",
-      email:appointment.email || "",
-      notes:"",
-      history:[],
-      lastVisit:"",
-      nextAppointment:"",
-      totalAppointments:0
-    };
-
-    appData.clients.push(client);
-
-  }else{
-
-    if(appointment.phone && !client.phone){
-      client.phone = appointment.phone;
     }
 
-    if(appointment.whatsapp && !client.whatsapp){
-      client.whatsapp = appointment.whatsapp;
-    }
+  }catch(error){
 
-    if(appointment.email && !client.email){
-      client.email = appointment.email;
-    }
-
-  }
-
-  if(!Array.isArray(client.history)){
-    client.history = [];
-  }
-
-  const exists =
-    client.history.some(
-      item =>
-        String(item.id) ===
-        String(appointment.id)
+    console.error(
+      "Errore caricamento dati",
+      error
     );
 
-  if(!exists){
+  }
 
-    client.history.push({
-      id:appointment.id,
-      date:appointment.date,
-      time:appointment.time,
-      service:appointment.service,
-      status:appointment.status || "confermato"
-    });
+  try{
+
+    const backup =
+      localStorage.getItem(BACKUP_KEY);
+
+    if(backup){
+
+      return normalizeData(
+        JSON.parse(backup)
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Errore backup",
+      error
+    );
 
   }
 
-  client.history =
-    client.history.slice(-100);
+  return structuredClone(DEFAULT_DATA);
 
-  client.totalAppointments =
-    client.history.length;
+}
 
-  updateClientDates(client);
+function normalizeData(data){
 
-  return client;
+  const base =
+    structuredClone(DEFAULT_DATA);
+
+  if(!data || typeof data !== "object"){
+    return base;
+  }
+
+  return {
+
+    ...base,
+
+    ...data,
+
+    business:{
+      ...base.business,
+      ...(data.business || {})
+    },
+
+    hours:{
+      ...base.hours,
+      ...(data.hours || {})
+    },
+
+    services:Array.isArray(data.services)
+      ? data.services
+      : [],
+
+    promotions:Array.isArray(data.promotions)
+      ? data.promotions
+      : [],
+
+    clients:Array.isArray(data.clients)
+      ? data.clients
+      : [],
+
+    appointments:Array.isArray(data.appointments)
+      ? data.appointments
+      : [],
+
+    contents:Array.isArray(data.contents)
+      ? data.contents
+      : []
+
+  };
+
+}
+
+function saveData(){
+
+  appData.revision =
+    Number(appData.revision || 0)+1;
+
+  appData.updatedAt =
+    new Date().toISOString();
+
+  try{
+
+    localStorage.setItem(
+      BACKUP_KEY,
+      JSON.stringify(appData)
+    );
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(appData)
+    );
+
+    $("#saveStatus").textContent =
+      "Salvato "+
+      new Date().toLocaleTimeString(
+        "it-IT",
+        {
+          hour:"2-digit",
+          minute:"2-digit"
+        }
+      );
+
+  }catch(error){
+
+    console.error(error);
+
+    showToast(
+      "Errore salvataggio dati"
+    );
+
+  }
+
 }
 
 
-function updateClientDates(client){
+/* =========================================================
+   NAVIGATION
+========================================================= */
 
-  if(!client) return;
+const PAGE_INFO = {
 
-  const today = localDate();
+  home:[
+    "Home",
+    "Il tuo lavoro organizzato. Mavi al tuo fianco."
+  ],
 
-  const future =
-    appData.appointments
-      .filter(a =>
-        active(a) &&
-        a.name &&
-        String(a.name).trim().toLowerCase() ===
-        String(client.name).trim().toLowerCase() &&
-        a.date >= today
-      )
-      .sort((a,b) =>
-        (a.date+a.time)
-          .localeCompare(b.date+b.time)
-      );
+  mavi:[
+    "Mavi",
+    "Assistente digitale di Maviri."
+  ],
 
-  const past =
-    appData.appointments
-      .filter(a =>
-        a.name &&
-        String(a.name).trim().toLowerCase() ===
-        String(client.name).trim().toLowerCase() &&
-        a.date < today &&
-        active(a)
-      )
-      .sort((a,b) =>
-        (b.date+b.time)
-          .localeCompare(a.date+a.time)
-      );
+  calendar:[
+    "Calendario",
+    "Appuntamenti e disponibilità."
+  ],
 
-  client.nextAppointment =
-    future[0]
-      ? future[0].date + " " + future[0].time
-      : "";
+  clients:[
+    "Clienti",
+    "Schede cliente e storico."
+  ],
 
-  client.lastVisit =
-    past[0]
-      ? past[0].date
-      : (
-          future.length
-            ? ""
-            : client.lastVisit || ""
-        );
-}
+  content:[
+    "Contenuti",
+    "Crea e gestisci i tuoi contenuti."
+  ],
 
+  settings:[
+    "Impostazioni",
+    "Dati dell’attività, servizi, orari e promozioni."
+  ]
 
-function rebuildClientHistories(){
+};
 
-  appData.clients.forEach(client => {
-    client.history = [];
-  });
+function openPage(page){
 
-  appData.appointments.forEach(
-    appointment => {
-      ensureClient(appointment);
-    }
-  );
+  $all(".page")
+    .forEach(
+      element =>
+        element.classList.remove("active")
+    );
 
-  appData.clients.forEach(
-    updateClientDates
-  );
-}
+  const target =
+    $("#page-"+page);
 
+  if(target){
+    target.classList.add("active");
+  }
 
-/* ============================================================
-   NAVIGAZIONE
-============================================================ */
+  $all("[data-page]")
+    .forEach(
+      button =>
+        button.classList.toggle(
+          "active",
+          button.dataset.page === page
+        )
+    );
 
-function showPage(id){
+  $("#pageTitle").textContent =
+    PAGE_INFO[page][0];
 
-  document
-    .querySelectorAll(".page")
-    .forEach(page => {
+  $("#pageSubtitle").textContent =
+    PAGE_INFO[page][1];
 
-      page.classList.toggle(
-        "active",
-        page.id === id
-      );
+  if(page==="home"){
+    renderHome();
+  }
 
-    });
+  if(page==="mavi"){
+    initMavi();
+  }
 
-  document
-    .querySelectorAll("nav button")
-    .forEach(button => {
-
-      button.classList.toggle(
-        "active",
-        button.dataset.page === id
-      );
-
-    });
-
-  if(id === "calendar"){
+  if(page==="calendar"){
     renderCalendar();
+    renderAppointmentSearch();
   }
 
-  if(id === "clients"){
+  if(page==="clients"){
     renderClients();
   }
 
-  if(id === "content"){
-    renderPromotions();
-  }
-
-  if(id === "settings"){
+  if(page==="settings"){
     renderSettings();
   }
 
 }
 
+$all("[data-page]")
+  .forEach(
+    button =>
+      button.addEventListener(
+        "click",
+        () => openPage(button.dataset.page)
+      )
+  );
 
-/* ============================================================
-   RENDER
-============================================================ */
 
-function renderAll(){
+/* =========================================================
+   TOAST
+========================================================= */
 
-  renderHome();
-  renderCalendar();
-  renderClients();
-  renderPromotions();
-  renderSettings();
-  renderStats();
+function showToast(message){
+
+  const toast =
+    $("#toast");
+
+  toast.textContent =
+    message;
+
+  toast.classList.add("show");
+
+  setTimeout(
+    () =>
+      toast.classList.remove("show"),
+    2300
+  );
 
 }
 
 
-function renderStats(){
-
-  const today = localDate();
-  const end = addDays(today,7);
-
-  const todayCount =
-    appData.appointments.filter(
-      a =>
-        active(a) &&
-        a.date === today
-    ).length;
-
-  const weekCount =
-    appData.appointments.filter(
-      a =>
-        active(a) &&
-        a.date >= today &&
-        a.date < end
-    ).length;
-
-  document.getElementById(
-    "statToday"
-  ).textContent = todayCount;
-
-  document.getElementById(
-    "statWeek"
-  ).textContent = weekCount;
-
-  document.getElementById(
-    "statClients"
-  ).textContent =
-    appData.clients.length;
-
-  document.getElementById(
-    "statServices"
-  ).textContent =
-    appData.services.length;
-}
-
+/* =========================================================
+   HOME
+========================================================= */
 
 function renderHome(){
 
-  const today = localDate();
+  const today =
+    getTodayISO();
 
-  const appointments =
+  const activeAppointments =
     appData.appointments
       .filter(
         a =>
-          active(a) &&
-          a.date >= today
+          a.status !== "cancelled"
+      );
+
+  const todayCount =
+    activeAppointments
+      .filter(
+        a => a.date === today
+      ).length;
+
+  const futureCount =
+    activeAppointments
+      .filter(
+        a => a.date >= today
+      ).length;
+
+  $("#todayAppointments")
+    .textContent =
+      todayCount;
+
+  $("#futureAppointments")
+    .textContent =
+      futureCount;
+
+  $("#clientCount")
+    .textContent =
+      appData.clients.length;
+
+  $("#serviceCount")
+    .textContent =
+      appData.services.length;
+
+  const upcoming =
+    activeAppointments
+      .filter(
+        a => a.date >= today
       )
-      .sort(
-        (a,b) =>
-          (a.date+a.time)
-            .localeCompare(
-              b.date+b.time
-            )
-      )
+      .sort(sortAppointments)
       .slice(0,6);
 
-  document.getElementById(
-    "homeAppointments"
-  ).innerHTML =
-    appointments.length
-      ? appointments.map(itemAppointment).join("")
-      : '<div class="empty">Nessun appuntamento prossimo.</div>';
+  if(!upcoming.length){
 
-  document.getElementById(
-    "homeTitle"
-  ).textContent =
-    appData.business.name || "Maviri";
-}
+    $("#homeAppointments").innerHTML =
+      '<div class="empty">'+
+      'Nessun appuntamento futuro.'+
+      '</div>';
 
+    return;
 
-function statusBadge(status){
-
-  const normalized =
-    String(status || "confermato")
-      .toLowerCase();
-
-  let cls = "confirmed";
-
-  if(
-    normalized === "completato" ||
-    normalized === "completed"
-  ){
-    cls = "completed";
   }
 
-  if(
-    normalized === "cancellato" ||
-    normalized === "cancelled" ||
-    normalized === "annullato"
-  ){
-    cls = "cancelled";
-  }
+  $("#homeAppointments").innerHTML =
+    upcoming
+      .map(renderAppointmentItem)
+      .join("");
 
-  return `
-    <span class="badge ${cls}">
-      ${esc(status || "confermato")}
-    </span>
-  `;
 }
 
+function sortAppointments(a,b){
 
-function itemAppointment(appointment){
+  return (
+    a.date+a.time
+  ).localeCompare(
+    b.date+b.time
+  );
+
+}
+
+function renderAppointmentItem(a){
 
   return `
-    <div class="list-item">
 
-      <b>
-        ${esc(appointment.time || "")}
+    <div class="item">
+
+      <div class="between">
+
+        <strong>
+          ${escapeHTML(a.time)}
+          ·
+          ${escapeHTML(a.clientName)}
+        </strong>
+
+        <span class="badge">
+          ${a.status==="completed"
+            ?"Completato"
+            :"Confermato"}
+        </span>
+
+      </div>
+
+      <div class="meta">
+
+        ${formatDate(a.date)}
         ·
-        ${esc(appointment.name || "Cliente")}
-      </b>
-
-      <span>
-        ${esc(appointment.service || "Servizio")}
-        ·
-        ${fmtDate(appointment.date)}
-      </span>
-
-      <div class="actions">
-
-        ${statusBadge(appointment.status)}
-
-        <button
-          class="secondary small"
-          onclick="editAppointment('${esc(appointment.id)}')">
-          Modifica
-        </button>
-
-        <button
-          class="success small"
-          onclick="completeAppointment('${esc(appointment.id)}')">
-          Completa
-        </button>
-
-        <button
-          class="danger small"
-          onclick="cancelAppointment('${esc(appointment.id)}')">
-          Annulla
-        </button>
+        ${escapeHTML(a.serviceName)}
 
       </div>
 
     </div>
+
   `;
+
 }
 
 
-/* ============================================================
-   CALENDARIO
-============================================================ */
+/* =========================================================
+   CALENDAR
+========================================================= */
 
 function renderCalendar(){
 
-  const dateInput =
-    document.getElementById(
-      "calendarDate"
-    );
+  const year =
+    currentCalendarDate.getFullYear();
 
-  if(!dateInput.value){
-    dateInput.value = localDate();
+  const month =
+    currentCalendarDate.getMonth();
+
+  $("#calendarMonth")
+    .textContent =
+      currentCalendarDate
+        .toLocaleDateString(
+          "it-IT",
+          {
+            month:"long",
+            year:"numeric"
+          }
+        );
+
+  let html = "";
+
+  const weekdays = [
+    "Lun",
+    "Mar",
+    "Mer",
+    "Gio",
+    "Ven",
+    "Sab",
+    "Dom"
+  ];
+
+  weekdays.forEach(
+    day =>
+      html +=
+        `<div class="weekday">${day}</div>`
+  );
+
+  const first =
+    new Date(year,month,1);
+
+  const last =
+    new Date(year,month+1,0);
+
+  const start =
+    (first.getDay()+6)%7;
+
+  for(let i=0;i<start;i++){
+
+    html +=
+      '<div class="day muted"></div>';
+
   }
 
-  const date = dateInput.value;
+  for(
+    let day=1;
+    day<=last.getDate();
+    day++
+  ){
 
-  const dateObject =
-    new Date(date + "T12:00:00");
+    const iso =
+      year+
+      "-"+
+      String(month+1).padStart(2,"0")+
+      "-"+
+      String(day).padStart(2,"0");
 
-  document.getElementById(
-    "dayTitle"
-  ).textContent =
-    new Intl.DateTimeFormat(
-      "it-IT",
-      {
-        weekday:"long",
-        day:"numeric",
-        month:"long",
-        year:"numeric"
-      }
-    ).format(dateObject);
-
-  const appointments =
-    appData.appointments
-      .filter(
+    const hasAppointment =
+      appData.appointments.some(
         a =>
-          a.date === date &&
-          active(a)
-      )
-      .sort(
-        (a,b) =>
-          String(a.time)
-            .localeCompare(
-              String(b.time)
-            )
+          a.date === iso &&
+          a.status !== "cancelled"
       );
 
-  document.getElementById(
-    "calendarList"
-  ).innerHTML =
-    appointments.length
-      ? appointments.map(itemAppointment).join("")
-      : '<div class="empty">Nessun appuntamento per questa giornata.</div>';
+    html += `
 
-  renderAppointmentSearch();
+      <div
+        class="day ${iso===selectedDate?"selected":""}"
+        onclick="selectCalendarDate('${iso}')">
+
+        <span class="day-number">
+          ${day}
+        </span>
+
+        ${
+          hasAppointment
+          ? '<span class="event-dot"></span>'
+          : ''
+        }
+
+      </div>
+
+    `;
+
+  }
+
+  $("#calendar").innerHTML =
+    html;
+
+  renderDayAppointments();
 
 }
 
+function selectCalendarDate(date){
 
-function moveDay(amount){
-
-  const input =
-    document.getElementById(
-      "calendarDate"
-    );
-
-  input.value =
-    addDays(
-      input.value || localDate(),
-      amount
-    );
+  selectedDate =
+    date;
 
   renderCalendar();
 
 }
 
+$("#previousMonth")
+  .addEventListener(
+    "click",
+    () => {
 
-function renderAppointmentSearch(){
+      currentCalendarDate
+        .setMonth(
+          currentCalendarDate.getMonth()-1
+        );
 
-  const query =
-    (
-      document.getElementById(
-        "appointmentSearch"
-      ).value || ""
-    )
-      .toLowerCase()
-      .trim();
+      renderCalendar();
 
-  if(!query){
+    }
+  );
 
-    document.getElementById(
-      "appointmentResults"
-    ).innerHTML = "";
+$("#nextMonth")
+  .addEventListener(
+    "click",
+    () => {
+
+      currentCalendarDate
+        .setMonth(
+          currentCalendarDate.getMonth()+1
+        );
+
+      renderCalendar();
+
+    }
+  );
+
+
+function renderDayAppointments(){
+
+  $("#selectedDayTitle")
+    .textContent =
+      "Appuntamenti · "+
+      formatDate(selectedDate);
+
+  const appointments =
+    appData.appointments
+      .filter(
+        a =>
+          a.date === selectedDate &&
+          a.status !== "cancelled"
+      )
+      .sort(sortAppointments);
+
+  if(!appointments.length){
+
+    $("#dayAppointments").innerHTML =
+      '<div class="empty">'+
+      'Nessun appuntamento.'+
+      '</div>';
 
     return;
+
   }
 
-  const results =
-    appData.appointments
-      .filter(appointment => {
+  $("#dayAppointments").innerHTML =
+    appointments
+      .map(
+        a => `
 
-        if(!active(appointment)){
-          return false;
-        }
+          <div class="item">
 
-        const text = [
-          appointment.name,
-          appointment.service,
-          appointment.date,
-          appointment.time,
-          appointment.status
-        ]
-          .join(" ")
-          .toLowerCase();
+            <div class="between">
 
-        return text.includes(query);
+              <strong>
+                ${escapeHTML(a.time)}
+                ·
+                ${escapeHTML(a.clientName)}
+              </strong>
 
-      })
-      .sort(
-        (a,b) =>
-          (a.date+a.time)
-            .localeCompare(
-              b.date+b.time
-            )
+              <button
+                class="btn danger"
+                onclick="cancelAppointment('${a.id}')">
+
+                Annulla
+
+              </button>
+
+            </div>
+
+            <div class="meta">
+
+              ${escapeHTML(a.serviceName)}
+
+              ${
+                a.price !== undefined
+                ? " · € "+escapeHTML(a.price)
+                : ""
+              }
+
+            </div>
+
+          </div>
+
+        `
       )
-      .slice(0,30);
-
-  document.getElementById(
-    "appointmentResults"
-  ).innerHTML =
-    results.length
-      ? results.map(itemAppointment).join("")
-      : '<div class="empty">Nessun risultato.</div>';
-}
-
-
-/* ============================================================
-   APPUNTAMENTI MANUALI
-============================================================ */
-
-function openAppointment(appointment = {}){
-
-  const services =
-    appData.services
-      .map(service => `
-        <option
-          value="${esc(service.name)}"
-          ${service.name === appointment.service ? "selected" : ""}>
-          ${esc(service.name)}
-        </option>
-      `)
       .join("");
 
-  openModal(
-    appointment.id
-      ? "Modifica appuntamento"
-      : "Nuovo appuntamento",
-
-    `
-      <div class="two">
-
-        <div>
-          <label>Cliente</label>
-          <input
-            id="fName"
-            value="${esc(appointment.name || "")}">
-        </div>
-
-        <div>
-          <label>Telefono</label>
-          <input
-            id="fPhone"
-            value="${esc(appointment.phone || "")}">
-        </div>
-
-        <div>
-          <label>Data</label>
-          <input
-            id="fDate"
-            type="date"
-            value="${esc(
-              appointment.date || localDate()
-            )}">
-        </div>
-
-        <div>
-          <label>Ora</label>
-          <input
-            id="fTime"
-            type="time"
-            value="${esc(
-              appointment.time || "09:00"
-            )}">
-        </div>
-
-      </div>
-
-      <label>Servizio</label>
-
-      <select id="fService">
-
-        ${
-          services ||
-          '<option value="">Nessun servizio configurato</option>'
-        }
-
-      </select>
-
-      <div class="actions">
-
-        <button
-          class="primary"
-          onclick="saveAppointment('${esc(appointment.id || "")}')">
-          Salva appuntamento
-        </button>
-
-      </div>
-    `
-  );
-
 }
-
-
-function saveAppointment(id){
-
-  const name =
-    document.getElementById(
-      "fName"
-    ).value.trim();
-
-  const phone =
-    document.getElementById(
-      "fPhone"
-    ).value.trim();
-
-  const date =
-    document.getElementById(
-      "fDate"
-    ).value;
-
-  const time =
-    document.getElementById(
-      "fTime"
-    ).value;
-
-  const service =
-    document.getElementById(
-      "fService"
-    ).value;
-
-  if(
-    !name ||
-    !date ||
-    !time ||
-    !service
-  ){
-
-    toast(
-      "Completa i dati dell'appuntamento"
-    );
-
-    return;
-  }
-
-  const conflict =
-    appData.appointments.some(
-      existing =>
-        active(existing) &&
-        String(existing.id) !== String(id) &&
-        existing.date === date &&
-        existing.time === time
-    );
-
-  if(conflict){
-
-    toast(
-      "Orario già occupato"
-    );
-
-    return;
-  }
-
-  const appointment = {
-
-    id:
-      id ||
-      uid("apt"),
-
-    name,
-    phone,
-    date,
-    time,
-    service,
-
-    status:
-      id
-        ? (
-            appData.appointments.find(
-              a =>
-                String(a.id) === String(id)
-            )?.status ||
-            "confermato"
-          )
-        : "confermato",
-
-    createdAt:
-      id
-        ? (
-            appData.appointments.find(
-              a =>
-                String(a.id) === String(id)
-            )?.createdAt ||
-            new Date().toISOString()
-          )
-        : new Date().toISOString(),
-
-    updatedAt:
-      new Date().toISOString()
-  };
-
-  const index =
-    appData.appointments.findIndex(
-      a =>
-        String(a.id) === String(id)
-    );
-
-  if(index >= 0){
-
-    appData.appointments[index] =
-      appointment;
-
-  }else{
-
-    appData.appointments.push(
-      appointment
-    );
-
-  }
-
-  ensureClient(appointment);
-
-  saveData();
-
-  closeModal();
-
-  toast(
-    "Appuntamento salvato"
-  );
-
-}
-
-
-function editAppointment(id){
-
-  const appointment =
-    appData.appointments.find(
-      a =>
-        String(a.id) === String(id)
-    );
-
-  if(appointment){
-    openAppointment(appointment);
-  }
-
-}
-
 
 function cancelAppointment(id){
 
   const appointment =
-    appData.appointments.find(
-      a =>
-        String(a.id) === String(id)
-    );
+    appData.appointments
+      .find(
+        a => a.id === id
+      );
 
-  if(!appointment) return;
+  if(!appointment){
+    return;
+  }
+
+  if(
+    !confirm(
+      "Vuoi annullare questo appuntamento?"
+    )
+  ){
+    return;
+  }
 
   appointment.status =
-    "cancellato";
-
-  appointment.updatedAt =
-    new Date().toISOString();
+    "cancelled";
 
   saveData();
 
-  toast(
+  renderAll();
+
+  showToast(
     "Appuntamento annullato"
   );
 
 }
 
 
-function completeAppointment(id){
+/* =========================================================
+   APPOINTMENT SEARCH
+========================================================= */
 
-  const appointment =
-    appData.appointments.find(
-      a =>
-        String(a.id) === String(id)
-    );
+function renderAppointmentSearch(){
 
-  if(!appointment) return;
+  const input =
+    $("#appointmentSearch");
 
-  appointment.status =
-    "completato";
+  if(!input){
+    return;
+  }
 
-  appointment.updatedAt =
-    new Date().toISOString();
+  const query =
+    input.value
+      .trim()
+      .toLowerCase();
 
-  saveData();
+  const results =
+    appData.appointments
+      .filter(
+        a =>
+          (
+            a.clientName+
+            " "+
+            a.serviceName+
+            " "+
+            a.date+
+            " "+
+            a.time
+          )
+          .toLowerCase()
+          .includes(query)
+      )
+      .sort(sortAppointments);
 
-  toast(
-    "Appuntamento completato"
-  );
+  if(!results.length){
+
+    $("#appointmentResults").innerHTML =
+      '<div class="empty">'+
+      'Nessun risultato.'+
+      '</div>';
+
+    return;
+
+  }
+
+  $("#appointmentResults").innerHTML =
+    results
+      .map(
+        a => `
+
+          <div class="item">
+
+            <div class="between">
+
+              <strong>
+                ${escapeHTML(a.clientName)}
+                ·
+                ${escapeHTML(a.time)}
+              </strong>
+
+              <span class="badge ${
+                a.status==="cancelled"
+                ?"danger"
+                :""
+              }">
+
+                ${escapeHTML(a.status)}
+
+              </span>
+
+            </div>
+
+            <div class="meta">
+
+              ${formatDate(a.date)}
+              ·
+              ${escapeHTML(a.serviceName)}
+
+            </div>
+
+          </div>
+
+        `
+      )
+      .join("");
 
 }
 
+$("#appointmentSearch")
+  .addEventListener(
+    "input",
+    renderAppointmentSearch
+  );
 
-/* ============================================================
-   CLIENTI UI
-============================================================ */
+
+/* =========================================================
+   CLIENTS
+========================================================= */
 
 function renderClients(){
 
   const query =
-    (
-      document.getElementById(
-        "clientSearch"
-      ).value || ""
-    )
-      .toLowerCase()
-      .trim();
+    ($("#clientSearch").value || "")
+      .trim()
+      .toLowerCase();
 
   const clients =
     appData.clients
-      .filter(client => {
-
-        if(!query) return true;
-
-        const text = [
-          client.name,
-          client.phone,
-          client.whatsapp,
-          client.email,
-          client.notes
-        ]
-          .join(" ")
-          .toLowerCase();
-
-        return text.includes(query);
-
-      })
-      .sort(
-        (a,b) =>
-          String(a.name)
-            .localeCompare(
-              String(b.name),
-              "it"
-            )
+      .filter(
+        client =>
+          (
+            client.name+
+            " "+
+            (client.phone||"")+
+            " "+
+            (client.whatsapp||"")+
+            " "+
+            (client.email||"")
+          )
+          .toLowerCase()
+          .includes(query)
       );
 
-  document.getElementById(
-    "clientsList"
-  ).innerHTML =
-    clients.length
-      ? clients.map(client => {
+  if(!clients.length){
 
-          const initial =
-            String(
-              client.name || "?"
-            )
-              .trim()
-              .slice(0,1)
-              .toUpperCase();
+    $("#clientsList").innerHTML =
+      '<div class="empty">'+
+      'Nessun cliente.'+
+      '</div>';
 
-          const count =
-            client.totalAppointments ||
-            client.history?.length ||
-            0;
+    return;
 
-          return `
-            <div class="list-item">
+  }
 
-              <div class="client-head">
+  $("#clientsList").innerHTML =
+    clients
+      .map(
+        client => `
 
-                <div class="client-avatar">
-                  ${esc(initial)}
-                </div>
+          <div
+            class="item"
+            onclick="openClient('${client.id}')"
+            style="cursor:pointer">
 
-                <div>
+            <strong>
+              ${escapeHTML(client.name)}
+            </strong>
 
-                  <b>
-                    ${esc(client.name)}
-                  </b>
-
-                  <span>
-                    ${esc(
-                      client.phone ||
-                      client.whatsapp ||
-                      client.email ||
-                      "Nessun contatto"
-                    )}
-                  </span>
-
-                </div>
-
-              </div>
-
-              <div
-                class="muted"
-                style="margin-top:7px">
-
-                Appuntamenti:
-                ${count}
-
-                ${
-                  client.nextAppointment
-                    ? " · Prossimo: " +
-                      esc(
-                        client.nextAppointment
-                      )
-                    : ""
-                }
-
-                ${
-                  client.lastVisit
-                    ? " · Ultima visita: " +
-                      fmtDate(client.lastVisit)
-                    : ""
-                }
-
-              </div>
+            <div class="meta">
 
               ${
-                client.notes
-                  ? `
-                    <div
-                      class="muted"
-                      style="margin-top:5px">
-                      Note: ${esc(client.notes)}
-                    </div>
-                  `
-                  : ""
+                escapeHTML(
+                  client.phone ||
+                  client.whatsapp ||
+                  "Nessun contatto"
+                )
               }
 
-              <div class="actions">
+              ·
 
-                <button
-                  class="primary small"
-                  onclick="editClient('${esc(client.id)}')">
-                  Apri scheda
-                </button>
+              ${
+                appData.appointments
+                  .filter(
+                    a =>
+                      a.clientId === client.id &&
+                      a.status !== "cancelled"
+                  )
+                  .length
+              }
 
-              </div>
+              appuntamenti
 
             </div>
-          `;
 
-        }).join("")
-      : '<div class="empty">Nessun cliente.</div>';
+          </div>
+
+        `
+      )
+      .join("");
 
 }
 
+$("#clientSearch")
+  .addEventListener(
+    "input",
+    renderClients
+  );
 
-function openClient(client = {}){
+
+function openClient(id){
+
+  const client =
+    appData.clients
+      .find(
+        c => c.id === id
+      );
+
+  if(!client){
+    return;
+  }
 
   const history =
-    Array.isArray(client.history)
-      ? client.history
-      : [];
-
-  const historyHtml =
-    history.length
-      ? history
-          .slice()
-          .sort(
-            (a,b) =>
-              (b.date+b.time)
-                .localeCompare(
-                  a.date+a.time
-                )
+    appData.appointments
+      .filter(
+        a => a.clientId === id
+      )
+      .sort(
+        (a,b) =>
+          (b.date+b.time)
+          .localeCompare(
+            a.date+a.time
           )
-          .map(item => `
-            <div class="list-item">
+      );
 
-              <b>
-                ${fmtDate(item.date)}
-                ·
-                ${esc(item.time || "")}
-              </b>
+  $("#clientDetail").innerHTML = `
 
-              <span>
-                ${esc(item.service || "Servizio")}
-              </span>
+    <div class="form">
 
-              <div style="margin-top:5px">
-                ${statusBadge(item.status)}
-              </div>
+      <div class="field">
 
-            </div>
-          `)
-          .join("")
-      : '<div class="empty">Nessuno storico appuntamenti.</div>';
+        <label>
+          Nome
+        </label>
 
-  openModal(
-    client.id
-      ? "Scheda cliente"
-      : "Nuovo cliente",
-
-    `
-      <div class="two">
-
-        <div>
-          <label>Nome</label>
-          <input
-            id="cName"
-            value="${esc(client.name || "")}">
-        </div>
-
-        <div>
-          <label>Telefono</label>
-          <input
-            id="cPhone"
-            value="${esc(client.phone || "")}">
-        </div>
-
-        <div>
-          <label>WhatsApp</label>
-          <input
-            id="cWhatsapp"
-            value="${esc(client.whatsapp || "")}">
-        </div>
-
-        <div>
-          <label>Email</label>
-          <input
-            id="cEmail"
-            type="email"
-            value="${esc(client.email || "")}">
-        </div>
+        <input
+          id="clientNameEdit"
+          value="${escapeHTML(client.name)}">
 
       </div>
 
-      <label>Note cliente</label>
+      <div class="field">
 
-      <textarea
-        id="cNotes"
-        rows="4">${esc(client.notes || "")}</textarea>
+        <label>
+          Telefono
+        </label>
 
-      ${
-        client.id
-          ? `
-            <hr class="divider">
-
-            <h4>
-              Storico appuntamenti
-            </h4>
-
-            ${historyHtml}
-          `
-          : ""
-      }
-
-      <div class="actions">
-
-        <button
-          class="primary"
-          onclick="saveClient('${esc(client.id || "")}')">
-          Salva cliente
-        </button>
+        <input
+          id="clientPhoneEdit"
+          value="${escapeHTML(client.phone||"")}">
 
       </div>
-    `
-  );
+
+      <div class="field">
+
+        <label>
+          WhatsApp
+        </label>
+
+        <input
+          id="clientWhatsappEdit"
+          value="${escapeHTML(client.whatsapp||"")}">
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Email
+        </label>
+
+        <input
+          id="clientEmailEdit"
+          value="${escapeHTML(client.email||"")}">
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Note personali
+        </label>
+
+        <textarea
+          id="clientNotesEdit">${escapeHTML(client.notes||"")}</textarea>
+
+      </div>
+
+      <button
+        class="btn primary"
+        onclick="saveClient('${client.id}')">
+
+        Salva scheda
+
+      </button>
+
+      <h3 style="margin-top:12px">
+        Storico appuntamenti
+      </h3>
+
+      <div class="client-history">
+
+        ${
+          history.length
+          ? history
+              .map(
+                a => `
+
+                  <div class="item">
+
+                    <strong>
+                      ${formatDate(a.date)}
+                      ·
+                      ${escapeHTML(a.serviceName)}
+                    </strong>
+
+                    <div class="meta">
+
+                      ${escapeHTML(a.time)}
+                      ·
+                      ${escapeHTML(a.status)}
+
+                    </div>
+
+                  </div>
+
+                `
+              )
+              .join("")
+          : '<div class="empty">Nessuno storico.</div>'
+        }
+
+      </div>
+
+    </div>
+
+  `;
 
 }
 
 
 function saveClient(id){
 
-  const old =
-    appData.clients.find(
-      c =>
-        String(c.id) === String(id)
-    );
+  const client =
+    appData.clients
+      .find(
+        c => c.id === id
+      );
 
-  const client = {
-
-    id:
-      id ||
-      uid("cli"),
-
-    name:
-      document.getElementById(
-        "cName"
-      ).value.trim(),
-
-    phone:
-      document.getElementById(
-        "cPhone"
-      ).value.trim(),
-
-    whatsapp:
-      document.getElementById(
-        "cWhatsapp"
-      ).value.trim(),
-
-    email:
-      document.getElementById(
-        "cEmail"
-      ).value.trim(),
-
-    notes:
-      document.getElementById(
-        "cNotes"
-      ).value.trim(),
-
-    history:
-      old?.history || [],
-
-    lastVisit:
-      old?.lastVisit || "",
-
-    nextAppointment:
-      old?.nextAppointment || "",
-
-    totalAppointments:
-      old?.totalAppointments || 0
-
-  };
-
-  if(!client.name){
-
-    toast(
-      "Inserisci il nome del cliente"
-    );
-
+  if(!client){
     return;
   }
 
-  const index =
-    appData.clients.findIndex(
-      c =>
-        String(c.id) === String(id)
+  client.name =
+    $("#clientNameEdit")
+      .value
+      .trim();
+
+  client.phone =
+    $("#clientPhoneEdit")
+      .value
+      .trim();
+
+  client.whatsapp =
+    $("#clientWhatsappEdit")
+      .value
+      .trim();
+
+  client.email =
+    $("#clientEmailEdit")
+      .value
+      .trim();
+
+  client.notes =
+    $("#clientNotesEdit")
+      .value
+      .trim();
+
+  appData.appointments
+    .filter(
+      a => a.clientId === id
+    )
+    .forEach(
+      a =>
+        a.clientName =
+          client.name
     );
-
-  if(index >= 0){
-
-    appData.clients[index] =
-      client;
-
-  }else{
-
-    appData.clients.push(
-      client
-    );
-
-  }
-
-  updateClientDates(client);
 
   saveData();
 
-  closeModal();
+  renderClients();
 
-  toast(
+  openClient(id);
+
+  showToast(
     "Scheda cliente salvata"
   );
 
 }
 
 
-function editClient(id){
+function newClient(){
 
-  const client =
-    appData.clients.find(
-      c =>
-        String(c.id) === String(id)
-    );
+  const client = {
 
-  if(client){
-    openClient(client);
-  }
+    id:uid(),
 
-}
+    name:"Nuovo cliente",
 
+    phone:"",
 
-/* ============================================================
-   SERVIZI
-============================================================ */
+    whatsapp:"",
 
-function openService(
-  service = {},
-  index = -1
-){
+    email:"",
 
-  openModal(
-    service.name
-      ? "Modifica servizio"
-      : "Nuovo servizio",
+    notes:"",
 
-    `
-      <label>Nome</label>
-
-      <input
-        id="sName"
-        value="${esc(service.name || "")}">
-
-      <div class="two">
-
-        <div>
-
-          <label>
-            Prezzo €
-          </label>
-
-          <input
-            id="sPrice"
-            type="number"
-            step="0.01"
-            min="0"
-            value="${esc(service.price ?? "")}">
-
-        </div>
-
-        <div>
-
-          <label>
-            Durata minuti
-          </label>
-
-          <input
-            id="sDuration"
-            type="number"
-            min="1"
-            value="${esc(service.duration || 30)}">
-
-        </div>
-
-      </div>
-
-      <label>
-        Descrizione
-      </label>
-
-      <textarea
-        id="sDesc"
-        rows="3">${esc(service.description || "")}</textarea>
-
-      <div class="actions">
-
-        <button
-          class="primary"
-          onclick="saveService(${index})">
-          Salva servizio
-        </button>
-
-      </div>
-    `
-  );
-
-}
-
-
-function saveService(index){
-
-  const service = {
-
-    id:
-      index >= 0
-        ? appData.services[index].id
-        : uid("srv"),
-
-    name:
-      document.getElementById(
-        "sName"
-      ).value.trim(),
-
-    price:
-      Number(
-        document.getElementById(
-          "sPrice"
-        ).value || 0
-      ),
-
-    duration:
-      Number(
-        document.getElementById(
-          "sDuration"
-        ).value || 30
-      ),
-
-    description:
-      document.getElementById(
-        "sDesc"
-      ).value.trim()
+    createdAt:
+      new Date().toISOString()
 
   };
 
-  if(!service.name){
-
-    toast(
-      "Inserisci il nome del servizio"
-    );
-
-    return;
-  }
-
-  if(service.duration <= 0){
-    service.duration = 30;
-  }
-
-  if(index >= 0){
-
-    appData.services[index] =
-      service;
-
-  }else{
-
-    appData.services.push(
-      service
-    );
-
-  }
-
-  saveData();
-
-  closeModal();
-
-  toast(
-    "Servizio salvato"
-  );
-
-}
-
-
-function editService(index){
-
-  const service =
-    appData.services[index];
-
-  if(service){
-    openService(
-      service,
-      index
-    );
-  }
-
-}
-
-
-function deleteService(index){
-
-  if(!confirm(
-    "Eliminare questo servizio?"
-  )){
-    return;
-  }
-
-  appData.services.splice(
-    index,
-    1
+  appData.clients.push(
+    client
   );
 
   saveData();
 
-  toast(
-    "Servizio eliminato"
-  );
+  renderClients();
+
+  openClient(client.id);
 
 }
 
 
-/* ============================================================
-   PROMOZIONI
-============================================================ */
-
-function renderPromotions(){
-
-  document.getElementById(
-    "promotionsList"
-  ).innerHTML =
-    appData.promotions.length
-
-      ? appData.promotions
-          .map(
-            (promotion,index) => `
-              <div class="list-item">
-
-                <b>
-                  ${esc(
-                    promotion.title ||
-                    "Promozione"
-                  )}
-                </b>
-
-                <span>
-                  ${esc(
-                    promotion.text || ""
-                  )}
-                </span>
-
-                <div class="actions">
-
-                  <button
-                    class="secondary small"
-                    onclick="editPromotion(${index})">
-                    Modifica
-                  </button>
-
-                  <button
-                    class="danger small"
-                    onclick="deletePromotion(${index})">
-                    Elimina
-                  </button>
-
-                </div>
-
-              </div>
-            `
-          )
-          .join("")
-
-      : '<div class="empty">Nessuna promozione.</div>';
-}
-
-
-function openPromotion(
-  promotion = {},
-  index = -1
-){
-
-  openModal(
-    index >= 0
-      ? "Modifica promozione"
-      : "Nuova promozione",
-
-    `
-      <label>Titolo</label>
-
-      <input
-        id="pTitle"
-        value="${esc(
-          promotion.title || ""
-        )}">
-
-      <label>Testo</label>
-
-      <textarea
-        id="pText"
-        rows="5">${esc(
-          promotion.text || ""
-        )}</textarea>
-
-      <div class="actions">
-
-        <button
-          class="primary"
-          onclick="savePromotion(${index})">
-          Salva
-        </button>
-
-      </div>
-    `
-  );
-
-}
-
-
-function savePromotion(index){
-
-  const promotion = {
-
-    title:
-      document.getElementById(
-        "pTitle"
-      ).value.trim(),
-
-    text:
-      document.getElementById(
-        "pText"
-      ).value.trim()
-
-  };
-
-  if(!promotion.title){
-
-    toast(
-      "Inserisci un titolo"
-    );
-
-    return;
-  }
-
-  if(index >= 0){
-
-    appData.promotions[index] =
-      promotion;
-
-  }else{
-
-    appData.promotions.push(
-      promotion
-    );
-
-  }
-
-  saveData();
-
-  closeModal();
-
-  toast(
-    "Promozione salvata"
-  );
-
-}
-
-
-function editPromotion(index){
-
-  const promotion =
-    appData.promotions[index];
-
-  if(promotion){
-
-    openPromotion(
-      promotion,
-      index
-    );
-
-  }
-
-}
-
-
-function deletePromotion(index){
-
-  if(!confirm(
-    "Eliminare questa promozione?"
-  )){
-    return;
-  }
-
-  appData.promotions.splice(
-    index,
-    1
-  );
-
-  saveData();
-
-  toast(
-    "Promozione eliminata"
-  );
-
-}
-
-
-/* ============================================================
-   IMPOSTAZIONI
-============================================================ */
+/* =========================================================
+   SETTINGS
+========================================================= */
 
 function renderSettings(){
 
-  const business =
-    appData.business || {};
+  $("#businessName").value =
+    appData.business.name || "";
 
-  document.getElementById(
-    "businessName"
-  ).value =
-    business.name || "";
+  $("#businessType").value =
+    appData.business.type || "";
 
-  document.getElementById(
-    "businessType"
-  ).value =
-    business.type || "";
+  $("#businessPhone").value =
+    appData.business.phone || "";
 
-  document.getElementById(
-    "businessPhone"
-  ).value =
-    business.phone || "";
+  $("#businessWhatsapp").value =
+    appData.business.whatsapp || "";
 
-  document.getElementById(
-    "businessWhatsapp"
-  ).value =
-    business.whatsapp || "";
+  $("#businessAddress").value =
+    appData.business.address || "";
 
-  document.getElementById(
-    "businessDescription"
-  ).value =
-    business.description || "";
+  $("#businessDescription").value =
+    appData.business.description || "";
+
+  $("#openingTime").value =
+    appData.hours.open || "09:00";
+
+  $("#closingTime").value =
+    appData.hours.close || "19:00";
 
 
-  document.getElementById(
-    "servicesList"
-  ).innerHTML =
-    appData.services.length
+  if(!appData.services.length){
 
-      ? appData.services
-          .map(
-            (service,index) => `
+    $("#servicesList").innerHTML =
+      '<div class="empty">'+
+      'Nessun servizio configurato.'+
+      '</div>';
 
-              <div class="list-item">
+  }else{
 
-                <b>
-                  ${esc(service.name)}
-                </b>
+    $("#servicesList").innerHTML =
+      appData.services
+        .map(
+          service => `
 
-                <span>
-                  ${Number(
-                    service.price || 0
-                  ).toFixed(2)}
-                  €
-                  ·
-                  ${Number(
-                    service.duration || 30
-                  )}
-                  min
-                </span>
+            <div class="item">
 
-                ${
-                  service.description
-                    ? `
-                      <div
-                        class="muted"
-                        style="margin-top:4px">
-                        ${esc(
-                          service.description
-                        )}
-                      </div>
-                    `
-                    : ""
-                }
+              <div class="between">
 
-                <div class="actions">
+                <strong>
+                  ${escapeHTML(service.name)}
+                </strong>
 
-                  <button
-                    class="secondary small"
-                    onclick="editService(${index})">
-                    Modifica
-                  </button>
+                <button
+                  class="btn danger"
+                  onclick="deleteService('${service.id}')">
 
-                  <button
-                    class="danger small"
-                    onclick="deleteService(${index})">
-                    Elimina
-                  </button>
+                  Elimina
 
-                </div>
-
-              </div>
-            `
-          )
-          .join("")
-
-      : '<div class="empty">Nessun servizio configurato.</div>';
-
-
-  document.getElementById(
-    "hoursList"
-  ).innerHTML =
-    days
-      .map(([key,name]) => {
-
-        const hours =
-          appData.settings.hours[key] ||
-          defaultHours()[key];
-
-        const pause =
-          hours.breakStart &&
-          hours.breakEnd
-            ? hours.breakStart +
-              "-" +
-              hours.breakEnd
-            : "";
-
-        return `
-          <div class="list-item">
-
-            <div class="row">
-
-              <b>${name}</b>
-
-              <label
-                style="margin:0">
-
-                <input
-                  type="checkbox"
-                  id="closed_${key}"
-                  ${hours.closed ? "checked" : ""}>
-
-                Chiuso
-
-              </label>
-
-            </div>
-
-            <div class="three">
-
-              <div>
-
-                <label>
-                  Apertura
-                </label>
-
-                <input
-                  id="start_${key}"
-                  type="time"
-                  value="${esc(
-                    hours.start || "09:00"
-                  )}">
+                </button>
 
               </div>
 
-              <div>
+              <div class="meta">
 
-                <label>
-                  Chiusura
-                </label>
+                ${escapeHTML(
+                  service.description || ""
+                )}
 
-                <input
-                  id="end_${key}"
-                  type="time"
-                  value="${esc(
-                    hours.end || "19:00"
-                  )}">
+                ·
 
-              </div>
+                € ${escapeHTML(service.price)}
 
-              <div>
+                ·
 
-                <label>
-                  Pausa
-                </label>
-
-                <input
-                  id="break_${key}"
-                  value="${esc(pause)}"
-                  placeholder="13:00-14:00">
+                ${escapeHTML(service.duration)}
+                min
 
               </div>
 
             </div>
 
-          </div>
-        `;
+          `
+        )
+        .join("");
 
-      })
-      .join("");
+  }
+
+
+  if(!appData.promotions.length){
+
+    $("#promotionsList").innerHTML =
+      '<div class="empty">'+
+      'Nessuna promozione.'+
+      '</div>';
+
+  }else{
+
+    $("#promotionsList").innerHTML =
+      appData.promotions
+        .map(
+          promotion => `
+
+            <div class="item">
+
+              <div class="between">
+
+                <strong>
+                  ${escapeHTML(promotion.name)}
+                </strong>
+
+                <button
+                  class="btn danger"
+                  onclick="deletePromotion('${promotion.id}')">
+
+                  Elimina
+
+                </button>
+
+              </div>
+
+              <div class="meta">
+
+                ${escapeHTML(
+                  promotion.description || ""
+                )}
+
+              </div>
+
+            </div>
+
+          `
+        )
+        .join("");
+
+  }
 
 }
 
 
-function saveSettings(){
+function saveBusiness(){
 
-  const business =
-    appData.business;
+  appData.business.name =
+    $("#businessName").value.trim();
 
-  business.name =
-    document.getElementById(
-      "businessName"
-    ).value.trim();
+  appData.business.type =
+    $("#businessType").value.trim();
 
-  business.type =
-    document.getElementById(
-      "businessType"
-    ).value.trim();
+  appData.business.phone =
+    $("#businessPhone").value.trim();
 
-  business.phone =
-    document.getElementById(
-      "businessPhone"
-    ).value.trim();
+  appData.business.whatsapp =
+    $("#businessWhatsapp").value.trim();
 
-  business.whatsapp =
-    document.getElementById(
-      "businessWhatsapp"
-    ).value.trim();
+  appData.business.address =
+    $("#businessAddress").value.trim();
 
-  business.description =
-    document.getElementById(
-      "businessDescription"
-    ).value.trim();
-
-  appData.settings.name =
-    business.name;
+  appData.business.description =
+    $("#businessDescription").value.trim();
 
   saveData();
 
-  toast(
-    "Impostazioni salvate"
+  renderHome();
+
+  showToast(
+    "Dati attività salvati"
   );
 
 }
@@ -3441,596 +2905,688 @@ function saveSettings(){
 
 function saveHours(){
 
-  days.forEach(([key]) => {
+  appData.hours.open =
+    $("#openingTime").value;
 
-    const pause =
-      (
-        document.getElementById(
-          "break_" + key
-        ).value || ""
-      ).split("-");
-
-    appData.settings.hours[key] = {
-
-      closed:
-        document.getElementById(
-          "closed_" + key
-        ).checked,
-
-      start:
-        document.getElementById(
-          "start_" + key
-        ).value,
-
-      end:
-        document.getElementById(
-          "end_" + key
-        ).value,
-
-      breakStart:
-        pause[0] || "",
-
-      breakEnd:
-        pause[1] || ""
-
-    };
-
-  });
+  appData.hours.close =
+    $("#closingTime").value;
 
   saveData();
 
-  toast(
+  showToast(
     "Orari salvati"
   );
 
 }
 
 
-/* ============================================================
-   MODALE
-============================================================ */
+function addService(){
 
-function openModal(title,html){
+  const name =
+    prompt(
+      "Nome del servizio"
+    );
 
-  document.getElementById(
-    "modalTitle"
-  ).textContent = title;
+  if(!name){
+    return;
+  }
 
-  document.getElementById(
-    "modalBody"
-  ).innerHTML = html;
+  const price =
+    prompt(
+      "Prezzo (€)",
+      "0"
+    );
 
-  document.getElementById(
-    "modalBg"
-  ).classList.add("open");
+  const duration =
+    prompt(
+      "Durata in minuti",
+      "30"
+    );
+
+  appData.services.push({
+
+    id:uid(),
+
+    name:name.trim(),
+
+    description:"",
+
+    price:Number(price)||0,
+
+    duration:Number(duration)||30
+
+  });
+
+  saveData();
+
+  renderSettings();
+
+  renderHome();
 
 }
 
 
-function closeModal(){
+function deleteService(id){
 
-  document.getElementById(
-    "modalBg"
-  ).classList.remove("open");
+  if(
+    !confirm(
+      "Eliminare questo servizio?"
+    )
+  ){
+    return;
+  }
+
+  appData.services =
+    appData.services.filter(
+      service =>
+        service.id !== id
+    );
+
+  saveData();
+
+  renderSettings();
+
+  renderHome();
 
 }
 
 
-document
-  .getElementById("modalBg")
-  .addEventListener(
-    "click",
-    event => {
+function addPromotion(){
 
-      if(
-        event.target.id ===
-        "modalBg"
-      ){
-        closeModal();
-      }
+  const name =
+    prompt(
+      "Nome promozione"
+    );
 
-    }
-  );
+  if(!name){
+    return;
+  }
+
+  const description =
+    prompt(
+      "Descrizione",
+      ""
+    );
+
+  appData.promotions.push({
+
+    id:uid(),
+
+    name:name.trim(),
+
+    description:
+      description || ""
+
+  });
+
+  saveData();
+
+  renderSettings();
+
+}
 
 
-/* ============================================================
-   API BUSINESS ENGINE
-============================================================ */
+function deletePromotion(id){
 
-async function api(
-  action,
-  extra = {}
+  appData.promotions =
+    appData.promotions.filter(
+      promotion =>
+        promotion.id !== id
+    );
+
+  saveData();
+
+  renderSettings();
+
+}
+
+
+/* =========================================================
+   AVAILABILITY ENGINE
+========================================================= */
+
+function isSlotAvailable(
+  date,
+  time,
+  duration
 ){
 
-  const body = {
+  const requestedStart =
+    minutes(time);
 
-    action,
+  const requestedEnd =
+    requestedStart+
+    Number(duration||30);
 
-    ...extra,
 
-    settings:
-      appData.settings,
+  const opening =
+    minutes(
+      appData.hours.open
+    );
 
-    business:
-      appData.business,
+  const closing =
+    minutes(
+      appData.hours.close
+    );
 
-    services:
-      appData.services,
 
-    appointments:
-      appData.appointments,
+  if(
+    requestedStart < opening ||
+    requestedEnd > closing
+  ){
 
-    clients:
-      appData.clients,
+    return false;
 
-    promotions:
-      appData.promotions
+  }
 
-  };
 
-  const response =
-    await fetch(
-      "/api/chat",
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":
-            "application/json"
-        },
-        body:
-          JSON.stringify(body)
+  return !appData.appointments
+    .some(
+      appointment => {
+
+        if(
+          appointment.date !== date ||
+          appointment.status === "cancelled"
+        ){
+
+          return false;
+
+        }
+
+        const start =
+          minutes(
+            appointment.time
+          );
+
+        const end =
+          start+
+          Number(
+            appointment.duration || 30
+          );
+
+        return overlap(
+          requestedStart,
+          requestedEnd,
+          start,
+          end
+        );
+
       }
     );
 
-  if(!response.ok){
+}
 
-    throw new Error(
-      "API HTTP " +
-      response.status
+
+/* =========================================================
+   MANUAL APPOINTMENT
+========================================================= */
+
+function newAppointment(){
+
+  if(!appData.services.length){
+
+    alert(
+      "Configura prima almeno un servizio."
+    );
+
+    openPage("settings");
+
+    return;
+
+  }
+
+  const clientName =
+    prompt(
+      "Nome cliente"
+    );
+
+  if(!clientName){
+    return;
+  }
+
+  const date =
+    prompt(
+      "Data (AAAA-MM-GG)",
+      selectedDate
+    );
+
+  if(!date){
+    return;
+  }
+
+  const time =
+    prompt(
+      "Ora (HH:MM)",
+      "09:00"
+    );
+
+  if(!time){
+    return;
+  }
+
+  const service =
+    appData.services[0];
+
+  if(
+    !isSlotAvailable(
+      date,
+      time,
+      service.duration
+    )
+  ){
+
+    alert(
+      "L'orario non è disponibile."
+    );
+
+    return;
+
+  }
+
+  const client =
+    findOrCreateClient(
+      clientName.trim()
+    );
+
+  const appointment = {
+
+    id:uid(),
+
+    clientId:
+      client.id,
+
+    clientName:
+      client.name,
+
+    date,
+
+    time,
+
+    serviceId:
+      service.id,
+
+    serviceName:
+      service.name,
+
+    price:
+      service.price,
+
+    duration:
+      service.duration,
+
+    status:
+      "confirmed",
+
+    createdAt:
+      new Date().toISOString()
+
+  };
+
+  appData.appointments.push(
+    appointment
+  );
+
+  saveData();
+
+  selectedDate =
+    date;
+
+  currentCalendarDate =
+    new Date(date+"T12:00:00");
+
+  renderAll();
+
+  showToast(
+    "Appuntamento salvato"
+  );
+
+}
+
+
+function findOrCreateClient(name){
+
+  let client =
+    appData.clients
+      .find(
+        c =>
+          c.name
+            .toLowerCase() ===
+          name.toLowerCase()
+      );
+
+  if(!client){
+
+    client = {
+
+      id:uid(),
+
+      name,
+
+      phone:"",
+
+      whatsapp:"",
+
+      email:"",
+
+      notes:"",
+
+      createdAt:
+        new Date().toISOString()
+
+    };
+
+    appData.clients.push(
+      client
     );
 
   }
 
-  return response.json();
+  return client;
 
 }
 
 
-/* ============================================================
-   CHAT MAVI
-============================================================ */
+/* =========================================================
+   MAVI ENGINE
+========================================================= */
 
-function addMsg(
-  text,
-  who = "bot",
-  speakIt = false
-){
+let maviInitialized = false;
 
-  if(!text) return;
+function initMavi(){
+
+  if(maviInitialized){
+    return;
+  }
+
+  maviInitialized = true;
+
+  addMaviMessage(
+    "Sono Mavi. Posso aiutarti con appuntamenti, clienti, servizi, orari e promozioni."
+  );
+
+}
+
+
+function addMaviMessage(text){
 
   const element =
     document.createElement("div");
 
   element.className =
-    "msg " + who;
+    "bubble mavi";
 
   element.textContent =
     text;
 
-  const chat =
-    document.getElementById(
-      "chat"
-    );
+  $("#messages")
+    .appendChild(element);
 
-  chat.appendChild(
-    element
-  );
+  $("#messages")
+    .scrollTop =
+      $("#messages").scrollHeight;
 
-  chat.scrollTop =
-    chat.scrollHeight;
+}
 
-  history.push({
 
-    role:
-      who === "user"
-        ? "user"
-        : "assistant",
+function addUserMessage(text){
 
-    content:
-      String(text)
+  const element =
+    document.createElement("div");
 
-  });
+  element.className =
+    "bubble user";
 
-  history =
-    history.slice(-50);
+  element.textContent =
+    text;
 
-  saveHistory();
+  $("#messages")
+    .appendChild(element);
 
-  if(
-    speakIt &&
-    who === "bot"
+  $("#messages")
+    .scrollTop =
+      $("#messages").scrollHeight;
+
+}
+
+
+/* =========================================================
+   MAVI NLP LOCALE
+========================================================= */
+
+function parseMaviRequest(text){
+
+  const lower =
+    text.toLowerCase();
+
+  let service = null;
+
+  for(
+    const item
+    of appData.services
   ){
-    speak(text);
-  }
-
-}
-
-
-function setBooking(appointment){
-
-  if(!appointment){
-    return;
-  }
-
-  const clean = {
-
-    id:
-      appointment.id ||
-      "",
-
-    name:
-      String(
-        appointment.name || ""
-      ).trim(),
-
-    phone:
-      String(
-        appointment.phone || ""
-      ).trim(),
-
-    date:
-      appointment.date || "",
-
-    time:
-      appointment.time || "",
-
-    service:
-      appointment.service || "",
-
-    status:
-      "confermato"
-
-  };
-
-  if(
-    !clean.name ||
-    !clean.date ||
-    !clean.time ||
-    !clean.service
-  ){
-    return;
-  }
-
-  localStorage.setItem(
-    PENDING,
-    JSON.stringify(clean)
-  );
-
-  localStorage.setItem(
-    CONF,
-    "true"
-  );
-
-  document.getElementById(
-    "bookingSummary"
-  ).innerHTML = `
-
-    <b>
-      ${esc(clean.name)}
-    </b>
-
-    <br>
-
-    ${esc(clean.service)}
-
-    ·
-
-    ${fmtDate(clean.date)}
-
-    ·
-
-    ${esc(clean.time)}
-
-  `;
-
-  document.getElementById(
-    "bookingBox"
-  ).classList.add("open");
-
-}
-
-
-function clearBooking(){
-
-  localStorage.removeItem(
-    PENDING
-  );
-
-  localStorage.removeItem(
-    CONF
-  );
-
-  document.getElementById(
-    "bookingBox"
-  ).classList.remove("open");
-
-}
-
-
-function getPendingBooking(){
-
-  try{
-
-    return JSON.parse(
-      localStorage.getItem(
-        PENDING
-      ) || "null"
-    );
-
-  }catch(e){
-
-    return null;
-  }
-
-}
-
-
-/* ============================================================
-   CONFERMA PRENOTAZIONE
-   IMPORTANTE:
-   QUI AVVIENE IL PRIMO E UNICO SALVATAGGIO LOCALE
-   DOPO LA CONFERMA DELL'UTENTE.
-============================================================ */
-
-async function confirmBooking(){
-
-  if(bookingBusy){
-    return;
-  }
-
-  const pending =
-    getPendingBooking();
-
-  if(!pending){
-
-    toast(
-      "Nessuna prenotazione da confermare"
-    );
-
-    return;
-  }
-
-  if(
-    !pending.name ||
-    !pending.date ||
-    !pending.time ||
-    !pending.service
-  ){
-
-    toast(
-      "Prenotazione incompleta"
-    );
-
-    return;
-  }
-
-  const button =
-    document.getElementById(
-      "confirmBooking"
-    );
-
-  bookingBusy = true;
-
-  button.disabled = true;
-
-  const originalText =
-    button.textContent;
-
-  button.textContent =
-    "Verifica disponibilità…";
-
-  try{
-
-    /*
-      Il Business Engine esegue nuovamente
-      il controllo della disponibilità.
-    */
-
-    const result =
-      await api(
-        "book",
-        {
-          date:
-            pending.date,
-
-          time:
-            pending.time,
-
-          service:
-            pending.service,
-
-          name:
-            pending.name,
-
-          clientName:
-            pending.name,
-
-          phone:
-            pending.phone || ""
-        }
-      );
 
     if(
-      !result ||
-      !result.bookingConfirmed
+      lower.includes(
+        item.name.toLowerCase()
+      )
     ){
 
-      toast(
-        result?.error ||
-        "Orario non più disponibile"
-      );
+      service =
+        item;
 
-      return;
+      break;
+
     }
 
-    const returnedAppointment =
-      result.appointment ||
-      result.booking ||
-      pending;
+  }
 
-    /*
-      Protezione aggiuntiva:
-      non inserire due volte lo stesso
-      appuntamento.
-    */
 
-    const duplicate =
-      appData.appointments.some(
-        appointment =>
+  let time = null;
 
-          active(appointment) &&
+  const timeMatch =
+    lower.match(
+      /\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/
+    );
 
-          appointment.date ===
-            returnedAppointment.date &&
+  if(timeMatch){
 
-          appointment.time ===
-            returnedAppointment.time &&
+    time =
+      String(
+        Number(timeMatch[1])
+      ).padStart(2,"0")
+      +":"
+      +
+      timeMatch[2];
 
-          String(
-            appointment.service
-          ).trim().toLowerCase() ===
-            String(
-              returnedAppointment.service
-            ).trim().toLowerCase()
+  }
 
-      );
 
-    if(duplicate){
+  let date = null;
 
-      clearBooking();
 
-      addMsg(
-        "La prenotazione risulta già presente nel calendario.",
-        "system"
-      );
+  if(lower.includes("oggi")){
 
-      showPage("calendar");
+    date =
+      getTodayISO();
 
-      return;
-    }
+  }
 
-    const appointment = {
 
-      ...returnedAppointment,
+  if(lower.includes("domani")){
 
-      id:
-        returnedAppointment.id ||
-        uid("apt"),
+    const tomorrow =
+      new Date();
 
-      name:
-        returnedAppointment.name ||
-        pending.name,
+    tomorrow.setDate(
+      tomorrow.getDate()+1
+    );
 
-      phone:
-        returnedAppointment.phone ||
-        pending.phone ||
-        "",
+    date =
+      tomorrow.getFullYear()+
+      "-"+
+      String(
+        tomorrow.getMonth()+1
+      ).padStart(2,"0")+
+      "-"+
+      String(
+        tomorrow.getDate()
+      ).padStart(2,"0");
 
-      date:
-        returnedAppointment.date ||
-        pending.date,
+  }
 
-      time:
-        returnedAppointment.time ||
-        pending.time,
 
-      service:
-        returnedAppointment.service ||
-        pending.service,
+  const days = [
 
-      status:
-        returnedAppointment.status ||
-        "confermato",
+    "domenica",
+    "lunedì",
+    "lunedi",
+    "martedì",
+    "martedi",
+    "mercoledì",
+    "mercoledi",
+    "giovedì",
+    "giovedi",
+    "venerdì",
+    "venerdi",
+    "sabato"
 
-      createdAt:
-        returnedAppointment.createdAt ||
-        new Date().toISOString(),
+  ];
 
-      confirmedAt:
-        new Date().toISOString()
+
+  const foundDay =
+    days.find(
+      day =>
+        lower.includes(day)
+    );
+
+
+  if(foundDay){
+
+    const normalized =
+      foundDay
+        .replace("lunedì","lunedi")
+        .replace("martedì","martedi")
+        .replace("mercoledì","mercoledi")
+        .replace("giovedì","giovedi")
+        .replace("venerdì","venerdi");
+
+    const dayMap = {
+
+      domenica:0,
+      lunedi:1,
+      martedi:2,
+      mercoledi:3,
+      giovedi:4,
+      venerdi:5,
+      sabato:6
 
     };
 
-    /*
-      SALVATAGGIO LOCALE:
-      avviene soltanto adesso.
-    */
+    const target =
+      dayMap[normalized];
 
-    appData.appointments.push(
-      appointment
-    );
+    if(target !== undefined){
 
-    ensureClient(
-      appointment
-    );
+      const now =
+        new Date();
 
-    saveData();
+      let delta =
+        (target-now.getDay()+7)%7;
 
-    clearBooking();
+      if(delta===0){
+        delta=7;
+      }
 
-    addMsg(
-      `Prenotazione confermata per ${appointment.name}, ${fmtDate(appointment.date)} alle ${appointment.time}.`,
-      "bot",
-      true
-    );
+      const result =
+        new Date(now);
 
-    showPage(
-      "calendar"
-    );
+      result.setDate(
+        now.getDate()+delta
+      );
 
-    document.getElementById(
-      "calendarDate"
-    ).value =
-      appointment.date;
+      date =
+        result.getFullYear()+
+        "-"+
+        String(
+          result.getMonth()+1
+        ).padStart(2,"0")+
+        "-"+
+        String(
+          result.getDate()
+        ).padStart(2,"0");
 
-    renderCalendar();
-
-  }catch(error){
-
-    console.error(
-      "Maviri booking error:",
-      error
-    );
-
-    toast(
-      "Errore durante la verifica della prenotazione"
-    );
-
-  }finally{
-
-    bookingBusy = false;
-
-    button.disabled =
-      false;
-
-    button.textContent =
-      originalText;
+    }
 
   }
+
+
+  const isoMatch =
+    lower.match(
+      /\b20\d{2}-\d{2}-\d{2}\b/
+    );
+
+  if(isoMatch){
+
+    date =
+      isoMatch[0];
+
+  }
+
+
+  let clientName = null;
+
+
+  const explicitClient =
+    text.match(
+      /(?:per|cliente)\s+([A-Za-zÀ-ÿ' -]{2,40})/i
+    );
+
+  if(explicitClient){
+
+    clientName =
+      explicitClient[1]
+        .trim();
+
+  }
+
+
+  const nameMatch =
+    text.match(
+      /(?:mi chiamo|sono)\s+([A-Za-zÀ-ÿ' -]{2,40})/i
+    );
+
+  if(nameMatch){
+
+    clientName =
+      nameMatch[1]
+        .trim();
+
+  }
+
+
+  return {
+
+    service,
+
+    date,
+
+    time,
+
+    clientName
+
+  };
 
 }
 
 
-/* ============================================================
-   INVIO A MAVI
-============================================================ */
+/* =========================================================
+   MAVI BOOKING FLOW
+========================================================= */
 
-async function send(){
+function handleMaviMessage(){
 
   const input =
-    document.getElementById(
-      "chatInput"
-    );
+    $("#maviInput");
 
   const text =
     input.value.trim();
@@ -4041,218 +3597,560 @@ async function send(){
 
   input.value = "";
 
-  addMsg(
-    text,
-    "user"
+  addUserMessage(
+    text
   );
 
-  const status =
-    document.getElementById(
-      "engineStatus"
+  const parsed =
+    parseMaviRequest(text);
+
+
+  if(
+    parsed.service ||
+    parsed.date ||
+    parsed.time ||
+    /prenot|appuntament|taglio|servizio/i.test(text)
+  ){
+
+    pendingBooking =
+      Object.assign(
+        {},
+        pendingBooking || {},
+        parsed
+      );
+
+
+    if(
+      !pendingBooking.clientName
+    ){
+
+      const nameMatch =
+        text.match(
+          /(?:mi chiamo|sono)\s+([A-Za-zÀ-ÿ' -]{2,40})/i
+        );
+
+      if(nameMatch){
+
+        pendingBooking.clientName =
+          nameMatch[1].trim();
+
+      }
+
+    }
+
+
+    const missing = [];
+
+
+    if(
+      !pendingBooking.clientName
+    ){
+
+      missing.push(
+        "nome del cliente"
+      );
+
+    }
+
+
+    if(
+      !pendingBooking.service
+    ){
+
+      missing.push(
+        "servizio"
+      );
+
+    }
+
+
+    if(
+      !pendingBooking.date
+    ){
+
+      missing.push(
+        "giorno"
+      );
+
+    }
+
+
+    if(
+      !pendingBooking.time
+    ){
+
+      missing.push(
+        "ora"
+      );
+
+    }
+
+
+    if(missing.length){
+
+      addMaviMessage(
+        "Per preparare la prenotazione mi serve: "+
+        missing.join(", ")+"."
+      );
+
+      return;
+
+    }
+
+
+    if(
+      !isSlotAvailable(
+        pendingBooking.date,
+        pendingBooking.time,
+        pendingBooking.service.duration
+      )
+    ){
+
+      addMaviMessage(
+        "Ho verificato il calendario: quell'orario non è disponibile."
+      );
+
+      return;
+
+    }
+
+
+    showBookingConfirmation();
+
+    return;
+
+  }
+
+
+  if(
+    /orari|apertura|chiusura/i
+      .test(text)
+  ){
+
+    addMaviMessage(
+      "Gli orari configurati sono "+
+      appData.hours.open+
+      " - "+
+      appData.hours.close+"."
     );
 
-  status.textContent =
-    "Mavi sta elaborando…";
+    return;
 
-  status.classList.remove(
-    "error"
+  }
+
+
+  if(
+    /servizi|prezzo|prezzi|quanto costa/i
+      .test(text)
+  ){
+
+    if(!appData.services.length){
+
+      addMaviMessage(
+        "Non ci sono ancora servizi configurati."
+      );
+
+      return;
+
+    }
+
+    const list =
+      appData.services
+        .map(
+          s =>
+            s.name+
+            ": €"+
+            s.price+
+            " · "+
+            s.duration+
+            " min"
+        )
+        .join("\n");
+
+    addMaviMessage(
+      "Questi sono i servizi configurati:\n"+
+      list
+    );
+
+    return;
+
+  }
+
+
+  if(
+    /cliente|clienti/i
+      .test(text)
+  ){
+
+    addMaviMessage(
+      "In Maviri sono presenti "+
+      appData.clients.length+
+      " clienti."
+    );
+
+    return;
+
+  }
+
+
+  addMaviMessage(
+    "Posso gestire appuntamenti, disponibilità, clienti, servizi, orari e promozioni. Dimmi cosa vuoi fare."
   );
+
+}
+
+
+function showBookingConfirmation(){
+
+  const p =
+    pendingBooking;
+
+  $("#confirmationArea").innerHTML = `
+
+    <div class="confirmation">
+
+      <div class="confirmation-title">
+        Conferma prenotazione
+      </div>
+
+      <div>
+
+        <strong>
+          Cliente:
+        </strong>
+
+        ${escapeHTML(p.clientName)}
+
+      </div>
+
+      <div>
+
+        <strong>
+          Servizio:
+        </strong>
+
+        ${escapeHTML(p.service.name)}
+
+      </div>
+
+      <div>
+
+        <strong>
+          Giorno:
+        </strong>
+
+        ${formatDate(p.date)}
+
+      </div>
+
+      <div>
+
+        <strong>
+          Ora:
+        </strong>
+
+        ${escapeHTML(p.time)}
+
+      </div>
+
+      <div>
+
+        <strong>
+          Prezzo:
+        </strong>
+
+        € ${escapeHTML(p.service.price)}
+
+      </div>
+
+      <div
+        class="row"
+        style="margin-top:12px">
+
+        <button
+          class="btn primary"
+          id="confirmBooking">
+
+          CONFERMA PRENOTAZIONE
+
+        </button>
+
+        <button
+          class="btn secondary"
+          id="cancelPendingBooking">
+
+          Annulla
+
+        </button>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  $("#confirmBooking")
+    .addEventListener(
+      "click",
+      confirmBooking
+    );
+
+
+  $("#cancelPendingBooking")
+    .addEventListener(
+      "click",
+      () => {
+
+        pendingBooking =
+          null;
+
+        $("#confirmationArea")
+          .innerHTML =
+          "";
+
+        addMaviMessage(
+          "Prenotazione annullata."
+        );
+
+      }
+    );
+
+
+  addMaviMessage(
+    "Ho verificato la disponibilità. La prenotazione non è ancora stata salvata. Premi CONFERMA PRENOTAZIONE per salvarla nel calendario."
+  );
+
+}
+
+
+/* =========================================================
+   FINAL BOOKING
+========================================================= */
+
+function confirmBooking(){
+
+  if(!pendingBooking){
+    return;
+  }
+
+  const p =
+    pendingBooking;
+
+
+  /*
+   * SECONDO CONTROLLO IMMEDIATO
+   * PRIMA DEL SALVATAGGIO
+   */
+
+  if(
+    !isSlotAvailable(
+      p.date,
+      p.time,
+      p.service.duration
+    )
+  ){
+
+    addMaviMessage(
+      "L'orario non è più disponibile. Non ho salvato la prenotazione."
+    );
+
+    pendingBooking =
+      null;
+
+    $("#confirmationArea")
+      .innerHTML =
+      "";
+
+    return;
+
+  }
+
+
+  /*
+   * CLIENTE
+   */
+
+  const client =
+    findOrCreateClient(
+      p.clientName
+    );
+
+
+  /*
+   * CONTROLLO DUPLICATO
+   */
+
+  const duplicate =
+    appData.appointments
+      .some(
+        a =>
+          a.date === p.date &&
+          a.time === p.time &&
+          a.status !== "cancelled"
+      );
+
+
+  if(duplicate){
+
+    addMaviMessage(
+      "La prenotazione non è stata salvata perché l'orario risulta già occupato."
+    );
+
+    pendingBooking =
+      null;
+
+    $("#confirmationArea")
+      .innerHTML =
+      "";
+
+    return;
+
+  }
+
+
+  /*
+   * SALVATAGGIO
+   */
+
+  const appointment = {
+
+    id:uid(),
+
+    clientId:
+      client.id,
+
+    clientName:
+      client.name,
+
+    date:
+      p.date,
+
+    time:
+      p.time,
+
+    serviceId:
+      p.service.id,
+
+    serviceName:
+      p.service.name,
+
+    price:
+      p.service.price,
+
+    duration:
+      p.service.duration,
+
+    status:
+      "confirmed",
+
+    createdAt:
+      new Date().toISOString()
+
+  };
+
+
+  appData.appointments.push(
+    appointment
+  );
+
+
+  saveData();
+
+
+  selectedDate =
+    p.date;
+
+  currentCalendarDate =
+    new Date(
+      p.date+"T12:00:00"
+    );
+
+
+  pendingBooking =
+    null;
+
+
+  $("#confirmationArea")
+    .innerHTML =
+    "";
+
+
+  addMaviMessage(
+    "Prenotazione confermata e salvata nel calendario."
+  );
+
+
+  speak(
+    "Prenotazione confermata e salvata nel calendario."
+  );
+
+
+  renderAll();
+
+}
+
+
+/* =========================================================
+   MAVI VOICE
+========================================================= */
+
+function speak(text){
 
   try{
 
-    let response = null;
-
-    /*
-      1.
-      Mavi Engine locale.
-    */
-
     if(
-      window.MaviEngine &&
-      typeof window.MaviEngine.respond ===
-        "function"
+      "speechSynthesis"
+      in window
     ){
 
-      response =
-        await window.MaviEngine.respond(
-          text,
-          {
-            appData,
-            history
-          }
+      window.speechSynthesis
+        .cancel();
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          text
+        );
+
+      utterance.lang =
+        "it-IT";
+
+      utterance.rate =
+        1;
+
+      utterance.pitch =
+        1;
+
+      window.speechSynthesis
+        .speak(
+          utterance
         );
 
     }
-
-    /*
-      Alcune versioni del motore possono
-      restituire una stringa.
-    */
-
-    if(
-      typeof response ===
-      "string"
-    ){
-
-      addMsg(
-        response,
-        "bot",
-        true
-      );
-
-      return;
-    }
-
-
-    if(
-      response &&
-      typeof response ===
-      "object"
-    ){
-
-      if(response.text){
-
-        addMsg(
-          response.text,
-          "bot",
-          true
-        );
-
-      }
-
-      if(
-        response.appointment &&
-        response.appointment.date &&
-        response.appointment.time &&
-        response.appointment.service &&
-        response.appointment.name
-      ){
-
-        setBooking(
-          response.appointment
-        );
-
-      }
-
-      return;
-    }
-
-
-    /*
-      Compatibilità con eventuale
-      vecchia interfaccia Mavi.
-    */
-
-    if(
-      window.Mavi &&
-      typeof window.Mavi.chat ===
-        "function"
-    ){
-
-      response =
-        await window.Mavi.chat(
-          text,
-          {
-            appData,
-            history
-          }
-        );
-
-      if(
-        typeof response ===
-        "string"
-      ){
-
-        addMsg(
-          response,
-          "bot",
-          true
-        );
-
-        return;
-      }
-
-      if(response?.text){
-
-        addMsg(
-          response.text,
-          "bot",
-          true
-        );
-
-      }
-
-      if(response?.appointment){
-
-        setBooking(
-          response.appointment
-        );
-
-      }
-
-      return;
-    }
-
-
-    /*
-      Business Engine soltanto come
-      fallback operativo.
-    */
-
-    const context =
-      await api(
-        "context"
-      );
-
-    let fallback =
-      "Sono Mavi. Posso aiutarti con appuntamenti, servizi, disponibilità e informazioni dell'attività.";
-
-    if(context?.business){
-
-      fallback +=
-        " Attività: " +
-        context.business +
-        ".";
-
-    }
-
-    addMsg(
-      fallback,
-      "bot",
-      true
-    );
 
   }catch(error){
 
     console.error(
-      "Mavi error:",
+      "Voice error",
       error
     );
-
-    addMsg(
-      "Non riesco a elaborare la richiesta in questo momento. Il motore locale di Mavi potrebbe essere ancora in caricamento.",
-      "system"
-    );
-
-    status.classList.add(
-      "error"
-    );
-
-  }finally{
-
-    status.textContent =
-      "Mavi pronta";
 
   }
 
 }
 
 
-/* ============================================================
-   VOCE
-============================================================ */
+let recognition = null;
 
-function setupVoice(){
+
+$("#voiceButton")
+  .addEventListener(
+    "click",
+    startVoiceRecognition
+  );
+
+
+function startVoiceRecognition(){
 
   const SpeechRecognition =
     window.SpeechRecognition ||
@@ -4260,13 +4158,14 @@ function setupVoice(){
 
   if(!SpeechRecognition){
 
-    document.getElementById(
-      "engineStatus"
-    ).textContent =
-      "Riconoscimento vocale non disponibile";
+    showToast(
+      "Riconoscimento vocale non disponibile su questo dispositivo."
+    );
 
     return;
+
   }
+
 
   recognition =
     new SpeechRecognition();
@@ -4280,63 +4179,37 @@ function setupVoice(){
   recognition.continuous =
     false;
 
-  recognition.maxAlternatives =
-    1;
 
-
-  recognition.onstart =
-    () => {
-
-      listening = true;
-
-      document
-        .getElementById("mic")
-        .classList.add(
-          "listening"
-        );
-
-      document.getElementById(
-        "voiceState"
-      ).textContent =
-        "Ascolto…";
-
-    };
+  $("#maviStatus")
+    .textContent =
+    "Ascolto";
 
 
   recognition.onresult =
     event => {
 
       const transcript =
-        event
-          .results?.[0]?.[0]
-          ?.transcript || "";
+        event.results[0][0].transcript;
 
-      if(!transcript){
-        return;
-      }
-
-      document.getElementById(
-        "chatInput"
-      ).value =
+      $("#maviInput")
+        .value =
         transcript;
 
-      send();
+      $("#maviStatus")
+        .textContent =
+        "Elaborazione";
+
+      handleMaviMessage();
 
     };
 
 
   recognition.onerror =
-    event => {
+    () => {
 
-      console.warn(
-        "Speech recognition:",
-        event.error
-      );
-
-      document.getElementById(
-        "voiceState"
-      ).textContent =
-        "Mavi pronta";
+      $("#maviStatus")
+        .textContent =
+        "Pronta";
 
     };
 
@@ -4344,314 +4217,45 @@ function setupVoice(){
   recognition.onend =
     () => {
 
-      listening = false;
-
-      document
-        .getElementById("mic")
-        .classList.remove(
-          "listening"
-        );
-
-      document.getElementById(
-        "voiceState"
-      ).textContent =
-        "Mavi pronta";
+      $("#maviStatus")
+        .textContent =
+        "Pronta";
 
     };
 
-}
-
-
-document
-  .getElementById("mic")
-  .addEventListener(
-    "click",
-    () => {
-
-      if(!recognition){
-
-        toast(
-          "Microfono non disponibile su questo browser"
-        );
-
-        return;
-      }
-
-      try{
-
-        if(listening){
-
-          recognition.stop();
-
-        }else{
-
-          recognition.start();
-
-        }
-
-      }catch(error){
-
-        console.warn(
-          "Microphone:",
-          error
-        );
-
-      }
-
-    }
-  );
-
-
-function speak(text){
-
-  if(
-    !("speechSynthesis" in window) ||
-    !text
-  ){
-    return;
-  }
-
-  window.speechSynthesis.cancel();
-
-  const utterance =
-    new SpeechSynthesisUtterance(
-      String(text)
-    );
-
-  utterance.lang =
-    "it-IT";
-
-  utterance.rate =
-    0.98;
-
-  utterance.pitch =
-    1;
-
-  window.speechSynthesis.speak(
-    utterance
-  );
-
-}
-
-
-/* ============================================================
-   GENERAZIONE CONTENUTI
-============================================================ */
-
-async function generatePost(){
-
-  const topic =
-    document.getElementById(
-      "postTopic"
-    ).value.trim();
-
-  if(!topic){
-
-    toast(
-      "Inserisci un argomento"
-    );
-
-    return;
-  }
-
-  const output =
-    document.getElementById(
-      "postOutput"
-    );
-
-  output.value =
-    "Mavi sta preparando il contenuto…";
 
   try{
 
-    /*
-      Prima prova il motore Mavi locale.
-    */
-
-    if(
-      window.MaviEngine &&
-      typeof window.MaviEngine.respond ===
-        "function"
-    ){
-
-      const response =
-        await window.MaviEngine.respond(
-          `
-          Crea un testo professionale
-          per un post social.
-
-          Argomento:
-          ${topic}
-
-          Attività:
-          ${appData.business.name || ""}
-
-          Tipo:
-          ${appData.business.type || ""}
-
-          Descrizione:
-          ${appData.business.description || ""}
-
-          Servizi disponibili:
-          ${
-            appData.services
-              .map(
-                service =>
-                  service.name +
-                  (
-                    service.price != null
-                      ? " (" +
-                        service.price +
-                        " €)"
-                      : ""
-                  )
-              )
-              .join(", ")
-          }
-
-          Promozioni:
-          ${
-            appData.promotions
-              .map(
-                promotion =>
-                  promotion.title +
-                  ": " +
-                  promotion.text
-              )
-              .join(" | ")
-          }
-
-          Non inventare prezzi,
-          servizi o promozioni.
-          `,
-          {
-            appData,
-            history
-          }
-        );
-
-      const text =
-        typeof response === "string"
-          ? response
-          : response?.text;
-
-      if(text){
-
-        output.value =
-          text;
-
-        return;
-      }
-
-    }
-
-
-    /*
-      Fallback semplice.
-    */
-
-    output.value =
-      `${topic}
-
-${appData.business.name || "La tua attività"} comunica con professionalità e attenzione.
-
-Scrivi qui il messaggio definitivo da pubblicare, utilizzando esclusivamente i servizi e le informazioni disponibili nell'attività.`;
+    recognition.start();
 
   }catch(error){
 
-    console.error(
-      "Post generation:",
-      error
-    );
-
-    output.value =
-      "Impossibile generare il contenuto in questo momento.";
+    $("#maviStatus")
+      .textContent =
+      "Pronta";
 
   }
 
 }
 
 
-/* ============================================================
-   EVENTI
-============================================================ */
-
-document
-  .querySelectorAll(
-    "nav button"
-  )
-  .forEach(button => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        showPage(
-          button.dataset.page
-        );
-
-      }
-    );
-
-  });
-
-
-document
-  .getElementById(
-    "calendarDate"
-  )
-  .addEventListener(
-    "change",
-    renderCalendar
-  );
-
-
-document
-  .getElementById(
-    "appointmentSearch"
-  )
-  .addEventListener(
-    "input",
-    renderAppointmentSearch
-  );
-
-
-document
-  .getElementById(
-    "clientSearch"
-  )
-  .addEventListener(
-    "input",
-    renderClients
-  );
-
-
-document
-  .getElementById(
-    "sendBtn"
-  )
+$("#maviSend")
   .addEventListener(
     "click",
-    send
+    handleMaviMessage
   );
 
 
-document
-  .getElementById(
-    "chatInput"
-  )
+$("#maviInput")
   .addEventListener(
     "keydown",
     event => {
 
       if(
-        event.key ===
-        "Enter"
+        event.key === "Enter"
       ){
 
-        event.preventDefault();
-
-        send();
+        handleMaviMessage();
 
       }
 
@@ -4659,199 +4263,119 @@ document
   );
 
 
-document
-  .getElementById(
-    "confirmBooking"
-  )
-  .addEventListener(
-    "click",
-    confirmBooking
-  );
+/* =========================================================
+   CONTENT
+========================================================= */
+
+function generatePost(){
+
+  const topic =
+    $("#postTopic")
+      .value
+      .trim()
+      ||
+      "la nostra attività";
+
+  const style =
+    $("#postStyle").value;
+
+  const business =
+    appData.business.name
+    ||
+    "la nostra attività";
 
 
-document
-  .getElementById(
-    "cancelBooking"
-  )
-  .addEventListener(
-    "click",
-    () => {
+  let prefix = "";
 
-      clearBooking();
-
-      addMsg(
-        "Prenotazione annullata.",
-        "system"
-      );
-
-    }
-  );
-
-
-/* ============================================================
-   CONTROLLO MOTORE LOCALE
-============================================================ */
-
-function checkMaviEngine(){
-
-  const status =
-    document.getElementById(
-      "engineStatus"
-    );
-
-  const pill =
-    document.getElementById(
-      "enginePill"
-    );
-
-  if(
-    window.MaviEngine &&
-    typeof window.MaviEngine.respond ===
-      "function"
-  ){
-
-    status.textContent =
-      "Motore Mavi locale disponibile";
-
-    status.classList.add(
-      "ready"
-    );
-
-    pill.textContent =
-      "Mavi locale · pronta";
-
-    pill.classList.add(
-      "ready"
-    );
-
-    return true;
+  if(style==="Promozionale"){
+    prefix = "✨ ";
   }
 
-  status.textContent =
-    "Mavi locale in caricamento…";
 
-  return false;
+  $("#postOutput").value =
+
+    prefix+
+
+    topic.charAt(0)
+      .toUpperCase()+
+    topic.slice(1)+
+
+    "\n\n"+
+
+    "Presso "+
+    business+
+    " ci prendiamo cura di ogni dettaglio con professionalità e attenzione."+
+
+    "\n\n"+
+
+    "Scrivici per informazioni o per prenotare il tuo appuntamento."+
+
+    "\n\n"+
+
+    "#Maviri #"+
+    business
+      .replace(/\s+/g,"");
 
 }
 
 
-/* ============================================================
-   INIT
-============================================================ */
+function copyPost(){
+
+  const text =
+    $("#postOutput")
+      .value;
+
+  if(
+    navigator.clipboard
+  ){
+
+    navigator.clipboard
+      .writeText(text);
+
+  }
+
+  showToast(
+    "Contenuto copiato"
+  );
+
+}
+
+
+/* =========================================================
+   RENDER ALL
+========================================================= */
+
+function renderAll(){
+
+  renderHome();
+
+  renderCalendar();
+
+  renderAppointmentSearch();
+
+  renderClients();
+
+  renderSettings();
+
+}
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
 
 function init(){
 
-  rebuildClientHistories();
-
-  document.getElementById(
-    "calendarDate"
-  ).value =
-    localDate();
-
   renderAll();
 
-  setupVoice();
-
-  /*
-    Ripristino di una eventuale
-    prenotazione ancora in attesa
-    di conferma.
-  */
-
-  const pending =
-    getPendingBooking();
-
-  if(
-    pending &&
-    pending.date &&
-    pending.time &&
-    pending.service &&
-    pending.name
-  ){
-
-    setBooking(
-      pending
-    );
-
-  }
-
-
-  /*
-    Messaggio iniziale.
-  */
-
-  addMsg(
-    "Sono Mavi. Posso aiutarti a controllare appuntamenti, servizi, disponibilità e richieste di prenotazione.",
-    "bot"
-  );
-
-
-  /*
-    Il motore può essere caricato
-    dopo il DOM.
-  */
-
-  if(!checkMaviEngine()){
-
-    let attempts = 0;
-
-    const timer =
-      setInterval(
-        () => {
-
-          attempts++;
-
-          if(checkMaviEngine()){
-
-            clearInterval(
-              timer
-            );
-
-          }
-
-          if(attempts >= 30){
-
-            clearInterval(
-              timer
-            );
-
-            const status =
-              document.getElementById(
-                "engineStatus"
-              );
-
-            status.textContent =
-              "Motore Mavi locale non disponibile";
-
-            status.classList.add(
-              "error"
-            );
-
-            document.getElementById(
-              "enginePill"
-            ).textContent =
-              "Mavi locale · verifica";
-
-            document.getElementById(
-              "enginePill"
-            ).classList.add(
-              "error"
-            );
-
-          }
-
-        },
-        500
-      );
-
-  }
+  openPage("home");
 
 }
 
 
-/*
-  Avvio applicazione.
-*/
+/* =========================================================
+   START
+========================================================= */
 
 init();
 
