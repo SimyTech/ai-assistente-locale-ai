@@ -4361,6 +4361,1220 @@ showPage("home");
 preloadMavi();
 
 </script>
+<script>
+/* ============================================================
+   MAVIRI — MAVI BUSINESS BRAIN 2.1
+   Conversational memory + appointment intelligence
+   ------------------------------------------------------------
+   Obiettivo:
+   - mantenere il contesto tra messaggi
+   - comprendere prenotazioni multi-turno
+   - capire "prenoto", "confermo", "sì"
+   - mantenere giorno/ora/servizio/cliente
+   - controllare sempre la disponibilità
+   - usare il motore locale solo quando serve
+   ============================================================ */
 
+(function(){
+
+"use strict";
+
+const MAVI_PENDING_KEY="maviPendingBooking";
+
+let maviPending=null;
+
+
+/* ============================================================
+   NORMALIZZAZIONE
+   ============================================================ */
+
+function mNorm(value){
+
+return String(value||"")
+.toLowerCase()
+.normalize("NFD")
+.replace(/[\u0300-\u036f]/g,"")
+.trim();
+
+}
+
+
+/* ============================================================
+   CARICA CONTESTO
+   ============================================================ */
+
+function loadMaviPending(){
+
+try{
+
+const x=
+JSON.parse(
+localStorage.getItem(MAVI_PENDING_KEY)||"null"
+);
+
+maviPending=
+x&&typeof x==="object"
+?x
+:null;
+
+}catch{
+
+maviPending=null;
+
+}
+
+return maviPending;
+
+}
+
+
+/* ============================================================
+   SALVA CONTESTO
+   ============================================================ */
+
+function saveMaviPending(){
+
+if(maviPending){
+
+localStorage.setItem(
+MAVI_PENDING_KEY,
+JSON.stringify(maviPending)
+);
+
+}else{
+
+localStorage.removeItem(
+MAVI_PENDING_KEY
+);
+
+}
+
+}
+
+
+/* ============================================================
+   DATA ITALIANA
+   ============================================================ */
+
+function mToday(){
+
+return new Intl.DateTimeFormat(
+"en-CA",
+{
+timeZone:"Europe/Rome"
+}
+).format(new Date());
+
+}
+
+
+function mDateFromParts(
+year,
+month,
+day
+){
+
+return `${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+}
+
+
+/* ============================================================
+   PROSSIMO GIORNO DELLA SETTIMANA
+   ============================================================ */
+
+function mWeekdayDate(name){
+
+const map={
+domenica:0,
+lunedi:1,
+martedi:2,
+mercoledi:3,
+giovedi:4,
+venerdi:5,
+sabato:6
+};
+
+const target=map[mNorm(name)];
+
+if(target===undefined)
+return null;
+
+const now=
+new Date(
+mToday()+"T12:00:00"
+);
+
+const current=
+now.getDay();
+
+let delta=
+(target-current+7)%7;
+
+/*
+ * Se oggi è il giorno richiesto,
+ * "lunedì" significa normalmente il prossimo lunedì.
+ */
+if(delta===0)
+delta=7;
+
+now.setDate(
+now.getDate()+delta
+);
+
+return now.toISOString().slice(0,10);
+
+}
+
+
+/* ============================================================
+   DATA DAL TESTO
+   ============================================================ */
+
+function mDetectDate(text){
+
+const lower=mNorm(text);
+
+if(/\boggi\b/.test(lower))
+return mToday();
+
+if(/\bdomani\b/.test(lower)){
+
+const d=
+new Date(
+mToday()+"T12:00:00"
+);
+
+d.setDate(d.getDate()+1);
+
+return d.toISOString().slice(0,10);
+
+}
+
+const weekdays=[
+"domenica",
+"lunedi",
+"martedi",
+"mercoledi",
+"giovedi",
+"venerdi",
+"sabato"
+];
+
+for(const day of weekdays){
+
+if(
+new RegExp(
+"\\b"+day+"\\b"
+).test(lower)
+){
+
+return mWeekdayDate(day);
+
+}
+
+}
+
+let match=
+lower.match(
+/\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{4}))?\b/
+);
+
+if(match){
+
+const day=Number(match[1]);
+const month=Number(match[2]);
+const year=
+Number(match[3])||
+Number(
+mToday().slice(0,4)
+);
+
+return mDateFromParts(
+year,
+month,
+day
+);
+
+}
+
+return null;
+
+}
+
+
+/* ============================================================
+   ORA
+   ============================================================ */
+
+function mDetectTime(text){
+
+const lower=mNorm(text);
+
+let m=
+lower.match(
+/\b(?:alle|ore)\s*(\d{1,2})(?:[:\.](\d{2}))?\b/
+);
+
+if(!m){
+
+m=
+lower.match(
+/\b(\d{1,2})(?:[:\.](\d{2}))?\s*(?:h|ora)?\b/
+);
+
+}
+
+if(!m)
+return null;
+
+let hour=
+Number(m[1]);
+
+let minute=
+Number(m[2]||0);
+
+if(
+hour<0||
+hour>23||
+minute<0||
+minute>59
+)
+return null;
+
+return (
+String(hour).padStart(2,"0")+
+":"+
+String(minute).padStart(2,"0")
+);
+
+}
+
+
+/* ============================================================
+   SERVIZIO
+   ============================================================ */
+
+function mDetectService(text){
+
+const lower=mNorm(text);
+
+if(!Array.isArray(data.services))
+return null;
+
+let found=
+data.services.find(
+s=>{
+
+const name=mNorm(s.name);
+
+return name &&
+(
+lower.includes(name) ||
+(
+name.includes("taglio") &&
+lower.includes("taglio")
+)
+);
+
+});
+
+return found||null;
+
+}
+
+
+/* ============================================================
+   NOME CLIENTE
+   ============================================================ */
+
+function mDetectName(text){
+
+let value=
+String(text||"").trim();
+
+/*
+ * "simone, taglio uomo..."
+ */
+let m=
+value.match(
+/^\s*([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{1,40})\s*,/
+);
+
+if(m){
+
+const candidate=m[1].trim();
+
+if(
+!/\b(vorrei|voglio|prenotare|prenoto|taglio|servizio|lunedi|domani|oggi|alle|ore)\b/i
+.test(candidate)
+){
+
+return candidate;
+
+}
+
+}
+
+/*
+ * "per Simone"
+ */
+m=
+value.match(
+/\bper\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'-]{1,30})\b/i
+);
+
+if(m)
+return m[1].trim();
+
+/*
+ * Se il messaggio è semplicemente un nome.
+ */
+if(
+/^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' -]{2,35}$/.test(value)&&
+!/\b(taglio|prenoto|prenotare|servizio|lunedi|domani|oggi)\b/i
+.test(value)
+){
+
+return value;
+
+}
+
+return null;
+
+}
+
+
+/* ============================================================
+   INTENTO PRENOTAZIONE
+   ============================================================ */
+
+function mBookingIntent(text){
+
+const lower=mNorm(text);
+
+return (
+/prenot/.test(lower) ||
+/fissare/.test(lower) ||
+/appuntamento/.test(lower) ||
+/vorrei.*ore/.test(lower) ||
+/vorrei.*alle/.test(lower)
+);
+
+}
+
+
+/* ============================================================
+   CONFERMA
+   ============================================================ */
+
+function mConfirmation(text){
+
+const lower=mNorm(text);
+
+return (
+/^(si|sì|ok|okay|va bene|confermo|conferma|prenoto|prenotiamo|procedi|procediamo|fallo|fatto)$/i
+.test(String(text||"").trim())
+||
+/^(si|sì).*prenot/.test(lower)
+);
+
+}
+
+
+/* ============================================================
+   ANNULLAMENTO
+   ============================================================ */
+
+function mCancelPending(text){
+
+const lower=mNorm(text);
+
+return (
+/^(no|annulla|annulliamo|lascia perdere|non prenotare)$/i
+.test(String(text||"").trim())
+||
+/non.*prenot/.test(lower)
+);
+
+}
+
+
+/* ============================================================
+   STATO PRENOTAZIONE
+   ============================================================ */
+
+function mPendingText(){
+
+if(!maviPending)
+return "";
+
+const parts=[];
+
+if(maviPending.name)
+parts.push(`cliente ${maviPending.name}`);
+
+if(maviPending.service)
+parts.push(`servizio ${maviPending.service}`);
+
+if(maviPending.date)
+parts.push(formatDate(maviPending.date));
+
+if(maviPending.time)
+parts.push(maviPending.time);
+
+return parts.join(" · ");
+
+}
+
+
+/* ============================================================
+   FORMAT
+   ============================================================ */
+
+function mDateLabel(date){
+
+if(!date)
+return "";
+
+return new Intl.DateTimeFormat(
+"it-IT",
+{
+weekday:"long",
+day:"2-digit",
+month:"2-digit",
+year:"numeric",
+timeZone:"Europe/Rome"
+}
+).format(
+new Date(date+"T12:00:00")
+);
+
+}
+
+
+/* ============================================================
+   PRENOTAZIONE CONVERSAZIONALE
+   ============================================================ */
+
+async function mHandleBooking(text){
+
+const date=
+mDetectDate(text);
+
+const time=
+mDetectTime(text);
+
+const service=
+mDetectService(text);
+
+const name=
+mDetectName(text);
+
+const isIntent=
+mBookingIntent(text);
+
+if(!isIntent && !maviPending)
+return null;
+
+
+/*
+ * Inizia o aggiorna il contesto.
+ */
+
+if(!maviPending){
+
+maviPending={
+name:null,
+service:null,
+date:null,
+time:null,
+createdAt:Date.now()
+};
+
+}
+
+
+/*
+ * Aggiorna SOLO ciò che è stato realmente riconosciuto.
+ */
+
+if(date)
+maviPending.date=date;
+
+if(time)
+maviPending.time=time;
+
+if(service)
+maviPending.service=service.name;
+
+if(name)
+maviPending.name=name;
+
+
+/*
+ * "prenoto" / "confermo"
+ */
+
+if(
+mConfirmation(text) &&
+maviPending.name &&
+maviPending.service &&
+maviPending.date &&
+maviPending.time
+){
+
+const candidate={
+...maviPending
+};
+
+try{
+
+maviStatusLocal(
+"thinking",
+"Controllo nuovamente la disponibilità..."
+);
+
+const check=
+await businessApi(
+"availability",
+{
+date:candidate.date,
+service:candidate.service
+}
+);
+
+if(
+!check.available||
+!Array.isArray(check.slots)||
+!check.slots.includes(candidate.time)
+){
+
+maviPending=null;
+saveMaviPending();
+
+return {
+reply:
+`L'orario delle ${candidate.time} non è più disponibile. Posso cercarti un altro orario.`,
+type:"booking-unavailable"
+};
+
+}
+
+
+/*
+ * Salvataggio definitivo.
+ */
+
+const ap=
+await bookAppointment({
+name:candidate.name,
+date:candidate.date,
+time:candidate.time,
+service:candidate.service
+});
+
+maviPending=null;
+saveMaviPending();
+
+return {
+reply:
+`Prenotazione confermata. ${ap.name}, ${ap.service}, ${mDateLabel(ap.date)} alle ${ap.time}.`,
+type:"booking-confirmed"
+};
+
+}catch(error){
+
+return {
+reply:
+error?.message||
+"Non riesco a completare la prenotazione.",
+type:"booking-error"
+};
+
+}
+
+}
+
+
+/*
+ * Annullamento.
+ */
+
+if(
+mCancelPending(text)
+){
+
+maviPending=null;
+saveMaviPending();
+
+return {
+reply:"Va bene. Ho annullato la prenotazione in preparazione.",
+type:"booking-cancelled"
+};
+
+}
+
+
+/*
+ * Mancano informazioni.
+ */
+
+const missing=[];
+
+if(!maviPending.name)
+missing.push("il nome del cliente");
+
+if(!maviPending.service)
+missing.push("il servizio");
+
+if(!maviPending.date)
+missing.push("il giorno");
+
+if(!maviPending.time)
+missing.push("l'orario");
+
+
+/*
+ * Se abbiamo tutto:
+ * controlliamo la disponibilità e chiediamo conferma.
+ */
+
+if(missing.length===0){
+
+try{
+
+const check=
+await businessApi(
+"availability",
+{
+date:maviPending.date,
+service:maviPending.service
+}
+);
+
+if(
+!check.available||
+!Array.isArray(check.slots)||
+!check.slots.includes(maviPending.time)
+){
+
+const requested=
+maviPending.time;
+
+return {
+reply:
+`Alle ${requested} non risulta disponibile per ${maviPending.service}. Posso cercarti un altro orario.`,
+type:"booking-unavailable"
+};
+
+}
+
+return {
+reply:
+`Sì. ${maviPending.name}, ${maviPending.service}, ${mDateLabel(maviPending.date)} alle ${maviPending.time} risulta libero. Vuoi che prenoti?`,
+type:"booking-confirm"
+};
+
+}catch(error){
+
+return {
+reply:
+error?.message||
+"Non riesco a verificare la disponibilità.",
+type:"booking-error"
+};
+
+}
+
+}
+
+
+/*
+ * Domanda mirata.
+ */
+
+if(
+missing.length===1
+){
+
+return {
+reply:
+`Mi manca solo ${missing[0]}.`,
+type:"booking-missing"
+};
+
+}
+
+return {
+reply:
+`Per completare la prenotazione mi servono ${missing.join(", ")}.`,
+type:"booking-missing"
+};
+
+}
+
+
+/* ============================================================
+   APPUNTAMENTI
+   ============================================================ */
+
+function mAppointmentQuery(text){
+
+const lower=mNorm(text);
+
+return (
+/che appuntamenti/.test(lower) ||
+/quali appuntamenti/.test(lower) ||
+/appuntamenti ho/.test(lower) ||
+/appuntamenti.*domani/.test(lower) ||
+/appuntamenti.*oggi/.test(lower)
+);
+
+}
+
+
+function mAnswerAppointments(text){
+
+if(!mAppointmentQuery(text))
+return null;
+
+const date=
+mDetectDate(text)||mToday();
+
+const list=
+activeAppointments()
+.filter(
+a=>a.date===date
+)
+.sort(
+(a,b)=>
+String(a.time||"")
+.localeCompare(
+String(b.time||"")
+)
+);
+
+if(!list.length){
+
+return {
+reply:
+`Non risultano appuntamenti per ${mDateLabel(date)}.`,
+type:"appointments"
+};
+
+}
+
+const lines=
+list.map(
+a=>
+`${a.time} · ${a.name} · ${a.service}`
+);
+
+return {
+reply:
+`Gli appuntamenti per ${mDateLabel(date)} sono:\n${lines.join("\n")}`,
+type:"appointments"
+};
+
+}
+
+
+/* ============================================================
+   SERVIZI
+   ============================================================ */
+
+function mAnswerServices(text){
+
+const lower=mNorm(text);
+
+if(
+!/che servizi|quali servizi|servizi offri|cosa offri|cosa fate|cosa offrite/
+.test(lower)
+)
+return null;
+
+if(!data.services.length){
+
+return {
+reply:"Al momento non risultano servizi configurati.",
+type:"services"
+};
+
+}
+
+const lines=
+data.services.map(
+s=>{
+const price=
+s.price!==""&&s.price!=null
+?`€${s.price}`
+:"prezzo non impostato";
+
+const duration=
+s.duration
+?`${s.duration} min`
+:"";
+
+return `${s.name} — ${price}${duration?" — "+duration:""}`;
+}
+);
+
+return {
+reply:
+`Questi sono i servizi disponibili:\n${lines.join("\n")}`,
+type:"services"
+};
+
+}
+
+
+/* ============================================================
+   STATUS LOCALE
+   ============================================================ */
+
+function maviStatusLocal(
+status,
+detail=""
+){
+
+try{
+
+window.dispatchEvent(
+new CustomEvent(
+"mavi-engine-status",
+{
+detail:{
+status,
+detail,
+version:
+window.MaviAI?.version||
+"2.0.0",
+model:
+window.MaviAI?.model||
+"mavi-local",
+device:
+window.MaviAI?.getDevice?.()||
+"local",
+ready:
+window.MaviAI?.isReady?.()||
+false
+}
+}
+)
+);
+
+}catch{}
+
+}
+
+
+/* ============================================================
+   NUOVA ASK MAVI
+   ============================================================ */
+
+const originalAskMavi=
+window.askMavi;
+
+
+/*
+ * La funzione globale viene sostituita.
+ */
+
+window.askMavi=
+async function(
+text=$("maviInput").value.trim(),
+speak=true
+){
+
+if(busy||!text)
+return;
+
+busy=true;
+
+$("maviInput").value="";
+
+$("maviSend").disabled=true;
+
+addChat(text,"user");
+
+$("maviStatus").textContent=
+"Mavi sta elaborando…";
+
+try{
+
+let result=null;
+
+
+/*
+ * 1. APPUNTAMENTI
+ */
+
+result=
+mAnswerAppointments(text);
+
+if(result){
+
+addChat(result.reply,"bot");
+
+saveHistory(text,result.reply);
+
+$("maviStatus").textContent=
+"Mavi è pronta";
+
+if(speak)
+speakText(result.reply);
+
+return;
+
+}
+
+
+/*
+ * 2. SERVIZI
+ */
+
+result=
+mAnswerServices(text);
+
+if(result){
+
+addChat(result.reply,"bot");
+
+saveHistory(text,result.reply);
+
+$("maviStatus").textContent=
+"Mavi è pronta";
+
+if(speak)
+speakText(result.reply);
+
+return;
+
+}
+
+
+/*
+ * 3. PRENOTAZIONE CONVERSAZIONALE
+ */
+
+if(
+mBookingIntent(text)||
+maviPending
+){
+
+result=
+await mHandleBooking(text);
+
+if(result){
+
+addChat(result.reply,"bot");
+
+saveHistory(text,result.reply);
+
+$("maviStatus").textContent=
+"Mavi è pronta";
+
+if(speak)
+speakText(result.reply);
+
+return;
+
+}
+
+}
+
+
+/*
+ * 4. MOTORE AI LOCALE
+ */
+
+if(
+typeof originalAskMavi==="function"
+){
+
+await originalAskMavi(
+text,
+speak
+);
+
+return;
+
+}
+
+throw Error(
+"Mavi Engine non disponibile."
+);
+
+}catch(error){
+
+addChat(
+error?.message||
+"Errore Mavi.",
+"bot"
+);
+
+$("maviStatus").textContent=
+error?.message||
+"Errore Mavi.";
+
+}finally{
+
+busy=false;
+
+$("maviSend").disabled=false;
+
+}
+
+};
+
+
+/* ============================================================
+   LOGO MAVI
+   ------------------------------------------------------------
+   Il file deve chiamarsi mavi-logo.png
+   e trovarsi nella stessa cartella di index.html.
+   ============================================================ */
+
+function installMaviLogo(){
+
+const headerBrand=
+document.querySelector(".brand");
+
+if(!headerBrand)
+return;
+
+
+/*
+ * Evita duplicati.
+ */
+
+if(
+headerBrand.querySelector(".mavi-logo-image")
+)
+return;
+
+
+const logo=
+document.createElement("img");
+
+logo.className="mavi-logo-image";
+
+logo.src="./mavi-logo.png";
+
+logo.alt="";
+
+logo.width=52;
+logo.height=52;
+
+logo.style.cssText=
+`
+width:52px;
+height:52px;
+object-fit:contain;
+display:block;
+flex:none;
+`;
+
+
+/*
+ * Sostituisce il vecchio quadrato "M".
+ */
+
+const old=
+headerBrand.querySelector(".brand-logo");
+
+if(old){
+
+old.replaceWith(logo);
+
+}else{
+
+headerBrand.prepend(logo);
+
+}
+
+}
+
+
+/* ============================================================
+   LOGO + COLORI
+   ============================================================ */
+
+function installMaviVisuals(){
+
+if(
+document.getElementById("maviVisualPatch")
+)
+return;
+
+const style=
+document.createElement("style");
+
+style.id="maviVisualPatch";
+
+style.textContent=`
+
+.mavi-logo-image{
+filter:drop-shadow(0 5px 12px rgba(0,0,0,.18));
+}
+
+.brand{
+min-width:0;
+}
+
+.brand h1{
+letter-spacing:-.4px;
+}
+
+.engine-pill{
+border-color:rgba(255,255,255,.16);
+}
+
+nav button.active{
+background:#eef1ff;
+}
+
+.msg.bot{
+border-left:3px solid #315efb;
+}
+
+`;
+
+document.head.appendChild(style);
+
+}
+
+
+/* ============================================================
+   INIT
+   ============================================================ */
+
+loadMaviPending();
+
+installMaviVisuals();
+
+installMaviLogo();
+
+
+/*
+ * Aggiorna il logo anche se il DOM viene ricostruito.
+ */
+
+new MutationObserver(
+()=>{
+installMaviLogo();
+}
+)
+.observe(
+document.body,
+{
+childList:true,
+subtree:true
+}
+);
+
+})();
+</script>
 </body>
 </html>
