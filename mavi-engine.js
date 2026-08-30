@@ -4,15 +4,19 @@
    No OpenAI
    No API key
    WebGPU -> WASM fallback
+   Robust loader v1.1.0
    ============================================================ */
 
-const MAVI_ENGINE_VERSION = "1.0.0";
+const MAVI_ENGINE_VERSION = "1.1.0";
 
 const MAVI_MODEL =
   "onnx-community/Qwen3-0.6B-ONNX";
 
 const MAVI_MAX_HISTORY = 12;
 const MAVI_MAX_TOKENS = 500;
+
+const MAVI_GPU_TIMEOUT = 45000;
+const MAVI_WASM_TIMEOUT = 120000;
 
 let maviPipeline = null;
 let maviLoadingPromise = null;
@@ -33,54 +37,185 @@ function maviStatus(status, detail = "") {
         detail: {
           status,
           detail,
-          version:
-            MAVI_ENGINE_VERSION,
-          model:
-            MAVI_MODEL,
-          device:
-            maviDevice
+          version: MAVI_ENGINE_VERSION,
+          model: MAVI_MODEL,
+          device: maviDevice
         }
       }
     )
   );
+
 }
 
 
 /* ============================================================
-   LOAD TRANSFORMERS.JS
+   TRANSFORMERS.JS
    ============================================================ */
 
 async function loadTransformers() {
 
-  if (
-    window.__maviTransformers
-  ) {
-
+  if (window.__maviTransformers) {
     return window.__maviTransformers;
-
   }
+
+  maviStatus(
+    "loading",
+    "Caricamento del motore locale..."
+  );
 
   const module =
     await import(
       "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1"
     );
 
-  window.__maviTransformers =
-    module;
+  window.__maviTransformers = module;
 
   return module;
+
 }
 
 
 /* ============================================================
-   WEBGPU SUPPORT
+   WEBGPU REAL CHECK
    ============================================================ */
 
-function supportsWebGPU() {
+async function getWebGPUAdapter() {
 
-  return (
-    typeof navigator !== "undefined" &&
-    "gpu" in navigator
+  try {
+
+    if (
+      typeof navigator === "undefined" ||
+      !navigator.gpu
+    ) {
+
+      return null;
+
+    }
+
+    maviStatus(
+      "loading",
+      "Verifica accelerazione GPU..."
+    );
+
+    const adapter =
+      await navigator.gpu.requestAdapter({
+        powerPreference: "high-performance"
+      });
+
+    if (!adapter) {
+
+      console.warn(
+        "Mavi: nessun WebGPU adapter disponibile."
+      );
+
+      return null;
+
+    }
+
+    if (!adapter.requestDevice) {
+
+      return null;
+
+    }
+
+    return adapter;
+
+  } catch (error) {
+
+    console.warn(
+      "Mavi WebGPU check:",
+      error
+    );
+
+    return null;
+
+  }
+
+}
+
+
+/* ============================================================
+   TIMEOUT
+   ============================================================ */
+
+function withTimeout(
+  promise,
+  timeout,
+  message
+) {
+
+  let timer;
+
+  const timeoutPromise =
+    new Promise(
+      (_, reject) => {
+
+        timer =
+          setTimeout(
+            () => {
+
+              reject(
+                new Error(message)
+              );
+
+            },
+            timeout
+          );
+
+      }
+    );
+
+  return Promise.race([
+    promise.finally(
+      () => clearTimeout(timer)
+    ),
+    timeoutPromise
+  ]);
+
+}
+
+
+/* ============================================================
+   CREATE PIPELINE
+   ============================================================ */
+
+async function createPipeline(
+  pipeline,
+  device,
+  timeout
+) {
+
+  const dtype =
+    device === "webgpu"
+      ? "q4f16"
+      : "q4";
+
+  const message =
+    device === "webgpu"
+      ? "Caricamento modello Mavi su GPU..."
+      : "Caricamento modello Mavi su CPU/WASM...";
+
+  maviStatus(
+    "loading",
+    message
+  );
+
+  const task =
+    pipeline(
+      "text-generation",
+      MAVI_MODEL,
+      {
+        device,
+        dtype
+      }
+    );
+
+  return withTimeout(
+    task,
+    timeout,
+    device === "webgpu"
+      ? "Timeout caricamento GPU."
+      : "Timeout caricamento WASM."
   );
 
 }
@@ -92,12 +227,14 @@ function supportsWebGPU() {
 
 async function loadMavi() {
 
-  if (maviReady && maviPipeline) {
+  if (
+    maviReady &&
+    maviPipeline
+  ) {
 
     return maviPipeline;
 
   }
-
 
   if (maviLoadingPromise) {
 
@@ -105,137 +242,135 @@ async function loadMavi() {
 
   }
 
-
   maviLoadingPromise =
     (async () => {
 
-      maviStatus(
-        "loading",
-        "Caricamento del modello locale di Mavi..."
-      );
-
-
-      const {
-        pipeline,
-        env
-      } =
-        await loadTransformers();
-
-
-      /*
-       * Evitiamo tentativi di utilizzare
-       * Node.js dal browser.
-       */
-
-      env.allowLocalModels = false;
-      env.allowRemoteModels = true;
-
-
-      let device =
-        supportsWebGPU()
-          ? "webgpu"
-          : "wasm";
-
-
-      /*
-       * Prima prova WebGPU.
-       */
+      maviReady = false;
+      maviPipeline = null;
 
       try {
 
-        maviStatus(
-          "loading",
-          device === "webgpu"
-            ? "Avvio accelerazione GPU..."
-            : "Avvio motore locale..."
-        );
+        const {
+          pipeline,
+          env
+        } =
+          await loadTransformers();
 
-
-        maviPipeline =
-          await pipeline(
-            "text-generation",
-            MAVI_MODEL,
-            {
-              device,
-              dtype:
-                device === "webgpu"
-                  ? "q4f16"
-                  : "q4"
-            }
-          );
-
-
-        maviDevice =
-          device;
-
-      } catch (gpuError) {
+        env.allowLocalModels = false;
+        env.allowRemoteModels = true;
 
         /*
-         * Se WebGPU non è disponibile
-         * o il dispositivo non supporta
-         * il modello, fallback WASM.
+         * ------------------------------------------------------
+         * WEBGPU
+         * ------------------------------------------------------
          */
 
-        console.warn(
-          "Mavi WebGPU fallback:",
-          gpuError
-        );
+        const adapter =
+          await getWebGPUAdapter();
+
+        if (adapter) {
+
+          try {
+
+            maviDevice = "webgpu";
+
+            const gpuPipeline =
+              await createPipeline(
+                pipeline,
+                "webgpu",
+                MAVI_GPU_TIMEOUT
+              );
+
+            maviPipeline =
+              gpuPipeline;
+
+            maviReady = true;
+
+            maviStatus(
+              "ready",
+              "Mavi è pronta · GPU"
+            );
+
+            return maviPipeline;
+
+          } catch (gpuError) {
+
+            console.warn(
+              "Mavi: caricamento WebGPU fallito.",
+              gpuError
+            );
+
+            maviPipeline = null;
+
+            maviStatus(
+              "loading",
+              "GPU non disponibile. Passaggio a CPU/WASM..."
+            );
+
+          }
+
+        } else {
+
+          maviStatus(
+            "loading",
+            "WebGPU non disponibile. Utilizzo CPU/WASM..."
+          );
+
+        }
 
 
-        maviStatus(
-          "loading",
-          "GPU non disponibile. Utilizzo CPU/WASM..."
-        );
+        /*
+         * ------------------------------------------------------
+         * WASM FALLBACK
+         * ------------------------------------------------------
+         */
 
+        maviDevice = "wasm";
 
-        maviDevice =
-          "wasm";
-
+        const wasmPipeline =
+          await createPipeline(
+            pipeline,
+            "wasm",
+            MAVI_WASM_TIMEOUT
+          );
 
         maviPipeline =
-          await pipeline(
-            "text-generation",
-            MAVI_MODEL,
-            {
-              device: "wasm",
-              dtype: "q4"
-            }
-          );
+          wasmPipeline;
+
+        maviReady = true;
+
+        maviStatus(
+          "ready",
+          "Mavi è pronta · CPU/WASM"
+        );
+
+        return maviPipeline;
+
+      } catch (error) {
+
+        console.error(
+          "Mavi Engine error:",
+          error
+        );
+
+        maviPipeline = null;
+        maviReady = false;
+
+        maviStatus(
+          "error",
+          error?.message ||
+          "Impossibile caricare Mavi."
+        );
+
+        throw error;
+
+      } finally {
+
+        maviLoadingPromise = null;
 
       }
 
-
-      maviReady =
-        true;
-
-
-      maviStatus(
-        "ready",
-        "Mavi è pronta."
-      );
-
-
-      return maviPipeline;
-
-    })()
-    .catch(error => {
-
-      maviLoadingPromise =
-        null;
-
-      maviReady =
-        false;
-
-      maviStatus(
-        "error",
-        error?.message ||
-        "Impossibile caricare Mavi."
-      );
-
-      throw error;
-
-    });
-
+    })();
 
   return maviLoadingPromise;
 
@@ -246,24 +381,28 @@ async function loadMavi() {
    BUSINESS CONTEXT
    ============================================================ */
 
-function buildBusinessContext(data = {}) {
+function buildBusinessContext(
+  data = {}
+) {
 
   const business =
-    data.business ||
-    data.settings?.name ||
-    "Attività locale";
+    typeof data.business === "string"
+      ? data.business
+      : data.business?.name ||
+        data.settings?.name ||
+        "Attività locale";
 
 
   const services =
     Array.isArray(data.services)
+
       ? data.services
           .slice(0, 100)
           .map(service => {
 
             const name =
               String(
-                service?.name ||
-                ""
+                service?.name || ""
               ).trim();
 
             if (!name) {
@@ -273,7 +412,9 @@ function buildBusinessContext(data = {}) {
             const price =
               service?.price !== undefined &&
               service?.price !== null &&
-              String(service.price).trim()
+              String(
+                service.price
+              ).trim()
                 ? `€${service.price}`
                 : "";
 
@@ -293,47 +434,48 @@ function buildBusinessContext(data = {}) {
           })
           .filter(Boolean)
           .join("\n")
+
       : "Nessun servizio configurato.";
 
 
   const promotions =
     Array.isArray(data.promotions)
+
       ? data.promotions
           .slice(0, 100)
-          .map(promotion =>
-            String(
-              promotion?.title ||
-              promotion?.name ||
-              promotion?.description ||
-              ""
-            ).trim()
+          .map(
+            promotion =>
+              String(
+                promotion?.title ||
+                promotion?.name ||
+                promotion?.description ||
+                ""
+              ).trim()
           )
           .filter(Boolean)
           .join("\n")
+
       : "Nessuna promozione.";
 
 
   const appointments =
     Array.isArray(data.appointments)
+
       ? data.appointments
           .slice(0, 500)
           .map(appointment => {
 
             const date =
-              appointment?.date ||
-              "";
+              appointment?.date || "";
 
             const time =
-              appointment?.time ||
-              "";
+              appointment?.time || "";
 
             const name =
-              appointment?.name ||
-              "";
+              appointment?.name || "";
 
             const service =
-              appointment?.service ||
-              "";
+              appointment?.service || "";
 
             return [
               date,
@@ -347,6 +489,7 @@ function buildBusinessContext(data = {}) {
           })
           .filter(Boolean)
           .join("\n")
+
       : "Nessun appuntamento.";
 
 
@@ -363,6 +506,7 @@ ${promotions}
 APPUNTAMENTI:
 ${appointments}
 `;
+
 }
 
 
@@ -370,7 +514,9 @@ ${appointments}
    SYSTEM PROMPT
    ============================================================ */
 
-function buildSystemPrompt(data = {}) {
+function buildSystemPrompt(
+  data = {}
+) {
 
   return `
 Sei Mavi, l'intelligenza artificiale locale di Maviri.
@@ -381,7 +527,6 @@ Tu sei Mavi: la sua intelligenza e la sua voce.
 FUNZIONAMENTO:
 - Sei un'intelligenza locale.
 - Non sei OpenAI.
-- Non devi dichiarare di usare servizi cloud.
 - Rispondi sempre in italiano.
 - Mantieni un tono naturale, professionale e diretto.
 - Comprendi il contesto della conversazione.
@@ -409,6 +554,7 @@ IDENTITÀ:
 Il tuo nome è Mavi.
 Il nome dell'applicazione è Maviri.
 `;
+
 }
 
 
@@ -416,40 +562,35 @@ Il nome dell'applicazione è Maviri.
    HISTORY
    ============================================================ */
 
-function normalizeHistory(history) {
+function normalizeHistory(
+  history
+) {
 
   if (!Array.isArray(history)) {
-
     return [];
-
   }
 
-
   return history
-    .filter(item =>
-      item &&
-      (
-        item.role === "user" ||
-        item.role === "assistant"
-      )
-    )
-    .slice(
-      -MAVI_MAX_HISTORY
-    )
-    .map(item => ({
-
-      role:
-        item.role,
-
-      content:
-        String(
-          item.content ||
-          item.message ||
-          ""
+    .filter(
+      item =>
+        item &&
+        (
+          item.role === "user" ||
+          item.role === "assistant"
         )
-        .slice(0, 2000)
-
-    }))
+    )
+    .slice(-MAVI_MAX_HISTORY)
+    .map(
+      item => ({
+        role: item.role,
+        content:
+          String(
+            item.content ||
+            item.message ||
+            ""
+          ).slice(0, 2000)
+      })
+    )
     .filter(
       item =>
         item.content.trim()
@@ -462,24 +603,20 @@ function normalizeHistory(history) {
    CLEAN RESPONSE
    ============================================================ */
 
-function cleanResponse(text) {
+function cleanResponse(
+  text
+) {
 
   let result =
-    String(text || "")
-      .trim();
-
-
-  /*
-   * Qwen può restituire eventuali
-   * marcatori di ragionamento.
-   */
+    String(
+      text || ""
+    ).trim();
 
   result =
     result.replace(
       /<think>[\s\S]*?<\/think>/gi,
       ""
     );
-
 
   result =
     result
@@ -488,7 +625,6 @@ function cleanResponse(text) {
         ""
       )
       .trim();
-
 
   return result;
 
@@ -516,26 +652,19 @@ async function askMavi({
       message || ""
     )
     .trim()
-    .slice(
-      0,
-      4000
-    );
-
+    .slice(0, 4000);
 
   if (!text) {
 
     return {
       ok: false,
-      error:
-        "Messaggio vuoto."
+      error: "Messaggio vuoto."
     };
 
   }
 
-
   const model =
     await loadMavi();
-
 
   const messages = [
 
@@ -553,21 +682,17 @@ async function askMavi({
 
     {
       role: "user",
-      content:
-        text
+      content: text
     }
 
   ];
-
 
   maviStatus(
     "thinking",
     "Mavi sta elaborando..."
   );
 
-
   let output;
-
 
   try {
 
@@ -580,11 +705,9 @@ async function askMavi({
 
           temperature,
 
-          do_sample:
-            true,
+          do_sample: true,
 
-          return_full_text:
-            false
+          return_full_text: false
         }
       );
 
@@ -605,9 +728,7 @@ async function askMavi({
 
   }
 
-
   let reply = "";
-
 
   if (
     Array.isArray(output) &&
@@ -615,16 +736,13 @@ async function askMavi({
   ) {
 
     const generated =
-      output[0]
-        ?.generated_text;
-
+      output[0]?.generated_text;
 
     if (
       typeof generated === "string"
     ) {
 
-      reply =
-        generated;
+      reply = generated;
 
     } else if (
       Array.isArray(generated)
@@ -643,12 +761,8 @@ async function askMavi({
 
   }
 
-
   reply =
-    cleanResponse(
-      reply
-    );
-
+    cleanResponse(reply);
 
   if (!reply) {
 
@@ -660,12 +774,10 @@ async function askMavi({
 
   }
 
-
   maviStatus(
     "ready",
-    "Mavi pronta."
+    `Mavi pronta · ${maviDevice.toUpperCase()}`
   );
-
 
   return {
 
@@ -677,17 +789,13 @@ async function askMavi({
 
     aiUsed: true,
 
-    engine:
-      "mavi-local",
+    engine: "mavi-local",
 
-    model:
-      MAVI_MODEL,
+    model: MAVI_MODEL,
 
-    device:
-      maviDevice,
+    device: maviDevice,
 
-    version:
-      MAVI_ENGINE_VERSION
+    version: MAVI_ENGINE_VERSION
 
   };
 
@@ -727,18 +835,16 @@ window.MaviAI = {
     askMavi,
 
   isReady:
-    () =>
-      maviReady,
+    () => maviReady,
 
   getDevice:
-    () =>
-      maviDevice
+    () => maviDevice
 
 };
 
 
 /* ============================================================
-   AUTO STATUS
+   INITIAL STATUS
    ============================================================ */
 
 maviStatus(
