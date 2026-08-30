@@ -3,51 +3,42 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101827">
-<meta name="description" content="Maviri — gestione intelligente dell'attività con Mavi">
+<meta name="theme-color" content="#0b1640">
+<meta name="description" content="Maviri — il manager digitale dell'attività con Mavi">
 <link rel="manifest" href="manifest.json">
 <title>Maviri — Mavi</title>
 
 <style>
 *{box-sizing:border-box}
-
+html{scroll-behavior:smooth}
 :root{
-  --bg:#f4f7fb;
+  --bg:#f4f6ff;
   --surface:#fff;
-  --surface2:#f8faff;
-  --ink:#172033;
-  --muted:#69758a;
-  --line:#e2e7ef;
-  --dark:#101827;
-  --dark2:#18243a;
-  --blue:#315efb;
-  --blue2:#2449d8;
-  --violet:#715cff;
-  --cyan:#38bdf8;
-  --green:#169c5b;
+  --surface2:#f7f8ff;
+  --ink:#111a35;
+  --muted:#68728b;
+  --line:#dfe4f2;
+  --navy:#0b1640;
+  --navy2:#15265a;
+  --blue:#2478f2;
+  --cyan:#16b9f4;
+  --violet:#7a4dff;
+  --green:#35b98b;
+  --lime:#73d62d;
   --red:#d63b3b;
   --amber:#b97800;
   --radius:18px;
-  --shadow:0 8px 28px rgba(20,32,51,.07);
-}
-
-html{
-  scroll-behavior:smooth;
+  --shadow:0 8px 28px rgba(24,38,82,.07)
 }
 
 body{
   margin:0;
   background:var(--bg);
   color:var(--ink);
-  font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif
 }
 
-button,
-input,
-textarea,
-select{
-  font:inherit;
-}
+button,input,textarea,select{font:inherit}
 
 button{
   border:0;
@@ -55,35 +46,42 @@ button{
   border-radius:12px;
   padding:10px 14px;
   font-weight:750;
+  transition:.15s ease
 }
 
-button:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
+button:hover{transform:translateY(-1px)}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
 header{
   background:
-    radial-gradient(circle at 80% 0%,rgba(113,92,255,.22),transparent 35%),
-    radial-gradient(circle at 20% 100%,rgba(56,189,248,.12),transparent 35%),
-    var(--dark);
+    radial-gradient(circle at 78% 0%,rgba(122,77,255,.34),transparent 34%),
+    radial-gradient(circle at 15% 100%,rgba(22,185,244,.16),transparent 34%),
+    linear-gradient(135deg,var(--navy),var(--navy2));
   color:#fff;
-  padding:13px max(14px,calc((100% - 1180px)/2));
-  position:relative;
+  padding:12px max(14px,calc((100% - 1180px)/2));
+  position:relative
 }
 
 .header-row{
   display:flex;
   align-items:center;
   gap:14px;
-  min-height:58px;
+  min-height:58px
 }
 
 .brand{
   display:flex;
   align-items:center;
   gap:12px;
-  min-width:0;
+  min-width:0
+}
+
+.brand-logo,
+.hero-logo{
+  background:var(--navy);
+  overflow:hidden;
+  display:grid;
+  place-items:center
 }
 
 .brand-logo{
@@ -91,31 +89,27 @@ header{
   height:50px;
   flex:0 0 50px;
   border-radius:15px;
-  overflow:hidden;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#315efb,#715cff);
-  box-shadow:0 8px 24px rgba(49,94,251,.25);
+  box-shadow:0 10px 28px rgba(36,120,242,.24)
 }
 
-.brand-logo svg{
+.brand-logo svg,
+.hero-logo svg{
   width:100%;
   height:100%;
-  display:block;
+  display:block
 }
 
 .brand h1{
   font-size:21px;
-  margin:0;
-  letter-spacing:-.3px;
+  margin:0
 }
 
 .brand small{
-  color:#aeb8c8;
+  color:#b9c5df;
   display:block;
   white-space:nowrap;
   overflow:hidden;
-  text-overflow:ellipsis;
+  text-overflow:ellipsis
 }
 
 .engine-pill{
@@ -126,7 +120,17 @@ header{
   border-radius:999px;
   font-size:12px;
   color:#dbe4f3;
-  white-space:nowrap;
+  white-space:nowrap
+}
+
+.engine-pill.ready{
+  color:#bdf6d9;
+  border-color:#35b98b55
+}
+
+.engine-pill.error{
+  color:#ffd0d0;
+  border-color:#d63b3b55
 }
 
 nav{
@@ -139,45 +143,36 @@ nav{
   display:flex;
   gap:5px;
   overflow:auto;
-  padding:8px max(10px,calc((100% - 1180px)/2));
+  padding:8px max(10px,calc((100% - 1180px)/2))
 }
 
 nav button{
   background:transparent;
   color:#566176;
   white-space:nowrap;
-  padding:9px 13px;
+  padding:9px 13px
 }
 
 nav button.active{
-  background:#eaf0ff;
-  color:var(--blue);
+  background:linear-gradient(135deg,#e9f5ff,#f0ebff);
+  color:#315edc
 }
 
 main{
   width:min(1180px,100%);
   margin:auto;
-  padding:22px 14px 70px;
+  padding:22px 14px 70px
 }
 
-.page{
-  display:none;
-}
-
+.page{display:none}
 .page.active{
   display:block;
-  animation:pageIn .16s ease;
+  animation:in .16s ease
 }
 
-@keyframes pageIn{
-  from{
-    opacity:.5;
-    transform:translateY(4px);
-  }
-  to{
-    opacity:1;
-    transform:none;
-  }
+@keyframes in{
+  from{opacity:.5;transform:translateY(4px)}
+  to{opacity:1;transform:none}
 }
 
 .heading{
@@ -185,121 +180,101 @@ main{
   justify-content:space-between;
   gap:15px;
   align-items:flex-start;
-  margin:3px 0 18px;
+  margin:3px 0 18px
 }
 
 .heading h2{
   margin:0;
   font-size:27px;
-  letter-spacing:-.7px;
+  letter-spacing:-.7px
 }
 
 .heading p{
   margin:4px 0;
-  color:var(--muted);
+  color:var(--muted)
 }
 
-.card{
+.card,
+.stat{
   background:var(--surface);
   border:1px solid var(--line);
   border-radius:var(--radius);
   padding:19px;
   margin-bottom:15px;
-  box-shadow:var(--shadow);
+  box-shadow:var(--shadow)
 }
 
 .hero{
   background:
-    radial-gradient(circle at 90% 15%,rgba(113,92,255,.42),transparent 28%),
-    radial-gradient(circle at 10% 100%,rgba(56,189,248,.2),transparent 30%),
-    linear-gradient(135deg,#101827,#263f83);
+    radial-gradient(circle at 88% 12%,rgba(122,77,255,.42),transparent 28%),
+    radial-gradient(circle at 8% 100%,rgba(22,185,244,.18),transparent 30%),
+    linear-gradient(135deg,var(--navy),#1b3474 58%,#173e61);
   color:#fff;
   border:0;
   overflow:hidden;
-  position:relative;
+  position:relative
 }
 
 .hero h2{
   margin:0 0 5px;
-  font-size:27px;
+  font-size:27px
 }
 
 .hero p{
   color:#d9e3ff;
-  margin:0;
+  margin:0
 }
 
 .hero-logo{
-  width:74px;
-  height:74px;
-  border-radius:21px;
-  background:linear-gradient(135deg,#315efb,#715cff);
-  display:grid;
-  place-items:center;
+  width:88px;
+  height:88px;
+  border-radius:24px;
   margin-bottom:15px;
-  box-shadow:0 12px 28px rgba(0,0,0,.22);
-  overflow:hidden;
-}
-
-.hero-logo svg{
-  width:100%;
-  height:100%;
+  box-shadow:0 12px 28px rgba(0,0,0,.22)
 }
 
 .grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:12px;
+  gap:12px
 }
 
-.stat{
-  padding:17px;
-  border:1px solid var(--line);
-  border-radius:16px;
-  background:#fff;
-  box-shadow:var(--shadow);
-}
-
+.stat{padding:17px}
 .stat b{
   display:block;
   font-size:29px;
-  line-height:1.1;
+  line-height:1.1
 }
 
 .stat span{
   color:var(--muted);
   font-size:12px;
-  font-weight:700;
+  font-weight:700
 }
 
 .quick{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:10px;
-  margin-top:17px;
+  margin-top:17px
 }
 
 .quick button{
   text-align:left;
   background:#ffffff12;
   color:#fff;
-  border:1px solid #ffffff20;
+  border:1px solid #ffffff20
 }
 
-.quick strong{
-  display:block;
-}
-
-.quick small{
-  color:#cdd8ee;
-}
+.quick strong{display:block}
+.quick small{color:#cdd8ee}
 
 label{
   display:block;
   font-size:12px;
   font-weight:800;
   color:#566176;
-  margin:8px 0 4px;
+  margin:8px 0 4px
 }
 
 input,
@@ -311,68 +286,61 @@ select{
   padding:11px 12px;
   background:#fff;
   color:var(--ink);
-  outline:none;
+  outline:none
 }
 
 input:focus,
 textarea:focus,
 select:focus{
-  border-color:#6b8cff;
-  box-shadow:0 0 0 3px #315efb12;
+  border-color:var(--violet);
+  box-shadow:0 0 0 3px #7a4dff1f
 }
 
-textarea{
-  resize:vertical;
-}
+textarea{resize:vertical}
 
 .row{
   display:flex;
   gap:9px;
-  align-items:center;
+  align-items:center
 }
 
-.row>*{
-  flex:1;
-}
+.row>*{flex:1}
 
 .primary{
-  background:var(--blue);
+  background:linear-gradient(135deg,var(--blue),var(--violet));
   color:#fff;
-}
-
-.primary:hover{
-  background:var(--blue2);
+  box-shadow:0 7px 18px #4b5be62e
 }
 
 .secondary{
   background:#eef1f6;
-  color:#344054;
+  color:#344054
 }
 
 .success{
-  background:#dff7e9;
-  color:#12683e;
+  background:#e0f8ee;
+  color:#12683e
 }
 
 .danger{
   background:#fee8e8;
-  color:#a32121;
+  color:#a32121
 }
 
 .warning{
   background:#fff2cf;
-  color:#805800;
+  color:#805800
 }
 
 .muted{
   color:var(--muted);
-  font-size:13px;
+  font-size:13px
 }
 
 .divider{
   border:0;
   border-top:1px solid var(--line);
-  margin:20px 0;
+  margin:20px 0
 }
 
 .section-title{
@@ -380,21 +348,18 @@ textarea{
   justify-content:space-between;
   align-items:center;
   gap:10px;
-  margin-bottom:12px;
+  margin-bottom:12px
 }
 
-.section-title h3{
-  margin:0;
-}
+.section-title h3{margin:0}
 
 .chat{
   height:440px;
   overflow:auto;
   border:1px solid var(--line);
   border-radius:16px;
-  background:#f8faff;
-  padding:13px;
-  scroll-behavior:smooth;
+  background:#f7f8ff;
+  padding:13px
 }
 
 .msg{
@@ -403,24 +368,22 @@ textarea{
   border-radius:15px;
   margin:8px 0;
   white-space:pre-wrap;
-  word-break:break-word;
+  word-break:break-word
 }
 
-.msg.bot{
-  background:#e9edf3;
-}
+.msg.bot{background:#eef2ff}
 
 .msg.user{
-  background:#dbe7ff;
-  color:#193d91;
-  margin-left:auto;
+  background:linear-gradient(135deg,#e5f4ff,#eee8ff);
+  color:#263f91;
+  margin-left:auto
 }
 
 .msg.system{
   background:#fff4d6;
   color:#765300;
   max-width:100%;
-  font-size:13px;
+  font-size:13px
 }
 
 .voice{
@@ -431,7 +394,7 @@ textarea{
   padding:11px 13px;
   border:1px solid var(--line);
   border-radius:14px;
-  background:#fbfcff;
+  background:#fbfcff
 }
 
 .mic{
@@ -439,80 +402,81 @@ textarea{
   height:48px;
   border-radius:50%;
   padding:0;
-  background:#101827;
+  background:linear-gradient(135deg,var(--blue),var(--violet));
   color:#fff;
   font-size:19px;
-  flex:0 0 48px;
+  flex:0 0 48px
 }
 
 .mic.listening{
-  background:#d63b3b;
-  animation:pulse 1.2s infinite;
+  background:var(--red);
+  animation:pulse 1.2s infinite
 }
 
 @keyframes pulse{
-  50%{
-    box-shadow:0 0 0 8px #d63b3b18;
-  }
+  50%{box-shadow:0 0 0 8px #d63b3b18}
 }
 
 .engine-status{
   font-size:12px;
-  color:var(--muted);
+  color:var(--muted)
 }
 
-.engine-status.ready{
-  color:var(--green);
-}
-
-.engine-status.error{
-  color:var(--red);
-}
+.engine-status.ready{color:var(--green)}
+.engine-status.error{color:var(--red)}
 
 .list-item{
   border:1px solid var(--line);
   background:#fafbfe;
   border-radius:14px;
   padding:13px;
-  margin:8px 0;
+  margin:8px 0
 }
 
-.list-item b{
-  display:block;
-}
+.list-item b{display:block}
 
 .actions{
   display:flex;
   flex-wrap:wrap;
   gap:7px;
-  margin-top:10px;
+  margin-top:10px
 }
 
 .small{
   font-size:12px;
-  padding:7px 10px;
+  padding:7px 10px
+}
+
+.two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px
+}
+
+.three{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px
 }
 
 .calendar-head{
   display:flex;
   gap:8px;
-  align-items:center;
+  align-items:center
 }
 
-.calendar-head input{
-  margin:0;
-}
+.calendar-head input{margin:0}
 
 .calendar{
   display:grid;
   gap:6px;
-  margin-top:15px;
+  margin-top:15px
 }
 
 .slot{
   display:grid;
   grid-template-columns:60px 1fr;
-  gap:7px;
+  gap:7px
 }
 
 .slot-time{
@@ -520,7 +484,7 @@ textarea{
   place-items:center;
   color:var(--muted);
   font-size:12px;
-  font-weight:800;
+  font-weight:800
 }
 
 .slot-box{
@@ -528,26 +492,26 @@ textarea{
   border:1px solid var(--line);
   border-radius:12px;
   padding:9px 11px;
-  background:#f9fafc;
+  background:#f9fafc
 }
 
 .slot-box.free{
-  cursor:pointer;
+  cursor:pointer
 }
 
 .slot-box.free:hover{
-  background:#edf3ff;
-  border-color:#9bb1ff;
+  background:#eef5ff;
+  border-color:#8ab6ff
 }
 
 .slot-box.busy{
-  background:#e6edff;
-  border-color:#a7baff;
+  background:#e9edff;
+  border-color:#b0b9ff
 }
 
 .slot-box.closed{
   color:#9aa4b2;
-  background:#f0f2f5;
+  background:#f0f2f5
 }
 
 .badge{
@@ -555,75 +519,41 @@ textarea{
   border-radius:999px;
   padding:3px 8px;
   font-size:11px;
-  font-weight:800;
+  font-weight:800
 }
 
 .confirmed{
-  background:#dff7e9;
-  color:#12683e;
+  background:#e0f8ee;
+  color:#12683e
 }
 
 .completed{
-  background:#e3ecff;
-  color:#2449a5;
+  background:#e5edff;
+  color:#2449a5
 }
 
 .cancelled{
   background:#fee8e8;
-  color:#a32121;
-}
-
-.two{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-}
-
-.three{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-}
-
-.modal-bg{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#10182799;
-  z-index:100;
-  align-items:center;
-  justify-content:center;
-  padding:14px;
-}
-
-.modal-bg.open{
-  display:flex;
-}
-
-.modal{
-  width:min(620px,100%);
-  max-height:90vh;
-  overflow:auto;
-  background:#fff;
-  border-radius:20px;
-  padding:20px;
+  color:#a32121
 }
 
 .booking-box{
   display:none;
   margin-top:12px;
-  border:1px solid #9bb1ff;
-  background:linear-gradient(135deg,#f5f8ff,#faf9ff);
+  border:1px solid #b7a6ff;
+  background:linear-gradient(135deg,#f3f8ff,#f5efff);
   border-radius:16px;
-  padding:15px;
+  padding:15px
 }
+
+.booking-box.open{display:block}
 
 .booking-title{
   display:flex;
   align-items:center;
   gap:10px;
   font-weight:850;
-  margin-bottom:8px;
+  margin-bottom:8px
 }
 
 .booking-icon{
@@ -632,107 +562,117 @@ textarea{
   border-radius:10px;
   display:grid;
   place-items:center;
-  background:#eaf0ff;
-  color:var(--blue);
+  background:#eee9ff;
+  color:#6a48e8
 }
 
 .booking-summary{
   padding:11px 12px;
   border-radius:12px;
   background:#fff;
-  border:1px solid #e1e7f2;
-}
-
-.platforms{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-}
-
-.platforms button{
-  background:#f6f8fb;
-  border:1px solid var(--line);
-}
-
-.platforms button.active{
-  background:#eaf0ff;
-  color:var(--blue);
-  border-color:#9bb1ff;
+  border:1px solid #e1e7f2
 }
 
 .empty{
   padding:15px;
   text-align:center;
-  color:var(--muted);
+  color:var(--muted)
 }
 
-.loading-dot{
-  display:inline-block;
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:currentColor;
-  animation:dot 1s infinite alternate;
+.modal-bg{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#0b164099;
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:14px
 }
 
-@keyframes dot{
-  from{opacity:.25;transform:translateY(0)}
-  to{opacity:1;transform:translateY(-2px)}
+.modal-bg.open{display:flex}
+
+.modal{
+  width:min(620px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:20px;
+  padding:20px
+}
+
+.client-head{
+  display:flex;
+  gap:13px;
+  align-items:center
+}
+
+.client-avatar{
+  width:48px;
+  height:48px;
+  border-radius:15px;
+  background:linear-gradient(135deg,#e7f7ff,#efe7ff);
+  color:#4b45a8;
+  display:grid;
+  place-items:center;
+  font-weight:900
+}
+
+.search{margin-bottom:12px}
+
+.content-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  border-radius:999px;
+  padding:5px 9px;
+  background:#edf5ff;
+  color:#2a65c7;
+  font-size:11px;
+  font-weight:800
+}
+
+.toast{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  z-index:200;
+  display:none;
+  background:#101a38;
+  color:#fff;
+  border-radius:14px;
+  padding:12px 15px;
+  box-shadow:0 12px 30px #0b164055
+}
+
+.toast.show{display:block}
+
+.loading{
+  opacity:.65;
+  pointer-events:none
 }
 
 @media(max-width:800px){
-  .grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .quick,
-  .two{
-    grid-template-columns:1fr;
-  }
-
-  .three{
-    grid-template-columns:1fr;
-  }
-
-  .engine-pill{
-    display:none;
-  }
-}
-
-@media(max-width:560px){
-  main{
-    padding:16px 10px 50px;
-  }
-
-  .card{
-    padding:15px;
-  }
-
-  .heading h2{
-    font-size:23px;
-  }
-
-  .row{
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  .row>*{
-    width:100%;
-  }
-
-  .platforms{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .slot{
-    grid-template-columns:52px 1fr;
-  }
-
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .quick,.two,.content-grid{grid-template-columns:1fr}
+  .three{grid-template-columns:1fr}
+  .engine-pill{display:none}
+  .heading{flex-direction:column}
+  .slot{grid-template-columns:52px 1fr}
   .brand-logo{
     width:44px;
     height:44px;
-    flex-basis:44px;
+    flex-basis:44px
+  }
+  .hero-logo{
+    width:76px;
+    height:76px
   }
 }
 </style>
@@ -745,214 +685,109 @@ textarea{
 
     <div class="brand">
 
-      <!-- LOGO MAVI INLINE: NON DIPENDE DA FILE ESTERNI -->
-      <div class="brand-logo" aria-label="Mavi">
-
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-
+      <div class="brand-logo" aria-label="Logo Maviri">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
-            <linearGradient id="maviG" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#38bdf8"/>
-              <stop offset=".5" stop-color="#315efb"/>
-              <stop offset="1" stop-color="#715cff"/>
+            <linearGradient id="logoGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#16B9F4"/>
+              <stop offset=".35" stop-color="#2478F2"/>
+              <stop offset=".58" stop-color="#7A4DFF"/>
+              <stop offset=".78" stop-color="#35B98B"/>
+              <stop offset="1" stop-color="#73D62D"/>
             </linearGradient>
+
+            <radialGradient id="logoGlow" cx="50%" cy="45%" r="60%">
+              <stop offset="0" stop-color="#5146B8" stop-opacity=".42"/>
+              <stop offset="1" stop-color="#0B1640" stop-opacity="0"/>
+            </radialGradient>
           </defs>
 
-          <!-- figura titolare -->
-          <path
-            d="M25 33
-               C25 25 31 19 39 19
-               C47 19 52 25 52 33
-               C52 41 47 46 39 46
-               C31 46 25 41 25 33Z"
-            fill="url(#maviG)"/>
+          <rect width="100" height="100" rx="22" fill="#0B1640"/>
+          <rect x="2" y="2" width="96" height="96" rx="20" fill="url(#logoGlow)"/>
 
           <path
-            d="M18 73
-               C19 57 27 49 39 49
-               C48 49 54 54 58 62
-               L49 73Z"
-            fill="url(#maviG)"/>
-
-          <!-- figura cliente -->
-          <path
-            d="M61 35
-               C61 28 67 22 74 22
-               C82 22 87 28 87 35
-               C87 42 82 48 74 48
-               C67 48 61 42 61 35Z"
-            fill="#f7b267"/>
-
-          <path
-            d="M55 75
-               C56 59 64 51 75 51
-               C85 51 91 59 92 75Z"
-            fill="#f7b267"/>
-
-          <!-- mani che proteggono/avvolgono -->
-          <path
-            d="M7 60
-               C16 49 25 48 34 54
-               L50 68
-               C54 72 51 78 46 78
-               C42 78 37 73 33 70
-               L24 63
-               C21 61 19 63 21 66
-               L32 79
-               C36 84 32 90 27 88
-               C20 85 13 77 8 70
-               C5 66 5 63 7 60Z"
-            fill="#ffffff"/>
-
-          <path
-            d="M93 61
-               C84 50 75 49 66 55
-               L51 68
-               C47 72 50 78 55 78
-               C59 78 64 73 68 70
-               L77 63
-               C80 61 82 63 80 66
-               L69 79
-               C65 84 69 90 74 88
-               C81 85 88 77 93 70
-               C96 66 96 63 93 61Z"
-            fill="#ffffff"/>
-
-          <!-- nucleo centrale -->
-          <circle
-            cx="50"
-            cy="56"
-            r="13"
-            fill="#fff"
-            opacity=".98"/>
-
-          <circle
-            cx="50"
-            cy="56"
-            r="8"
-            fill="url(#maviG)"/>
-
+            d="M18 72V31c0-6 4-10 10-10h3c3 0 5 1 8 4l11 11 11-11c3-3 5-4 8-4h3c6 0 10 4 10 10v41c0 5-3 8-8 8s-8-3-8-8V47L56 59c-2 2-5 2-7 0L34 47v25c0 5-3 8-8 8s-8-3-8-8Z"
+            fill="url(#logoGradient)"
+          />
         </svg>
-
       </div>
 
       <div>
         <h1>Maviri</h1>
-        <small>Mavi · intelligenza locale dell'attività</small>
+        <small>Mavi · assistente digitale dell'attività</small>
       </div>
 
     </div>
 
-    <div id="enginePill" class="engine-pill">
-      Mavi · preparazione…
+    <div class="engine-pill" id="enginePill">
+      Mavi locale
     </div>
 
   </div>
 </header>
 
 <nav id="nav">
-
-  <button data-page="home" onclick="showPage('home')">
-    Home
-  </button>
-
-  <button data-page="mavi" onclick="showPage('mavi')">
-    Mavi
-  </button>
-
-  <button data-page="calendar" onclick="showPage('calendar')">
-    Calendario
-  </button>
-
-  <button data-page="clients" onclick="showPage('clients')">
-    Clienti
-  </button>
-
-  <button data-page="post" onclick="showPage('post')">
-    Contenuti
-  </button>
-
-  <button data-page="settings" onclick="showPage('settings')">
-    Impostazioni
-  </button>
-
+  <button class="active" data-page="home">Home</button>
+  <button data-page="mavi">Mavi</button>
+  <button data-page="calendar">Calendario</button>
+  <button data-page="clients">Clienti</button>
+  <button data-page="content">Contenuti</button>
+  <button data-page="settings">Impostazioni</button>
 </nav>
 
 <main>
 
-<!-- ============================================================
+<!-- =========================================================
      HOME
-============================================================ -->
+========================================================= -->
 
 <section id="home" class="page active">
-
-  <div class="heading">
-    <div>
-      <h2>Dashboard</h2>
-      <p>Il centro operativo di Maviri.</p>
-    </div>
-  </div>
 
   <div class="card hero">
 
     <div class="hero-logo">
-
       <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-
         <defs>
-          <linearGradient id="heroG" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#38bdf8"/>
-            <stop offset=".5" stop-color="#315efb"/>
-            <stop offset="1" stop-color="#715cff"/>
+          <linearGradient id="heroGradient" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#16B9F4"/>
+            <stop offset=".35" stop-color="#2478F2"/>
+            <stop offset=".58" stop-color="#7A4DFF"/>
+            <stop offset=".78" stop-color="#35B98B"/>
+            <stop offset="1" stop-color="#73D62D"/>
           </linearGradient>
         </defs>
 
-        <circle cx="50" cy="50" r="46" fill="#ffffff12"/>
+        <rect width="100" height="100" rx="22" fill="#0B1640"/>
 
-        <circle cx="37" cy="34" r="13" fill="url(#heroG)"/>
-        <path d="M18 72C20 56 27 49 39 49C49 49 55 55 59 65L48 75H22Z"
-              fill="url(#heroG)"/>
-
-        <circle cx="74" cy="35" r="12" fill="#f7b267"/>
-        <path d="M56 75C57 59 64 51 75 51C85 51 91 59 92 75Z"
-              fill="#f7b267"/>
-
-        <path d="M7 59C17 48 26 49 35 55L51 69C55 73 51 79 46 78L31 67C27 64 25 65 29 70L36 79C39 84 34 89 29 87C21 84 12 76 7 68C5 65 5 62 7 59Z"
-              fill="#fff"/>
-
-        <path d="M93 59C83 48 74 49 65 55L49 69C45 73 49 79 54 78L69 67C73 64 75 65 71 70L64 79C61 84 66 89 71 87C79 84 88 76 93 68C95 65 95 62 93 59Z"
-              fill="#fff"/>
-
-        <circle cx="50" cy="56" r="13" fill="#fff"/>
-        <circle cx="50" cy="56" r="8" fill="url(#heroG)"/>
-
+        <path
+          d="M18 72V31c0-6 4-10 10-10h3c3 0 5 1 8 4l11 11 11-11c3-3 5-4 8-4h3c6 0 10 4 10 10v41c0 5-3 8-8 8s-8-3-8-8V47L56 59c-2 2-5 2-7 0L34 47v25c0 5-3 8-8 8s-8-3-8-8Z"
+          fill="url(#heroGradient)"
+        />
       </svg>
-
     </div>
 
-    <h2 id="welcome">
-      La tua attività
-    </h2>
+    <h2 id="homeTitle">Maviri</h2>
 
     <p>
-      Clienti, appuntamenti e informazioni sotto il controllo di Mavi.
+      Gestisci l'attività. Mavi pensa alle richieste,
+      tu mantieni il controllo.
     </p>
 
     <div class="quick">
 
+      <button onclick="showPage('mavi')">
+        <strong>Parla con Mavi</strong>
+        <small>Richieste e prenotazioni</small>
+      </button>
+
       <button onclick="showPage('calendar')">
         <strong>Calendario</strong>
-        <small>Appuntamenti e disponibilità</small>
+        <small>Controlla gli appuntamenti</small>
       </button>
 
       <button onclick="showPage('clients')">
         <strong>Clienti</strong>
         <small>Schede e storico</small>
-      </button>
-
-      <button onclick="showPage('mavi')">
-        <strong>Parla con Mavi</strong>
-        <small>Chat o voce</small>
       </button>
 
     </div>
@@ -962,23 +797,23 @@ textarea{
   <div class="grid">
 
     <div class="stat">
-      <b id="stServices">0</b>
-      <span>Servizi</span>
+      <b id="statToday">0</b>
+      <span>Oggi</span>
     </div>
 
     <div class="stat">
-      <b id="stClients">0</b>
+      <b id="statWeek">0</b>
+      <span>Prossimi 7 giorni</span>
+    </div>
+
+    <div class="stat">
+      <b id="statClients">0</b>
       <span>Clienti</span>
     </div>
 
     <div class="stat">
-      <b id="stAppointments">0</b>
-      <span>Appuntamenti attivi</span>
-    </div>
-
-    <div class="stat">
-      <b id="stPromotions">0</b>
-      <span>Promozioni</span>
+      <b id="statServices">0</b>
+      <span>Servizi</span>
     </div>
 
   </div>
@@ -986,29 +821,25 @@ textarea{
   <div class="card">
 
     <div class="section-title">
+      <h3>Prossimi appuntamenti</h3>
 
-      <h3>Stato Mavi</h3>
-
-      <span id="homeEngineStatus" class="engine-status">
-        Preparazione…
-      </span>
-
+      <button
+        class="secondary small"
+        onclick="showPage('calendar')">
+        Apri calendario
+      </button>
     </div>
 
-    <div class="muted">
-      Mavi lavora con il motore locale dell'app.
-      I dati dell'attività restano disponibili a Mavi per gestire clienti,
-      servizi e appuntamenti.
-    </div>
+    <div id="homeAppointments"></div>
 
   </div>
 
 </section>
 
 
-<!-- ============================================================
+<!-- =========================================================
      MAVI
-============================================================ -->
+========================================================= -->
 
 <section id="mavi" class="page">
 
@@ -1016,8 +847,10 @@ textarea{
 
     <div>
       <h2>Mavi</h2>
+
       <p>
-        La tua assistente per parlare, verificare e gestire l'attività.
+        Assistente locale per richieste, disponibilità,
+        prenotazioni e gestione dell'attività.
       </p>
     </div>
 
@@ -1025,19 +858,52 @@ textarea{
 
   <div class="card">
 
-    <div id="chat" class="chat">
+    <div id="chat" class="chat"></div>
 
-      <div class="msg bot">
-        Sono Mavi. Posso consultare i dati di Maviri e aiutarti con clienti,
-        servizi, appuntamenti e informazioni dell'attività.
+    <div class="voice">
+
+      <button
+        id="mic"
+        class="mic"
+        title="Parla con Mavi">
+        ●
+      </button>
+
+      <div>
+        <b id="voiceState">Mavi pronta</b>
+
+        <div
+          id="engineStatus"
+          class="engine-status">
+          Controllo motore locale…
+        </div>
       </div>
 
     </div>
 
+    <div class="row" style="margin-top:10px">
 
-    <!-- CONFERMA PRENOTAZIONE -->
+      <input
+        id="chatInput"
+        autocomplete="off"
+        placeholder="Scrivi a Mavi…">
 
-    <div id="maviBookingBox" class="booking-box">
+      <button
+        id="sendBtn"
+        class="primary">
+        Invia
+      </button>
+
+    </div>
+
+    <!-- =====================================================
+         CONFERMA PRENOTAZIONE
+         NON VIENE SALVATA PRIMA DEL CLICK
+    ====================================================== -->
+
+    <div
+      id="bookingBox"
+      class="booking-box">
 
       <div class="booking-title">
 
@@ -1045,122 +911,32 @@ textarea{
           ✓
         </div>
 
-        <div>
+        <span>
           Conferma prenotazione
-        </div>
+        </span>
 
       </div>
 
       <div
-        id="maviBookingSummary"
+        id="bookingSummary"
         class="booking-summary">
-      </div>
-
-      <div
-        id="maviBookingStatus"
-        class="muted"
-        style="margin-top:8px">
       </div>
 
       <div class="actions">
 
         <button
-          id="maviConfirmBooking"
-          class="primary"
-          onclick="confirmMaviBooking()">
-
+          id="confirmBooking"
+          class="primary">
           Conferma prenotazione
-
         </button>
 
         <button
-          id="maviCancelBooking"
-          class="secondary"
-          onclick="cancelMaviBooking()">
-
+          id="cancelBooking"
+          class="secondary">
           Annulla
-
         </button>
 
       </div>
-
-    </div>
-
-
-    <div
-      id="maviStatus"
-      class="engine-status"
-      style="margin:10px 0">
-
-      Mavi si sta preparando…
-
-    </div>
-
-
-    <div class="row">
-
-      <input
-        id="maviInput"
-        autocomplete="off"
-        placeholder="Scrivi a Mavi…"
-        onkeydown="if(event.key==='Enter')askMavi()">
-
-      <button
-        id="maviSend"
-        class="primary"
-        onclick="askMavi()">
-
-        Invia
-
-      </button>
-
-    </div>
-
-
-    <div class="voice">
-
-      <button
-        id="micButton"
-        class="mic"
-        onclick="toggleVoice()"
-        title="Parla con Mavi">
-
-        ●
-
-      </button>
-
-      <div>
-
-        <b id="voiceLabel">
-          Premi il microfono
-        </b>
-
-        <div class="muted">
-          Voce → Mavi → risposta vocale
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="actions">
-
-      <button
-        class="secondary small"
-        onclick="clearMaviHistory()">
-
-        Cancella conversazione
-
-      </button>
-
-      <button
-        class="secondary small"
-        onclick="preloadMavi()">
-
-        Prepara Mavi
-
-      </button>
 
     </div>
 
@@ -1169,9 +945,9 @@ textarea{
 </section>
 
 
-<!-- ============================================================
+<!-- =========================================================
      CALENDARIO
-============================================================ -->
+========================================================= -->
 
 <section id="calendar" class="page">
 
@@ -1179,13 +955,19 @@ textarea{
 
     <div>
       <h2>Calendario</h2>
+
       <p>
-        Controllo visivo e gestione appuntamenti.
+        Appuntamenti e disponibilità.
       </p>
     </div>
 
-  </div>
+    <button
+      class="primary"
+      onclick="openAppointment()">
+      + Appuntamento
+    </button>
 
+  </div>
 
   <div class="card">
 
@@ -1193,18 +975,17 @@ textarea{
 
       <button
         class="secondary"
-        onclick="changeDay(-1)">
+        onclick="moveDay(-1)">
         ‹
       </button>
 
       <input
         id="calendarDate"
-        type="date"
-        onchange="renderCalendar()">
+        type="date">
 
       <button
         class="secondary"
-        onclick="changeDay(1)">
+        onclick="moveDay(1)">
         ›
       </button>
 
@@ -1213,63 +994,36 @@ textarea{
     <div
       id="dayTitle"
       class="muted"
-      style="margin-top:10px">
+      style="margin-top:8px">
     </div>
 
     <div
-      id="calendarGrid"
+      id="calendarList"
       class="calendar">
     </div>
 
   </div>
 
-
   <div class="card">
 
     <div class="section-title">
-
-      <h3>
-        Appuntamenti del giorno
-      </h3>
-
-      <button
-        class="primary small"
-        onclick="openNewAppointment()">
-
-        Nuovo
-
-      </button>
-
+      <h3>Ricerca appuntamenti</h3>
     </div>
-
-    <div id="dayAppointments"></div>
-
-  </div>
-
-
-  <div class="card">
-
-    <h3>
-      Ricerca appuntamenti
-    </h3>
 
     <input
       id="appointmentSearch"
-      placeholder="Nome cliente…"
-      oninput="renderAppointmentSearch()">
+      placeholder="Nome cliente, servizio, data…">
 
-    <div
-      id="appointmentSearchResults">
-    </div>
+    <div id="appointmentResults"></div>
 
   </div>
 
 </section>
 
 
-<!-- ============================================================
+<!-- =========================================================
      CLIENTI
-============================================================ -->
+========================================================= -->
 
 <section id="clients" class="page">
 
@@ -1277,6 +1031,7 @@ textarea{
 
     <div>
       <h2>Clienti</h2>
+
       <p>
         Schede cliente, note e storico appuntamenti.
       </p>
@@ -1284,21 +1039,18 @@ textarea{
 
     <button
       class="primary"
-      onclick="openNewClient()">
-
-      Nuovo cliente
-
+      onclick="openClient()">
+      + Cliente
     </button>
 
   </div>
-
 
   <div class="card">
 
     <input
       id="clientSearch"
-      placeholder="Cerca nome, telefono o email…"
-      oninput="renderClients()">
+      class="search"
+      placeholder="Cerca cliente…">
 
     <div id="clientsList"></div>
 
@@ -1307,187 +1059,88 @@ textarea{
 </section>
 
 
-<!-- ============================================================
+<!-- =========================================================
      CONTENUTI
-============================================================ -->
+========================================================= -->
 
-<section id="post" class="page">
+<section id="content" class="page">
 
   <div class="heading">
 
     <div>
       <h2>Contenuti</h2>
+
       <p>
-        Mavi può creare testi usando i dati locali dell'attività.
+        Promozioni e testi pronti per la comunicazione.
       </p>
     </div>
 
   </div>
 
+  <div class="content-grid">
 
-  <div class="card">
+    <div class="card">
 
-    <div class="two">
+      <div class="section-title">
 
-      <div>
+        <h3>Promozioni</h3>
 
-        <label>
-          Tipo
-        </label>
-
-        <select id="postType">
-
-          <option>Servizio</option>
-          <option>Promozione</option>
-          <option>Novità</option>
-          <option>Evento</option>
-          <option>Informazione</option>
-          <option>Post generico</option>
-
-        </select>
-
-
-        <label>
-          Stile
-        </label>
-
-        <select id="postStyle">
-
-          <option>Professionale</option>
-          <option>Elegante</option>
-          <option>Amichevole</option>
-          <option>Diretto</option>
-          <option>Promozionale</option>
-
-        </select>
+        <button
+          class="primary small"
+          onclick="openPromotion()">
+          + Nuova
+        </button>
 
       </div>
 
-
-      <div>
-
-        <label>
-          Piattaforma
-        </label>
-
-        <div class="platforms">
-
-          <button
-            class="active"
-            data-platform="Instagram"
-            onclick="selectPlatform(this)">
-            Instagram
-          </button>
-
-          <button
-            data-platform="Facebook"
-            onclick="selectPlatform(this)">
-            Facebook
-          </button>
-
-          <button
-            data-platform="WhatsApp"
-            onclick="selectPlatform(this)">
-            WhatsApp
-          </button>
-
-          <button
-            data-platform="Google"
-            onclick="selectPlatform(this)">
-            Google
-          </button>
-
-          <button
-            data-platform="TikTok"
-            onclick="selectPlatform(this)">
-            TikTok
-          </button>
-
-          <button
-            data-platform="Generico"
-            onclick="selectPlatform(this)">
-            Generico
-          </button>
-
-        </div>
-
-      </div>
+      <div id="promotionsList"></div>
 
     </div>
 
 
-    <label>
-      Argomento
-    </label>
+    <div class="card">
 
-    <input
-      id="postTopic"
-      placeholder="Es. voglio promuovere il taglio uomo del sabato">
+      <div class="section-title">
+        <h3>Post AI</h3>
+      </div>
 
+      <label>
+        Argomento
+      </label>
 
-    <label>
-      Indicazioni aggiuntive
-    </label>
+      <textarea
+        id="postTopic"
+        rows="4"
+        placeholder="Es. promozione taglio uomo di settembre">
+      </textarea>
 
-    <textarea
-      id="postExtra"
-      rows="3"
-      placeholder="Pubblico, call to action, tono…">
-    </textarea>
+      <div class="actions">
 
+        <button
+          class="primary"
+          onclick="generatePost()">
+          Genera con Mavi
+        </button>
 
-    <button
-      id="postButton"
-      class="primary"
-      style="width:100%;margin-top:8px"
-      onclick="generatePost()">
+      </div>
 
-      Genera con Mavi
-
-    </button>
-
-
-    <p
-      id="postStatus"
-      class="muted">
-    </p>
-
-  </div>
-
-
-  <div class="card">
-
-    <div class="section-title">
-
-      <h3>
-        Risultato
-      </h3>
-
-      <button
-        class="secondary small"
-        onclick="copyText('postOutput')">
-
-        Copia
-
-      </button>
+      <textarea
+        id="postOutput"
+        rows="9"
+        placeholder="Il testo generato apparirà qui…"
+        style="margin-top:10px">
+      </textarea>
 
     </div>
-
-    <textarea
-      id="postOutput"
-      class="post-result"
-      rows="14"
-      placeholder="Il contenuto apparirà qui…">
-    </textarea>
 
   </div>
 
 </section>
 
 
-<!-- ============================================================
+<!-- =========================================================
      IMPOSTAZIONI
-============================================================ -->
+========================================================= -->
 
 <section id="settings" class="page">
 
@@ -1495,8 +1148,9 @@ textarea{
 
     <div>
       <h2>Impostazioni</h2>
+
       <p>
-        Configurazione locale di Maviri.
+        Dati attività, servizi, promozioni e orari.
       </p>
     </div>
 
@@ -1505,80 +1159,50 @@ textarea{
 
   <div class="card">
 
-    <h3>
-      Attività
-    </h3>
+    <h3>Attività</h3>
 
     <div class="two">
 
       <div>
-
-        <label>
-          Nome
-        </label>
-
-        <input id="setName">
-
-
-        <label>
-          Tipo
-        </label>
-
-        <input id="setType">
-
-
-        <label>
-          Descrizione
-        </label>
-
-        <textarea
-          id="setDescription"
-          rows="3">
-        </textarea>
-
+        <label>Nome</label>
+        <input id="businessName">
       </div>
 
+      <div>
+        <label>Tipo attività</label>
+        <input id="businessType">
+      </div>
 
       <div>
+        <label>Telefono</label>
+        <input id="businessPhone">
+      </div>
 
-        <label>
-          Indirizzo
-        </label>
-
-        <input id="setAddress">
-
-
-        <label>
-          Telefono
-        </label>
-
-        <input id="setPhone">
-
-
-        <label>
-          WhatsApp
-        </label>
-
-        <input id="setWhatsapp">
-
+      <div>
+        <label>WhatsApp</label>
+        <input id="businessWhatsapp">
       </div>
 
     </div>
 
+    <label>
+      Descrizione
+    </label>
 
-    <button
-      class="primary"
-      onclick="saveSettings()">
+    <textarea
+      id="businessDescription"
+      rows="3">
+    </textarea>
 
-      Salva
+    <div class="actions">
 
-    </button>
+      <button
+        class="primary"
+        onclick="saveSettings()">
+        Salva impostazioni
+      </button>
 
-
-    <p
-      id="settingsStatus"
-      class="muted">
-    </p>
+    </div>
 
   </div>
 
@@ -1587,70 +1211,15 @@ textarea{
 
     <div class="section-title">
 
-      <h3>
-        Orari
-      </h3>
+      <h3>Servizi</h3>
 
       <button
         class="primary small"
-        onclick="saveHours()">
-
-        Salva orari
-
+        onclick="openService()">
+        + Servizio
       </button>
 
     </div>
-
-    <div id="hours"></div>
-
-  </div>
-
-
-  <div class="card">
-
-    <h3>
-      Servizi
-    </h3>
-
-
-    <div class="three">
-
-      <input
-        id="serviceName"
-        placeholder="Nome">
-
-      <input
-        id="serviceDuration"
-        type="number"
-        min="5"
-        step="5"
-        placeholder="Durata min">
-
-      <input
-        id="servicePrice"
-        type="number"
-        min="0"
-        step=".01"
-        placeholder="Prezzo">
-
-    </div>
-
-
-    <textarea
-      id="serviceDescription"
-      rows="2"
-      placeholder="Descrizione">
-    </textarea>
-
-
-    <button
-      class="primary"
-      onclick="saveService()">
-
-      Aggiungi servizio
-
-    </button>
-
 
     <div id="servicesList"></div>
 
@@ -1659,50 +1228,19 @@ textarea{
 
   <div class="card">
 
-    <h3>
-      Promozioni
-    </h3>
+    <h3>Orari</h3>
 
+    <div id="hoursList"></div>
 
-    <div class="two">
+    <div class="actions">
 
-      <input
-        id="promoTitle"
-        placeholder="Titolo">
-
-      <input
-        id="promoStart"
-        type="date">
+      <button
+        class="primary"
+        onclick="saveHours()">
+        Salva orari
+      </button>
 
     </div>
-
-
-    <textarea
-      id="promoDescription"
-      rows="2"
-      placeholder="Descrizione">
-    </textarea>
-
-
-    <label>
-      Fine
-    </label>
-
-    <input
-      id="promoEnd"
-      type="date">
-
-
-    <button
-      class="primary"
-      onclick="savePromotion()">
-
-      Aggiungi promozione
-
-    </button>
-
-
-    <div id="promotionsList"></div>
 
   </div>
 
@@ -1711,147 +1249,112 @@ textarea{
 </main>
 
 
-<!-- ============================================================
+<!-- =========================================================
      MODALE
-============================================================ -->
+========================================================= -->
 
 <div
   id="modalBg"
-  class="modal-bg"
-  onclick="if(event.target===this)closeModal()">
+  class="modal-bg">
 
-  <div
-    class="modal"
-    id="modal">
+  <div class="modal">
+
+    <div class="section-title">
+
+      <h3 id="modalTitle">
+        Modifica
+      </h3>
+
+      <button
+        class="secondary"
+        onclick="closeModal()">
+        Chiudi
+      </button>
+
+    </div>
+
+    <div id="modalBody"></div>
+
   </div>
 
 </div>
 
 
-<!-- ============================================================
-     MAVI ENGINE
-============================================================ -->
+<div
+  id="toast"
+  class="toast">
+</div>
 
-<script src="./mavi-engine.js"></script>
 
+<!-- =========================================================
+     MAVI ENGINE LOCALE
+========================================================= -->
+
+<script src="mavi-engine.js"></script>
 
 <script>
 "use strict";
 
 /* ============================================================
-   RIFERIMENTI
+   MAVIRI — CORE
 ============================================================ */
-
-const $ = id => document.getElementById(id);
 
 const KEY = "appData";
 const BACKUP = "appData_backup";
-const HIST = "maviConversation";
-const PENDING = "pendingMaviAppointment";
+const PENDING = "pendingAppointment";
+const CONF = "requiresConfirmation";
+const HISTORY_KEY = "maviConversation";
 
-const DAYS = [
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday"
+const STORAGE_VERSION = 4;
+
+const days = [
+  ["monday","Lunedì"],
+  ["tuesday","Martedì"],
+  ["wednesday","Mercoledì"],
+  ["thursday","Giovedì"],
+  ["friday","Venerdì"],
+  ["saturday","Sabato"],
+  ["sunday","Domenica"]
 ];
 
-const DAY_LABEL = [
-  "Domenica",
-  "Lunedì",
-  "Martedì",
-  "Mercoledì",
-  "Giovedì",
-  "Venerdì",
-  "Sabato"
-];
-
-
-/* ============================================================
-   STATO
-============================================================ */
-
-let data = {};
-let selectedPlatform = "Instagram";
-
-let recognition = null;
-let listening = false;
-
-let busy = false;
-
-let pendingMaviAppointment = null;
-
-let visualThinkingTimer = null;
-
-
-/* ============================================================
-   DATA
-============================================================ */
-
-function today(){
-
-  return new Intl.DateTimeFormat(
-    "en-CA",
-    {
-      timeZone:"Europe/Rome"
-    }
-  ).format(new Date());
-
-}
-
-
-function uid(){
-
-  return crypto.randomUUID
-    ? crypto.randomUUID()
-    : Date.now()+"-"+Math.random().toString(36).slice(2);
-
-}
-
-
-function defaultHours(){
-
-  const h = {};
-
-  DAYS.forEach((d,i)=>{
-
-    h[d] =
-      i===0
-      ?
+const defaultHours = () =>
+  Object.fromEntries(
+    days.map(([key]) => [
+      key,
       {
-        closed:true,
+        closed:key === "sunday",
         start:"09:00",
-        end:"18:00",
-        breakStart:"",
-        breakEnd:""
-      }
-      :
-      {
-        closed:false,
-        start:"09:00",
-        end:"18:00",
+        end:"19:00",
         breakStart:"13:00",
         breakEnd:"14:00"
-      };
+      }
+    ])
+  );
 
-  });
+let appData = loadData();
+let history = loadHistory();
+let recognition = null;
+let listening = false;
+let bookingBusy = false;
 
-  return h;
 
+/* ============================================================
+   UTILITY
+============================================================ */
+
+function uid(prefix="id"){
+  return prefix +
+    "_" +
+    Date.now().toString(36) +
+    "_" +
+    Math.random().toString(36).slice(2,8);
 }
 
 
-function defaults(){
-
+function baseData(){
   return {
-
-    version:4,
-
-    revision:1,
-
+    version:STORAGE_VERSION,
+    revision:0,
     updatedAt:new Date().toISOString(),
 
     business:{
@@ -1860,672 +1363,1471 @@ function defaults(){
       description:"",
       address:"",
       phone:"",
-      whatsapp:""
+      whatsapp:"",
+      email:""
     },
 
     settings:{
       name:"",
-      type:"",
-      description:"",
-      address:"",
-      phone:"",
-      whatsapp:"",
       hours:defaultHours()
     },
 
     services:[],
     promotions:[],
-    appointments:[],
-    clients:[]
-
+    clients:[],
+    appointments:[]
   };
-
 }
 
 
-function normalizeData(d){
+function loadData(){
 
-  const x = defaults();
+  let data = null;
 
-  const z = d || {};
+  try{
+    data = JSON.parse(
+      localStorage.getItem(KEY) || "null"
+    );
+  }catch(e){
+    data = null;
+  }
 
-  x.version = z.version || 4;
+  if(!data){
 
-  x.revision = z.revision || 1;
-
-  x.updatedAt =
-    z.updatedAt ||
-    new Date().toISOString();
-
-
-  x.business = {
-    ...x.business,
-    ...(z.business||{})
-  };
-
-
-  x.settings = {
-    ...x.settings,
-    ...(z.settings||{})
-  };
-
-
-  x.settings.hours = {
-    ...defaultHours(),
-    ...(z.settings?.hours||{})
-  };
-
-
-  x.services =
-    Array.isArray(z.services)
-    ? z.services
-    : [];
-
-
-  x.promotions =
-    Array.isArray(z.promotions)
-    ? z.promotions
-    : [];
-
-
-  x.appointments =
-    Array.isArray(z.appointments)
-    ? z.appointments
-    : [];
-
-
-  x.clients =
-    Array.isArray(z.clients)
-    ? z.clients
-    : [];
-
-
-  if(
-    !x.business.name &&
-    x.settings.name
-  ){
-
-    x.business.name =
-      x.settings.name;
+    try{
+      data = JSON.parse(
+        localStorage.getItem(BACKUP) || "null"
+      );
+    }catch(e){
+      data = null;
+    }
 
   }
 
-
-  if(
-    !x.settings.name &&
-    x.business.name
-  ){
-
-    x.settings.name =
-      x.business.name;
-
+  if(!data || typeof data !== "object"){
+    data = baseData();
   }
 
+  data.version = STORAGE_VERSION;
+
+  data.business =
+    data.business &&
+    typeof data.business === "object"
+      ? data.business
+      : {};
+
+  data.settings =
+    data.settings &&
+    typeof data.settings === "object"
+      ? data.settings
+      : {};
+
+  data.settings.hours =
+    data.settings.hours &&
+    typeof data.settings.hours === "object"
+      ? data.settings.hours
+      : defaultHours();
+
+  days.forEach(([key]) => {
+
+    if(!data.settings.hours[key]){
+      data.settings.hours[key] =
+        defaultHours()[key];
+    }
+
+  });
+
+  data.services =
+    Array.isArray(data.services)
+      ? data.services
+      : [];
+
+  data.promotions =
+    Array.isArray(data.promotions)
+      ? data.promotions
+      : [];
+
+  data.clients =
+    Array.isArray(data.clients)
+      ? data.clients
+      : [];
+
+  data.appointments =
+    Array.isArray(data.appointments)
+      ? data.appointments
+      : [];
 
   /*
-   * Compatibilità con vecchie strutture
-   * n/d/t/s.
-   */
+    Migrazione dei vecchi appuntamenti.
+  */
 
-  x.appointments =
-    x.appointments.map(a=>({
+  data.appointments =
+    data.appointments.map(a => {
 
-      ...a,
+      if(!a.id){
+        a.id = uid("apt");
+      }
 
-      name:
-        a.name ??
-        a.n ??
-        "",
+      if(!a.status){
+        a.status = "confermato";
+      }
 
-      date:
-        a.date ??
-        a.d ??
-        "",
+      return a;
+    });
 
-      time:
-        a.time ??
-        a.t ??
-        "",
+  /*
+    Migrazione clienti.
+  */
 
-      service:
-        a.service ??
-        a.s ??
-        "",
+  data.clients =
+    data.clients.map(c => {
 
-      status:
-        a.status ??
-        "confermato"
+      if(!c.id){
+        c.id = uid("cli");
+      }
 
-    }));
+      if(!Array.isArray(c.history)){
+        c.history = [];
+      }
 
+      return c;
+    });
 
-  return x;
-
+  return data;
 }
 
 
-function load(){
+function loadHistory(){
 
   try{
 
-    const a =
+    const value =
       JSON.parse(
-        localStorage.getItem(KEY)||"null"
+        localStorage.getItem(HISTORY_KEY) || "[]"
       );
 
-    const b =
-      JSON.parse(
-        localStorage.getItem(BACKUP)||"null"
-      );
+    return Array.isArray(value)
+      ? value.slice(-50)
+      : [];
 
-    data =
-      a &&
-      typeof a==="object"
-      ? a
-      : (b||defaults());
+  }catch(e){
 
-  }catch{
-
-    data = defaults();
-
+    return [];
   }
-
-
-  data =
-    normalizeData(data);
-
-  persist(false);
-
 }
 
 
-function persist(update=true){
+function saveHistory(){
 
-  if(update){
+  try{
 
-    data.revision =
-      (data.revision||0)+1;
+    localStorage.setItem(
+      HISTORY_KEY,
+      JSON.stringify(history.slice(-50))
+    );
 
-    data.updatedAt =
-      new Date().toISOString();
-
-  }
-
-  localStorage.setItem(
-    KEY,
-    JSON.stringify(data)
-  );
-
-  localStorage.setItem(
-    BACKUP,
-    JSON.stringify(data)
-  );
-
+  }catch(e){}
 }
 
 
-function save(){
+function saveData(){
 
-  persist();
+  appData.revision =
+    Number(appData.revision || 0) + 1;
+
+  appData.updatedAt =
+    new Date().toISOString();
+
+  /*
+    Backup prima del salvataggio principale.
+  */
+
+  try{
+    localStorage.setItem(
+      BACKUP,
+      JSON.stringify(appData)
+    );
+
+    localStorage.setItem(
+      KEY,
+      JSON.stringify(appData)
+    );
+  }catch(e){
+
+    toast(
+      "Impossibile salvare i dati localmente"
+    );
+
+    return false;
+  }
 
   renderAll();
 
+  return true;
 }
 
 
-/* ============================================================
-   UTILITÀ
-============================================================ */
+function esc(value){
 
-function esc(s){
-
-  return String(s??"")
-    .replace(/[&<>"']/g,c=>({
-
+  return String(value ?? "")
+    .replace(/[&<>"']/g, char => ({
       "&":"&amp;",
       "<":"&lt;",
       ">":"&gt;",
       '"':"&quot;",
       "'":"&#39;"
-
-    }[c]));
-
+    }[char]));
 }
 
 
-function norm(s){
+function toast(text){
 
-  return String(s??"")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"")
-    .toLowerCase()
-    .trim();
+  const element =
+    document.getElementById("toast");
 
+  element.textContent = text;
+  element.classList.add("show");
+
+  clearTimeout(element._timer);
+
+  element._timer =
+    setTimeout(() => {
+      element.classList.remove("show");
+    },2400);
 }
 
 
-function formatDate(d){
-
-  if(!d)
-    return "";
+function localDate(date = new Date()){
 
   return new Intl.DateTimeFormat(
-    "it-IT",
+    "en-CA",
     {
-      dateStyle:"medium"
+      timeZone:"Europe/Rome",
+      year:"numeric",
+      month:"2-digit",
+      day:"2-digit"
     }
-  ).format(
-    new Date(d+"T12:00:00")
+  ).format(date);
+}
+
+
+function fmtDate(value){
+
+  if(!value) return "";
+
+  try{
+
+    return new Intl.DateTimeFormat(
+      "it-IT",
+      {
+        day:"2-digit",
+        month:"2-digit",
+        year:"numeric"
+      }
+    ).format(
+      new Date(value + "T12:00:00")
+    );
+
+  }catch(e){
+
+    return value;
+  }
+}
+
+
+function addDays(value, amount){
+
+  const date =
+    new Date(value + "T12:00:00");
+
+  date.setDate(
+    date.getDate() + amount
   );
 
+  return date.toISOString().slice(0,10);
 }
 
 
-function toMin(v){
+function active(appointment){
 
-  const m =
-    String(v||"")
-      .match(/^(\d{1,2}):(\d{2})$/);
+  const status =
+    String(
+      appointment.status || "confermato"
+    ).toLowerCase();
 
-  if(!m)
-    return null;
-
-  const hh = Number(m[1]);
-  const mm = Number(m[2]);
-
-  if(
-    hh<0||
-    hh>23||
-    mm<0||
-    mm>59
-  )
-    return null;
-
-  return hh*60+mm;
-
+  return ![
+    "cancellato",
+    "cancelled",
+    "annullato",
+    "deleted"
+  ].includes(status);
 }
 
 
-function fmt(m){
+function clientByName(name){
 
-  return String(
-    Math.floor(m/60)
-  ).padStart(2,"0")
-  +
-  ":"
-  +
-  String(
-    m%60
-  ).padStart(2,"0");
+  const query =
+    String(name || "")
+      .trim()
+      .toLowerCase();
 
-}
+  if(!query) return null;
 
-
-function validDate(v){
-
-  return /^\d{4}-\d{2}-\d{2}$/.test(
-    String(v||"")
-  );
-
-}
-
-
-function validTime(v){
-
-  return /^\d{2}:\d{2}$/.test(
-    String(v||"")
-  );
-
+  return appData.clients.find(
+    client =>
+      String(client.name || "")
+        .trim()
+        .toLowerCase() === query
+  ) || null;
 }
 
 
 /* ============================================================
-   APPUNTAMENTI
+   CLIENTI
 ============================================================ */
 
-function activeAppointments(){
+function ensureClient(appointment){
 
-  return data.appointments.filter(a=>{
-
-    const status =
-      norm(a.status||"confermato");
-
-    return ![
-      "cancellato",
-      "annullato",
-      "cancelled"
-    ].includes(status);
-
-  });
-
-}
-
-
-function serviceByName(name){
-
-  const t = norm(name);
-
-  if(!t)
+  if(!appointment || !appointment.name){
     return null;
+  }
 
-  return data.services.find(
-    s=>norm(s.name)===t
-  )
-  ||
-  data.services.find(
-    s=>{
-      const n=norm(s.name);
-      return n.includes(t)||t.includes(n);
-    }
-  );
+  let client =
+    clientByName(appointment.name);
 
-}
+  if(!client){
 
-
-function clientForName(name){
-
-  const t=norm(name);
-
-  return data.clients.find(
-    c=>norm(c.name)===t
-  );
-
-}
-
-
-function ensureClient(name){
-
-  if(!name)
-    return null;
-
-  let c =
-    clientForName(name);
-
-  if(!c){
-
-    c={
-
-      id:uid(),
-
-      name:name.trim(),
-
-      phone:"",
-
-      whatsapp:"",
-
-      email:"",
-
+    client = {
+      id:uid("cli"),
+      name:appointment.name,
+      phone:appointment.phone || "",
+      whatsapp:appointment.whatsapp || "",
+      email:appointment.email || "",
       notes:"",
-
-      createdAt:
-        new Date().toISOString()
-
+      history:[],
+      lastVisit:"",
+      nextAppointment:"",
+      totalAppointments:0
     };
 
-    data.clients.push(c);
+    appData.clients.push(client);
+
+  }else{
+
+    if(appointment.phone && !client.phone){
+      client.phone = appointment.phone;
+    }
+
+    if(appointment.whatsapp && !client.whatsapp){
+      client.whatsapp = appointment.whatsapp;
+    }
+
+    if(appointment.email && !client.email){
+      client.email = appointment.email;
+    }
 
   }
 
-  return c;
+  if(!Array.isArray(client.history)){
+    client.history = [];
+  }
 
+  const exists =
+    client.history.some(
+      item =>
+        String(item.id) ===
+        String(appointment.id)
+    );
+
+  if(!exists){
+
+    client.history.push({
+      id:appointment.id,
+      date:appointment.date,
+      time:appointment.time,
+      service:appointment.service,
+      status:appointment.status || "confermato"
+    });
+
+  }
+
+  client.history =
+    client.history.slice(-100);
+
+  client.totalAppointments =
+    client.history.length;
+
+  updateClientDates(client);
+
+  return client;
+}
+
+
+function updateClientDates(client){
+
+  if(!client) return;
+
+  const today = localDate();
+
+  const future =
+    appData.appointments
+      .filter(a =>
+        active(a) &&
+        a.name &&
+        String(a.name).trim().toLowerCase() ===
+        String(client.name).trim().toLowerCase() &&
+        a.date >= today
+      )
+      .sort((a,b) =>
+        (a.date+a.time)
+          .localeCompare(b.date+b.time)
+      );
+
+  const past =
+    appData.appointments
+      .filter(a =>
+        a.name &&
+        String(a.name).trim().toLowerCase() ===
+        String(client.name).trim().toLowerCase() &&
+        a.date < today &&
+        active(a)
+      )
+      .sort((a,b) =>
+        (b.date+b.time)
+          .localeCompare(a.date+a.time)
+      );
+
+  client.nextAppointment =
+    future[0]
+      ? future[0].date + " " + future[0].time
+      : "";
+
+  client.lastVisit =
+    past[0]
+      ? past[0].date
+      : (
+          future.length
+            ? ""
+            : client.lastVisit || ""
+        );
+}
+
+
+function rebuildClientHistories(){
+
+  appData.clients.forEach(client => {
+    client.history = [];
+  });
+
+  appData.appointments.forEach(
+    appointment => {
+      ensureClient(appointment);
+    }
+  );
+
+  appData.clients.forEach(
+    updateClientDates
+  );
 }
 
 
 /* ============================================================
-   PAGINE
+   NAVIGAZIONE
 ============================================================ */
 
 function showPage(id){
 
   document
     .querySelectorAll(".page")
-    .forEach(
-      p=>p.classList.remove("active")
-    );
+    .forEach(page => {
 
-  const page=$(id);
+      page.classList.toggle(
+        "active",
+        page.id === id
+      );
 
-  if(page)
-    page.classList.add("active");
-
+    });
 
   document
     .querySelectorAll("nav button")
-    .forEach(
-      b=>
-        b.classList.toggle(
-          "active",
-          b.dataset.page===id
-        )
-    );
+    .forEach(button => {
 
+      button.classList.toggle(
+        "active",
+        button.dataset.page === id
+      );
 
-  if(id==="calendar")
+    });
+
+  if(id === "calendar"){
     renderCalendar();
+  }
 
-  if(id==="clients")
+  if(id === "clients"){
     renderClients();
+  }
+
+  if(id === "content"){
+    renderPromotions();
+  }
+
+  if(id === "settings"){
+    renderSettings();
+  }
 
 }
 
 
 /* ============================================================
-   RENDER GENERALE
+   RENDER
 ============================================================ */
 
 function renderAll(){
 
-  $("welcome").textContent =
-    data.business.name ||
-    data.settings.name ||
-    "La tua attività";
-
-
-  $("stServices").textContent =
-    data.services.length;
-
-
-  $("stClients").textContent =
-    data.clients.length;
-
-
-  $("stAppointments").textContent =
-    activeAppointments().length;
-
-
-  $("stPromotions").textContent =
-    data.promotions.length;
-
-
-  fillSettings();
-
-  renderHours();
-
-  renderServices();
-
+  renderHome();
+  renderCalendar();
+  renderClients();
   renderPromotions();
+  renderSettings();
+  renderStats();
+
+}
+
+
+function renderStats(){
+
+  const today = localDate();
+  const end = addDays(today,7);
+
+  const todayCount =
+    appData.appointments.filter(
+      a =>
+        active(a) &&
+        a.date === today
+    ).length;
+
+  const weekCount =
+    appData.appointments.filter(
+      a =>
+        active(a) &&
+        a.date >= today &&
+        a.date < end
+    ).length;
+
+  document.getElementById(
+    "statToday"
+  ).textContent = todayCount;
+
+  document.getElementById(
+    "statWeek"
+  ).textContent = weekCount;
+
+  document.getElementById(
+    "statClients"
+  ).textContent =
+    appData.clients.length;
+
+  document.getElementById(
+    "statServices"
+  ).textContent =
+    appData.services.length;
+}
+
+
+function renderHome(){
+
+  const today = localDate();
+
+  const appointments =
+    appData.appointments
+      .filter(
+        a =>
+          active(a) &&
+          a.date >= today
+      )
+      .sort(
+        (a,b) =>
+          (a.date+a.time)
+            .localeCompare(
+              b.date+b.time
+            )
+      )
+      .slice(0,6);
+
+  document.getElementById(
+    "homeAppointments"
+  ).innerHTML =
+    appointments.length
+      ? appointments.map(itemAppointment).join("")
+      : '<div class="empty">Nessun appuntamento prossimo.</div>';
+
+  document.getElementById(
+    "homeTitle"
+  ).textContent =
+    appData.business.name || "Maviri";
+}
+
+
+function statusBadge(status){
+
+  const normalized =
+    String(status || "confermato")
+      .toLowerCase();
+
+  let cls = "confirmed";
+
+  if(
+    normalized === "completato" ||
+    normalized === "completed"
+  ){
+    cls = "completed";
+  }
+
+  if(
+    normalized === "cancellato" ||
+    normalized === "cancelled" ||
+    normalized === "annullato"
+  ){
+    cls = "cancelled";
+  }
+
+  return `
+    <span class="badge ${cls}">
+      ${esc(status || "confermato")}
+    </span>
+  `;
+}
+
+
+function itemAppointment(appointment){
+
+  return `
+    <div class="list-item">
+
+      <b>
+        ${esc(appointment.time || "")}
+        ·
+        ${esc(appointment.name || "Cliente")}
+      </b>
+
+      <span>
+        ${esc(appointment.service || "Servizio")}
+        ·
+        ${fmtDate(appointment.date)}
+      </span>
+
+      <div class="actions">
+
+        ${statusBadge(appointment.status)}
+
+        <button
+          class="secondary small"
+          onclick="editAppointment('${esc(appointment.id)}')">
+          Modifica
+        </button>
+
+        <button
+          class="success small"
+          onclick="completeAppointment('${esc(appointment.id)}')">
+          Completa
+        </button>
+
+        <button
+          class="danger small"
+          onclick="cancelAppointment('${esc(appointment.id)}')">
+          Annulla
+        </button>
+
+      </div>
+
+    </div>
+  `;
+}
+
+
+/* ============================================================
+   CALENDARIO
+============================================================ */
+
+function renderCalendar(){
+
+  const dateInput =
+    document.getElementById(
+      "calendarDate"
+    );
+
+  if(!dateInput.value){
+    dateInput.value = localDate();
+  }
+
+  const date = dateInput.value;
+
+  const dateObject =
+    new Date(date + "T12:00:00");
+
+  document.getElementById(
+    "dayTitle"
+  ).textContent =
+    new Intl.DateTimeFormat(
+      "it-IT",
+      {
+        weekday:"long",
+        day:"numeric",
+        month:"long",
+        year:"numeric"
+      }
+    ).format(dateObject);
+
+  const appointments =
+    appData.appointments
+      .filter(
+        a =>
+          a.date === date &&
+          active(a)
+      )
+      .sort(
+        (a,b) =>
+          String(a.time)
+            .localeCompare(
+              String(b.time)
+            )
+      );
+
+  document.getElementById(
+    "calendarList"
+  ).innerHTML =
+    appointments.length
+      ? appointments.map(itemAppointment).join("")
+      : '<div class="empty">Nessun appuntamento per questa giornata.</div>';
+
+  renderAppointmentSearch();
+
+}
+
+
+function moveDay(amount){
+
+  const input =
+    document.getElementById(
+      "calendarDate"
+    );
+
+  input.value =
+    addDays(
+      input.value || localDate(),
+      amount
+    );
 
   renderCalendar();
 
-  renderClients();
+}
 
+
+function renderAppointmentSearch(){
+
+  const query =
+    (
+      document.getElementById(
+        "appointmentSearch"
+      ).value || ""
+    )
+      .toLowerCase()
+      .trim();
+
+  if(!query){
+
+    document.getElementById(
+      "appointmentResults"
+    ).innerHTML = "";
+
+    return;
+  }
+
+  const results =
+    appData.appointments
+      .filter(appointment => {
+
+        if(!active(appointment)){
+          return false;
+        }
+
+        const text = [
+          appointment.name,
+          appointment.service,
+          appointment.date,
+          appointment.time,
+          appointment.status
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        return text.includes(query);
+
+      })
+      .sort(
+        (a,b) =>
+          (a.date+a.time)
+            .localeCompare(
+              b.date+b.time
+            )
+      )
+      .slice(0,30);
+
+  document.getElementById(
+    "appointmentResults"
+  ).innerHTML =
+    results.length
+      ? results.map(itemAppointment).join("")
+      : '<div class="empty">Nessun risultato.</div>';
 }
 
 
 /* ============================================================
-   IMPOSTAZIONI
+   APPUNTAMENTI MANUALI
 ============================================================ */
 
-function fillSettings(){
+function openAppointment(appointment = {}){
 
-  const s=data.settings;
-  const b=data.business;
+  const services =
+    appData.services
+      .map(service => `
+        <option
+          value="${esc(service.name)}"
+          ${service.name === appointment.service ? "selected" : ""}>
+          ${esc(service.name)}
+        </option>
+      `)
+      .join("");
 
-  [
-    ["setName",b.name||s.name],
-    ["setType",b.type||s.type],
-    ["setDescription",b.description||s.description],
-    ["setAddress",b.address||s.address],
-    ["setPhone",b.phone||s.phone],
-    ["setWhatsapp",b.whatsapp||s.whatsapp]
-  ]
-  .forEach(([id,v])=>{
+  openModal(
+    appointment.id
+      ? "Modifica appuntamento"
+      : "Nuovo appuntamento",
 
-    $(id).value=v||"";
+    `
+      <div class="two">
 
-  });
-
-}
-
-
-function saveSettings(){
-
-  const b={
-
-    name:$("setName").value.trim(),
-
-    type:$("setType").value.trim(),
-
-    description:
-      $("setDescription")
-        .value.trim(),
-
-    address:
-      $("setAddress")
-        .value.trim(),
-
-    phone:
-      $("setPhone")
-        .value.trim(),
-
-    whatsapp:
-      $("setWhatsapp")
-        .value.trim()
-
-  };
-
-
-  data.business={
-    ...data.business,
-    ...b
-  };
-
-
-  data.settings={
-    ...data.settings,
-    ...b,
-    hours:data.settings.hours
-  };
-
-
-  save();
-
-
-  $("settingsStatus").textContent =
-    "Impostazioni salvate.";
-
-}
-
-
-/* ============================================================
-   ORARI
-============================================================ */
-
-function renderHours(){
-
-  const h=data.settings.hours;
-
-  $("hours").innerHTML =
-    DAYS.map((d,i)=>{
-
-      const x=h[d]||{};
-
-      return `
-
-        <div class="list-item">
-
-          <b>
-            ${DAY_LABEL[i]}
-          </b>
-
-          <div class="three">
-
-            <label>
-
-              <input
-                type="checkbox"
-                data-day="${d}"
-                data-field="closed"
-                ${x.closed?"checked":""}>
-
-              Chiuso
-
-            </label>
-
-            <input
-              data-day="${d}"
-              data-field="start"
-              type="time"
-              value="${x.start||""}">
-
-            <input
-              data-day="${d}"
-              data-field="end"
-              type="time"
-              value="${x.end||""}">
-
-          </div>
-
-          <div class="three">
-
-            <span class="muted">
-              Pausa
-            </span>
-
-            <input
-              data-day="${d}"
-              data-field="breakStart"
-              type="time"
-              value="${x.breakStart||""}">
-
-            <input
-              data-day="${d}"
-              data-field="breakEnd"
-              type="time"
-              value="${x.breakEnd||""}">
-
-          </div>
-
+        <div>
+          <label>Cliente</label>
+          <input
+            id="fName"
+            value="${esc(appointment.name || "")}">
         </div>
 
-      `;
+        <div>
+          <label>Telefono</label>
+          <input
+            id="fPhone"
+            value="${esc(appointment.phone || "")}">
+        </div>
 
-    }).join("");
+        <div>
+          <label>Data</label>
+          <input
+            id="fDate"
+            type="date"
+            value="${esc(
+              appointment.date || localDate()
+            )}">
+        </div>
+
+        <div>
+          <label>Ora</label>
+          <input
+            id="fTime"
+            type="time"
+            value="${esc(
+              appointment.time || "09:00"
+            )}">
+        </div>
+
+      </div>
+
+      <label>Servizio</label>
+
+      <select id="fService">
+
+        ${
+          services ||
+          '<option value="">Nessun servizio configurato</option>'
+        }
+
+      </select>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="saveAppointment('${esc(appointment.id || "")}')">
+          Salva appuntamento
+        </button>
+
+      </div>
+    `
+  );
 
 }
 
 
-function saveHours(){
+function saveAppointment(id){
 
-  document
-    .querySelectorAll("[data-day]")
-    .forEach(el=>{
+  const name =
+    document.getElementById(
+      "fName"
+    ).value.trim();
 
-      const d=el.dataset.day;
-      const f=el.dataset.field;
+  const phone =
+    document.getElementById(
+      "fPhone"
+    ).value.trim();
 
-      if(!data.settings.hours[d])
-        data.settings.hours[d]={};
+  const date =
+    document.getElementById(
+      "fDate"
+    ).value;
 
-      data.settings.hours[d][f] =
-        el.type==="checkbox"
-        ? el.checked
-        : el.value;
+  const time =
+    document.getElementById(
+      "fTime"
+    ).value;
 
-    });
+  const service =
+    document.getElementById(
+      "fService"
+    ).value;
+
+  if(
+    !name ||
+    !date ||
+    !time ||
+    !service
+  ){
+
+    toast(
+      "Completa i dati dell'appuntamento"
+    );
+
+    return;
+  }
+
+  const conflict =
+    appData.appointments.some(
+      existing =>
+        active(existing) &&
+        String(existing.id) !== String(id) &&
+        existing.date === date &&
+        existing.time === time
+    );
+
+  if(conflict){
+
+    toast(
+      "Orario già occupato"
+    );
+
+    return;
+  }
+
+  const appointment = {
+
+    id:
+      id ||
+      uid("apt"),
+
+    name,
+    phone,
+    date,
+    time,
+    service,
+
+    status:
+      id
+        ? (
+            appData.appointments.find(
+              a =>
+                String(a.id) === String(id)
+            )?.status ||
+            "confermato"
+          )
+        : "confermato",
+
+    createdAt:
+      id
+        ? (
+            appData.appointments.find(
+              a =>
+                String(a.id) === String(id)
+            )?.createdAt ||
+            new Date().toISOString()
+          )
+        : new Date().toISOString(),
+
+    updatedAt:
+      new Date().toISOString()
+  };
+
+  const index =
+    appData.appointments.findIndex(
+      a =>
+        String(a.id) === String(id)
+    );
+
+  if(index >= 0){
+
+    appData.appointments[index] =
+      appointment;
+
+  }else{
+
+    appData.appointments.push(
+      appointment
+    );
+
+  }
+
+  ensureClient(appointment);
+
+  saveData();
+
+  closeModal();
+
+  toast(
+    "Appuntamento salvato"
+  );
+
+}
 
 
-  save();
+function editAppointment(id){
+
+  const appointment =
+    appData.appointments.find(
+      a =>
+        String(a.id) === String(id)
+    );
+
+  if(appointment){
+    openAppointment(appointment);
+  }
+
+}
+
+
+function cancelAppointment(id){
+
+  const appointment =
+    appData.appointments.find(
+      a =>
+        String(a.id) === String(id)
+    );
+
+  if(!appointment) return;
+
+  appointment.status =
+    "cancellato";
+
+  appointment.updatedAt =
+    new Date().toISOString();
+
+  saveData();
+
+  toast(
+    "Appuntamento annullato"
+  );
+
+}
+
+
+function completeAppointment(id){
+
+  const appointment =
+    appData.appointments.find(
+      a =>
+        String(a.id) === String(id)
+    );
+
+  if(!appointment) return;
+
+  appointment.status =
+    "completato";
+
+  appointment.updatedAt =
+    new Date().toISOString();
+
+  saveData();
+
+  toast(
+    "Appuntamento completato"
+  );
+
+}
+
+
+/* ============================================================
+   CLIENTI UI
+============================================================ */
+
+function renderClients(){
+
+  const query =
+    (
+      document.getElementById(
+        "clientSearch"
+      ).value || ""
+    )
+      .toLowerCase()
+      .trim();
+
+  const clients =
+    appData.clients
+      .filter(client => {
+
+        if(!query) return true;
+
+        const text = [
+          client.name,
+          client.phone,
+          client.whatsapp,
+          client.email,
+          client.notes
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        return text.includes(query);
+
+      })
+      .sort(
+        (a,b) =>
+          String(a.name)
+            .localeCompare(
+              String(b.name),
+              "it"
+            )
+      );
+
+  document.getElementById(
+    "clientsList"
+  ).innerHTML =
+    clients.length
+      ? clients.map(client => {
+
+          const initial =
+            String(
+              client.name || "?"
+            )
+              .trim()
+              .slice(0,1)
+              .toUpperCase();
+
+          const count =
+            client.totalAppointments ||
+            client.history?.length ||
+            0;
+
+          return `
+            <div class="list-item">
+
+              <div class="client-head">
+
+                <div class="client-avatar">
+                  ${esc(initial)}
+                </div>
+
+                <div>
+
+                  <b>
+                    ${esc(client.name)}
+                  </b>
+
+                  <span>
+                    ${esc(
+                      client.phone ||
+                      client.whatsapp ||
+                      client.email ||
+                      "Nessun contatto"
+                    )}
+                  </span>
+
+                </div>
+
+              </div>
+
+              <div
+                class="muted"
+                style="margin-top:7px">
+
+                Appuntamenti:
+                ${count}
+
+                ${
+                  client.nextAppointment
+                    ? " · Prossimo: " +
+                      esc(
+                        client.nextAppointment
+                      )
+                    : ""
+                }
+
+                ${
+                  client.lastVisit
+                    ? " · Ultima visita: " +
+                      fmtDate(client.lastVisit)
+                    : ""
+                }
+
+              </div>
+
+              ${
+                client.notes
+                  ? `
+                    <div
+                      class="muted"
+                      style="margin-top:5px">
+                      Note: ${esc(client.notes)}
+                    </div>
+                  `
+                  : ""
+              }
+
+              <div class="actions">
+
+                <button
+                  class="primary small"
+                  onclick="editClient('${esc(client.id)}')">
+                  Apri scheda
+                </button>
+
+              </div>
+
+            </div>
+          `;
+
+        }).join("")
+      : '<div class="empty">Nessun cliente.</div>';
+
+}
+
+
+function openClient(client = {}){
+
+  const history =
+    Array.isArray(client.history)
+      ? client.history
+      : [];
+
+  const historyHtml =
+    history.length
+      ? history
+          .slice()
+          .sort(
+            (a,b) =>
+              (b.date+b.time)
+                .localeCompare(
+                  a.date+a.time
+                )
+          )
+          .map(item => `
+            <div class="list-item">
+
+              <b>
+                ${fmtDate(item.date)}
+                ·
+                ${esc(item.time || "")}
+              </b>
+
+              <span>
+                ${esc(item.service || "Servizio")}
+              </span>
+
+              <div style="margin-top:5px">
+                ${statusBadge(item.status)}
+              </div>
+
+            </div>
+          `)
+          .join("")
+      : '<div class="empty">Nessuno storico appuntamenti.</div>';
+
+  openModal(
+    client.id
+      ? "Scheda cliente"
+      : "Nuovo cliente",
+
+    `
+      <div class="two">
+
+        <div>
+          <label>Nome</label>
+          <input
+            id="cName"
+            value="${esc(client.name || "")}">
+        </div>
+
+        <div>
+          <label>Telefono</label>
+          <input
+            id="cPhone"
+            value="${esc(client.phone || "")}">
+        </div>
+
+        <div>
+          <label>WhatsApp</label>
+          <input
+            id="cWhatsapp"
+            value="${esc(client.whatsapp || "")}">
+        </div>
+
+        <div>
+          <label>Email</label>
+          <input
+            id="cEmail"
+            type="email"
+            value="${esc(client.email || "")}">
+        </div>
+
+      </div>
+
+      <label>Note cliente</label>
+
+      <textarea
+        id="cNotes"
+        rows="4">${esc(client.notes || "")}</textarea>
+
+      ${
+        client.id
+          ? `
+            <hr class="divider">
+
+            <h4>
+              Storico appuntamenti
+            </h4>
+
+            ${historyHtml}
+          `
+          : ""
+      }
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="saveClient('${esc(client.id || "")}')">
+          Salva cliente
+        </button>
+
+      </div>
+    `
+  );
+
+}
+
+
+function saveClient(id){
+
+  const old =
+    appData.clients.find(
+      c =>
+        String(c.id) === String(id)
+    );
+
+  const client = {
+
+    id:
+      id ||
+      uid("cli"),
+
+    name:
+      document.getElementById(
+        "cName"
+      ).value.trim(),
+
+    phone:
+      document.getElementById(
+        "cPhone"
+      ).value.trim(),
+
+    whatsapp:
+      document.getElementById(
+        "cWhatsapp"
+      ).value.trim(),
+
+    email:
+      document.getElementById(
+        "cEmail"
+      ).value.trim(),
+
+    notes:
+      document.getElementById(
+        "cNotes"
+      ).value.trim(),
+
+    history:
+      old?.history || [],
+
+    lastVisit:
+      old?.lastVisit || "",
+
+    nextAppointment:
+      old?.nextAppointment || "",
+
+    totalAppointments:
+      old?.totalAppointments || 0
+
+  };
+
+  if(!client.name){
+
+    toast(
+      "Inserisci il nome del cliente"
+    );
+
+    return;
+  }
+
+  const index =
+    appData.clients.findIndex(
+      c =>
+        String(c.id) === String(id)
+    );
+
+  if(index >= 0){
+
+    appData.clients[index] =
+      client;
+
+  }else{
+
+    appData.clients.push(
+      client
+    );
+
+  }
+
+  updateClientDates(client);
+
+  saveData();
+
+  closeModal();
+
+  toast(
+    "Scheda cliente salvata"
+  );
+
+}
+
+
+function editClient(id){
+
+  const client =
+    appData.clients.find(
+      c =>
+        String(c.id) === String(id)
+    );
+
+  if(client){
+    openClient(client);
+  }
 
 }
 
@@ -2534,131 +2836,184 @@ function saveHours(){
    SERVIZI
 ============================================================ */
 
-function renderServices(){
+function openService(
+  service = {},
+  index = -1
+){
 
-  $("servicesList").innerHTML =
-    data.services.length
+  openModal(
+    service.name
+      ? "Modifica servizio"
+      : "Nuovo servizio",
 
-    ?
+    `
+      <label>Nome</label>
 
-    data.services.map((s,i)=>`
+      <input
+        id="sName"
+        value="${esc(service.name || "")}">
 
-      <div class="list-item">
+      <div class="two">
 
-        <b>
-          ${esc(s.name)}
-        </b>
+        <div>
 
-        <div class="muted">
+          <label>
+            Prezzo €
+          </label>
 
-          ${s.duration||30} min ·
-
-          ${
-            s.price!=="" &&
-            s.price!=null
-            ?
-            "€"+s.price
-            :
-            "Prezzo non impostato"
-          }
-
-          ${
-            s.description
-            ?
-            " · "+esc(s.description)
-            :
-            ""
-          }
+          <input
+            id="sPrice"
+            type="number"
+            step="0.01"
+            min="0"
+            value="${esc(service.price ?? "")}">
 
         </div>
 
-        <div class="actions">
+        <div>
 
-          <button
-            class="danger small"
-            onclick="deleteService(${i})">
+          <label>
+            Durata minuti
+          </label>
 
-            Elimina
-
-          </button>
+          <input
+            id="sDuration"
+            type="number"
+            min="1"
+            value="${esc(service.duration || 30)}">
 
         </div>
 
       </div>
 
-    `).join("")
+      <label>
+        Descrizione
+      </label>
 
-    :
+      <textarea
+        id="sDesc"
+        rows="3">${esc(service.description || "")}</textarea>
 
-    `<div class="empty">
-      Nessun servizio.
-    </div>`;
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="saveService(${index})">
+          Salva servizio
+        </button>
+
+      </div>
+    `
+  );
 
 }
 
 
-function saveService(){
+function saveService(index){
 
-  const name =
-    $("serviceName")
-      .value.trim();
+  const service = {
 
-  if(!name)
-    return;
+    id:
+      index >= 0
+        ? appData.services[index].id
+        : uid("srv"),
 
+    name:
+      document.getElementById(
+        "sName"
+      ).value.trim(),
 
-  data.services.push({
-
-    id:uid(),
-
-    name:name,
+    price:
+      Number(
+        document.getElementById(
+          "sPrice"
+        ).value || 0
+      ),
 
     duration:
       Number(
-        $("serviceDuration")
-          .value
-      )||30,
-
-    price:
-      $("servicePrice")
-        .value,
+        document.getElementById(
+          "sDuration"
+        ).value || 30
+      ),
 
     description:
-      $("serviceDescription")
-        .value.trim()
+      document.getElementById(
+        "sDesc"
+      ).value.trim()
 
-  });
+  };
 
+  if(!service.name){
 
-  [
-    "serviceName",
-    "serviceDuration",
-    "servicePrice",
-    "serviceDescription"
-  ]
-  .forEach(id=>{
-    $(id).value="";
-  });
+    toast(
+      "Inserisci il nome del servizio"
+    );
 
+    return;
+  }
 
-  save();
+  if(service.duration <= 0){
+    service.duration = 30;
+  }
+
+  if(index >= 0){
+
+    appData.services[index] =
+      service;
+
+  }else{
+
+    appData.services.push(
+      service
+    );
+
+  }
+
+  saveData();
+
+  closeModal();
+
+  toast(
+    "Servizio salvato"
+  );
 
 }
 
 
-function deleteService(i){
+function editService(index){
 
-  if(
-    confirm(
-      "Eliminare questo servizio?"
-    )
-  ){
+  const service =
+    appData.services[index];
 
-    data.services.splice(i,1);
-
-    save();
-
+  if(service){
+    openService(
+      service,
+      index
+    );
   }
+
+}
+
+
+function deleteService(index){
+
+  if(!confirm(
+    "Eliminare questo servizio?"
+  )){
+    return;
+  }
+
+  appData.services.splice(
+    index,
+    1
+  );
+
+  saveData();
+
+  toast(
+    "Servizio eliminato"
+  );
 
 }
 
@@ -2669,158 +3024,551 @@ function deleteService(i){
 
 function renderPromotions(){
 
-  $("promotionsList").innerHTML =
-    data.promotions.length
+  document.getElementById(
+    "promotionsList"
+  ).innerHTML =
+    appData.promotions.length
 
-    ?
+      ? appData.promotions
+          .map(
+            (promotion,index) => `
+              <div class="list-item">
 
-    data.promotions.map((p,i)=>`
+                <b>
+                  ${esc(
+                    promotion.title ||
+                    "Promozione"
+                  )}
+                </b>
 
-      <div class="list-item">
+                <span>
+                  ${esc(
+                    promotion.text || ""
+                  )}
+                </span>
 
-        <b>
-          ${esc(p.title)}
-        </b>
+                <div class="actions">
 
-        <div>
-          ${esc(p.description||"")}
-        </div>
+                  <button
+                    class="secondary small"
+                    onclick="editPromotion(${index})">
+                    Modifica
+                  </button>
 
-        <div class="muted">
-          ${p.start||""} → ${p.end||""}
-        </div>
+                  <button
+                    class="danger small"
+                    onclick="deletePromotion(${index})">
+                    Elimina
+                  </button>
 
-        <div class="actions">
+                </div>
 
-          <button
-            class="danger small"
-            onclick="deletePromotion(${i})">
+              </div>
+            `
+          )
+          .join("")
 
-            Elimina
+      : '<div class="empty">Nessuna promozione.</div>';
+}
 
-          </button>
 
-        </div>
+function openPromotion(
+  promotion = {},
+  index = -1
+){
+
+  openModal(
+    index >= 0
+      ? "Modifica promozione"
+      : "Nuova promozione",
+
+    `
+      <label>Titolo</label>
+
+      <input
+        id="pTitle"
+        value="${esc(
+          promotion.title || ""
+        )}">
+
+      <label>Testo</label>
+
+      <textarea
+        id="pText"
+        rows="5">${esc(
+          promotion.text || ""
+        )}</textarea>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="savePromotion(${index})">
+          Salva
+        </button>
 
       </div>
-
-    `).join("")
-
-    :
-
-    `<div class="empty">
-      Nessuna promozione.
-    </div>`;
+    `
+  );
 
 }
 
 
-function savePromotion(){
+function savePromotion(index){
 
-  const title =
-    $("promoTitle")
-      .value.trim();
+  const promotion = {
 
-  if(!title)
+    title:
+      document.getElementById(
+        "pTitle"
+      ).value.trim(),
+
+    text:
+      document.getElementById(
+        "pText"
+      ).value.trim()
+
+  };
+
+  if(!promotion.title){
+
+    toast(
+      "Inserisci un titolo"
+    );
+
     return;
+  }
 
+  if(index >= 0){
 
-  data.promotions.push({
+    appData.promotions[index] =
+      promotion;
 
-    id:uid(),
+  }else{
 
-    title:title,
+    appData.promotions.push(
+      promotion
+    );
 
-    description:
-      $("promoDescription")
-        .value.trim(),
+  }
 
-    start:
-      $("promoStart")
-        .value,
+  saveData();
 
-    end:
-      $("promoEnd")
-        .value
+  closeModal();
 
-  });
-
-
-  [
-    "promoTitle",
-    "promoDescription",
-    "promoStart",
-    "promoEnd"
-  ]
-  .forEach(id=>{
-    $(id).value="";
-  });
-
-
-  save();
+  toast(
+    "Promozione salvata"
+  );
 
 }
 
 
-function deletePromotion(i){
+function editPromotion(index){
 
-  if(
-    confirm(
-      "Eliminare questa promozione?"
-    )
-  ){
+  const promotion =
+    appData.promotions[index];
 
-    data.promotions.splice(i,1);
+  if(promotion){
 
-    save();
+    openPromotion(
+      promotion,
+      index
+    );
 
   }
 
 }
 
 
+function deletePromotion(index){
+
+  if(!confirm(
+    "Eliminare questa promozione?"
+  )){
+    return;
+  }
+
+  appData.promotions.splice(
+    index,
+    1
+  );
+
+  saveData();
+
+  toast(
+    "Promozione eliminata"
+  );
+
+}
+
+
 /* ============================================================
-   BUSINESS ENGINE
+   IMPOSTAZIONI
 ============================================================ */
 
-async function businessApi(
+function renderSettings(){
+
+  const business =
+    appData.business || {};
+
+  document.getElementById(
+    "businessName"
+  ).value =
+    business.name || "";
+
+  document.getElementById(
+    "businessType"
+  ).value =
+    business.type || "";
+
+  document.getElementById(
+    "businessPhone"
+  ).value =
+    business.phone || "";
+
+  document.getElementById(
+    "businessWhatsapp"
+  ).value =
+    business.whatsapp || "";
+
+  document.getElementById(
+    "businessDescription"
+  ).value =
+    business.description || "";
+
+
+  document.getElementById(
+    "servicesList"
+  ).innerHTML =
+    appData.services.length
+
+      ? appData.services
+          .map(
+            (service,index) => `
+
+              <div class="list-item">
+
+                <b>
+                  ${esc(service.name)}
+                </b>
+
+                <span>
+                  ${Number(
+                    service.price || 0
+                  ).toFixed(2)}
+                  €
+                  ·
+                  ${Number(
+                    service.duration || 30
+                  )}
+                  min
+                </span>
+
+                ${
+                  service.description
+                    ? `
+                      <div
+                        class="muted"
+                        style="margin-top:4px">
+                        ${esc(
+                          service.description
+                        )}
+                      </div>
+                    `
+                    : ""
+                }
+
+                <div class="actions">
+
+                  <button
+                    class="secondary small"
+                    onclick="editService(${index})">
+                    Modifica
+                  </button>
+
+                  <button
+                    class="danger small"
+                    onclick="deleteService(${index})">
+                    Elimina
+                  </button>
+
+                </div>
+
+              </div>
+            `
+          )
+          .join("")
+
+      : '<div class="empty">Nessun servizio configurato.</div>';
+
+
+  document.getElementById(
+    "hoursList"
+  ).innerHTML =
+    days
+      .map(([key,name]) => {
+
+        const hours =
+          appData.settings.hours[key] ||
+          defaultHours()[key];
+
+        const pause =
+          hours.breakStart &&
+          hours.breakEnd
+            ? hours.breakStart +
+              "-" +
+              hours.breakEnd
+            : "";
+
+        return `
+          <div class="list-item">
+
+            <div class="row">
+
+              <b>${name}</b>
+
+              <label
+                style="margin:0">
+
+                <input
+                  type="checkbox"
+                  id="closed_${key}"
+                  ${hours.closed ? "checked" : ""}>
+
+                Chiuso
+
+              </label>
+
+            </div>
+
+            <div class="three">
+
+              <div>
+
+                <label>
+                  Apertura
+                </label>
+
+                <input
+                  id="start_${key}"
+                  type="time"
+                  value="${esc(
+                    hours.start || "09:00"
+                  )}">
+
+              </div>
+
+              <div>
+
+                <label>
+                  Chiusura
+                </label>
+
+                <input
+                  id="end_${key}"
+                  type="time"
+                  value="${esc(
+                    hours.end || "19:00"
+                  )}">
+
+              </div>
+
+              <div>
+
+                <label>
+                  Pausa
+                </label>
+
+                <input
+                  id="break_${key}"
+                  value="${esc(pause)}"
+                  placeholder="13:00-14:00">
+
+              </div>
+
+            </div>
+
+          </div>
+        `;
+
+      })
+      .join("");
+
+}
+
+
+function saveSettings(){
+
+  const business =
+    appData.business;
+
+  business.name =
+    document.getElementById(
+      "businessName"
+    ).value.trim();
+
+  business.type =
+    document.getElementById(
+      "businessType"
+    ).value.trim();
+
+  business.phone =
+    document.getElementById(
+      "businessPhone"
+    ).value.trim();
+
+  business.whatsapp =
+    document.getElementById(
+      "businessWhatsapp"
+    ).value.trim();
+
+  business.description =
+    document.getElementById(
+      "businessDescription"
+    ).value.trim();
+
+  appData.settings.name =
+    business.name;
+
+  saveData();
+
+  toast(
+    "Impostazioni salvate"
+  );
+
+}
+
+
+function saveHours(){
+
+  days.forEach(([key]) => {
+
+    const pause =
+      (
+        document.getElementById(
+          "break_" + key
+        ).value || ""
+      ).split("-");
+
+    appData.settings.hours[key] = {
+
+      closed:
+        document.getElementById(
+          "closed_" + key
+        ).checked,
+
+      start:
+        document.getElementById(
+          "start_" + key
+        ).value,
+
+      end:
+        document.getElementById(
+          "end_" + key
+        ).value,
+
+      breakStart:
+        pause[0] || "",
+
+      breakEnd:
+        pause[1] || ""
+
+    };
+
+  });
+
+  saveData();
+
+  toast(
+    "Orari salvati"
+  );
+
+}
+
+
+/* ============================================================
+   MODALE
+============================================================ */
+
+function openModal(title,html){
+
+  document.getElementById(
+    "modalTitle"
+  ).textContent = title;
+
+  document.getElementById(
+    "modalBody"
+  ).innerHTML = html;
+
+  document.getElementById(
+    "modalBg"
+  ).classList.add("open");
+
+}
+
+
+function closeModal(){
+
+  document.getElementById(
+    "modalBg"
+  ).classList.remove("open");
+
+}
+
+
+document
+  .getElementById("modalBg")
+  .addEventListener(
+    "click",
+    event => {
+
+      if(
+        event.target.id ===
+        "modalBg"
+      ){
+        closeModal();
+      }
+
+    }
+  );
+
+
+/* ============================================================
+   API BUSINESS ENGINE
+============================================================ */
+
+async function api(
   action,
-  extra={}
+  extra = {}
 ){
 
-  const appointments =
-    extra.__appointments ||
-    data.appointments;
+  const body = {
 
+    action,
 
-  const payload={
+    ...extra,
 
-    action:action,
-
-    settings:data.settings,
-
-    services:data.services,
-
-    appointments:appointments,
-
-    clients:data.clients,
-
-    promotions:data.promotions,
+    settings:
+      appData.settings,
 
     business:
-      data.business?.name ||
-      data.settings?.name ||
-      "",
+      appData.business,
 
-    ...extra
+    services:
+      appData.services,
+
+    appointments:
+      appData.appointments,
+
+    clients:
+      appData.clients,
+
+    promotions:
+      appData.promotions
 
   };
 
-
-  delete payload.__appointments;
-
-
-  const r =
+  const response =
     await fetch(
       "/api/chat",
       {
@@ -2830,1907 +3578,443 @@ async function businessApi(
             "application/json"
         },
         body:
-          JSON.stringify(payload)
+          JSON.stringify(body)
       }
     );
 
+  if(!response.ok){
 
-  let j={};
-
-
-  try{
-
-    j=await r.json();
-
-  }catch{
-
-    throw Error(
-      "Risposta del Business Engine non valida."
+    throw new Error(
+      "API HTTP " +
+      response.status
     );
 
   }
 
-
-  if(!r.ok){
-
-    throw Error(
-      j.error ||
-      "Errore del Business Engine."
-    );
-
-  }
-
-
-  return j;
+  return response.json();
 
 }
 
 
 /* ============================================================
-   PRENOTAZIONE DEFINITIVA
+   CHAT MAVI
 ============================================================ */
 
-async function bookAppointment(a){
+function addMsg(
+  text,
+  who = "bot",
+  speakIt = false
+){
 
-  const r =
-    await businessApi(
-      "book",
-      {
-        date:a.date,
-        time:a.time,
-        service:a.service,
-        name:a.name,
-        clientName:a.name
-      }
+  if(!text) return;
+
+  const element =
+    document.createElement("div");
+
+  element.className =
+    "msg " + who;
+
+  element.textContent =
+    text;
+
+  const chat =
+    document.getElementById(
+      "chat"
     );
 
+  chat.appendChild(
+    element
+  );
+
+  chat.scrollTop =
+    chat.scrollHeight;
+
+  history.push({
+
+    role:
+      who === "user"
+        ? "user"
+        : "assistant",
+
+    content:
+      String(text)
+
+  });
+
+  history =
+    history.slice(-50);
+
+  saveHistory();
 
   if(
-    !r ||
-    !r.bookingConfirmed
+    speakIt &&
+    who === "bot"
   ){
-
-    throw Error(
-      r?.error ||
-      "La prenotazione non è stata confermata."
-    );
-
+    speak(text);
   }
 
+}
 
-  const ap={
 
-    ...(r.appointment||{}),
+function setBooking(appointment){
+
+  if(!appointment){
+    return;
+  }
+
+  const clean = {
 
     id:
-      r.appointment?.id ||
-      r.appointment?.bookingKey ||
-      uid(),
+      appointment.id ||
+      "",
 
-    name:a.name,
+    name:
+      String(
+        appointment.name || ""
+      ).trim(),
 
-    date:a.date,
+    phone:
+      String(
+        appointment.phone || ""
+      ).trim(),
 
-    time:a.time,
+    date:
+      appointment.date || "",
 
-    service:a.service,
+    time:
+      appointment.time || "",
 
-    status:"confermato",
+    service:
+      appointment.service || "",
 
-    createdAt:
-      r.appointment?.createdAt ||
-      new Date().toISOString(),
-
-    updatedAt:
-      new Date().toISOString()
+    status:
+      "confermato"
 
   };
 
-
-  /*
-   * DOPPIA PROTEZIONE LOCALE.
-   */
-
-  const duplicate =
-    data.appointments.some(x=>
-
-      x.date===ap.date &&
-
-      x.time===ap.time &&
-
-      norm(x.status||"confermato")
-        !=="cancellato"
-
-    );
-
-
-  if(!duplicate){
-
-    data.appointments.push(ap);
-
+  if(
+    !clean.name ||
+    !clean.date ||
+    !clean.time ||
+    !clean.service
+  ){
+    return;
   }
 
-
-  /*
-   * CREA / RECUPERA CLIENTE.
-   */
-
-  ensureClient(a.name);
-
-
-  /*
-   * SALVATAGGIO PERSISTENTE.
-   */
-
-  persist();
-
-
-  renderAll();
-
-
-  return ap;
-
-}
-
-
-/* ============================================================
-   CALENDARIO
-============================================================ */
-
-function changeDay(n){
-
-  const d =
-    new Date(
-      (
-        $("calendarDate").value ||
-        today()
-      )+"T12:00:00"
-    );
-
-
-  d.setDate(
-    d.getDate()+n
+  localStorage.setItem(
+    PENDING,
+    JSON.stringify(clean)
   );
 
+  localStorage.setItem(
+    CONF,
+    "true"
+  );
 
-  $("calendarDate").value =
-    d.toISOString()
-      .slice(0,10);
+  document.getElementById(
+    "bookingSummary"
+  ).innerHTML = `
 
+    <b>
+      ${esc(clean.name)}
+    </b>
 
-  renderCalendar();
+    <br>
 
-}
+    ${esc(clean.service)}
 
+    ·
 
-function renderCalendar(){
+    ${fmtDate(clean.date)}
 
-  const date =
-    $("calendarDate").value ||
-    today();
+    ·
 
-
-  $("calendarDate").value =
-    date;
-
-
-  const dt =
-    new Date(
-      date+"T12:00:00"
-    );
-
-
-  const idx =
-    dt.getDay();
-
-
-  const h =
-    data.settings.hours[
-      DAYS[idx]
-    ]||{};
-
-
-  $("dayTitle").textContent =
-    `${DAY_LABEL[idx]} ${formatDate(date)}`
-    +
-    (
-      h.closed
-      ?
-      " · Chiuso"
-      :
-      ""
-    );
-
-
-  const ap =
-    activeAppointments()
-      .filter(
-        a=>a.date===date
-      );
-
-
-  $("dayAppointments").innerHTML =
-    ap.length
-
-    ?
-
-    ap
-      .sort(
-        (a,b)=>
-          (a.time||"")
-            .localeCompare(
-              b.time||""
-            )
-      )
-      .map(appointmentHtml)
-      .join("")
-
-    :
-
-    `<div class="empty">
-      Nessun appuntamento.
-    </div>`;
-
-
-  if(h.closed){
-
-    $("calendarGrid").innerHTML =
-      `<div class="slot-box closed">
-        Attività chiusa.
-      </div>`;
-
-    return;
-
-  }
-
-
-  const open =
-    toMin(h.start);
-
-  const close =
-    toMin(h.end);
-
-
-  if(
-    open==null ||
-    close==null
-  ){
-
-    $("calendarGrid").innerHTML =
-      `<div class="slot-box closed">
-        Configura gli orari nelle Impostazioni.
-      </div>`;
-
-    return;
-
-  }
-
-
-  let out="";
-
-
-  for(
-    let m=open;
-    m<close;
-    m+=30
-  ){
-
-    const t=fmt(m);
-
-
-    const a =
-      ap.find(
-        x=>x.time===t
-      );
-
-
-    out += `
-
-      <div class="slot">
-
-        <div class="slot-time">
-          ${t}
-        </div>
-
-        <div
-          class="slot-box ${a?"busy":"free"}"
-
-          ${
-            a
-            ?
-            `onclick="openAppointment('${esc(a.id)}')"`
-            :
-            `onclick="quickAppointment('${date}','${t}')"`
-          }
-        >
-
-          ${
-            a
-
-            ?
-
-            `
-              <b>
-                ${esc(a.name)}
-              </b>
-
-              <div class="muted">
-                ${esc(a.service)}
-              </div>
-            `
-
-            :
-
-            `Disponibile`
-          }
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  $("calendarGrid").innerHTML =
-    out;
-
-}
-
-
-function appointmentHtml(a){
-
-  const st =
-    norm(
-      a.status||
-      "confermato"
-    );
-
-
-  const cls =
-    st==="completato"
-    ?
-    "completed"
-    :
-    st==="cancellato"
-    ?
-    "cancelled"
-    :
-    "confirmed";
-
-
-  return `
-
-    <div class="list-item">
-
-      <b>
-        ${esc(a.time)} ·
-        ${esc(a.name)}
-      </b>
-
-      <div class="muted">
-        ${esc(a.service)}
-      </div>
-
-      <span class="badge ${cls}">
-        ${esc(a.status||"confermato")}
-      </span>
-
-      <div class="actions">
-
-        <button
-          class="secondary small"
-          onclick="openAppointment('${esc(a.id)}')">
-
-          Modifica
-
-        </button>
-
-        <button
-          class="danger small"
-          onclick="cancelAppointment('${esc(a.id)}')">
-
-          Annulla
-
-        </button>
-
-        <button
-          class="success small"
-          onclick="completeAppointment('${esc(a.id)}')">
-
-          Completa
-
-        </button>
-
-      </div>
-
-    </div>
+    ${esc(clean.time)}
 
   `;
 
-}
-
-
-/* ============================================================
-   RICERCA APPUNTAMENTI
-============================================================ */
-
-function renderAppointmentSearch(){
-
-  const q =
-    norm(
-      $("appointmentSearch")
-        .value
-    );
-
-
-  if(!q){
-
-    $("appointmentSearchResults")
-      .innerHTML="";
-
-    return;
-
-  }
-
-
-  const arr =
-    data.appointments
-      .filter(
-        a=>
-          norm(a.name)
-            .includes(q)
-      );
-
-
-  $("appointmentSearchResults")
-    .innerHTML =
-
-    arr.length
-
-    ?
-
-    arr
-      .sort(
-        (x,y)=>
-          (
-            x.date+x.time
-          )
-          .localeCompare(
-            y.date+y.time
-          )
-      )
-      .map(x=>`
-
-        <div class="list-item">
-
-          <b>
-            ${esc(x.name)}
-            ·
-            ${formatDate(x.date)}
-            ${" "}
-            ${esc(x.time)}
-          </b>
-
-          <div class="muted">
-            ${esc(x.service)}
-          </div>
-
-        </div>
-
-      `)
-      .join("")
-
-    :
-
-    `<div class="empty">
-      Nessun risultato.
-    </div>`;
+  document.getElementById(
+    "bookingBox"
+  ).classList.add("open");
 
 }
 
 
-/* ============================================================
-   MODIFICA APPUNTAMENTO
-============================================================ */
+function clearBooking(){
 
-function openNewAppointment(
-  date=today(),
-  time=""
-){
-
-  openAppointmentModal({
-
-    id:"",
-
-    name:"",
-
-    date:date,
-
-    time:time,
-
-    service:"",
-
-    status:"confermato"
-
-  });
-
-}
-
-
-function quickAppointment(
-  date,
-  time
-){
-
-  openNewAppointment(
-    date,
-    time
+  localStorage.removeItem(
+    PENDING
   );
 
-}
+  localStorage.removeItem(
+    CONF
+  );
 
-
-function openAppointment(id){
-
-  const a =
-    data.appointments.find(
-      x=>
-        String(x.id)===
-        String(id)
-    );
-
-
-  if(a)
-    openAppointmentModal(a);
+  document.getElementById(
+    "bookingBox"
+  ).classList.remove("open");
 
 }
 
 
-function openAppointmentModal(a){
-
-  openModal(`
-
-    <h3>
-      ${a.id?"Modifica":"Nuovo"}
-      appuntamento
-    </h3>
-
-    <label>
-      Cliente
-    </label>
-
-    <input
-      id="mName"
-      value="${esc(a.name)}">
-
-
-    <label>
-      Data
-    </label>
-
-    <input
-      id="mDate"
-      type="date"
-      value="${esc(a.date)}">
-
-
-    <label>
-      Ora
-    </label>
-
-    <input
-      id="mTime"
-      type="time"
-      value="${esc(a.time)}">
-
-
-    <label>
-      Servizio
-    </label>
-
-    <select id="mService">
-
-      <option value="">
-        Seleziona servizio
-      </option>
-
-      ${data.services.map(s=>`
-
-        <option
-          value="${esc(s.name)}"
-          ${norm(s.name)===norm(a.service)?"selected":""}>
-
-          ${esc(s.name)}
-
-        </option>
-
-      `).join("")}
-
-    </select>
-
-
-    <label>
-      Stato
-    </label>
-
-    <select id="mStatus">
-
-      <option
-        value="confermato"
-        ${norm(a.status)==="confermato"?"selected":""}>
-
-        confermato
-
-      </option>
-
-      <option
-        value="completato"
-        ${norm(a.status)==="completato"?"selected":""}>
-
-        completato
-
-      </option>
-
-      <option
-        value="cancellato"
-        ${norm(a.status)==="cancellato"?"selected":""}>
-
-        cancellato
-
-      </option>
-
-    </select>
-
-
-    <p
-      id="mError"
-      class="muted">
-    </p>
-
-
-    <div class="actions">
-
-      <button
-        class="primary"
-        onclick="saveAppointmentModal('${esc(a.id)}')">
-
-        Salva
-
-      </button>
-
-      <button
-        class="secondary"
-        onclick="closeModal()">
-
-        Chiudi
-
-      </button>
-
-    </div>
-
-  `);
-
-}
-
-
-async function saveAppointmentModal(id){
-
-  const a={
-
-    id:id,
-
-    name:
-      $("mName")
-        .value.trim(),
-
-    date:
-      $("mDate").value,
-
-    time:
-      $("mTime").value,
-
-    service:
-      $("mService").value,
-
-    status:
-      $("mStatus").value
-
-  };
-
-
-  if(
-    !a.name||
-    !a.date||
-    !a.time||
-    !a.service
-  ){
-
-    $("mError").textContent =
-      "Compila tutti i campi.";
-
-    return;
-
-  }
-
-
-  try{
-
-    if(id){
-
-      const old =
-        data.appointments.find(
-          x=>
-            String(x.id)===
-            String(id)
-        );
-
-
-      if(!old)
-        throw Error(
-          "Appuntamento non trovato."
-        );
-
-
-      if(
-        a.status==="cancellato"||
-        a.status==="completato"
-      ){
-
-        Object.assign(
-          old,
-          a
-        );
-
-        ensureClient(a.name);
-
-        save();
-
-        closeModal();
-
-        return;
-
-      }
-
-
-      const withoutOld =
-        data.appointments
-          .filter(
-            x=>
-              String(x.id)!==
-              String(id)
-          );
-
-
-      const check =
-        await businessApi(
-          "availability",
-          {
-            date:a.date,
-            service:a.service,
-            __appointments:
-              withoutOld
-          }
-        );
-
-
-      if(
-        !check.available||
-        !Array.isArray(
-          check.slots
-        )||
-        !check.slots.includes(
-          a.time
-        )
-      ){
-
-        throw Error(
-          "L'orario scelto non è disponibile."
-        );
-
-      }
-
-
-      Object.assign(
-        old,
-        a
-      );
-
-
-      ensureClient(
-        a.name
-      );
-
-
-      save();
-
-      closeModal();
-
-
-    }else{
-
-      await bookAppointment(a);
-
-      closeModal();
-
-    }
-
-  }catch(e){
-
-    $("mError").textContent =
-      e.message ||
-      "Errore.";
-
-  }
-
-}
-
-
-function cancelAppointment(id){
-
-  const a =
-    data.appointments.find(
-      x=>
-        String(x.id)===
-        String(id)
-    );
-
-
-  if(a){
-
-    a.status =
-      "cancellato";
-
-    save();
-
-  }
-
-}
-
-
-function completeAppointment(id){
-
-  const a =
-    data.appointments.find(
-      x=>
-        String(x.id)===
-        String(id)
-    );
-
-
-  if(a){
-
-    a.status =
-      "completato";
-
-    save();
-
-  }
-
-}
-
-
-/* ============================================================
-   CLIENTI
-============================================================ */
-
-function renderClients(){
-
-  const q =
-    norm(
-      $("clientSearch")
-        ?.value||""
-    );
-
-
-  const arr =
-    data.clients.filter(
-      c=>
-        !q ||
-        [
-          c.name,
-          c.phone,
-          c.whatsapp,
-          c.email
-        ]
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
-    );
-
-
-  $("clientsList").innerHTML =
-
-    arr.length
-
-    ?
-
-    arr.map(c=>{
-
-      const hist =
-        data.appointments
-          .filter(
-            a=>
-              norm(a.name)===
-              norm(c.name)
-          );
-
-
-      const next =
-        hist
-          .filter(
-            a=>
-              a.date>=today() &&
-              norm(a.status)
-                !=="cancellato"
-          )
-          .sort(
-            (a,b)=>
-              (
-                a.date+a.time
-              )
-              .localeCompare(
-                b.date+b.time
-              )
-          )[0];
-
-
-      return `
-
-        <div class="list-item">
-
-          <b>
-            ${esc(c.name)}
-          </b>
-
-          <div class="muted">
-
-            ${esc(
-              c.phone||
-              "Nessun telefono"
-            )}
-
-            ·
-
-            ${esc(
-              c.email||
-              "Nessuna email"
-            )}
-
-          </div>
-
-          <div class="muted">
-
-            ${hist.length}
-            appuntamenti
-
-            ${
-              next
-              ?
-              ` · prossimo
-                ${formatDate(next.date)}
-                ${next.time}`
-              :
-              ""
-            }
-
-          </div>
-
-          <div class="actions">
-
-            <button
-              class="primary small"
-              onclick="openClient('${esc(c.id)}')">
-
-              Apri scheda
-
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("")
-
-    :
-
-    `<div class="empty">
-      Nessun cliente.
-    </div>`;
-
-}
-
-
-function openNewClient(){
-
-  openClientModal({
-
-    id:"",
-
-    name:"",
-
-    phone:"",
-
-    whatsapp:"",
-
-    email:"",
-
-    notes:""
-
-  });
-
-}
-
-
-function openClient(id){
-
-  const c =
-    data.clients.find(
-      x=>x.id===id
-    );
-
-
-  if(c)
-    openClientModal(c);
-
-}
-
-
-function openClientModal(c){
-
-  const hist =
-    data.appointments
-      .filter(
-        a=>
-          norm(a.name)===
-          norm(c.name)
-      )
-      .sort(
-        (a,b)=>
-          (
-            b.date+b.time
-          )
-          .localeCompare(
-            a.date+a.time
-          )
-      );
-
-
-  openModal(`
-
-    <h3>
-      Scheda cliente
-    </h3>
-
-
-    <label>
-      Nome
-    </label>
-
-    <input
-      id="cName"
-      value="${esc(c.name)}">
-
-
-    <label>
-      Telefono
-    </label>
-
-    <input
-      id="cPhone"
-      value="${esc(c.phone)}">
-
-
-    <label>
-      WhatsApp
-    </label>
-
-    <input
-      id="cWhatsapp"
-      value="${esc(c.whatsapp)}">
-
-
-    <label>
-      Email
-    </label>
-
-    <input
-      id="cEmail"
-      value="${esc(c.email)}">
-
-
-    <label>
-      Note
-    </label>
-
-    <textarea
-      id="cNotes"
-      rows="5">${esc(c.notes)}</textarea>
-
-
-    <hr class="divider">
-
-
-    <h4>
-      Storico
-    </h4>
-
-
-    ${
-      hist.length
-
-      ?
-
-      hist.map(a=>`
-
-        <div class="list-item">
-
-          <b>
-            ${formatDate(a.date)}
-            ·
-            ${esc(a.time)}
-          </b>
-
-          <div class="muted">
-
-            ${esc(a.service)}
-            ·
-            ${esc(
-              a.status||
-              "confermato"
-            )}
-
-          </div>
-
-        </div>
-
-      `).join("")
-
-      :
-
-      `<div class="empty">
-        Nessun appuntamento.
-      </div>`
-    }
-
-
-    <div class="actions">
-
-      <button
-        class="primary"
-        onclick="saveClientModal('${esc(c.id)}')">
-
-        Salva
-
-      </button>
-
-      <button
-        class="secondary"
-        onclick="closeModal()">
-
-        Chiudi
-
-      </button>
-
-    </div>
-
-  `);
-
-}
-
-
-function saveClientModal(id){
-
-  const c={
-
-    id:id||uid(),
-
-    name:
-      $("cName")
-        .value.trim(),
-
-    phone:
-      $("cPhone")
-        .value.trim(),
-
-    whatsapp:
-      $("cWhatsapp")
-        .value.trim(),
-
-    email:
-      $("cEmail")
-        .value.trim(),
-
-    notes:
-      $("cNotes")
-        .value.trim(),
-
-    createdAt:
-      new Date().toISOString()
-
-  };
-
-
-  if(!c.name)
-    return;
-
-
-  if(id){
-
-    const old =
-      data.clients.find(
-        x=>x.id===id
-      );
-
-
-    if(old){
-
-      const oldName =
-        old.name;
-
-      Object.assign(
-        old,
-        c
-      );
-
-
-      data.appointments
-        .forEach(a=>{
-
-          if(
-            norm(a.name)===
-            norm(oldName)
-          ){
-
-            a.name=c.name;
-
-          }
-
-        });
-
-    }
-
-  }else{
-
-    data.clients.push(c);
-
-  }
-
-
-  save();
-
-  closeModal();
-
-}
-
-
-/* ============================================================
-   STORICO MAVI
-============================================================ */
-
-function history(){
+function getPendingBooking(){
 
   try{
 
     return JSON.parse(
-      localStorage.getItem(HIST)||"[]"
-    ).slice(-20);
-
-  }catch{
-
-    return [];
-
-  }
-
-}
-
-
-function saveHistory(
-  user,
-  assistant
-){
-
-  const h=history();
-
-  h.push(
-    {
-      role:"user",
-      content:user
-    },
-    {
-      role:"assistant",
-      content:assistant
-    }
-  );
-
-
-  localStorage.setItem(
-    HIST,
-    JSON.stringify(
-      h.slice(-20)
-    )
-  );
-
-}
-
-
-function clearMaviHistory(){
-
-  localStorage.removeItem(
-    HIST
-  );
-
-
-  $("chat").innerHTML =
-    `
-      <div class="msg bot">
-        Conversazione cancellata.
-        Sono Mavi, pronta.
-      </div>
-    `;
-
-
-  setMaviState(
-    "ready"
-  );
-
-}
-
-
-/* ============================================================
-   STATO VISIVO MAVI
-============================================================ */
-
-function setMaviState(
-  state,
-  detail=""
-){
-
-  clearTimeout(
-    visualThinkingTimer
-  );
-
-
-  const labels={
-
-    ready:
-      "Mavi è pronta",
-
-    processing:
-      "Mavi sta elaborando…",
-
-    loading:
-      "Mavi si sta preparando…",
-
-    listening:
-      "Mavi ti sta ascoltando…",
-
-    speaking:
-      "Mavi sta parlando…",
-
-    error:
-      "Mavi è pronta"
-
-  };
-
-
-  const label =
-    detail ||
-    labels[state] ||
-    labels.ready;
-
-
-  $("maviStatus")
-    .textContent=label;
-
-
-  $("homeEngineStatus")
-    .textContent=label;
-
-
-  $("maviStatus")
-    .className =
-      "engine-status "+
-      (
-        state==="error"
-        ?
-        "error"
-        :
-        state==="ready"
-        ?
-        "ready"
-        :
-        ""
-      );
-
-
-  if(state==="processing"){
-
-    $("enginePill")
-      .textContent =
-        "Mavi · al lavoro…";
-
-  }else if(
-    state==="listening"
-  ){
-
-    $("enginePill")
-      .textContent =
-        "Mavi · ascolto…";
-
-  }else if(
-    state==="speaking"
-  ){
-
-    $("enginePill")
-      .textContent =
-        "Mavi · parla…";
-
-  }else if(
-    state==="loading"
-  ){
-
-    $("enginePill")
-      .textContent =
-        "Mavi · preparazione…";
-
-  }else if(
-    state==="error"
-  ){
-
-    $("enginePill")
-      .textContent =
-        "Mavi · attiva";
-
-  }else{
-
-    $("enginePill")
-      .textContent =
-        "Mavi · pronta";
-
-  }
-
-}
-
-
-/* ============================================================
-   PENDING PRENOTAZIONE
-============================================================ */
-
-function normalizeBookingDate(
-  value
-){
-
-  if(!value)
-    return "";
-
-  const v=
-    String(value)
-      .trim();
-
-
-  if(
-    /^\d{4}-\d{2}-\d{2}$/
-      .test(v)
-  ){
-
-    return v;
-
-  }
-
-
-  return "";
-
-}
-
-
-function normalizeBookingTime(
-  value
-){
-
-  if(!value)
-    return "";
-
-  const v =
-    String(value)
-      .trim();
-
-
-  const m =
-    v.match(
-      /^(\d{1,2})(?::(\d{2}))?$/
+      localStorage.getItem(
+        PENDING
+      ) || "null"
     );
 
+  }catch(e){
 
-  if(!m)
-    return "";
-
-
-  const hh =
-    Number(m[1]);
-
-  const mm =
-    Number(m[2]||"00");
-
-
-  if(
-    hh<0||
-    hh>23||
-    mm<0||
-    mm>59
-  ){
-
-    return "";
-
+    return null;
   }
-
-
-  return String(hh)
-    .padStart(2,"0")
-    +
-    ":"
-    +
-    String(mm)
-      .padStart(2,"0");
-
-}
-
-
-function setMaviPendingAppointment(
-  a
-){
-
-  if(!a)
-    return;
-
-
-  const appointment={
-
-    name:
-      String(
-        a.name||
-        a.clientName||
-        ""
-      ).trim(),
-
-    date:
-      normalizeBookingDate(
-        a.date
-      ),
-
-    time:
-      normalizeBookingTime(
-        a.time
-      ),
-
-    service:
-      String(
-        a.service||
-        ""
-      ).trim()
-
-  };
-
-
-  if(
-    !appointment.name||
-    !appointment.date||
-    !appointment.time||
-    !appointment.service
-  ){
-
-    return;
-
-  }
-
-
-  pendingMaviAppointment =
-    appointment;
-
-
-  localStorage.setItem(
-    PENDING,
-    JSON.stringify(
-      appointment
-    )
-  );
-
-
-  showMaviBookingButton();
-
-}
-
-
-function restoreMaviPendingAppointment(){
-
-  try{
-
-    const p =
-      JSON.parse(
-        localStorage.getItem(
-          PENDING
-        )||"null"
-      );
-
-
-    if(
-      p &&
-      p.name &&
-      p.date &&
-      p.time &&
-      p.service
-    ){
-
-      pendingMaviAppointment=p;
-
-      showMaviBookingButton();
-
-    }
-
-  }catch{}
-
-}
-
-
-function showMaviBookingButton(){
-
-  const p =
-    pendingMaviAppointment;
-
-
-  if(!p)
-    return;
-
-
-  const box =
-    $("maviBookingBox");
-
-
-  if(!box)
-    return;
-
-
-  $("maviBookingSummary")
-    .innerHTML =
-
-      `
-        <b>
-          ${esc(p.name)}
-        </b>
-
-        <br>
-
-        ${esc(
-          formatDate(p.date)
-        )}
-
-        ·
-
-        ${esc(p.time)}
-
-        <br>
-
-        <b>
-          ${esc(p.service)}
-        </b>
-      `;
-
-
-  $("maviBookingStatus")
-    .textContent =
-      "L'orario è stato verificato. La prenotazione verrà salvata solo dopo la tua conferma.";
-
-
-  const button =
-    $("maviConfirmBooking");
-
-
-  button.disabled=false;
-
-  button.textContent =
-    "Conferma prenotazione";
-
-
-  box.style.display =
-    "block";
-
-
-  box.scrollIntoView({
-    behavior:"smooth",
-    block:"nearest"
-  });
-
-}
-
-
-function hideMaviBookingButton(){
-
-  const box =
-    $("maviBookingBox");
-
-
-  if(box)
-    box.style.display =
-      "none";
 
 }
 
 
 /* ============================================================
    CONFERMA PRENOTAZIONE
+   IMPORTANTE:
+   QUI AVVIENE IL PRIMO E UNICO SALVATAGGIO LOCALE
+   DOPO LA CONFERMA DELL'UTENTE.
 ============================================================ */
 
-async function confirmMaviBooking(){
+async function confirmBooking(){
 
-  if(
-    busy||
-    !pendingMaviAppointment
-  ){
-
+  if(bookingBusy){
     return;
-
   }
 
+  const pending =
+    getPendingBooking();
 
-  const p={
-    ...pendingMaviAppointment
-  };
+  if(!pending){
 
+    toast(
+      "Nessuna prenotazione da confermare"
+    );
+
+    return;
+  }
+
+  if(
+    !pending.name ||
+    !pending.date ||
+    !pending.time ||
+    !pending.service
+  ){
+
+    toast(
+      "Prenotazione incompleta"
+    );
+
+    return;
+  }
 
   const button =
-    $("maviConfirmBooking");
+    document.getElementById(
+      "confirmBooking"
+    );
 
+  bookingBusy = true;
 
-  const status =
-    $("maviBookingStatus");
+  button.disabled = true;
 
-
-  busy=true;
-
-
-  button.disabled=true;
+  const originalText =
+    button.textContent;
 
   button.textContent =
-    "Verifico e salvo…";
-
-
-  status.textContent =
-    "Mavi sta verificando nuovamente la disponibilità…";
-
+    "Verifica disponibilità…";
 
   try{
 
     /*
-     * SECONDO CONTROLLO DI DISPONIBILITÀ.
-     */
+      Il Business Engine esegue nuovamente
+      il controllo della disponibilità.
+    */
 
-    const check =
-      await businessApi(
-        "availability",
+    const result =
+      await api(
+        "book",
         {
-          date:p.date,
-          service:p.service
+          date:
+            pending.date,
+
+          time:
+            pending.time,
+
+          service:
+            pending.service,
+
+          name:
+            pending.name,
+
+          clientName:
+            pending.name,
+
+          phone:
+            pending.phone || ""
         }
       );
 
-
     if(
-      !check||
-      !check.available||
-      !Array.isArray(
-        check.slots
-      )||
-      !check.slots.includes(
-        p.time
-      )
+      !result ||
+      !result.bookingConfirmed
     ){
 
-      throw Error(
-        "L'orario non è più disponibile. Non ho effettuato la prenotazione."
+      toast(
+        result?.error ||
+        "Orario non più disponibile"
       );
 
+      return;
     }
 
+    const returnedAppointment =
+      result.appointment ||
+      result.booking ||
+      pending;
 
     /*
-     * PRENOTAZIONE DEFINITIVA.
-     */
+      Protezione aggiuntiva:
+      non inserire due volte lo stesso
+      appuntamento.
+    */
 
-    await bookAppointment(p);
+    const duplicate =
+      appData.appointments.some(
+        appointment =>
 
+          active(appointment) &&
 
-    pendingMaviAppointment =
-      null;
+          appointment.date ===
+            returnedAppointment.date &&
 
+          appointment.time ===
+            returnedAppointment.time &&
 
-    localStorage.removeItem(
-      PENDING
-    );
+          String(
+            appointment.service
+          ).trim().toLowerCase() ===
+            String(
+              returnedAppointment.service
+            ).trim().toLowerCase()
 
+      );
 
-    hideMaviBookingButton();
+    if(duplicate){
 
+      clearBooking();
 
-    const confirmation =
-      `Prenotazione confermata.\n\n`+
-      `${p.name}, ${formatDate(p.date)} alle ${p.time}.\n`+
-      `Servizio: ${p.service}.\n\n`+
-      `L'appuntamento è stato salvato nel calendario.`;
+      addMsg(
+        "La prenotazione risulta già presente nel calendario.",
+        "system"
+      );
 
+      showPage("calendar");
 
-    addChat(
-      confirmation,
-      "bot"
-    );
+      return;
+    }
 
+    const appointment = {
 
-    saveHistory(
-      "Conferma prenotazione",
-      confirmation
-    );
+      ...returnedAppointment,
 
+      id:
+        returnedAppointment.id ||
+        uid("apt"),
 
-    setMaviState(
-      "ready",
-      "Prenotazione salvata nel calendario."
-    );
+      name:
+        returnedAppointment.name ||
+        pending.name,
 
+      phone:
+        returnedAppointment.phone ||
+        pending.phone ||
+        "",
+
+      date:
+        returnedAppointment.date ||
+        pending.date,
+
+      time:
+        returnedAppointment.time ||
+        pending.time,
+
+      service:
+        returnedAppointment.service ||
+        pending.service,
+
+      status:
+        returnedAppointment.status ||
+        "confermato",
+
+      createdAt:
+        returnedAppointment.createdAt ||
+        new Date().toISOString(),
+
+      confirmedAt:
+        new Date().toISOString()
+
+    };
 
     /*
-     * PORTA IL CALENDARIO
-     * SULLA DATA PRENOTATA.
-     */
+      SALVATAGGIO LOCALE:
+      avviene soltanto adesso.
+    */
 
-    $("calendarDate").value =
-      p.date;
+    appData.appointments.push(
+      appointment
+    );
 
+    ensureClient(
+      appointment
+    );
+
+    saveData();
+
+    clearBooking();
+
+    addMsg(
+      `Prenotazione confermata per ${appointment.name}, ${fmtDate(appointment.date)} alle ${appointment.time}.`,
+      "bot",
+      true
+    );
+
+    showPage(
+      "calendar"
+    );
+
+    document.getElementById(
+      "calendarDate"
+    ).value =
+      appointment.date;
 
     renderCalendar();
 
+  }catch(error){
 
-    /*
-     * AGGIORNA LA DASHBOARD.
-     */
-
-    renderAll();
-
-
-    /*
-     * RISPOSTA VOCALE.
-     */
-
-    speakText(
-      `Prenotazione confermata per ${p.name}, `+
-      `${formatDate(p.date)} alle ${p.time}.`
+    console.error(
+      "Maviri booking error:",
+      error
     );
 
-
-  }catch(e){
-
-    button.disabled=false;
-
-    button.textContent =
-      "Conferma prenotazione";
-
-
-    status.textContent =
-      e.message||
-      "Non è stato possibile completare la prenotazione.";
-
-
-    setMaviState(
-      "error",
-      e.message||
-      "Prenotazione non completata."
+    toast(
+      "Errore durante la verifica della prenotazione"
     );
-
 
   }finally{
 
-    busy=false;
+    bookingBusy = false;
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      originalText;
 
   }
 
@@ -4738,504 +4022,228 @@ async function confirmMaviBooking(){
 
 
 /* ============================================================
-   ANNULLA PRENOTAZIONE PENDENTE
+   INVIO A MAVI
 ============================================================ */
 
-function cancelMaviBooking(){
+async function send(){
 
-  pendingMaviAppointment =
-    null;
-
-
-  localStorage.removeItem(
-    PENDING
-  );
-
-
-  hideMaviBookingButton();
-
-
-  addChat(
-    "Va bene. Non ho effettuato alcuna prenotazione.",
-    "bot"
-  );
-
-
-  saveHistory(
-    "Annulla prenotazione",
-    "Va bene. Non ho effettuato alcuna prenotazione."
-  );
-
-}
-
-
-/* ============================================================
-   MAVI ENGINE
-============================================================ */
-
-async function preloadMavi(){
-
-  if(
-    !window.MaviAI?.preload
-  ){
-
-    setMaviState(
-      "ready",
-      "Mavi è pronta"
+  const input =
+    document.getElementById(
+      "chatInput"
     );
 
+  const text =
+    input.value.trim();
+
+  if(!text){
     return;
-
   }
 
+  input.value = "";
 
-  setMaviState(
-    "loading"
-  );
-
-
-  try{
-
-    await window.MaviAI.preload();
-
-    setMaviState(
-      "ready"
-    );
-
-  }catch(e){
-
-    /*
-     * Il preload non deve bloccare
-     * l'interfaccia.
-     */
-
-    console.warn(
-      "Preload Mavi:",
-      e
-    );
-
-
-    setMaviState(
-      "ready"
-    );
-
-  }
-
-}
-
-
-/* ============================================================
-   CHAT
-============================================================ */
-
-function addChat(
-  text,
-  role
-){
-
-  const d =
-    document.createElement(
-      "div"
-    );
-
-
-  d.className =
-    "msg "+role;
-
-
-  d.textContent =
-    text;
-
-
-  $("chat")
-    .appendChild(d);
-
-
-  $("chat")
-    .scrollTop =
-      $("chat").scrollHeight;
-
-}
-
-
-/* ============================================================
-   MAVI
-============================================================ */
-
-async function askMavi(
-  text=
-    $("maviInput")
-      .value.trim(),
-  speak=true
-){
-
-  if(
-    busy||
-    !text
-  ){
-
-    return;
-
-  }
-
-
-  /*
-   * "prenoto" / "confermo"
-   * dopo una prenotazione pendente
-   * deve aprire direttamente la
-   * conferma, non ripartire da zero.
-   */
-
-  if(
-    pendingMaviAppointment &&
-    /^(prenoto|prenotiamo|confermo|conferma|va bene|ok|si|sì)$/i
-      .test(
-        text.trim()
-      )
-  ){
-
-    $("maviInput").value="";
-
-    addChat(
-      text,
-      "user"
-    );
-
-
-    addChat(
-      "Ho preparato la prenotazione. Usa il pulsante qui sopra per confermarla.",
-      "bot"
-    );
-
-
-    showMaviBookingButton();
-
-    return;
-
-  }
-
-
-  busy=true;
-
-
-  $("maviInput").value="";
-
-  $("maviSend").disabled=true;
-
-
-  addChat(
+  addMsg(
     text,
     "user"
   );
 
+  const status =
+    document.getElementById(
+      "engineStatus"
+    );
 
-  setMaviState(
-    "processing"
+  status.textContent =
+    "Mavi sta elaborando…";
+
+  status.classList.remove(
+    "error"
   );
-
 
   try{
 
+    let response = null;
+
+    /*
+      1.
+      Mavi Engine locale.
+    */
+
     if(
-      !window.MaviAI?.ask
+      window.MaviEngine &&
+      typeof window.MaviEngine.respond ===
+        "function"
     ){
 
-      throw Error(
-        "Mavi Engine non disponibile."
-      );
-
-    }
-
-
-    const ctx={
-
-      ...data,
-
-      business:
-        data.business?.name||
-        data.settings?.name||
-        "Attività locale"
-
-    };
-
-
-    const r =
-      await window.MaviAI.ask({
-
-        message:text,
-
-        history:
-          history(),
-
-        businessData:ctx,
-
-        temperature:.35,
-
-        /*
-         * Il motore riceve esplicitamente
-         * la regola della prenotazione.
-         */
-
-        intentRules:{
-
-          appointments:{
-
-            requireUserConfirmation:true,
-
-            neverSaveBeforeConfirmation:true,
-
-            afterAvailabilityConfirmed:
-              "show_confirmation_button",
-
-            confirmationAction:
-              "confirmMaviBooking"
-
+      response =
+        await window.MaviEngine.respond(
+          text,
+          {
+            appData,
+            history
           }
-
-        }
-
-      });
-
-
-    if(!r?.ok){
-
-      throw Error(
-        r?.error||
-        "Errore Mavi."
-      );
+        );
 
     }
-
-
-    const reply =
-      r.reply||
-      "Non ho ricevuto una risposta da Mavi.";
-
-
-    addChat(
-      reply,
-      "bot"
-    );
-
-
-    saveHistory(
-      text,
-      reply
-    );
-
 
     /*
-     * SUPPORTO A PIÙ FORMATI DI RISPOSTA
-     * DEL MOTORE.
-     */
+      Alcune versioni del motore possono
+      restituire una stringa.
+    */
 
     if(
-      r.pendingAppointment
+      typeof response ===
+      "string"
     ){
 
-      setMaviPendingAppointment(
-        r.pendingAppointment
+      addMsg(
+        response,
+        "bot",
+        true
       );
 
+      return;
     }
 
 
     if(
-      r.booking
+      response &&
+      typeof response ===
+      "object"
     ){
 
-      setMaviPendingAppointment(
-        r.booking
-      );
+      if(response.text){
 
-    }
+        addMsg(
+          response.text,
+          "bot",
+          true
+        );
 
+      }
 
-    if(
-      r.appointmentDraft
-    ){
+      if(
+        response.appointment &&
+        response.appointment.date &&
+        response.appointment.time &&
+        response.appointment.service &&
+        response.appointment.name
+      ){
 
-      setMaviPendingAppointment(
-        r.appointmentDraft
-      );
+        setBooking(
+          response.appointment
+        );
 
+      }
+
+      return;
     }
 
 
     /*
-     * Se il motore restituisce
-     * confirmed + appointment,
-     * la prenotazione è definitiva
-     * solo se il backend l'ha realmente
-     * confermata.
-     */
+      Compatibilità con eventuale
+      vecchia interfaccia Mavi.
+    */
 
     if(
-      r.confirmed===true &&
-      r.appointment
+      window.Mavi &&
+      typeof window.Mavi.chat ===
+        "function"
     ){
 
-      await finalizeEngineAppointment(
-        r.appointment
-      );
+      response =
+        await window.Mavi.chat(
+          text,
+          {
+            appData,
+            history
+          }
+        );
 
+      if(
+        typeof response ===
+        "string"
+      ){
+
+        addMsg(
+          response,
+          "bot",
+          true
+        );
+
+        return;
+      }
+
+      if(response?.text){
+
+        addMsg(
+          response.text,
+          "bot",
+          true
+        );
+
+      }
+
+      if(response?.appointment){
+
+        setBooking(
+          response.appointment
+        );
+
+      }
+
+      return;
     }
 
 
-    setMaviState(
-      "ready"
+    /*
+      Business Engine soltanto come
+      fallback operativo.
+    */
+
+    const context =
+      await api(
+        "context"
+      );
+
+    let fallback =
+      "Sono Mavi. Posso aiutarti con appuntamenti, servizi, disponibilità e informazioni dell'attività.";
+
+    if(context?.business){
+
+      fallback +=
+        " Attività: " +
+        context.business +
+        ".";
+
+    }
+
+    addMsg(
+      fallback,
+      "bot",
+      true
     );
 
+  }catch(error){
 
-    if(speak)
-      speakText(reply);
-
-
-  }catch(e){
-
-    const msg =
-      e.message||
-      "Non riesco a completare la richiesta.";
-
-
-    addChat(
-      msg,
-      "bot"
+    console.error(
+      "Mavi error:",
+      error
     );
 
-
-    setMaviState(
-      "error",
-      msg
+    addMsg(
+      "Non riesco a elaborare la richiesta in questo momento. Il motore locale di Mavi potrebbe essere ancora in caricamento.",
+      "system"
     );
 
+    status.classList.add(
+      "error"
+    );
 
   }finally{
 
-    busy=false;
-
-    $("maviSend")
-      .disabled=false;
-
-
-    if(
-      !listening
-    ){
-
-      setTimeout(
-        ()=>{
-          if(!busy)
-            setMaviState(
-              "ready"
-            );
-        },
-        250
-      );
-
-    }
+    status.textContent =
+      "Mavi pronta";
 
   }
-
-}
-
-
-/* ============================================================
-   RISPOSTA CON PRENOTAZIONE GIÀ CONFERMATA
-============================================================ */
-
-async function finalizeEngineAppointment(
-  a
-){
-
-  if(
-    !a||
-    !validDate(a.date)||
-    !validTime(a.time)
-  ){
-
-    return;
-
-  }
-
-
-  /*
-   * Il backend deve aver restituito
-   * una conferma reale.
-   */
-
-  const duplicate =
-    data.appointments.some(
-      x=>
-        x.date===a.date&&
-        x.time===a.time&&
-        norm(x.status||"confermato")
-          !=="cancellato"
-    );
-
-
-  if(!duplicate){
-
-    const c =
-      ensureClient(
-        a.name||
-        a.clientName||
-        ""
-      );
-
-
-    data.appointments.push({
-
-      id:
-        a.bookingKey||
-        a.id||
-        uid(),
-
-      name:
-        a.name||
-        a.clientName||
-        "",
-
-      date:a.date,
-
-      time:a.time,
-
-      service:
-        a.service||
-        "",
-
-      clientId:
-        c?.id||
-        "",
-
-      status:
-        "confermato",
-
-      createdAt:
-        new Date().toISOString(),
-
-      updatedAt:
-        new Date().toISOString()
-
-    });
-
-
-    persist();
-
-    renderAll();
-
-  }
-
-
-  pendingMaviAppointment =
-    null;
-
-
-  localStorage.removeItem(
-    PENDING
-  );
-
-
-  hideMaviBookingButton();
 
 }
 
@@ -5244,607 +4252,608 @@ async function finalizeEngineAppointment(
    VOCE
 ============================================================ */
 
-function speakText(text){
+function setupVoice(){
 
-  if(
-    !("speechSynthesis"in window)
-  )
-    return;
-
-
-  if(!text)
-    return;
-
-
-  speechSynthesis.cancel();
-
-
-  const u =
-    new SpeechSynthesisUtterance(
-      text
-    );
-
-
-  u.lang =
-    "it-IT";
-
-
-  u.rate =
-    .98;
-
-
-  u.onstart=()=>{
-
-    setMaviState(
-      "speaking"
-    );
-
-  };
-
-
-  u.onend=()=>{
-
-    if(!busy)
-      setMaviState(
-        "ready"
-      );
-
-  };
-
-
-  u.onerror=()=>{
-
-    if(!busy)
-      setMaviState(
-        "ready"
-      );
-
-  };
-
-
-  speechSynthesis.speak(u);
-
-}
-
-
-/* ============================================================
-   VOICE INPUT
-============================================================ */
-
-function toggleVoice(){
-
-  if(listening){
-
-    stopVoice();
-
-    return;
-
-  }
-
-
-  const SR =
-    window.SpeechRecognition||
+  const SpeechRecognition =
+    window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
+  if(!SpeechRecognition){
 
-  if(!SR){
-
-    addChat(
-      "Il riconoscimento vocale non è disponibile in questo browser.",
-      "bot"
-    );
+    document.getElementById(
+      "engineStatus"
+    ).textContent =
+      "Riconoscimento vocale non disponibile";
 
     return;
-
   }
 
-
   recognition =
-    new SR();
-
+    new SpeechRecognition();
 
   recognition.lang =
     "it-IT";
 
+  recognition.interimResults =
+    false;
 
   recognition.continuous =
     false;
 
-
-  recognition.interimResults =
-    false;
-
-
-  if(
-    "processLocally" in recognition
-  ){
-
-    try{
-
-      recognition.processLocally =
-        true;
-
-    }catch{}
-
-  }
+  recognition.maxAlternatives =
+    1;
 
 
-  recognition.onstart=()=>{
+  recognition.onstart =
+    () => {
 
-    listening=true;
+      listening = true;
 
+      document
+        .getElementById("mic")
+        .classList.add(
+          "listening"
+        );
 
-    $("micButton")
-      .classList
-      .add("listening");
+      document.getElementById(
+        "voiceState"
+      ).textContent =
+        "Ascolto…";
 
-
-    $("voiceLabel")
-      .textContent =
-      "Sto ascoltando…";
-
-
-    setMaviState(
-      "listening"
-    );
-
-  };
+    };
 
 
-  recognition.onresult=e=>{
+  recognition.onresult =
+    event => {
 
-    const text =
-      e.results?.[0]?.[0]
-        ?.transcript
-        ?.trim();
+      const transcript =
+        event
+          .results?.[0]?.[0]
+          ?.transcript || "";
+
+      if(!transcript){
+        return;
+      }
+
+      document.getElementById(
+        "chatInput"
+      ).value =
+        transcript;
+
+      send();
+
+    };
 
 
-    if(text){
+  recognition.onerror =
+    event => {
 
-      $("maviInput")
-        .value=text;
-
-
-      askMavi(
-        text,
-        true
+      console.warn(
+        "Speech recognition:",
+        event.error
       );
 
-    }
+      document.getElementById(
+        "voiceState"
+      ).textContent =
+        "Mavi pronta";
 
-  };
-
-
-  recognition.onerror=e=>{
-
-    console.warn(
-      "SpeechRecognition:",
-      e
-    );
+    };
 
 
-    stopVoice();
+  recognition.onend =
+    () => {
 
-  };
+      listening = false;
 
+      document
+        .getElementById("mic")
+        .classList.remove(
+          "listening"
+        );
 
-  recognition.onend=()=>{
+      document.getElementById(
+        "voiceState"
+      ).textContent =
+        "Mavi pronta";
 
-    stopVoice();
-
-  };
-
-
-  try{
-
-    recognition.start();
-
-  }catch(e){
-
-    console.warn(e);
-
-  }
+    };
 
 }
 
 
-function stopVoice(){
+document
+  .getElementById("mic")
+  .addEventListener(
+    "click",
+    () => {
 
-  if(recognition){
+      if(!recognition){
 
-    try{
-      recognition.stop();
-    }catch{}
+        toast(
+          "Microfono non disponibile su questo browser"
+        );
 
+        return;
+      }
+
+      try{
+
+        if(listening){
+
+          recognition.stop();
+
+        }else{
+
+          recognition.start();
+
+        }
+
+      }catch(error){
+
+        console.warn(
+          "Microphone:",
+          error
+        );
+
+      }
+
+    }
+  );
+
+
+function speak(text){
+
+  if(
+    !("speechSynthesis" in window) ||
+    !text
+  ){
+    return;
   }
 
+  window.speechSynthesis.cancel();
 
-  listening=false;
-
-
-  $("micButton")
-    .classList
-    .remove("listening");
-
-
-  $("voiceLabel")
-    .textContent =
-      "Premi il microfono";
-
-
-  if(!busy){
-
-    setMaviState(
-      "ready"
+  const utterance =
+    new SpeechSynthesisUtterance(
+      String(text)
     );
 
-  }
+  utterance.lang =
+    "it-IT";
+
+  utterance.rate =
+    0.98;
+
+  utterance.pitch =
+    1;
+
+  window.speechSynthesis.speak(
+    utterance
+  );
 
 }
 
 
 /* ============================================================
-   CONTENUTI
+   GENERAZIONE CONTENUTI
 ============================================================ */
 
 async function generatePost(){
 
   const topic =
-    $("postTopic")
-      .value.trim();
+    document.getElementById(
+      "postTopic"
+    ).value.trim();
 
+  if(!topic){
 
-  const extra =
-    $("postExtra")
-      .value.trim();
-
-
-  const type =
-    $("postType")
-      .value;
-
-
-  const style =
-    $("postStyle")
-      .value;
-
-
-  const platform =
-    selectedPlatform;
-
-
-  if(
-    !topic &&
-    !data.services.length &&
-    !data.promotions.length
-  ){
-
-    $("postStatus")
-      .textContent =
-        "Inserisci un argomento.";
+    toast(
+      "Inserisci un argomento"
+    );
 
     return;
-
   }
 
+  const output =
+    document.getElementById(
+      "postOutput"
+    );
 
-  const button =
-    $("postButton");
-
-
-  button.disabled=true;
-
-
-  $("postStatus")
-    .textContent =
-      "Mavi sta creando il contenuto…";
-
+  output.value =
+    "Mavi sta preparando il contenuto…";
 
   try{
 
+    /*
+      Prima prova il motore Mavi locale.
+    */
+
     if(
-      !window.MaviAI?.ask
+      window.MaviEngine &&
+      typeof window.MaviEngine.respond ===
+        "function"
     ){
 
-      throw Error(
-        "Mavi Engine non disponibile."
-      );
+      const response =
+        await window.MaviEngine.respond(
+          `
+          Crea un testo professionale
+          per un post social.
+
+          Argomento:
+          ${topic}
+
+          Attività:
+          ${appData.business.name || ""}
+
+          Tipo:
+          ${appData.business.type || ""}
+
+          Descrizione:
+          ${appData.business.description || ""}
+
+          Servizi disponibili:
+          ${
+            appData.services
+              .map(
+                service =>
+                  service.name +
+                  (
+                    service.price != null
+                      ? " (" +
+                        service.price +
+                        " €)"
+                      : ""
+                  )
+              )
+              .join(", ")
+          }
+
+          Promozioni:
+          ${
+            appData.promotions
+              .map(
+                promotion =>
+                  promotion.title +
+                  ": " +
+                  promotion.text
+              )
+              .join(" | ")
+          }
+
+          Non inventare prezzi,
+          servizi o promozioni.
+          `,
+          {
+            appData,
+            history
+          }
+        );
+
+      const text =
+        typeof response === "string"
+          ? response
+          : response?.text;
+
+      if(text){
+
+        output.value =
+          text;
+
+        return;
+      }
 
     }
-
-
-    const prompt =
-`Crea un contenuto per ${platform}.
-Tipo: ${type}.
-Stile: ${style}.
-Argomento: ${topic||"usa i dati disponibili dell'attività"}.
-Indicazioni: ${extra||"nessuna"}.
-
-Usa esclusivamente dati reali presenti nei dati dell'attività.
-Non inventare prezzi, servizi, promozioni, orari o informazioni.
-Restituisci direttamente il testo pronto da pubblicare.`;
-
-
-    const ctx={
-
-      ...data,
-
-      business:
-        data.business?.name||
-        data.settings?.name||
-        "Attività locale"
-
-    };
-
-
-    const r =
-      await window.MaviAI.ask({
-
-        message:prompt,
-
-        history:[],
-
-        businessData:ctx,
-
-        temperature:.6
-
-      });
-
-
-    if(!r?.ok){
-
-      throw Error(
-        r?.error||
-        "Errore Mavi."
-      );
-
-    }
-
-
-    $("postOutput")
-      .value =
-        r.reply||"";
-
-
-    $("postStatus")
-      .textContent =
-        "Contenuto generato da Mavi.";
-
-  }catch(e){
-
-    $("postStatus")
-      .textContent =
-        e.message||
-        "Errore Mavi.";
-
-  }finally{
-
-    button.disabled=false;
-
-  }
-
-}
-
-
-function selectPlatform(el){
-
-  document
-    .querySelectorAll(
-      ".platforms button"
-    )
-    .forEach(
-      b=>
-        b.classList
-          .remove("active")
-    );
-
-
-  el.classList.add(
-    "active"
-  );
-
-
-  selectedPlatform =
-    el.dataset.platform;
-
-}
-
-
-function copyText(id){
-
-  const t =
-    $(id).value;
-
-
-  if(
-    navigator.clipboard
-  ){
-
-    navigator.clipboard
-      .writeText(t);
-
-  }
-
-}
-
-
-/* ============================================================
-   MODALE
-============================================================ */
-
-function openModal(
-  content
-){
-
-  $("modal")
-    .innerHTML =
-      content;
-
-
-  $("modalBg")
-    .classList
-    .add("open");
-
-}
-
-
-function closeModal(){
-
-  $("modalBg")
-    .classList
-    .remove("open");
-
-
-  $("modal")
-    .innerHTML="";
-
-}
-
-
-/* ============================================================
-   STATO ENGINE
-============================================================ */
-
-window.addEventListener(
-  "mavi-engine-status",
-  e=>{
-
-    const d =
-      e.detail||{};
-
-
-    const s =
-      d.status||"";
-
-
-    const t =
-      d.detail||"";
 
 
     /*
-     * Il vecchio problema:
-     * "Mavi · elaborazione…" fisso.
-     *
-     * Se una risposta è arrivata,
-     * il risultato non può più essere
-     * sovrascritto da uno stato thinking
-     * tardivo.
-     */
+      Fallback semplice.
+    */
 
-    if(
-      busy &&
-      s==="thinking"
-    ){
+    output.value =
+      `${topic}
 
-      return;
+${appData.business.name || "La tua attività"} comunica con professionalità e attenzione.
 
-    }
+Scrivi qui il messaggio definitivo da pubblicare, utilizzando esclusivamente i servizi e le informazioni disponibili nell'attività.`;
 
+  }catch(error){
 
-    if(
-      s==="ready"||
-      s==="idle"
-    ){
+    console.error(
+      "Post generation:",
+      error
+    );
 
-      if(!busy){
-
-        setMaviState(
-          "ready",
-          t||
-          "Mavi è pronta"
-        );
-
-      }
-
-      return;
-
-    }
-
-
-    if(
-      s==="loading"
-    ){
-
-      if(!busy)
-        setMaviState(
-          "loading",
-          t||
-          "Mavi si sta preparando…"
-        );
-
-      return;
-
-    }
-
-
-    if(
-      s==="thinking"
-    ){
-
-      if(busy)
-        setMaviState(
-          "processing",
-          t||
-          "Mavi sta elaborando…"
-        );
-
-      return;
-
-    }
-
-
-    if(
-      s==="error"
-    ){
-
-      if(!busy)
-        setMaviState(
-          "ready",
-          "Mavi è pronta"
-        );
-
-    }
+    output.value =
+      "Impossibile generare il contenuto in questo momento.";
 
   }
-);
+
+}
 
 
 /* ============================================================
-   AVVIO
+   EVENTI
 ============================================================ */
 
-load();
+document
+  .querySelectorAll(
+    "nav button"
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        showPage(
+          button.dataset.page
+        );
+
+      }
+    );
+
+  });
 
 
-$("calendarDate")
-  .value =
-    today();
+document
+  .getElementById(
+    "calendarDate"
+  )
+  .addEventListener(
+    "change",
+    renderCalendar
+  );
 
 
-renderAll();
+document
+  .getElementById(
+    "appointmentSearch"
+  )
+  .addEventListener(
+    "input",
+    renderAppointmentSearch
+  );
 
 
-restoreMaviPendingAppointment();
+document
+  .getElementById(
+    "clientSearch"
+  )
+  .addEventListener(
+    "input",
+    renderClients
+  );
 
 
-showPage(
-  "home"
-);
+document
+  .getElementById(
+    "sendBtn"
+  )
+  .addEventListener(
+    "click",
+    send
+  );
+
+
+document
+  .getElementById(
+    "chatInput"
+  )
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if(
+        event.key ===
+        "Enter"
+      ){
+
+        event.preventDefault();
+
+        send();
+
+      }
+
+    }
+  );
+
+
+document
+  .getElementById(
+    "confirmBooking"
+  )
+  .addEventListener(
+    "click",
+    confirmBooking
+  );
+
+
+document
+  .getElementById(
+    "cancelBooking"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      clearBooking();
+
+      addMsg(
+        "Prenotazione annullata.",
+        "system"
+      );
+
+    }
+  );
+
+
+/* ============================================================
+   CONTROLLO MOTORE LOCALE
+============================================================ */
+
+function checkMaviEngine(){
+
+  const status =
+    document.getElementById(
+      "engineStatus"
+    );
+
+  const pill =
+    document.getElementById(
+      "enginePill"
+    );
+
+  if(
+    window.MaviEngine &&
+    typeof window.MaviEngine.respond ===
+      "function"
+  ){
+
+    status.textContent =
+      "Motore Mavi locale disponibile";
+
+    status.classList.add(
+      "ready"
+    );
+
+    pill.textContent =
+      "Mavi locale · pronta";
+
+    pill.classList.add(
+      "ready"
+    );
+
+    return true;
+  }
+
+  status.textContent =
+    "Mavi locale in caricamento…";
+
+  return false;
+
+}
+
+
+/* ============================================================
+   INIT
+============================================================ */
+
+function init(){
+
+  rebuildClientHistories();
+
+  document.getElementById(
+    "calendarDate"
+  ).value =
+    localDate();
+
+  renderAll();
+
+  setupVoice();
+
+  /*
+    Ripristino di una eventuale
+    prenotazione ancora in attesa
+    di conferma.
+  */
+
+  const pending =
+    getPendingBooking();
+
+  if(
+    pending &&
+    pending.date &&
+    pending.time &&
+    pending.service &&
+    pending.name
+  ){
+
+    setBooking(
+      pending
+    );
+
+  }
+
+
+  /*
+    Messaggio iniziale.
+  */
+
+  addMsg(
+    "Sono Mavi. Posso aiutarti a controllare appuntamenti, servizi, disponibilità e richieste di prenotazione.",
+    "bot"
+  );
+
+
+  /*
+    Il motore può essere caricato
+    dopo il DOM.
+  */
+
+  if(!checkMaviEngine()){
+
+    let attempts = 0;
+
+    const timer =
+      setInterval(
+        () => {
+
+          attempts++;
+
+          if(checkMaviEngine()){
+
+            clearInterval(
+              timer
+            );
+
+          }
+
+          if(attempts >= 30){
+
+            clearInterval(
+              timer
+            );
+
+            const status =
+              document.getElementById(
+                "engineStatus"
+              );
+
+            status.textContent =
+              "Motore Mavi locale non disponibile";
+
+            status.classList.add(
+              "error"
+            );
+
+            document.getElementById(
+              "enginePill"
+            ).textContent =
+              "Mavi locale · verifica";
+
+            document.getElementById(
+              "enginePill"
+            ).classList.add(
+              "error"
+            );
+
+          }
+
+        },
+        500
+      );
+
+  }
+
+}
 
 
 /*
- * PREPARAZIONE NON BLOCCANTE.
- *
- * La pagina viene mostrata subito.
- * Mavi viene preparata in background.
- */
+  Avvio applicazione.
+*/
 
-setTimeout(
-  ()=>{
-    preloadMavi();
-  },
-  80
-);
+init();
 
 </script>
 
