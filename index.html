@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07142F">
+<meta name="description" content="Maviri — Manager digitale per la tua attività">
 <title>Maviri — Manager digitale</title>
 
 <style>
@@ -11,16 +12,18 @@
   --navy:#07142f;
   --navy2:#0b1d40;
   --panel:#10254c;
-  --panel2:#132b57;
-  --text:#f5f8ff;
+  --panel2:#142e5c;
+  --panel3:#0a1b39;
+  --text:#f6f8ff;
   --muted:#9eafd0;
   --line:rgba(255,255,255,.09);
   --blue:#38a7ff;
   --violet:#875cff;
   --green:#39d98a;
-  --danger:#ff6578;
+  --danger:#ff6679;
+  --warning:#ffbd5c;
   --gradient:linear-gradient(135deg,#38a7ff 0%,#875cff 52%,#39d98a 100%);
-  --shadow:0 18px 50px rgba(0,0,0,.28);
+  --shadow:0 20px 55px rgba(0,0,0,.28);
   --radius:22px;
 }
 
@@ -30,11 +33,13 @@
 
 html,body{
   margin:0;
+  padding:0;
   min-height:100%;
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,
+  "Segoe UI",Roboto,Arial,sans-serif;
   background:
-    radial-gradient(circle at 10% 0%,rgba(56,167,255,.13),transparent 32%),
-    radial-gradient(circle at 90% 20%,rgba(135,92,255,.13),transparent 35%),
+    radial-gradient(circle at 0% 0%,rgba(56,167,255,.12),transparent 30%),
+    radial-gradient(circle at 100% 10%,rgba(135,92,255,.12),transparent 30%),
     var(--navy);
   color:var(--text);
 }
@@ -43,15 +48,17 @@ body{
   overflow-x:hidden;
 }
 
-button,
-input,
-textarea,
-select{
+button,input,textarea,select{
   font:inherit;
 }
 
 button{
   cursor:pointer;
+}
+
+button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
 }
 
 .app{
@@ -62,16 +69,29 @@ button{
    LOGO
 ========================================================= */
 
-.maviri-logo{
+.logo{
   width:48px;
   height:48px;
+  object-fit:contain;
   display:block;
-  flex:none;
 }
 
-.maviri-logo.large{
-  width:92px;
-  height:92px;
+.logo.hero-logo{
+  width:105px;
+  height:105px;
+}
+
+.logo-fallback{
+  display:none;
+  width:48px;
+  height:48px;
+  border-radius:15px;
+  background:var(--gradient);
+  align-items:center;
+  justify-content:center;
+  font-size:25px;
+  font-weight:900;
+  color:#fff;
 }
 
 /* =========================================================
@@ -80,13 +100,11 @@ button{
 
 .sidebar{
   position:fixed;
-  z-index:20;
-  left:0;
-  top:0;
-  bottom:0;
-  width:250px;
+  z-index:50;
+  inset:0 auto 0 0;
+  width:255px;
   padding:22px 15px;
-  background:rgba(5,16,38,.94);
+  background:rgba(5,16,38,.96);
   border-right:1px solid var(--line);
 }
 
@@ -94,47 +112,56 @@ button{
   display:flex;
   align-items:center;
   gap:12px;
-  padding:4px 8px 22px;
+  padding:3px 8px 24px;
+}
+
+.brand-text{
+  min-width:0;
 }
 
 .brand-name{
   font-size:21px;
-  font-weight:800;
+  font-weight:850;
+  letter-spacing:-.3px;
 }
 
 .brand-sub{
-  margin-top:2px;
   color:var(--muted);
   font-size:12px;
+  margin-top:2px;
 }
 
 .nav{
   display:grid;
   gap:7px;
-  margin-top:12px;
 }
 
 .nav button{
   width:100%;
+  border:0;
+  border-radius:15px;
+  background:transparent;
+  color:var(--muted);
   display:flex;
   align-items:center;
   gap:12px;
   padding:13px 14px;
-  border:0;
-  border-radius:14px;
-  background:transparent;
-  color:var(--muted);
   text-align:left;
+  transition:.18s ease;
 }
 
 .nav button:hover,
 .nav button.active{
-  background:rgba(255,255,255,.06);
   color:#fff;
+  background:rgba(255,255,255,.065);
+}
+
+.nav button.active{
+  box-shadow:inset 3px 0 0 var(--blue);
 }
 
 .nav-icon{
-  width:22px;
+  width:23px;
   text-align:center;
   font-size:18px;
 }
@@ -144,16 +171,16 @@ button{
 ========================================================= */
 
 .main{
-  width:calc(100% - 250px);
-  margin-left:250px;
+  width:calc(100% - 255px);
+  margin-left:255px;
   padding:28px;
-  max-width:1550px;
+  max-width:1650px;
 }
 
 .topbar{
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   gap:20px;
   margin-bottom:24px;
 }
@@ -161,12 +188,22 @@ button{
 .topbar h1{
   margin:0;
   font-size:29px;
+  letter-spacing:-.7px;
 }
 
 .topbar p{
   margin:5px 0 0;
   color:var(--muted);
 }
+
+.save-status{
+  color:var(--muted);
+  font-size:12px;
+}
+
+/* =========================================================
+   PAGE
+========================================================= */
 
 .page{
   display:none;
@@ -177,20 +214,16 @@ button{
 }
 
 /* =========================================================
-   CARDS
+   CARD
 ========================================================= */
 
 .card{
   background:
-    linear-gradient(
-      180deg,
-      rgba(19,43,87,.95),
-      rgba(10,29,62,.95)
-    );
+    linear-gradient(180deg,rgba(19,43,87,.96),rgba(10,29,62,.96));
   border:1px solid var(--line);
   border-radius:var(--radius);
-  box-shadow:var(--shadow);
   padding:21px;
+  box-shadow:var(--shadow);
 }
 
 .grid{
@@ -199,15 +232,16 @@ button{
 }
 
 .grid-2{
-  grid-template-columns:1.2fr .8fr;
+  grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);
 }
 
 .grid-3{
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(3,minmax(0,1fr));
 }
 
 .stats{
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  margin-top:18px;
 }
 
 .stat{
@@ -220,15 +254,15 @@ button{
 }
 
 .stat-number{
-  margin-top:8px;
   font-size:31px;
-  font-weight:800;
+  font-weight:850;
+  margin-top:8px;
 }
 
 .gradient-line{
   height:4px;
   margin-top:16px;
-  border-radius:10px;
+  border-radius:99px;
   background:var(--gradient);
 }
 
@@ -237,17 +271,18 @@ button{
 ========================================================= */
 
 .hero{
+  min-height:245px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   gap:25px;
-  min-height:235px;
-  padding:30px;
+  padding:31px;
 }
 
 .hero h2{
-  margin:0 0 10px;
-  font-size:35px;
+  margin:0 0 11px;
+  font-size:36px;
+  letter-spacing:-1.2px;
 }
 
 .gradient-text{
@@ -258,66 +293,69 @@ button{
 }
 
 .hero p{
-  max-width:700px;
+  max-width:760px;
+  line-height:1.65;
   color:var(--muted);
-  line-height:1.6;
 }
 
 /* =========================================================
-   BUTTONS
+   BUTTON
 ========================================================= */
 
 .btn{
   border:1px solid var(--line);
-  border-radius:13px;
-  padding:11px 16px;
   background:#193968;
   color:#fff;
+  border-radius:13px;
+  padding:10px 15px;
+  transition:.15s ease;
 }
 
 .btn:hover{
-  filter:brightness(1.12);
+  filter:brightness(1.1);
 }
 
 .btn.primary{
   background:var(--gradient);
-  font-weight:750;
-}
-
-.btn.danger{
-  background:rgba(255,101,120,.12);
-  color:#ff8997;
+  border:0;
+  font-weight:800;
 }
 
 .btn.secondary{
-  background:rgba(255,255,255,.05);
+  background:rgba(255,255,255,.055);
 }
 
-.btn:disabled{
-  opacity:.45;
-  cursor:not-allowed;
+.btn.danger{
+  background:rgba(255,102,121,.1);
+  color:#ff8c9a;
+}
+
+.btn.small{
+  padding:7px 10px;
+  font-size:12px;
 }
 
 .row{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:9px;
+  flex-wrap:wrap;
 }
 
 .between{
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   gap:12px;
 }
 
 /* =========================================================
-   FORMS
+   FORM
 ========================================================= */
 
 .form{
   display:grid;
-  gap:12px;
+  gap:13px;
 }
 
 .form.two{
@@ -342,17 +380,12 @@ input,
 textarea,
 select{
   width:100%;
-  padding:12px;
   border:1px solid var(--line);
-  border-radius:12px;
   outline:none;
+  border-radius:12px;
   background:#091a39;
   color:#fff;
-}
-
-textarea{
-  min-height:110px;
-  resize:vertical;
+  padding:12px;
 }
 
 input:focus,
@@ -361,8 +394,13 @@ select:focus{
   border-color:rgba(56,167,255,.7);
 }
 
+textarea{
+  min-height:115px;
+  resize:vertical;
+}
+
 /* =========================================================
-   LISTS
+   LIST
 ========================================================= */
 
 .list{
@@ -371,10 +409,10 @@ select:focus{
 }
 
 .item{
-  padding:14px;
   border:1px solid var(--line);
   border-radius:15px;
   background:rgba(255,255,255,.025);
+  padding:14px;
 }
 
 .item strong{
@@ -385,25 +423,28 @@ select:focus{
   margin-top:5px;
   color:var(--muted);
   font-size:12px;
+  line-height:1.45;
 }
 
 .empty{
-  padding:30px;
-  text-align:center;
   color:var(--muted);
+  padding:28px 10px;
+  text-align:center;
 }
 
 /* =========================================================
-   BADGES
+   BADGE
 ========================================================= */
 
 .badge{
   display:inline-flex;
-  padding:5px 9px;
+  align-items:center;
   border-radius:99px;
+  padding:5px 9px;
+  font-size:11px;
   background:rgba(57,217,138,.12);
   color:#72e9ae;
-  font-size:11px;
+  white-space:nowrap;
 }
 
 .badge.blue{
@@ -411,9 +452,14 @@ select:focus{
   color:#79c7ff;
 }
 
+.badge.warning{
+  background:rgba(255,189,92,.12);
+  color:#ffd18b;
+}
+
 .badge.danger{
-  background:rgba(255,101,120,.12);
-  color:#ff8997;
+  background:rgba(255,102,121,.12);
+  color:#ff8d9a;
 }
 
 /* =========================================================
@@ -422,27 +468,27 @@ select:focus{
 
 .calendar-head{
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   gap:10px;
-  margin-bottom:16px;
+  margin-bottom:15px;
 }
 
 .calendar{
   display:grid;
-  grid-template-columns:repeat(7,1fr);
+  grid-template-columns:repeat(7,minmax(0,1fr));
   gap:6px;
 }
 
 .weekday{
-  padding:7px;
   text-align:center;
+  padding:7px;
   color:var(--muted);
   font-size:11px;
 }
 
 .day{
-  min-height:86px;
+  min-height:90px;
   padding:8px;
   border:1px solid var(--line);
   border-radius:12px;
@@ -453,31 +499,50 @@ select:focus{
 .day:hover,
 .day.selected{
   border-color:rgba(56,167,255,.75);
+  background:rgba(56,167,255,.055);
 }
 
 .day.muted{
-  opacity:.3;
+  opacity:.25;
+}
+
+.day.today .day-number{
+  color:#79c7ff;
+  font-weight:900;
 }
 
 .day-number{
   font-size:12px;
 }
 
+.event-list{
+  margin-top:6px;
+  display:grid;
+  gap:3px;
+}
+
+.event-mini{
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  font-size:9px;
+  color:#a9eecb;
+}
+
 .event-dot{
   display:inline-block;
-  width:7px;
-  height:7px;
-  margin-top:7px;
+  width:6px;
+  height:6px;
   border-radius:50%;
   background:var(--green);
 }
 
 /* =========================================================
-   MAVI
+   MAVI CHAT
 ========================================================= */
 
 .chat{
-  height:600px;
+  height:650px;
   display:flex;
   flex-direction:column;
 }
@@ -488,20 +553,20 @@ select:focus{
   display:grid;
   align-content:start;
   gap:10px;
-  padding:10px 4px;
+  padding:15px 4px;
 }
 
 .bubble{
-  max-width:85%;
+  max-width:86%;
   padding:12px 15px;
   border-radius:17px;
-  line-height:1.45;
+  line-height:1.5;
   white-space:pre-wrap;
 }
 
 .bubble.mavi{
   justify-self:start;
-  background:#0a1b3b;
+  background:#091a39;
   border:1px solid var(--line);
 }
 
@@ -513,38 +578,253 @@ select:focus{
 .chatbar{
   display:flex;
   gap:8px;
-  margin-top:10px;
 }
 
 .chatbar input{
   flex:1;
 }
 
-.voice-button{
+.voice-btn{
   width:48px;
+  padding:0;
 }
 
 .confirmation{
-  margin-top:10px;
+  margin:10px 0;
+  border:1px solid rgba(57,217,138,.38);
+  border-radius:16px;
   padding:15px;
-  border:1px solid rgba(57,217,138,.4);
-  border-radius:15px;
-  background:rgba(57,217,138,.08);
+  background:rgba(57,217,138,.065);
 }
 
 .confirmation-title{
+  font-weight:850;
   margin-bottom:8px;
-  font-weight:800;
 }
 
 /* =========================================================
-   CLIENT CARD
+   SOCIAL CONTENT
 ========================================================= */
 
-.client-history{
+.social-grid{
   display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:15px 0;
+}
+
+.social-btn{
+  min-height:75px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(255,255,255,.035);
+  color:#fff;
+  text-align:left;
+  padding:12px;
+}
+
+.social-btn:hover,
+.social-btn.active{
+  border-color:rgba(56,167,255,.65);
+  background:rgba(56,167,255,.07);
+}
+
+.social-icon{
+  font-size:21px;
+  display:block;
+  margin-bottom:5px;
+}
+
+.social-name{
+  font-size:12px;
+  font-weight:750;
+}
+
+.social-description{
+  color:var(--muted);
+  font-size:10px;
+  margin-top:2px;
+}
+
+/* =========================================================
+   HOURS
+========================================================= */
+
+.hours-list{
+  display:grid;
+  gap:10px;
+}
+
+.day-setting{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(255,255,255,.025);
+  padding:13px;
+}
+
+.day-setting-top{
+  display:grid;
+  grid-template-columns:125px auto;
+  align-items:center;
+  gap:12px;
+}
+
+.day-name{
+  font-weight:800;
+}
+
+.day-controls{
+  display:flex;
+  align-items:center;
   gap:8px;
-  margin-top:10px;
+  flex-wrap:wrap;
+}
+
+.day-controls input[type="time"]{
+  width:125px;
+  padding:9px;
+}
+
+.closed-toggle{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.closed-toggle input{
+  width:auto;
+}
+
+.pause-list{
+  display:grid;
+  gap:7px;
+  margin:11px 0 0 137px;
+}
+
+.pause-row{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  padding:8px;
+  border-radius:11px;
+  background:rgba(255,255,255,.035);
+}
+
+.pause-label{
+  color:var(--muted);
+  font-size:11px;
+  width:50px;
+}
+
+.pause-row input[type="time"]{
+  width:115px;
+  padding:8px;
+}
+
+/* =========================================================
+   TOGGLE
+========================================================= */
+
+.toggle{
+  position:relative;
+  width:44px;
+  height:24px;
+  flex:none;
+}
+
+.toggle input{
+  opacity:0;
+  width:0;
+  height:0;
+}
+
+.toggle-slider{
+  position:absolute;
+  inset:0;
+  border-radius:99px;
+  background:#263a5f;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.toggle-slider:before{
+  content:"";
+  position:absolute;
+  width:18px;
+  height:18px;
+  left:3px;
+  top:3px;
+  border-radius:50%;
+  background:#fff;
+  transition:.2s;
+}
+
+.toggle input:checked + .toggle-slider{
+  background:var(--gradient);
+}
+
+.toggle input:checked + .toggle-slider:before{
+  transform:translateX(20px);
+}
+
+/* =========================================================
+   SERVICES
+========================================================= */
+
+.service-row{
+  display:grid;
+  grid-template-columns:1.4fr .8fr .7fr auto;
+  gap:8px;
+  align-items:center;
+}
+
+/* =========================================================
+   SOCIAL PREVIEW
+========================================================= */
+
+.preview{
+  min-height:220px;
+  white-space:pre-wrap;
+  line-height:1.6;
+  color:#eaf0ff;
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:16px;
+  background:#091a39;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-backdrop{
+  position:fixed;
+  z-index:200;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(5px);
+}
+
+.modal-backdrop.show{
+  display:flex;
+}
+
+.modal{
+  width:min(620px,100%);
+  max-height:90vh;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:#0d2349;
+  box-shadow:var(--shadow);
+  padding:21px;
 }
 
 /* =========================================================
@@ -553,11 +833,11 @@ select:focus{
 
 .toast{
   position:fixed;
-  z-index:100;
-  right:22px;
-  bottom:22px;
+  z-index:300;
+  right:20px;
+  bottom:20px;
   display:none;
-  padding:13px 16px;
+  padding:13px 17px;
   border:1px solid var(--line);
   border-radius:14px;
   background:#10284f;
@@ -576,7 +856,26 @@ select:focus{
   display:none;
 }
 
-@media(max-width:900px){
+@media(max-width:1050px){
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .grid-2{
+    grid-template-columns:1fr;
+  }
+
+  .grid-3{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .social-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:850px){
 
   .sidebar{
     display:none;
@@ -584,30 +883,31 @@ select:focus{
 
   .main{
     width:100%;
-    margin-left:0;
-    padding:18px 14px 90px;
+    margin:0;
+    padding:18px 14px 95px;
   }
 
   .mobile-nav{
     position:fixed;
-    z-index:50;
-    left:10px;
-    right:10px;
-    bottom:10px;
+    z-index:100;
+    left:9px;
+    right:9px;
+    bottom:9px;
+    height:66px;
     display:flex;
     justify-content:space-around;
-    height:64px;
-    padding:5px;
+    align-items:center;
     border:1px solid var(--line);
-    border-radius:20px;
-    background:rgba(6,18,42,.96);
+    border-radius:21px;
+    background:rgba(5,17,40,.97);
   }
 
   .mobile-nav button{
     border:0;
     background:none;
     color:var(--muted);
-    font-size:10px;
+    font-size:9px;
+    padding:4px 7px;
   }
 
   .mobile-nav button.active{
@@ -616,17 +916,24 @@ select:focus{
 
   .mobile-nav span{
     display:block;
-    margin-bottom:2px;
     font-size:19px;
+    margin-bottom:2px;
   }
 
-  .stats{
-    grid-template-columns:1fr 1fr;
+  .topbar{
+    align-items:flex-start;
   }
 
-  .grid-2,
-  .grid-3{
-    grid-template-columns:1fr;
+  .hero{
+    min-height:auto;
+  }
+
+  .hero h2{
+    font-size:28px;
+  }
+
+  .hero-logo{
+    display:none;
   }
 
   .form.two{
@@ -637,23 +944,39 @@ select:focus{
     grid-column:auto;
   }
 
-  .hero{
-    min-height:auto;
-    padding:22px;
+  .grid-3{
+    grid-template-columns:1fr;
   }
 
-  .hero h2{
-    font-size:27px;
+  .day-setting-top{
+    grid-template-columns:1fr;
   }
 
-  .maviri-logo.large{
-    width:70px;
-    height:70px;
+  .pause-list{
+    margin-left:0;
+  }
+
+  .service-row{
+    grid-template-columns:1fr;
   }
 
   .calendar .day{
-    min-height:68px;
-    padding:6px;
+    min-height:65px;
+  }
+}
+
+@media(max-width:520px){
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .social-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .day-controls input[type="time"]{
+    width:110px;
   }
 }
 </style>
@@ -663,60 +986,26 @@ select:focus{
 
 <div class="app">
 
-<!-- ======================================================
+<!-- =======================================================
      SIDEBAR
-====================================================== -->
+======================================================= -->
 
 <aside class="sidebar">
 
   <div class="brand">
 
-    <!-- LOGO DEFINITIVO MAVIRI -->
-    <svg class="maviri-logo"
-         viewBox="0 0 100 100"
-         aria-label="Logo Maviri">
+    <img
+      id="sidebarLogo"
+      class="logo"
+      alt="Maviri">
 
-      <defs>
-        <linearGradient id="maviriGradient"
-                        x1="0"
-                        y1="0"
-                        x2="1"
-                        y2="1">
+    <div
+      id="sidebarLogoFallback"
+      class="logo-fallback">
+      M
+    </div>
 
-          <stop offset="0%"
-                stop-color="#38A7FF"/>
-
-          <stop offset="52%"
-                stop-color="#875CFF"/>
-
-          <stop offset="100%"
-                stop-color="#39D98A"/>
-
-        </linearGradient>
-      </defs>
-
-      <rect
-        width="100"
-        height="100"
-        rx="25"
-        fill="#07142F"/>
-
-      <path
-        d="M20 72V29
-           C20 23 28 20 32 25
-           L50 48
-           L68 25
-           C72 20 80 23 80 29
-           V72"
-        fill="none"
-        stroke="url(#maviriGradient)"
-        stroke-width="11"
-        stroke-linecap="round"
-        stroke-linejoin="round"/>
-
-    </svg>
-
-    <div>
+    <div class="brand-text">
       <div class="brand-name">Maviri</div>
       <div class="brand-sub">Manager digitale</div>
     </div>
@@ -727,45 +1016,45 @@ select:focus{
 
     <button data-page="home" class="active">
       <span class="nav-icon">⌂</span>
-      Home
+      <span>Home</span>
     </button>
 
     <button data-page="mavi">
       <span class="nav-icon">✦</span>
-      Mavi
+      <span>Mavi</span>
     </button>
 
     <button data-page="calendar">
       <span class="nav-icon">□</span>
-      Calendario
+      <span>Calendario</span>
     </button>
 
     <button data-page="clients">
       <span class="nav-icon">♙</span>
-      Clienti
+      <span>Clienti</span>
     </button>
 
     <button data-page="content">
       <span class="nav-icon">▤</span>
-      Contenuti
+      <span>Contenuti</span>
     </button>
 
     <button data-page="settings">
       <span class="nav-icon">⚙</span>
-      Impostazioni
+      <span>Impostazioni</span>
     </button>
 
   </nav>
 
 </aside>
 
-<!-- ======================================================
+<!-- =======================================================
      MAIN
-====================================================== -->
+======================================================= -->
 
 <main class="main">
 
-  <div class="topbar">
+  <header class="topbar">
 
     <div>
       <h1 id="pageTitle">Home</h1>
@@ -774,23 +1063,29 @@ select:focus{
       </p>
     </div>
 
-    <div class="muted" id="saveStatus">
+    <div
+      class="save-status"
+      id="saveStatus">
       Dati locali
     </div>
 
-  </div>
+  </header>
 
-<!-- ======================================================
+<!-- =======================================================
      HOME
-====================================================== -->
+======================================================= -->
 
-<section class="page active" id="page-home">
+<section
+  class="page active"
+  id="page-home">
 
   <div class="card hero">
 
     <div>
 
-      <div class="meta">MAVIRI</div>
+      <div class="meta">
+        MAVIRI
+      </div>
 
       <h2>
         Tu lavori.
@@ -800,127 +1095,98 @@ select:focus{
       </h2>
 
       <p>
-        Clienti, appuntamenti, servizi, promozioni e contenuti
-        in un unico spazio. Mavi ti aiuta a gestire l'attività
-        senza inventare informazioni che non sono presenti
-        nei dati dell'attività.
+        Appuntamenti, clienti, servizi, orari,
+        promozioni e contenuti in un unico posto.
+        Mavi utilizza i dati configurati nella tua attività
+        e non inventa disponibilità, prezzi o orari.
       </p>
 
-      <button class="btn primary"
-              onclick="openPage('mavi')">
+      <button
+        class="btn primary"
+        onclick="openPage('mavi')">
         Parla con Mavi
       </button>
 
     </div>
 
-    <!-- STESSO LOGO, NESSUNA M AGGIUNTIVA -->
-
-    <svg class="maviri-logo large"
-         viewBox="0 0 100 100"
-         aria-label="Maviri">
-
-      <defs>
-
-        <linearGradient id="maviriGradientHero"
-                        x1="0"
-                        y1="0"
-                        x2="1"
-                        y2="1">
-
-          <stop offset="0%"
-                stop-color="#38A7FF"/>
-
-          <stop offset="52%"
-                stop-color="#875CFF"/>
-
-          <stop offset="100%"
-                stop-color="#39D98A"/>
-
-        </linearGradient>
-
-      </defs>
-
-      <rect
-        width="100"
-        height="100"
-        rx="25"
-        fill="#07142F"/>
-
-      <path
-        d="M20 72V29
-           C20 23 28 20 32 25
-           L50 48
-           L68 25
-           C72 20 80 23 80 29
-           V72"
-        fill="none"
-        stroke="url(#maviriGradientHero)"
-        stroke-width="11"
-        stroke-linecap="round"
-        stroke-linejoin="round"/>
-
-    </svg>
+    <img
+      id="heroLogo"
+      class="logo hero-logo"
+      alt="Maviri">
 
   </div>
 
-  <div class="grid stats" style="margin-top:18px">
+  <div class="grid stats">
 
     <div class="card stat">
+
       <div class="stat-label">
         Appuntamenti oggi
       </div>
 
-      <div class="stat-number"
-           id="todayAppointments">
+      <div
+        class="stat-number"
+        id="todayAppointments">
         0
       </div>
 
       <div class="gradient-line"></div>
+
     </div>
 
     <div class="card stat">
+
       <div class="stat-label">
-        Prenotazioni future
+        Appuntamenti futuri
       </div>
 
-      <div class="stat-number"
-           id="futureAppointments">
+      <div
+        class="stat-number"
+        id="futureAppointments">
         0
       </div>
 
       <div class="gradient-line"></div>
+
     </div>
 
     <div class="card stat">
+
       <div class="stat-label">
         Clienti
       </div>
 
-      <div class="stat-number"
-           id="clientCount">
+      <div
+        class="stat-number"
+        id="clientCount">
         0
       </div>
 
       <div class="gradient-line"></div>
+
     </div>
 
     <div class="card stat">
+
       <div class="stat-label">
         Servizi
       </div>
 
-      <div class="stat-number"
-           id="serviceCount">
+      <div
+        class="stat-number"
+        id="serviceCount">
         0
       </div>
 
       <div class="gradient-line"></div>
+
     </div>
 
   </div>
 
-  <div class="grid grid-2"
-       style="margin-top:18px">
+  <div
+    class="grid grid-2"
+    style="margin-top:18px">
 
     <div class="card">
 
@@ -930,15 +1196,17 @@ select:focus{
           Prossimi appuntamenti
         </h3>
 
-        <button class="btn"
-                onclick="openPage('calendar')">
+        <button
+          class="btn"
+          onclick="openPage('calendar')">
           Calendario
         </button>
 
       </div>
 
-      <div id="homeAppointments"
-           class="list">
+      <div
+        id="homeAppointments"
+        class="list">
       </div>
 
     </div>
@@ -951,24 +1219,28 @@ select:focus{
 
       <div class="grid grid-2">
 
-        <button class="btn"
-                onclick="newAppointment()">
+        <button
+          class="btn"
+          onclick="openNewAppointmentModal()">
           + Appuntamento
         </button>
 
-        <button class="btn"
-                onclick="newClient()">
+        <button
+          class="btn"
+          onclick="newClient()">
           + Cliente
         </button>
 
-        <button class="btn"
-                onclick="openPage('content')">
-          Nuovo contenuto
+        <button
+          class="btn"
+          onclick="openPage('content')">
+          Contenuti
         </button>
 
-        <button class="btn"
-                onclick="openPage('settings')">
-          Gestisci attività
+        <button
+          class="btn"
+          onclick="openPage('settings')">
+          Impostazioni
         </button>
 
       </div>
@@ -979,11 +1251,13 @@ select:focus{
 
 </section>
 
-<!-- ======================================================
+<!-- =======================================================
      MAVI
-====================================================== -->
+======================================================= -->
 
-<section class="page" id="page-mavi">
+<section
+  class="page"
+  id="page-mavi">
 
   <div class="grid grid-2">
 
@@ -1001,25 +1275,27 @@ select:focus{
 
         </div>
 
-        <span class="badge"
-              id="maviStatus">
+        <span
+          class="badge"
+          id="maviStatus">
           Pronta
         </span>
 
       </div>
 
-      <div class="messages"
-           id="messages">
+      <div
+        class="messages"
+        id="messages">
       </div>
 
-      <div id="confirmationArea">
-      </div>
+      <div id="confirmationArea"></div>
 
       <div class="chatbar">
 
-        <button class="btn voice-button"
-                id="voiceButton"
-                title="Parla con Mavi">
+        <button
+          class="btn voice-btn"
+          id="voiceButton"
+          title="Parla con Mavi">
           🎙
         </button>
 
@@ -1028,8 +1304,9 @@ select:focus{
           autocomplete="off"
           placeholder="Es. Vorrei taglio uomo lunedì alle 9">
 
-        <button class="btn primary"
-                id="maviSend">
+        <button
+          class="btn primary"
+          id="maviSend">
           Invia
         </button>
 
@@ -1039,9 +1316,9 @@ select:focus{
 
     <div class="card">
 
-      <h3>
-        Mavi può aiutarti
-      </h3>
+      <h2>
+        Cosa può fare Mavi
+      </h2>
 
       <div class="list">
 
@@ -1055,23 +1332,24 @@ select:focus{
         <div class="item">
           <strong>Disponibilità</strong>
           <div class="meta">
-            Controlla gli appuntamenti già presenti prima
-            di proporre o confermare un orario.
+            Controlla apertura, chiusura, pause e
+            appuntamenti già presenti.
           </div>
         </div>
 
         <div class="item">
           <strong>Clienti</strong>
           <div class="meta">
-            Collega automaticamente il cliente
-            all'appuntamento.
+            Crea e aggiorna la scheda cliente collegata
+            agli appuntamenti.
           </div>
         </div>
 
         <div class="item">
-          <strong>Informazioni attività</strong>
+          <strong>Servizi</strong>
           <div class="meta">
-            Usa solamente i dati configurati in Maviri.
+            Utilizza esclusivamente prezzi e durate
+            configurati nell'attività.
           </div>
         </div>
 
@@ -1083,11 +1361,13 @@ select:focus{
 
 </section>
 
-<!-- ======================================================
+<!-- =======================================================
      CALENDARIO
-====================================================== -->
+======================================================= -->
 
-<section class="page" id="page-calendar">
+<section
+  class="page"
+  id="page-calendar">
 
   <div class="grid grid-2">
 
@@ -1095,23 +1375,25 @@ select:focus{
 
       <div class="calendar-head">
 
-        <button class="btn"
-                id="previousMonth">
+        <button
+          class="btn"
+          id="previousMonth">
           ‹
         </button>
 
-        <strong id="calendarMonth">
-        </strong>
+        <strong id="calendarMonth"></strong>
 
-        <button class="btn"
-                id="nextMonth">
+        <button
+          class="btn"
+          id="nextMonth">
           ›
         </button>
 
       </div>
 
-      <div class="calendar"
-           id="calendar">
+      <div
+        class="calendar"
+        id="calendar">
       </div>
 
     </div>
@@ -1124,23 +1406,26 @@ select:focus{
           Appuntamenti
         </h3>
 
-        <button class="btn primary"
-                onclick="newAppointment()">
+        <button
+          class="btn primary"
+          onclick="openNewAppointmentModal()">
           + Nuovo
         </button>
 
       </div>
 
-      <div id="dayAppointments"
-           class="list">
+      <div
+        id="dayAppointments"
+        class="list">
       </div>
 
     </div>
 
   </div>
 
-  <div class="card"
-       style="margin-top:18px">
+  <div
+    class="card"
+    style="margin-top:18px">
 
     <h3>
       Ricerca appuntamenti
@@ -1148,22 +1433,25 @@ select:focus{
 
     <input
       id="appointmentSearch"
-      placeholder="Cerca cliente, servizio o data">
+      placeholder="Cerca cliente, servizio, data o ora">
 
-    <div id="appointmentResults"
-         class="list"
-         style="margin-top:12px">
+    <div
+      id="appointmentResults"
+      class="list"
+      style="margin-top:12px">
     </div>
 
   </div>
 
 </section>
 
-<!-- ======================================================
+<!-- =======================================================
      CLIENTI
-====================================================== -->
+======================================================= -->
 
-<section class="page" id="page-clients">
+<section
+  class="page"
+  id="page-clients">
 
   <div class="grid grid-2">
 
@@ -1171,12 +1459,11 @@ select:focus{
 
       <div class="between">
 
-        <h2>
-          Clienti
-        </h2>
+        <h2>Clienti</h2>
 
-        <button class="btn primary"
-                onclick="newClient()">
+        <button
+          class="btn primary"
+          onclick="newClient()">
           + Nuovo cliente
         </button>
 
@@ -1187,8 +1474,9 @@ select:focus{
         placeholder="Cerca cliente"
         style="margin-bottom:12px">
 
-      <div id="clientsList"
-           class="list">
+      <div
+        id="clientsList"
+        class="list">
       </div>
 
     </div>
@@ -1199,12 +1487,11 @@ select:focus{
         Scheda cliente
       </h2>
 
-      <div id="clientDetail"
-           class="empty">
-
+      <div
+        id="clientDetail"
+        class="empty">
         Seleziona un cliente per aprire
         la scheda.
-
       </div>
 
     </div>
@@ -1213,11 +1500,13 @@ select:focus{
 
 </section>
 
-<!-- ======================================================
+<!-- =======================================================
      CONTENUTI
-====================================================== -->
+======================================================= -->
 
-<section class="page" id="page-content">
+<section
+  class="page"
+  id="page-content">
 
   <div class="grid grid-2">
 
@@ -1228,8 +1517,85 @@ select:focus{
       </h2>
 
       <p class="meta">
-        Crea una bozza per i tuoi canali social.
+        Scegli il canale e crea un contenuto adattato
+        al formato della piattaforma.
       </p>
+
+      <div class="social-grid">
+
+        <button
+          class="social-btn active"
+          data-social="instagram">
+
+          <span class="social-icon">◎</span>
+          <span class="social-name">Instagram</span>
+          <div class="social-description">
+            Caption e hashtag
+          </div>
+
+        </button>
+
+        <button
+          class="social-btn"
+          data-social="facebook">
+
+          <span class="social-icon">f</span>
+          <span class="social-name">Facebook</span>
+          <div class="social-description">
+            Post completo
+          </div>
+
+        </button>
+
+        <button
+          class="social-btn"
+          data-social="tiktok">
+
+          <span class="social-icon">♪</span>
+          <span class="social-name">TikTok</span>
+          <div class="social-description">
+            Testo breve e hashtag
+          </div>
+
+        </button>
+
+        <button
+          class="social-btn"
+          data-social="whatsapp">
+
+          <span class="social-icon">◔</span>
+          <span class="social-name">WhatsApp</span>
+          <div class="social-description">
+            Messaggio clienti
+          </div>
+
+        </button>
+
+        <button
+          class="social-btn"
+          data-social="telegram">
+
+          <span class="social-icon">➤</span>
+          <span class="social-name">Telegram</span>
+          <div class="social-description">
+            Messaggio canale
+          </div>
+
+        </button>
+
+        <button
+          class="social-btn"
+          data-social="email">
+
+          <span class="social-icon">✉</span>
+          <span class="social-name">Email / Google</span>
+          <div class="social-description">
+            Oggetto + email
+          </div>
+
+        </button>
+
+      </div>
 
       <div class="form">
 
@@ -1248,20 +1614,20 @@ select:focus{
         <div class="field">
 
           <label>
-            Stile
+            Tono
           </label>
 
           <select id="postStyle">
 
-            <option>
+            <option value="professionale">
               Professionale
             </option>
 
-            <option>
+            <option value="amichevole">
               Amichevole
             </option>
 
-            <option>
+            <option value="promozionale">
               Promozionale
             </option>
 
@@ -1269,11 +1635,10 @@ select:focus{
 
         </div>
 
-        <button class="btn primary"
-                onclick="generatePost()">
-
+        <button
+          class="btn primary"
+          onclick="generateSocialContent()">
           Genera contenuto
-
         </button>
 
       </div>
@@ -1282,21 +1647,35 @@ select:focus{
 
     <div class="card">
 
-      <h2>
-        Bozza
-      </h2>
+      <div class="between">
 
-      <textarea
+        <div>
+          <h2 id="contentChannelTitle">
+            Instagram
+          </h2>
+
+          <div
+            class="meta"
+            id="contentChannelDescription">
+            Caption e hashtag
+          </div>
+        </div>
+
+        <button
+          class="btn"
+          onclick="copyContent()">
+          Copia
+        </button>
+
+      </div>
+
+      <div
         id="postOutput"
-        placeholder="La bozza apparirà qui...">
-      </textarea>
-
-      <button class="btn"
-              onclick="copyPost()">
-
-        Copia
-
-      </button>
+        class="preview"
+        style="margin-top:14px">
+        Seleziona un argomento e genera
+        il contenuto.
+      </div>
 
     </div>
 
@@ -1304,195 +1683,215 @@ select:focus{
 
 </section>
 
-<!-- ======================================================
+<!-- =======================================================
      IMPOSTAZIONI
-====================================================== -->
+======================================================= -->
 
-<section class="page" id="page-settings">
+<section
+  class="page"
+  id="page-settings">
 
-  <div class="grid grid-2">
+  <!-- ATTIVITÀ -->
 
-    <div class="card">
+  <div class="card">
 
-      <h2>
-        Attività
-      </h2>
+    <div class="between">
 
-      <div class="form two">
-
-        <div class="field">
-
-          <label>
-            Nome attività
-          </label>
-
-          <input id="businessName">
-
+      <div>
+        <h2>La tua attività</h2>
+        <div class="meta">
+          Queste informazioni vengono utilizzate da Mavi.
         </div>
+      </div>
 
-        <div class="field">
+      <span class="badge">
+        Dati locali
+      </span>
 
-          <label>
-            Tipo attività
-          </label>
+    </div>
 
-          <input
-            id="businessType"
-            placeholder="Es. Parrucchiere">
+    <div
+      class="form two"
+      style="margin-top:15px">
 
-        </div>
+      <div class="field">
 
-        <div class="field">
+        <label>
+          Nome attività
+        </label>
 
-          <label>
-            Telefono
-          </label>
+        <input id="businessName">
 
-          <input id="businessPhone">
+      </div>
 
-        </div>
+      <div class="field">
 
-        <div class="field">
+        <label>
+          Tipo attività
+        </label>
 
-          <label>
-            WhatsApp
-          </label>
+        <input
+          id="businessType"
+          placeholder="Es. Parrucchiere">
 
-          <input id="businessWhatsapp">
+      </div>
 
-        </div>
+      <div class="field">
 
-        <div class="field full">
+        <label>
+          Telefono
+        </label>
 
-          <label>
-            Indirizzo
-          </label>
+        <input id="businessPhone">
 
-          <input id="businessAddress">
+      </div>
 
-        </div>
+      <div class="field">
 
-        <div class="field full">
+        <label>
+          WhatsApp
+        </label>
 
-          <label>
-            Descrizione
-          </label>
+        <input id="businessWhatsapp">
 
-          <textarea
-            id="businessDescription">
-          </textarea>
+      </div>
 
+      <div class="field full">
+
+        <label>
+          Indirizzo
+        </label>
+
+        <input id="businessAddress">
+
+      </div>
+
+      <div class="field full">
+
+        <label>
+          Descrizione attività
+        </label>
+
+        <textarea
+          id="businessDescription">
+        </textarea>
+
+      </div>
+
+    </div>
+
+    <button
+      class="btn primary"
+      style="margin-top:14px"
+      onclick="saveBusiness()">
+      Salva attività
+    </button>
+
+  </div>
+
+  <!-- ORARI -->
+
+  <div
+    class="card"
+    style="margin-top:18px">
+
+    <div class="between">
+
+      <div>
+
+        <h2>
+          Orari di apertura
+        </h2>
+
+        <div class="meta">
+          Imposta apertura, chiusura e tutte le pause
+          direttamente per ogni giorno.
         </div>
 
       </div>
 
       <button
-        class="btn primary"
-        style="margin-top:14px"
-        onclick="saveBusiness()">
-
-        Salva attività
-
+        class="btn secondary"
+        onclick="copyHoursToAll()">
+        Copia lunedì → tutti
       </button>
 
     </div>
 
-    <div class="card">
+    <div
+      id="hoursList"
+      class="hours-list"
+      style="margin-top:15px">
+    </div>
 
-      <div class="between">
+    <button
+      class="btn primary"
+      style="margin-top:15px"
+      onclick="saveHours()">
+      Salva orari
+    </button>
 
-        <h2>
-          Servizi
-        </h2>
+  </div>
 
-        <button
-          class="btn primary"
-          onclick="addService()">
+  <!-- SERVIZI -->
 
-          + Servizio
+  <div
+    class="card"
+    style="margin-top:18px">
 
-        </button>
+    <div class="between">
 
+      <div>
+        <h2>Servizi</h2>
+        <div class="meta">
+          Prezzo e durata vengono utilizzati
+          anche dal controllo disponibilità.
+        </div>
       </div>
 
-      <div id="servicesList"
-           class="list">
-      </div>
+      <button
+        class="btn primary"
+        onclick="addService()">
+        + Servizio
+      </button>
 
+    </div>
+
+    <div
+      id="servicesList"
+      class="list"
+      style="margin-top:15px">
     </div>
 
   </div>
 
-  <div class="grid grid-2"
-       style="margin-top:18px">
+  <!-- PROMOZIONI -->
 
-    <div class="card">
+  <div
+    class="card"
+    style="margin-top:18px">
 
-      <h2>
-        Orari
-      </h2>
+    <div class="between">
 
-      <div class="form two">
-
-        <div class="field">
-
-          <label>
-            Apertura
-          </label>
-
-          <input
-            id="openingTime"
-            type="time">
-
+      <div>
+        <h2>Promozioni</h2>
+        <div class="meta">
+          Promozioni disponibili per l'attività.
         </div>
-
-        <div class="field">
-
-          <label>
-            Chiusura
-          </label>
-
-          <input
-            id="closingTime"
-            type="time">
-
-        </div>
-
       </div>
 
       <button
         class="btn primary"
-        style="margin-top:14px"
-        onclick="saveHours()">
-
-        Salva orari
-
+        onclick="addPromotion()">
+        + Promozione
       </button>
 
     </div>
 
-    <div class="card">
-
-      <div class="between">
-
-        <h2>
-          Promozioni
-        </h2>
-
-        <button
-          class="btn primary"
-          onclick="addPromotion()">
-
-          + Promozione
-
-        </button>
-
-      </div>
-
-      <div id="promotionsList"
-           class="list">
-      </div>
-
+    <div
+      id="promotionsList"
+      class="list"
+      style="margin-top:15px">
     </div>
 
   </div>
@@ -1503,9 +1902,9 @@ select:focus{
 
 </div>
 
-<!-- ======================================================
+<!-- =======================================================
      MOBILE NAV
-====================================================== -->
+======================================================= -->
 
 <nav class="mobile-nav">
 
@@ -1529,6 +1928,11 @@ select:focus{
     Clienti
   </button>
 
+  <button data-page="content">
+    <span>▤</span>
+    Contenuti
+  </button>
+
   <button data-page="settings">
     <span>⚙</span>
     Impostazioni
@@ -1536,28 +1940,275 @@ select:focus{
 
 </nav>
 
-<div class="toast"
-     id="toast">
+<!-- =======================================================
+     APPOINTMENT MODAL
+======================================================= -->
+
+<div
+  class="modal-backdrop"
+  id="appointmentModal">
+
+  <div class="modal">
+
+    <div class="between">
+
+      <div>
+
+        <h2>
+          Nuovo appuntamento
+        </h2>
+
+        <div class="meta">
+          Verifica automatica della disponibilità.
+        </div>
+
+      </div>
+
+      <button
+        class="btn"
+        onclick="closeAppointmentModal()">
+        ×
+      </button>
+
+    </div>
+
+    <div
+      class="form"
+      style="margin-top:15px">
+
+      <div class="field">
+
+        <label>
+          Cliente
+        </label>
+
+        <input
+          id="appointmentClient"
+          placeholder="Nome cliente">
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Servizio
+        </label>
+
+        <select id="appointmentService"></select>
+
+      </div>
+
+      <div class="form two">
+
+        <div class="field">
+
+          <label>
+            Giorno
+          </label>
+
+          <input
+            type="date"
+            id="appointmentDate">
+
+        </div>
+
+        <div class="field">
+
+          <label>
+            Ora
+          </label>
+
+          <input
+            type="time"
+            id="appointmentTime">
+
+        </div>
+
+      </div>
+
+      <div
+        id="appointmentAvailability"
+        class="meta">
+      </div>
+
+      <button
+        class="btn primary"
+        id="manualAppointmentSave"
+        onclick="saveManualAppointment()">
+        Salva appuntamento
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div
+  class="toast"
+  id="toast">
 </div>
 
 <script>
 
 /* =========================================================
-   MAVIRI CORE
+   CONFIGURAZIONE
 ========================================================= */
 
-const STORAGE_KEY = "maviri_appData";
-const BACKUP_KEY = "maviri_appData_backup";
+/*
+ * IMPORTANTE:
+ *
+ * Inserire qui l'URL DIRETTA dell'immagine del logo definitivo.
+ *
+ * Non utilizzare il link chatgpt.com/s/... perché quello
+ * è un link di condivisione e non necessariamente un file
+ * immagine direttamente caricabile dal browser.
+ */
+
+const MAVIRI_LOGO_URL = "";
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+const STORAGE_KEY =
+  "maviri_appData";
+
+const BACKUP_KEY =
+  "maviri_appData_backup";
+
+const STORAGE_VERSION = 4;
+
+
+/* =========================================================
+   DEFAULT DATA
+========================================================= */
+
+const DAYS = [
+  {
+    id:"monday",
+    name:"Lunedì"
+  },
+  {
+    id:"tuesday",
+    name:"Martedì"
+  },
+  {
+    id:"wednesday",
+    name:"Mercoledì"
+  },
+  {
+    id:"thursday",
+    name:"Giovedì"
+  },
+  {
+    id:"friday",
+    name:"Venerdì"
+  },
+  {
+    id:"saturday",
+    name:"Sabato"
+  },
+  {
+    id:"sunday",
+    name:"Domenica"
+  }
+];
+
+
+function defaultHours(){
+
+  return {
+
+    monday:{
+      closed:false,
+      open:"09:00",
+      close:"19:00",
+      pauses:[
+        {
+          start:"13:00",
+          end:"14:00"
+        }
+      ]
+    },
+
+    tuesday:{
+      closed:false,
+      open:"09:00",
+      close:"19:00",
+      pauses:[
+        {
+          start:"13:00",
+          end:"14:00"
+        }
+      ]
+    },
+
+    wednesday:{
+      closed:false,
+      open:"09:00",
+      close:"19:00",
+      pauses:[
+        {
+          start:"13:00",
+          end:"14:00"
+        }
+      ]
+    },
+
+    thursday:{
+      closed:false,
+      open:"09:00",
+      close:"19:00",
+      pauses:[
+        {
+          start:"13:00",
+          end:"14:00"
+        }
+      ]
+    },
+
+    friday:{
+      closed:false,
+      open:"09:00",
+      close:"19:00",
+      pauses:[
+        {
+          start:"13:00",
+          end:"14:00"
+        }
+      ]
+    },
+
+    saturday:{
+      closed:false,
+      open:"09:00",
+      close:"13:00",
+      pauses:[]
+    },
+
+    sunday:{
+      closed:true,
+      open:"09:00",
+      close:"19:00",
+      pauses:[]
+    }
+
+  };
+
+}
+
 
 const DEFAULT_DATA = {
 
-  version: 3,
+  version:STORAGE_VERSION,
 
-  revision: 0,
+  revision:0,
 
-  updatedAt: null,
+  updatedAt:null,
 
-  business: {
+  business:{
     name:"",
     type:"",
     phone:"",
@@ -1566,10 +2217,7 @@ const DEFAULT_DATA = {
     description:""
   },
 
-  hours:{
-    open:"09:00",
-    close:"19:00"
-  },
+  hours:defaultHours(),
 
   services:[],
 
@@ -1583,26 +2231,52 @@ const DEFAULT_DATA = {
 
 };
 
-let appData = loadData();
 
-let currentCalendarDate = new Date();
+let appData =
+  loadData();
 
-let selectedDate = getTodayISO();
 
-let pendingBooking = null;
+let currentCalendarDate =
+  new Date();
+
+
+let selectedDate =
+  todayISO();
+
+
+let pendingBooking =
+  null;
+
+
+let selectedSocial =
+  "instagram";
 
 
 /* =========================================================
-   UTILITY
+   BASIC HELPERS
 ========================================================= */
 
 function $(selector){
   return document.querySelector(selector);
 }
 
+
 function $all(selector){
   return document.querySelectorAll(selector);
 }
+
+
+function uid(){
+
+  return (
+    Date.now().toString(36)+
+    Math.random()
+      .toString(36)
+      .slice(2,9)
+  );
+
+}
+
 
 function escapeHTML(value){
 
@@ -1615,53 +2289,112 @@ function escapeHTML(value){
 
 }
 
-function uid(){
 
-  return Date.now().toString(36)
-    + Math.random().toString(36).slice(2,8);
+function todayISO(){
+
+  const d =
+    new Date();
+
+  return (
+    d.getFullYear()+
+    "-"+
+    String(d.getMonth()+1)
+      .padStart(2,"0")+
+    "-"+
+    String(d.getDate())
+      .padStart(2,"0")
+  );
 
 }
 
-function getTodayISO(){
 
-  const d = new Date();
+function dateToISO(date){
 
-  return d.getFullYear()
-    + "-"
-    + String(d.getMonth()+1).padStart(2,"0")
-    + "-"
-    + String(d.getDate()).padStart(2,"0");
+  return (
+    date.getFullYear()+
+    "-"+
+    String(date.getMonth()+1)
+      .padStart(2,"0")+
+    "-"+
+    String(date.getDate())
+      .padStart(2,"0")
+  );
 
 }
+
 
 function formatDate(date){
 
-  if(!date) return "";
+  if(!date){
+    return "";
+  }
 
-  return new Date(date+"T12:00:00")
-    .toLocaleDateString(
-      "it-IT",
-      {
-        weekday:"short",
-        day:"2-digit",
-        month:"2-digit",
-        year:"numeric"
-      }
-    );
+  return new Date(
+    date+"T12:00:00"
+  ).toLocaleDateString(
+    "it-IT",
+    {
+      weekday:"long",
+      day:"2-digit",
+      month:"long",
+      year:"numeric"
+    }
+  );
 
 }
+
 
 function minutes(time){
 
-  const parts = String(time).split(":");
+  if(!time){
+    return 0;
+  }
 
-  return Number(parts[0])*60 + Number(parts[1]);
+  const p =
+    time.split(":");
+
+  return (
+    Number(p[0])*60+
+    Number(p[1])
+  );
 
 }
 
-function overlap(startA,endA,startB,endB){
 
-  return startA < endB && startB < endA;
+function overlap(
+  startA,
+  endA,
+  startB,
+  endB
+){
+
+  return (
+    startA < endB &&
+    startB < endA
+  );
+
+}
+
+
+function getDayKey(date){
+
+  const d =
+    new Date(
+      date+"T12:00:00"
+    );
+
+  const index =
+    d.getDay();
+
+  return [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday"
+  ][index];
 
 }
 
@@ -1670,19 +2403,125 @@ function overlap(startA,endA,startB,endB){
    STORAGE
 ========================================================= */
 
+function normalizeHours(hours){
+
+  const defaults =
+    defaultHours();
+
+  const result =
+    {};
+
+  DAYS.forEach(
+    day => {
+
+      const old =
+        hours?.[day.id] || {};
+
+      result[day.id] = {
+
+        closed:
+          Boolean(old.closed),
+
+        open:
+          old.open ||
+          defaults[day.id].open,
+
+        close:
+          old.close ||
+          defaults[day.id].close,
+
+        pauses:
+          Array.isArray(old.pauses)
+          ? old.pauses
+          : []
+
+      };
+
+    }
+  );
+
+  return result;
+
+}
+
+
+function normalizeData(data){
+
+  const base =
+    structuredClone(DEFAULT_DATA);
+
+  if(
+    !data ||
+    typeof data !== "object"
+  ){
+
+    return base;
+
+  }
+
+  return {
+
+    ...base,
+
+    ...data,
+
+    version:
+      STORAGE_VERSION,
+
+    business:{
+      ...base.business,
+      ...(data.business || {})
+    },
+
+    hours:
+      normalizeHours(
+        data.hours
+      ),
+
+    services:
+      Array.isArray(data.services)
+      ? data.services
+      : [],
+
+    promotions:
+      Array.isArray(data.promotions)
+      ? data.promotions
+      : [],
+
+    clients:
+      Array.isArray(data.clients)
+      ? data.clients
+      : [],
+
+    appointments:
+      Array.isArray(data.appointments)
+      ? data.appointments
+      : [],
+
+    contents:
+      Array.isArray(data.contents)
+      ? data.contents
+      : []
+
+  };
+
+}
+
+
 function loadData(){
 
   try{
 
-    const stored =
-      localStorage.getItem(STORAGE_KEY);
+    const raw =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
 
-    if(stored){
+    if(raw){
 
-      const parsed =
-        JSON.parse(stored);
-
-      return normalizeData(parsed);
+      return normalizeData(
+        JSON.parse(raw)
+      );
 
     }
 
@@ -1695,10 +2534,13 @@ function loadData(){
 
   }
 
+
   try{
 
     const backup =
-      localStorage.getItem(BACKUP_KEY);
+      localStorage.getItem(
+        BACKUP_KEY
+      );
 
     if(backup){
 
@@ -1717,58 +2559,13 @@ function loadData(){
 
   }
 
-  return structuredClone(DEFAULT_DATA);
+
+  return structuredClone(
+    DEFAULT_DATA
+  );
 
 }
 
-function normalizeData(data){
-
-  const base =
-    structuredClone(DEFAULT_DATA);
-
-  if(!data || typeof data !== "object"){
-    return base;
-  }
-
-  return {
-
-    ...base,
-
-    ...data,
-
-    business:{
-      ...base.business,
-      ...(data.business || {})
-    },
-
-    hours:{
-      ...base.hours,
-      ...(data.hours || {})
-    },
-
-    services:Array.isArray(data.services)
-      ? data.services
-      : [],
-
-    promotions:Array.isArray(data.promotions)
-      ? data.promotions
-      : [],
-
-    clients:Array.isArray(data.clients)
-      ? data.clients
-      : [],
-
-    appointments:Array.isArray(data.appointments)
-      ? data.appointments
-      : [],
-
-    contents:Array.isArray(data.contents)
-      ? data.contents
-      : []
-
-  };
-
-}
 
 function saveData(){
 
@@ -1791,22 +2588,80 @@ function saveData(){
     );
 
     $("#saveStatus").textContent =
-      "Salvato "+
-      new Date().toLocaleTimeString(
-        "it-IT",
-        {
-          hour:"2-digit",
-          minute:"2-digit"
-        }
-      );
+      "Salvato · "+
+      new Date()
+        .toLocaleTimeString(
+          "it-IT",
+          {
+            hour:"2-digit",
+            minute:"2-digit"
+          }
+        );
 
   }catch(error){
 
     console.error(error);
 
     showToast(
-      "Errore salvataggio dati"
+      "Impossibile salvare i dati"
     );
+
+  }
+
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+function initLogo(){
+
+  const sidebar =
+    $("#sidebarLogo");
+
+  const hero =
+    $("#heroLogo");
+
+  if(MAVIRI_LOGO_URL){
+
+    sidebar.src =
+      MAVIRI_LOGO_URL;
+
+    hero.src =
+      MAVIRI_LOGO_URL;
+
+    sidebar.onerror =
+      () => {
+
+        sidebar.style.display =
+          "none";
+
+        $("#sidebarLogoFallback")
+          .style.display =
+          "flex";
+
+      };
+
+    hero.onerror =
+      () => {
+
+        hero.style.display =
+          "none";
+
+      };
+
+  }else{
+
+    sidebar.style.display =
+      "none";
+
+    $("#sidebarLogoFallback")
+      .style.display =
+      "flex";
+
+    hero.style.display =
+      "none";
 
   }
 
@@ -1826,7 +2681,7 @@ const PAGE_INFO = {
 
   mavi:[
     "Mavi",
-    "Assistente digitale di Maviri."
+    "Il tuo assistente digitale."
   ],
 
   calendar:[
@@ -1841,37 +2696,40 @@ const PAGE_INFO = {
 
   content:[
     "Contenuti",
-    "Crea e gestisci i tuoi contenuti."
+    "Crea contenuti per i tuoi canali."
   ],
 
   settings:[
     "Impostazioni",
-    "Dati dell’attività, servizi, orari e promozioni."
+    "Attività, orari, pause, servizi e promozioni."
   ]
 
 };
+
 
 function openPage(page){
 
   $all(".page")
     .forEach(
-      element =>
-        element.classList.remove("active")
+      el =>
+        el.classList.remove("active")
     );
 
   const target =
     $("#page-"+page);
 
   if(target){
+
     target.classList.add("active");
+
   }
 
   $all("[data-page]")
     .forEach(
-      button =>
-        button.classList.toggle(
+      btn =>
+        btn.classList.toggle(
           "active",
-          button.dataset.page === page
+          btn.dataset.page === page
         )
     );
 
@@ -1880,6 +2738,7 @@ function openPage(page){
 
   $("#pageSubtitle").textContent =
     PAGE_INFO[page][1];
+
 
   if(page==="home"){
     renderHome();
@@ -1904,12 +2763,16 @@ function openPage(page){
 
 }
 
+
 $all("[data-page]")
   .forEach(
-    button =>
-      button.addEventListener(
+    btn =>
+      btn.addEventListener(
         "click",
-        () => openPage(button.dataset.page)
+        () =>
+          openPage(
+            btn.dataset.page
+          )
       )
   );
 
@@ -1928,11 +2791,18 @@ function showToast(message){
 
   toast.classList.add("show");
 
-  setTimeout(
-    () =>
-      toast.classList.remove("show"),
-    2300
+  clearTimeout(
+    window.__toastTimer
   );
+
+  window.__toastTimer =
+    setTimeout(
+      () =>
+        toast.classList.remove(
+          "show"
+        ),
+      2300
+    );
 
 }
 
@@ -1941,81 +2811,92 @@ function showToast(message){
    HOME
 ========================================================= */
 
+function activeAppointments(){
+
+  return appData.appointments
+    .filter(
+      a =>
+        a.status !== "cancelled"
+    );
+
+}
+
+
 function renderHome(){
 
   const today =
-    getTodayISO();
+    todayISO();
 
-  const activeAppointments =
-    appData.appointments
-      .filter(
-        a =>
-          a.status !== "cancelled"
-      );
-
-  const todayCount =
-    activeAppointments
-      .filter(
-        a => a.date === today
-      ).length;
-
-  const futureCount =
-    activeAppointments
-      .filter(
-        a => a.date >= today
-      ).length;
+  const active =
+    activeAppointments();
 
   $("#todayAppointments")
     .textContent =
-      todayCount;
+    active.filter(
+      a =>
+        a.date === today
+    ).length;
 
   $("#futureAppointments")
     .textContent =
-      futureCount;
+    active.filter(
+      a =>
+        a.date >= today
+    ).length;
 
   $("#clientCount")
     .textContent =
-      appData.clients.length;
+    appData.clients.length;
 
   $("#serviceCount")
     .textContent =
-      appData.services.length;
+    appData.services.length;
+
 
   const upcoming =
-    activeAppointments
+    active
       .filter(
-        a => a.date >= today
+        a =>
+          a.date >= today
       )
       .sort(sortAppointments)
       .slice(0,6);
 
+
   if(!upcoming.length){
 
-    $("#homeAppointments").innerHTML =
-      '<div class="empty">'+
-      'Nessun appuntamento futuro.'+
-      '</div>';
+    $("#homeAppointments")
+      .innerHTML =
+      '<div class="empty">Nessun appuntamento futuro.</div>';
 
     return;
 
   }
 
-  $("#homeAppointments").innerHTML =
+
+  $("#homeAppointments")
+    .innerHTML =
     upcoming
-      .map(renderAppointmentItem)
+      .map(
+        renderAppointmentItem
+      )
       .join("");
 
 }
 
+
 function sortAppointments(a,b){
 
   return (
-    a.date+a.time
+    a.date+
+    a.time
   ).localeCompare(
-    b.date+b.time
+    b.date+
+    b.time
   );
 
 }
+
 
 function renderAppointmentItem(a){
 
@@ -2032,9 +2913,7 @@ function renderAppointmentItem(a){
         </strong>
 
         <span class="badge">
-          ${a.status==="completed"
-            ?"Completato"
-            :"Confermato"}
+          ${escapeHTML(a.status)}
         </span>
 
       </div>
@@ -2044,6 +2923,12 @@ function renderAppointmentItem(a){
         ${formatDate(a.date)}
         ·
         ${escapeHTML(a.serviceName)}
+
+        ${
+          a.price !== undefined
+          ? " · €"+escapeHTML(a.price)
+          : ""
+        }
 
       </div>
 
@@ -2061,25 +2946,28 @@ function renderAppointmentItem(a){
 function renderCalendar(){
 
   const year =
-    currentCalendarDate.getFullYear();
+    currentCalendarDate
+      .getFullYear();
 
   const month =
-    currentCalendarDate.getMonth();
+    currentCalendarDate
+      .getMonth();
 
   $("#calendarMonth")
     .textContent =
-      currentCalendarDate
-        .toLocaleDateString(
-          "it-IT",
-          {
-            month:"long",
-            year:"numeric"
-          }
-        );
+    currentCalendarDate
+      .toLocaleDateString(
+        "it-IT",
+        {
+          month:"long",
+          year:"numeric"
+        }
+      );
+
 
   let html = "";
 
-  const weekdays = [
+  [
     "Lun",
     "Mar",
     "Mer",
@@ -2087,29 +2975,44 @@ function renderCalendar(){
     "Ven",
     "Sab",
     "Dom"
-  ];
-
-  weekdays.forEach(
+  ].forEach(
     day =>
       html +=
-        `<div class="weekday">${day}</div>`
+      `<div class="weekday">${day}</div>`
   );
 
+
   const first =
-    new Date(year,month,1);
+    new Date(
+      year,
+      month,
+      1
+    );
 
   const last =
-    new Date(year,month+1,0);
+    new Date(
+      year,
+      month+1,
+      0
+    );
 
   const start =
-    (first.getDay()+6)%7;
+    (
+      first.getDay()+6
+    )%7;
 
-  for(let i=0;i<start;i++){
+
+  for(
+    let i=0;
+    i<start;
+    i++
+  ){
 
     html +=
       '<div class="day muted"></div>';
 
   }
+
 
   for(
     let day=1;
@@ -2120,21 +3023,33 @@ function renderCalendar(){
     const iso =
       year+
       "-"+
-      String(month+1).padStart(2,"0")+
+      String(month+1)
+        .padStart(2,"0")+
       "-"+
-      String(day).padStart(2,"0");
+      String(day)
+        .padStart(2,"0");
 
-    const hasAppointment =
-      appData.appointments.some(
-        a =>
-          a.date === iso &&
-          a.status !== "cancelled"
-      );
+
+    const events =
+      appData.appointments
+        .filter(
+          a =>
+            a.date === iso &&
+            a.status !== "cancelled"
+        )
+        .sort(sortAppointments);
+
+
+    const isToday =
+      iso === todayISO();
+
 
     html += `
 
       <div
-        class="day ${iso===selectedDate?"selected":""}"
+        class="day
+          ${iso===selectedDate?"selected":""}
+          ${isToday?"today":""}"
         onclick="selectCalendarDate('${iso}')">
 
         <span class="day-number">
@@ -2142,9 +3057,33 @@ function renderCalendar(){
         </span>
 
         ${
-          hasAppointment
-          ? '<span class="event-dot"></span>'
-          : ''
+          events.length
+          ? `
+            <div class="event-list">
+
+              ${
+                events
+                  .slice(0,3)
+                  .map(
+                    event =>
+                    `<div class="event-mini">
+                      ${escapeHTML(event.time)}
+                      ·
+                      ${escapeHTML(event.clientName)}
+                    </div>`
+                  )
+                  .join("")
+              }
+
+              ${
+                events.length>3
+                ? `<span class="event-dot"></span>`
+                : ""
+              }
+
+            </div>
+          `
+          : ""
         }
 
       </div>
@@ -2153,12 +3092,15 @@ function renderCalendar(){
 
   }
 
-  $("#calendar").innerHTML =
+
+  $("#calendar")
+    .innerHTML =
     html;
 
   renderDayAppointments();
 
 }
+
 
 function selectCalendarDate(date){
 
@@ -2168,6 +3110,7 @@ function selectCalendarDate(date){
   renderCalendar();
 
 }
+
 
 $("#previousMonth")
   .addEventListener(
@@ -2183,6 +3126,7 @@ $("#previousMonth")
 
     }
   );
+
 
 $("#nextMonth")
   .addEventListener(
@@ -2204,65 +3148,99 @@ function renderDayAppointments(){
 
   $("#selectedDayTitle")
     .textContent =
-      "Appuntamenti · "+
-      formatDate(selectedDate);
+    "Appuntamenti · "+
+    formatDate(selectedDate);
+
 
   const appointments =
     appData.appointments
       .filter(
         a =>
-          a.date === selectedDate &&
-          a.status !== "cancelled"
+          a.date === selectedDate
       )
       .sort(sortAppointments);
 
+
   if(!appointments.length){
 
-    $("#dayAppointments").innerHTML =
-      '<div class="empty">'+
-      'Nessun appuntamento.'+
-      '</div>';
+    $("#dayAppointments")
+      .innerHTML =
+      '<div class="empty">Nessun appuntamento.</div>';
 
     return;
 
   }
 
-  $("#dayAppointments").innerHTML =
+
+  $("#dayAppointments")
+    .innerHTML =
     appointments
       .map(
-        a => `
+        appointment => `
 
           <div class="item">
 
             <div class="between">
 
-              <strong>
-                ${escapeHTML(a.time)}
-                ·
-                ${escapeHTML(a.clientName)}
-              </strong>
+              <div>
 
-              <button
-                class="btn danger"
-                onclick="cancelAppointment('${a.id}')">
+                <strong>
+                  ${escapeHTML(appointment.time)}
+                  ·
+                  ${escapeHTML(appointment.clientName)}
+                </strong>
 
-                Annulla
+                <div class="meta">
 
-              </button>
+                  ${escapeHTML(
+                    appointment.serviceName
+                  )}
 
-            </div>
+                </div>
 
-            <div class="meta">
+              </div>
 
-              ${escapeHTML(a.serviceName)}
-
-              ${
-                a.price !== undefined
-                ? " · € "+escapeHTML(a.price)
+              <span class="badge ${
+                appointment.status === "cancelled"
+                ? "danger"
+                : appointment.status === "completed"
+                ? "blue"
                 : ""
-              }
+              }">
+
+                ${escapeHTML(
+                  appointment.status
+                )}
+
+              </span>
 
             </div>
+
+            ${
+              appointment.status !== "cancelled"
+              ? `
+
+                <div
+                  class="row"
+                  style="margin-top:10px">
+
+                  <button
+                    class="btn small"
+                    onclick="completeAppointment('${appointment.id}')">
+                    Completa
+                  </button>
+
+                  <button
+                    class="btn small danger"
+                    onclick="cancelAppointment('${appointment.id}')">
+                    Annulla
+                  </button>
+
+                </div>
+
+              `
+              : ""
+            }
 
           </div>
 
@@ -2272,12 +3250,41 @@ function renderDayAppointments(){
 
 }
 
+
+function completeAppointment(id){
+
+  const appointment =
+    appData.appointments
+      .find(
+        a =>
+          a.id === id
+      );
+
+  if(!appointment){
+    return;
+  }
+
+  appointment.status =
+    "completed";
+
+  saveData();
+
+  renderAll();
+
+  showToast(
+    "Appuntamento completato"
+  );
+
+}
+
+
 function cancelAppointment(id){
 
   const appointment =
     appData.appointments
       .find(
-        a => a.id === id
+        a =>
+          a.id === id
       );
 
   if(!appointment){
@@ -2289,7 +3296,9 @@ function cancelAppointment(id){
       "Vuoi annullare questo appuntamento?"
     )
   ){
+
     return;
+
   }
 
   appointment.status =
@@ -2315,14 +3324,11 @@ function renderAppointmentSearch(){
   const input =
     $("#appointmentSearch");
 
-  if(!input){
-    return;
-  }
-
   const query =
-    input.value
+    (input.value || "")
       .trim()
       .toLowerCase();
+
 
   const results =
     appData.appointments
@@ -2335,66 +3341,37 @@ function renderAppointmentSearch(){
             " "+
             a.date+
             " "+
-            a.time
+            a.time+
+            " "+
+            a.status
           )
           .toLowerCase()
           .includes(query)
       )
       .sort(sortAppointments);
 
+
   if(!results.length){
 
-    $("#appointmentResults").innerHTML =
-      '<div class="empty">'+
-      'Nessun risultato.'+
-      '</div>';
+    $("#appointmentResults")
+      .innerHTML =
+      '<div class="empty">Nessun risultato.</div>';
 
     return;
 
   }
 
-  $("#appointmentResults").innerHTML =
+
+  $("#appointmentResults")
+    .innerHTML =
     results
       .map(
-        a => `
-
-          <div class="item">
-
-            <div class="between">
-
-              <strong>
-                ${escapeHTML(a.clientName)}
-                ·
-                ${escapeHTML(a.time)}
-              </strong>
-
-              <span class="badge ${
-                a.status==="cancelled"
-                ?"danger"
-                :""
-              }">
-
-                ${escapeHTML(a.status)}
-
-              </span>
-
-            </div>
-
-            <div class="meta">
-
-              ${formatDate(a.date)}
-              ·
-              ${escapeHTML(a.serviceName)}
-
-            </div>
-
-          </div>
-
-        `
+        renderAppointmentItem
       )
       .join("");
 
 }
+
 
 $("#appointmentSearch")
   .addEventListener(
@@ -2407,12 +3384,74 @@ $("#appointmentSearch")
    CLIENTS
 ========================================================= */
 
+function findClientByName(name){
+
+  const normalized =
+    name
+      .trim()
+      .toLowerCase();
+
+  return appData.clients
+    .find(
+      client =>
+        client.name
+          .trim()
+          .toLowerCase() ===
+        normalized
+    );
+
+}
+
+
+function findOrCreateClient(name){
+
+  let client =
+    findClientByName(name);
+
+
+  if(!client){
+
+    client = {
+
+      id:uid(),
+
+      name:name.trim(),
+
+      phone:"",
+
+      whatsapp:"",
+
+      email:"",
+
+      notes:"",
+
+      createdAt:
+        new Date().toISOString()
+
+    };
+
+    appData.clients.push(
+      client
+    );
+
+  }
+
+
+  return client;
+
+}
+
+
 function renderClients(){
 
   const query =
-    ($("#clientSearch").value || "")
-      .trim()
-      .toLowerCase();
+    (
+      $("#clientSearch").value ||
+      ""
+    )
+    .trim()
+    .toLowerCase();
+
 
   const clients =
     appData.clients
@@ -2429,66 +3468,85 @@ function renderClients(){
           )
           .toLowerCase()
           .includes(query)
+      )
+      .sort(
+        (a,b) =>
+          a.name.localeCompare(
+            b.name,
+            "it"
+          )
       );
+
 
   if(!clients.length){
 
-    $("#clientsList").innerHTML =
-      '<div class="empty">'+
-      'Nessun cliente.'+
-      '</div>';
+    $("#clientsList")
+      .innerHTML =
+      '<div class="empty">Nessun cliente.</div>';
 
     return;
 
   }
 
-  $("#clientsList").innerHTML =
+
+  $("#clientsList")
+    .innerHTML =
     clients
       .map(
-        client => `
+        client => {
 
-          <div
-            class="item"
-            onclick="openClient('${client.id}')"
-            style="cursor:pointer">
+          const count =
+            appData.appointments
+              .filter(
+                a =>
+                  a.clientId ===
+                  client.id &&
+                  a.status !==
+                  "cancelled"
+              )
+              .length;
 
-            <strong>
-              ${escapeHTML(client.name)}
-            </strong>
+          return `
 
-            <div class="meta">
+            <div
+              class="item"
+              style="cursor:pointer"
+              onclick="openClient('${client.id}')">
 
-              ${
-                escapeHTML(
-                  client.phone ||
-                  client.whatsapp ||
-                  "Nessun contatto"
-                )
-              }
+              <div class="between">
 
-              ·
+                <strong>
+                  ${escapeHTML(client.name)}
+                </strong>
 
-              ${
-                appData.appointments
-                  .filter(
-                    a =>
-                      a.clientId === client.id &&
-                      a.status !== "cancelled"
+                <span class="badge">
+                  ${count}
+                </span>
+
+              </div>
+
+              <div class="meta">
+
+                ${
+                  escapeHTML(
+                    client.phone ||
+                    client.whatsapp ||
+                    "Nessun contatto"
                   )
-                  .length
-              }
+                }
 
-              appuntamenti
+              </div>
 
             </div>
 
-          </div>
+          `;
 
-        `
+        }
       )
       .join("");
 
 }
+
 
 $("#clientSearch")
   .addEventListener(
@@ -2502,138 +3560,137 @@ function openClient(id){
   const client =
     appData.clients
       .find(
-        c => c.id === id
+        c =>
+          c.id === id
       );
 
   if(!client){
     return;
   }
 
+
   const history =
     appData.appointments
       .filter(
-        a => a.clientId === id
+        a =>
+          a.clientId === id
       )
       .sort(
         (a,b) =>
-          (b.date+b.time)
+          (
+            b.date+
+            b.time
+          )
           .localeCompare(
-            a.date+a.time
+            a.date+
+            a.time
           )
       );
 
-  $("#clientDetail").innerHTML = `
 
-    <div class="form">
+  $("#clientDetail")
+    .innerHTML = `
 
-      <div class="field">
+      <div class="form">
 
-        <label>
-          Nome
-        </label>
+        <div class="field">
 
-        <input
-          id="clientNameEdit"
-          value="${escapeHTML(client.name)}">
+          <label>Nome</label>
 
-      </div>
+          <input
+            id="editClientName"
+            value="${escapeHTML(client.name)}">
 
-      <div class="field">
+        </div>
 
-        <label>
-          Telefono
-        </label>
+        <div class="field">
 
-        <input
-          id="clientPhoneEdit"
-          value="${escapeHTML(client.phone||"")}">
+          <label>Telefono</label>
 
-      </div>
+          <input
+            id="editClientPhone"
+            value="${escapeHTML(client.phone||"")}">
 
-      <div class="field">
+        </div>
 
-        <label>
-          WhatsApp
-        </label>
+        <div class="field">
 
-        <input
-          id="clientWhatsappEdit"
-          value="${escapeHTML(client.whatsapp||"")}">
+          <label>WhatsApp</label>
 
-      </div>
+          <input
+            id="editClientWhatsapp"
+            value="${escapeHTML(client.whatsapp||"")}">
 
-      <div class="field">
+        </div>
 
-        <label>
-          Email
-        </label>
+        <div class="field">
 
-        <input
-          id="clientEmailEdit"
-          value="${escapeHTML(client.email||"")}">
+          <label>Email</label>
 
-      </div>
+          <input
+            id="editClientEmail"
+            value="${escapeHTML(client.email||"")}">
 
-      <div class="field">
+        </div>
 
-        <label>
-          Note personali
-        </label>
+        <div class="field">
 
-        <textarea
-          id="clientNotesEdit">${escapeHTML(client.notes||"")}</textarea>
+          <label>Note personali</label>
 
-      </div>
+          <textarea
+            id="editClientNotes">${escapeHTML(client.notes||"")}</textarea>
 
-      <button
-        class="btn primary"
-        onclick="saveClient('${client.id}')">
+        </div>
 
-        Salva scheda
+        <button
+          class="btn primary"
+          onclick="saveClient('${client.id}')">
 
-      </button>
+          Salva scheda
 
-      <h3 style="margin-top:12px">
-        Storico appuntamenti
-      </h3>
+        </button>
 
-      <div class="client-history">
+        <h3>
+          Storico
+        </h3>
 
-        ${
-          history.length
-          ? history
-              .map(
-                a => `
+        <div class="list">
 
-                  <div class="item">
+          ${
+            history.length
+            ? history
+                .map(
+                  a => `
 
-                    <strong>
-                      ${formatDate(a.date)}
-                      ·
-                      ${escapeHTML(a.serviceName)}
-                    </strong>
+                    <div class="item">
 
-                    <div class="meta">
+                      <strong>
+                        ${formatDate(a.date)}
+                      </strong>
 
-                      ${escapeHTML(a.time)}
-                      ·
-                      ${escapeHTML(a.status)}
+                      <div class="meta">
+
+                        ${escapeHTML(a.time)}
+                        ·
+                        ${escapeHTML(a.serviceName)}
+                        ·
+                        ${escapeHTML(a.status)}
+
+                      </div>
 
                     </div>
 
-                  </div>
+                  `
+                )
+                .join("")
+            : '<div class="empty">Nessuno storico.</div>'
+          }
 
-                `
-              )
-              .join("")
-          : '<div class="empty">Nessuno storico.</div>'
-        }
+        </div>
 
       </div>
 
-    </div>
-
-  `;
+    `;
 
 }
 
@@ -2643,41 +3700,45 @@ function saveClient(id){
   const client =
     appData.clients
       .find(
-        c => c.id === id
+        c =>
+          c.id === id
       );
 
   if(!client){
     return;
   }
 
+
   client.name =
-    $("#clientNameEdit")
+    $("#editClientName")
       .value
       .trim();
 
   client.phone =
-    $("#clientPhoneEdit")
+    $("#editClientPhone")
       .value
       .trim();
 
   client.whatsapp =
-    $("#clientWhatsappEdit")
+    $("#editClientWhatsapp")
       .value
       .trim();
 
   client.email =
-    $("#clientEmailEdit")
+    $("#editClientEmail")
       .value
       .trim();
 
   client.notes =
-    $("#clientNotesEdit")
+    $("#editClientNotes")
       .value
       .trim();
 
+
   appData.appointments
     .filter(
-      a => a.clientId === id
+      a =>
+        a.clientId === id
     )
     .forEach(
       a =>
@@ -2685,11 +3746,14 @@ function saveClient(id){
           client.name
     );
 
+
   saveData();
 
   renderClients();
 
   openClient(id);
+
+  renderHome();
 
   showToast(
     "Scheda cliente salvata"
@@ -2719,11 +3783,14 @@ function newClient(){
 
   };
 
+
   appData.clients.push(
     client
   );
 
   saveData();
+
+  openPage("clients");
 
   renderClients();
 
@@ -2733,10 +3800,10 @@ function newClient(){
 
 
 /* =========================================================
-   SETTINGS
+   SETTINGS — BUSINESS
 ========================================================= */
 
-function renderSettings(){
+function renderBusinessSettings(){
 
   $("#businessName").value =
     appData.business.name || "";
@@ -2756,148 +3823,322 @@ function renderSettings(){
   $("#businessDescription").value =
     appData.business.description || "";
 
-  $("#openingTime").value =
-    appData.hours.open || "09:00";
-
-  $("#closingTime").value =
-    appData.hours.close || "19:00";
-
-
-  if(!appData.services.length){
-
-    $("#servicesList").innerHTML =
-      '<div class="empty">'+
-      'Nessun servizio configurato.'+
-      '</div>';
-
-  }else{
-
-    $("#servicesList").innerHTML =
-      appData.services
-        .map(
-          service => `
-
-            <div class="item">
-
-              <div class="between">
-
-                <strong>
-                  ${escapeHTML(service.name)}
-                </strong>
-
-                <button
-                  class="btn danger"
-                  onclick="deleteService('${service.id}')">
-
-                  Elimina
-
-                </button>
-
-              </div>
-
-              <div class="meta">
-
-                ${escapeHTML(
-                  service.description || ""
-                )}
-
-                ·
-
-                € ${escapeHTML(service.price)}
-
-                ·
-
-                ${escapeHTML(service.duration)}
-                min
-
-              </div>
-
-            </div>
-
-          `
-        )
-        .join("");
-
-  }
-
-
-  if(!appData.promotions.length){
-
-    $("#promotionsList").innerHTML =
-      '<div class="empty">'+
-      'Nessuna promozione.'+
-      '</div>';
-
-  }else{
-
-    $("#promotionsList").innerHTML =
-      appData.promotions
-        .map(
-          promotion => `
-
-            <div class="item">
-
-              <div class="between">
-
-                <strong>
-                  ${escapeHTML(promotion.name)}
-                </strong>
-
-                <button
-                  class="btn danger"
-                  onclick="deletePromotion('${promotion.id}')">
-
-                  Elimina
-
-                </button>
-
-              </div>
-
-              <div class="meta">
-
-                ${escapeHTML(
-                  promotion.description || ""
-                )}
-
-              </div>
-
-            </div>
-
-          `
-        )
-        .join("");
-
-  }
-
 }
 
 
 function saveBusiness(){
 
   appData.business.name =
-    $("#businessName").value.trim();
+    $("#businessName")
+      .value
+      .trim();
 
   appData.business.type =
-    $("#businessType").value.trim();
+    $("#businessType")
+      .value
+      .trim();
 
   appData.business.phone =
-    $("#businessPhone").value.trim();
+    $("#businessPhone")
+      .value
+      .trim();
 
   appData.business.whatsapp =
-    $("#businessWhatsapp").value.trim();
+    $("#businessWhatsapp")
+      .value
+      .trim();
 
   appData.business.address =
-    $("#businessAddress").value.trim();
+    $("#businessAddress")
+      .value
+      .trim();
 
   appData.business.description =
-    $("#businessDescription").value.trim();
+    $("#businessDescription")
+      .value
+      .trim();
 
   saveData();
 
   renderHome();
 
   showToast(
-    "Dati attività salvati"
+    "Attività salvata"
+  );
+
+}
+
+
+/* =========================================================
+   SETTINGS — HOURS
+========================================================= */
+
+function renderHours(){
+
+  $("#hoursList")
+    .innerHTML =
+    DAYS
+      .map(
+        day => {
+
+          const setting =
+            appData.hours[day.id];
+
+
+          return `
+
+            <div class="day-setting">
+
+              <div class="day-setting-top">
+
+                <div class="day-name">
+                  ${day.name}
+                </div>
+
+                <div class="day-controls">
+
+                  <label class="closed-toggle">
+
+                    <span>
+                      Giorno chiuso
+                    </span>
+
+                    <label class="toggle">
+
+                      <input
+                        type="checkbox"
+                        id="closed-${day.id}"
+                        ${setting.closed?"checked":""}
+                        onchange="toggleDayClosed('${day.id}')">
+
+                      <span class="toggle-slider"></span>
+
+                    </label>
+
+                  </label>
+
+                  <input
+                    type="time"
+                    id="open-${day.id}"
+                    value="${escapeHTML(setting.open)}"
+                    ${setting.closed?"disabled":""}>
+
+                  <span>—</span>
+
+                  <input
+                    type="time"
+                    id="close-${day.id}"
+                    value="${escapeHTML(setting.close)}"
+                    ${setting.closed?"disabled":""}>
+
+                  ${
+                    setting.closed
+                    ? '<span class="badge danger">CHIUSO</span>'
+                    : '<span class="badge">APERTO</span>'
+                  }
+
+                </div>
+
+              </div>
+
+              <div
+                class="pause-list"
+                id="pauses-${day.id}">
+
+                ${
+                  setting.closed
+                  ? ""
+                  : renderPauses(
+                      day.id,
+                      setting.pauses
+                    )
+                }
+
+              </div>
+
+              ${
+                setting.closed
+                ? ""
+                : `
+
+                  <div
+                    style="margin:10px 0 0 137px">
+
+                    <button
+                      class="btn small secondary"
+                      onclick="addPause('${day.id}')">
+
+                      + Aggiungi pausa
+
+                    </button>
+
+                  </div>
+
+                `
+              }
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+function renderPauses(
+  dayId,
+  pauses
+){
+
+  if(!pauses.length){
+
+    return `
+      <div class="meta">
+        Nessuna pausa impostata.
+      </div>
+    `;
+
+  }
+
+
+  return pauses
+    .map(
+      (pause,index) => `
+
+        <div class="pause-row">
+
+          <span class="pause-label">
+            Pausa ${index+1}
+          </span>
+
+          <input
+            type="time"
+            value="${escapeHTML(pause.start)}"
+            onchange="updatePause(
+              '${dayId}',
+              ${index},
+              'start',
+              this.value
+            )">
+
+          <span>—</span>
+
+          <input
+            type="time"
+            value="${escapeHTML(pause.end)}"
+            onchange="updatePause(
+              '${dayId}',
+              ${index},
+              'end',
+              this.value
+            )">
+
+          <button
+            class="btn small danger"
+            onclick="removePause('${dayId}',${index})">
+
+            Elimina
+
+          </button>
+
+        </div>
+
+      `
+    )
+    .join("");
+
+}
+
+
+function toggleDayClosed(dayId){
+
+  appData.hours[dayId].closed =
+    $("#closed-"+dayId)
+      .checked;
+
+  renderHours();
+
+}
+
+
+function addPause(dayId){
+
+  appData.hours[dayId]
+    .pauses
+    .push({
+      start:"13:00",
+      end:"14:00"
+    });
+
+  renderHours();
+
+}
+
+
+function removePause(
+  dayId,
+  index
+){
+
+  appData.hours[dayId]
+    .pauses
+    .splice(
+      index,
+      1
+    );
+
+  renderHours();
+
+}
+
+
+function updatePause(
+  dayId,
+  index,
+  field,
+  value
+){
+
+  if(
+    appData.hours[dayId] &&
+    appData.hours[dayId]
+      .pauses[index]
+  ){
+
+    appData.hours[dayId]
+      .pauses[index][field] =
+      value;
+
+  }
+
+}
+
+
+function copyHoursToAll(){
+
+  const source =
+    appData.hours.monday;
+
+  DAYS.forEach(
+    day => {
+
+      if(day.id==="monday"){
+        return;
+      }
+
+      appData.hours[day.id] =
+        structuredClone(source);
+
+    }
+  );
+
+  renderHours();
+
+  showToast(
+    "Orari del lunedì copiati"
   );
 
 }
@@ -2905,63 +4146,257 @@ function saveBusiness(){
 
 function saveHours(){
 
-  appData.hours.open =
-    $("#openingTime").value;
+  /*
+   * Prima leggiamo i valori dei campi.
+   */
 
-  appData.hours.close =
-    $("#closingTime").value;
+  DAYS.forEach(
+    day => {
+
+      const setting =
+        appData.hours[day.id];
+
+
+      const open =
+        $("#open-"+day.id);
+
+      const close =
+        $("#close-"+day.id);
+
+      const closed =
+        $("#closed-"+day.id);
+
+
+      if(open){
+
+        setting.open =
+          open.value ||
+          setting.open;
+
+      }
+
+      if(close){
+
+        setting.close =
+          close.value ||
+          setting.close;
+
+      }
+
+      if(closed){
+
+        setting.closed =
+          closed.checked;
+
+      }
+
+    }
+  );
+
+
+  /*
+   * Controllo di base:
+   * apertura < chiusura
+   */
+
+  for(
+    const day
+    of DAYS
+  ){
+
+    const setting =
+      appData.hours[day.id];
+
+    if(setting.closed){
+      continue;
+    }
+
+    if(
+      minutes(setting.open) >=
+      minutes(setting.close)
+    ){
+
+      showToast(
+        "Controlla gli orari di "+day.name
+      );
+
+      return;
+
+    }
+
+
+    for(
+      const pause
+      of setting.pauses
+    ){
+
+      if(
+        minutes(pause.start) >=
+        minutes(pause.end)
+      ){
+
+        showToast(
+          "Controlla le pause di "+
+          day.name
+        );
+
+        return;
+
+      }
+
+    }
+
+  }
+
 
   saveData();
 
+  renderHours();
+
   showToast(
-    "Orari salvati"
+    "Orari e pause salvati"
   );
+
+}
+
+
+/* =========================================================
+   SETTINGS — SERVICES
+========================================================= */
+
+function renderServices(){
+
+  if(!appData.services.length){
+
+    $("#servicesList")
+      .innerHTML =
+      '<div class="empty">Nessun servizio configurato.</div>';
+
+    return;
+
+  }
+
+
+  $("#servicesList")
+    .innerHTML =
+    appData.services
+      .map(
+        service => `
+
+          <div class="item">
+
+            <div class="service-row">
+
+              <input
+                value="${escapeHTML(service.name)}"
+                onchange="updateService('${service.id}','name',this.value)">
+
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value="${escapeHTML(service.price)}"
+                onchange="updateService('${service.id}','price',this.value)">
+
+              <input
+                type="number"
+                min="1"
+                value="${escapeHTML(service.duration)}"
+                onchange="updateService('${service.id}','duration',this.value)">
+
+              <button
+                class="btn small danger"
+                onclick="deleteService('${service.id}')">
+
+                Elimina
+
+              </button>
+
+            </div>
+
+            <div class="meta">
+              Prezzo · Durata in minuti
+            </div>
+
+          </div>
+
+        `
+      )
+      .join("");
 
 }
 
 
 function addService(){
 
-  const name =
-    prompt(
-      "Nome del servizio"
-    );
-
-  if(!name){
-    return;
-  }
-
-  const price =
-    prompt(
-      "Prezzo (€)",
-      "0"
-    );
-
-  const duration =
-    prompt(
-      "Durata in minuti",
-      "30"
-    );
-
-  appData.services.push({
+  const service = {
 
     id:uid(),
 
-    name:name.trim(),
+    name:"Nuovo servizio",
 
     description:"",
 
-    price:Number(price)||0,
+    price:0,
 
-    duration:Number(duration)||30
+    duration:30
 
-  });
+  };
+
+
+  appData.services.push(
+    service
+  );
 
   saveData();
 
-  renderSettings();
+  renderServices();
 
   renderHome();
+
+}
+
+
+function updateService(
+  id,
+  field,
+  value
+){
+
+  const service =
+    appData.services
+      .find(
+        s =>
+          s.id === id
+      );
+
+  if(!service){
+    return;
+  }
+
+
+  if(field==="price"){
+
+    service.price =
+      Number(value)||0;
+
+  }else if(field==="duration"){
+
+    service.duration =
+      Math.max(
+        1,
+        Number(value)||30
+      );
+
+  }else{
+
+    service[field] =
+      value.trim();
+
+  }
+
+
+  saveData();
 
 }
 
@@ -2973,20 +4408,81 @@ function deleteService(id){
       "Eliminare questo servizio?"
     )
   ){
+
     return;
+
   }
 
+
   appData.services =
-    appData.services.filter(
-      service =>
-        service.id !== id
-    );
+    appData.services
+      .filter(
+        service =>
+          service.id !== id
+      );
+
 
   saveData();
 
-  renderSettings();
+  renderServices();
 
   renderHome();
+
+}
+
+
+/* =========================================================
+   SETTINGS — PROMOTIONS
+========================================================= */
+
+function renderPromotions(){
+
+  if(!appData.promotions.length){
+
+    $("#promotionsList")
+      .innerHTML =
+      '<div class="empty">Nessuna promozione.</div>';
+
+    return;
+
+  }
+
+
+  $("#promotionsList")
+    .innerHTML =
+    appData.promotions
+      .map(
+        promotion => `
+
+          <div class="item">
+
+            <div class="between">
+
+              <strong>
+                ${escapeHTML(promotion.name)}
+              </strong>
+
+              <button
+                class="btn small danger"
+                onclick="deletePromotion('${promotion.id}')">
+
+                Elimina
+
+              </button>
+
+            </div>
+
+            <div class="meta">
+              ${escapeHTML(
+                promotion.description || ""
+              )}
+            </div>
+
+          </div>
+
+        `
+      )
+      .join("");
 
 }
 
@@ -3002,11 +4498,13 @@ function addPromotion(){
     return;
   }
 
+
   const description =
     prompt(
-      "Descrizione",
+      "Descrizione promozione",
       ""
     );
+
 
   appData.promotions.push({
 
@@ -3015,13 +4513,15 @@ function addPromotion(){
     name:name.trim(),
 
     description:
-      description || ""
+      description ||
+      ""
 
   });
 
+
   saveData();
 
-  renderSettings();
+  renderPromotions();
 
 }
 
@@ -3029,21 +4529,44 @@ function addPromotion(){
 function deletePromotion(id){
 
   appData.promotions =
-    appData.promotions.filter(
-      promotion =>
-        promotion.id !== id
-    );
+    appData.promotions
+      .filter(
+        p =>
+          p.id !== id
+      );
 
   saveData();
 
-  renderSettings();
+  renderPromotions();
+
+}
+
+
+function renderSettings(){
+
+  renderBusinessSettings();
+
+  renderHours();
+
+  renderServices();
+
+  renderPromotions();
 
 }
 
 
 /* =========================================================
-   AVAILABILITY ENGINE
+   AVAILABILITY
 ========================================================= */
+
+function getOpeningSetting(date){
+
+  return appData.hours[
+    getDayKey(date)
+  ];
+
+}
+
 
 function isSlotAvailable(
   date,
@@ -3051,28 +4574,38 @@ function isSlotAvailable(
   duration
 ){
 
-  const requestedStart =
+  const setting =
+    getOpeningSetting(date);
+
+
+  if(!setting){
+    return false;
+  }
+
+
+  if(setting.closed){
+    return false;
+  }
+
+
+  const start =
     minutes(time);
 
-  const requestedEnd =
-    requestedStart+
+  const end =
+    start+
     Number(duration||30);
 
 
   const opening =
-    minutes(
-      appData.hours.open
-    );
+    minutes(setting.open);
 
   const closing =
-    minutes(
-      appData.hours.close
-    );
+    minutes(setting.close);
 
 
   if(
-    requestedStart < opening ||
-    requestedEnd > closing
+    start < opening ||
+    end > closing
   ){
 
     return false;
@@ -3080,53 +4613,99 @@ function isSlotAvailable(
   }
 
 
-  return !appData.appointments
-    .some(
-      appointment => {
+  /*
+   * PAUSE
+   */
 
-        if(
-          appointment.date !== date ||
-          appointment.status === "cancelled"
-        ){
+  for(
+    const pause
+    of setting.pauses
+  ){
 
-          return false;
+    const pauseStart =
+      minutes(pause.start);
 
-        }
+    const pauseEnd =
+      minutes(pause.end);
 
-        const start =
-          minutes(
-            appointment.time
-          );
+    if(
+      overlap(
+        start,
+        end,
+        pauseStart,
+        pauseEnd
+      )
+    ){
 
-        const end =
-          start+
-          Number(
-            appointment.duration || 30
-          );
+      return false;
 
-        return overlap(
-          requestedStart,
-          requestedEnd,
-          start,
-          end
-        );
+    }
 
-      }
-    );
+  }
+
+
+  /*
+   * APPUNTAMENTI
+   */
+
+  for(
+    const appointment
+    of appData.appointments
+  ){
+
+    if(
+      appointment.date !== date ||
+      appointment.status === "cancelled"
+    ){
+
+      continue;
+
+    }
+
+
+    const appointmentStart =
+      minutes(
+        appointment.time
+      );
+
+    const appointmentEnd =
+      appointmentStart+
+      Number(
+        appointment.duration||30
+      );
+
+
+    if(
+      overlap(
+        start,
+        end,
+        appointmentStart,
+        appointmentEnd
+      )
+    ){
+
+      return false;
+
+    }
+
+  }
+
+
+  return true;
 
 }
 
 
 /* =========================================================
-   MANUAL APPOINTMENT
+   MANUAL APPOINTMENT MODAL
 ========================================================= */
 
-function newAppointment(){
+function openNewAppointmentModal(){
 
   if(!appData.services.length){
 
-    alert(
-      "Configura prima almeno un servizio."
+    showToast(
+      "Configura prima almeno un servizio"
     );
 
     openPage("settings");
@@ -3135,162 +4714,318 @@ function newAppointment(){
 
   }
 
-  const clientName =
-    prompt(
-      "Nome cliente"
-    );
 
-  if(!clientName){
-    return;
-  }
+  const select =
+    $("#appointmentService");
 
-  const date =
-    prompt(
-      "Data (AAAA-MM-GG)",
-      selectedDate
-    );
 
-  if(!date){
-    return;
-  }
+  select.innerHTML =
+    appData.services
+      .map(
+        service => `
 
-  const time =
-    prompt(
-      "Ora (HH:MM)",
-      "09:00"
-    );
+          <option value="${service.id}">
 
-  if(!time){
-    return;
-  }
+            ${escapeHTML(service.name)}
+            ·
+            €${escapeHTML(service.price)}
+            ·
+            ${escapeHTML(service.duration)} min
 
-  const service =
-    appData.services[0];
+          </option>
 
-  if(
-    !isSlotAvailable(
-      date,
-      time,
-      service.duration
-    )
-  ){
+        `
+      )
+      .join("");
 
-    alert(
-      "L'orario non è disponibile."
-    );
 
-    return;
+  $("#appointmentClient")
+    .value =
+    "";
 
-  }
+  $("#appointmentDate")
+    .value =
+    selectedDate;
 
-  const client =
-    findOrCreateClient(
-      clientName.trim()
-    );
+  $("#appointmentTime")
+    .value =
+    "";
 
-  const appointment = {
 
-    id:uid(),
+  $("#appointmentAvailability")
+    .textContent =
+    "";
 
-    clientId:
-      client.id,
 
-    clientName:
-      client.name,
-
-    date,
-
-    time,
-
-    serviceId:
-      service.id,
-
-    serviceName:
-      service.name,
-
-    price:
-      service.price,
-
-    duration:
-      service.duration,
-
-    status:
-      "confirmed",
-
-    createdAt:
-      new Date().toISOString()
-
-  };
-
-  appData.appointments.push(
-    appointment
-  );
-
-  saveData();
-
-  selectedDate =
-    date;
-
-  currentCalendarDate =
-    new Date(date+"T12:00:00");
-
-  renderAll();
-
-  showToast(
-    "Appuntamento salvato"
-  );
+  $("#appointmentModal")
+    .classList.add("show");
 
 }
 
 
-function findOrCreateClient(name){
+function closeAppointmentModal(){
 
-  let client =
-    appData.clients
+  $("#appointmentModal")
+    .classList.remove("show");
+
+}
+
+
+$("#appointmentDate")
+  .addEventListener(
+    "change",
+    updateManualAvailability
+  );
+
+
+$("#appointmentTime")
+  .addEventListener(
+    "change",
+    updateManualAvailability
+  );
+
+
+$("#appointmentService")
+  .addEventListener(
+    "change",
+    updateManualAvailability
+  );
+
+
+function updateManualAvailability(){
+
+  const date =
+    $("#appointmentDate")
+      .value;
+
+  const time =
+    $("#appointmentTime")
+      .value;
+
+  const service =
+    appData.services
       .find(
-        c =>
-          c.name
-            .toLowerCase() ===
-          name.toLowerCase()
+        s =>
+          s.id ===
+          $("#appointmentService")
+            .value
       );
 
-  if(!client){
 
-    client = {
+  if(
+    !date ||
+    !time ||
+    !service
+  ){
+
+    $("#appointmentAvailability")
+      .textContent =
+      "";
+
+    return;
+
+  }
+
+
+  const available =
+    isSlotAvailable(
+      date,
+      time,
+      service.duration
+    );
+
+
+  $("#appointmentAvailability")
+    .innerHTML =
+    available
+    ? '<span class="badge">Orario disponibile</span>'
+    : '<span class="badge danger">Orario non disponibile</span>';
+
+}
+
+
+function saveManualAppointment(){
+
+  const button =
+    $("#manualAppointmentSave");
+
+
+  if(button.disabled){
+    return;
+  }
+
+
+  const clientName =
+    $("#appointmentClient")
+      .value
+      .trim();
+
+  const service =
+    appData.services
+      .find(
+        s =>
+          s.id ===
+          $("#appointmentService")
+            .value
+      );
+
+  const date =
+    $("#appointmentDate")
+      .value;
+
+  const time =
+    $("#appointmentTime")
+      .value;
+
+
+  if(
+    !clientName ||
+    !service ||
+    !date ||
+    !time
+  ){
+
+    showToast(
+      "Completa tutti i campi"
+    );
+
+    return;
+
+  }
+
+
+  button.disabled =
+    true;
+
+
+  try{
+
+    /*
+     * CONTROLLO IMMEDIATO
+     */
+
+    if(
+      !isSlotAvailable(
+        date,
+        time,
+        service.duration
+      )
+    ){
+
+      showToast(
+        "L'orario non è disponibile"
+      );
+
+      return;
+
+    }
+
+
+    const client =
+      findOrCreateClient(
+        clientName
+      );
+
+
+    /*
+     * SECONDO CONTROLLO
+     * appena prima del push.
+     */
+
+    if(
+      !isSlotAvailable(
+        date,
+        time,
+        service.duration
+      )
+    ){
+
+      showToast(
+        "L'orario è stato occupato"
+      );
+
+      return;
+
+    }
+
+
+    const appointment = {
 
       id:uid(),
 
-      name,
+      clientId:
+        client.id,
 
-      phone:"",
+      clientName:
+        client.name,
 
-      whatsapp:"",
+      date,
 
-      email:"",
+      time,
 
-      notes:"",
+      serviceId:
+        service.id,
+
+      serviceName:
+        service.name,
+
+      price:
+        service.price,
+
+      duration:
+        service.duration,
+
+      status:
+        "confirmed",
 
       createdAt:
         new Date().toISOString()
 
     };
 
-    appData.clients.push(
-      client
+
+    appData.appointments.push(
+      appointment
     );
 
-  }
 
-  return client;
+    saveData();
+
+
+    selectedDate =
+      date;
+
+    currentCalendarDate =
+      new Date(
+        date+"T12:00:00"
+      );
+
+
+    closeAppointmentModal();
+
+    renderAll();
+
+    showToast(
+      "Appuntamento salvato"
+    );
+
+  }finally{
+
+    button.disabled =
+      false;
+
+  }
 
 }
 
 
 /* =========================================================
-   MAVI ENGINE
+   MAVI
 ========================================================= */
 
-let maviInitialized = false;
+let maviInitialized =
+  false;
+
 
 function initMavi(){
 
@@ -3298,10 +5033,11 @@ function initMavi(){
     return;
   }
 
-  maviInitialized = true;
+  maviInitialized =
+    true;
 
   addMaviMessage(
-    "Sono Mavi. Posso aiutarti con appuntamenti, clienti, servizi, orari e promozioni."
+    "Sono Mavi. Posso aiutarti con appuntamenti, disponibilità, clienti, servizi, orari, pause e promozioni."
   );
 
 }
@@ -3309,189 +5045,135 @@ function initMavi(){
 
 function addMaviMessage(text){
 
-  const element =
-    document.createElement("div");
+  const bubble =
+    document.createElement(
+      "div"
+    );
 
-  element.className =
+  bubble.className =
     "bubble mavi";
 
-  element.textContent =
+  bubble.textContent =
     text;
 
   $("#messages")
-    .appendChild(element);
+    .appendChild(
+      bubble
+    );
 
-  $("#messages")
-    .scrollTop =
-      $("#messages").scrollHeight;
+  scrollMessages();
 
 }
 
 
 function addUserMessage(text){
 
-  const element =
-    document.createElement("div");
+  const bubble =
+    document.createElement(
+      "div"
+    );
 
-  element.className =
+  bubble.className =
     "bubble user";
 
-  element.textContent =
+  bubble.textContent =
     text;
 
   $("#messages")
-    .appendChild(element);
+    .appendChild(
+      bubble
+    );
+
+  scrollMessages();
+
+}
+
+
+function scrollMessages(){
 
   $("#messages")
     .scrollTop =
-      $("#messages").scrollHeight;
+    $("#messages").scrollHeight;
 
 }
 
 
 /* =========================================================
-   MAVI NLP LOCALE
+   MAVI DATE PARSER
 ========================================================= */
 
-function parseMaviRequest(text){
+function parseDateFromText(text){
 
   const lower =
     text.toLowerCase();
 
-  let service = null;
-
-  for(
-    const item
-    of appData.services
-  ){
-
-    if(
-      lower.includes(
-        item.name.toLowerCase()
-      )
-    ){
-
-      service =
-        item;
-
-      break;
-
-    }
-
-  }
-
-
-  let time = null;
-
-  const timeMatch =
-    lower.match(
-      /\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/
-    );
-
-  if(timeMatch){
-
-    time =
-      String(
-        Number(timeMatch[1])
-      ).padStart(2,"0")
-      +":"
-      +
-      timeMatch[2];
-
-  }
-
-
-  let date = null;
-
 
   if(lower.includes("oggi")){
 
-    date =
-      getTodayISO();
+    return todayISO();
 
   }
 
 
   if(lower.includes("domani")){
 
-    const tomorrow =
+    const d =
       new Date();
 
-    tomorrow.setDate(
-      tomorrow.getDate()+1
+    d.setDate(
+      d.getDate()+1
     );
 
-    date =
-      tomorrow.getFullYear()+
-      "-"+
-      String(
-        tomorrow.getMonth()+1
-      ).padStart(2,"0")+
-      "-"+
-      String(
-        tomorrow.getDate()
-      ).padStart(2,"0");
+    return dateToISO(d);
 
   }
 
 
-  const days = [
+  const days = {
 
-    "domenica",
-    "lunedì",
-    "lunedi",
-    "martedì",
-    "martedi",
-    "mercoledì",
-    "mercoledi",
-    "giovedì",
-    "giovedi",
-    "venerdì",
-    "venerdi",
-    "sabato"
+    domenica:0,
 
-  ];
+    lunedì:1,
+    lunedi:1,
+
+    martedì:2,
+    martedi:2,
+
+    mercoledì:3,
+    mercoledi:3,
+
+    giovedì:4,
+    giovedi:4,
+
+    venerdì:5,
+    venerdi:5,
+
+    sabato:6
+
+  };
 
 
-  const foundDay =
-    days.find(
-      day =>
-        lower.includes(day)
-    );
+  for(
+    const name
+    of Object.keys(days)
+  ){
 
+    if(
+      lower.includes(name)
+    ){
 
-  if(foundDay){
-
-    const normalized =
-      foundDay
-        .replace("lunedì","lunedi")
-        .replace("martedì","martedi")
-        .replace("mercoledì","mercoledi")
-        .replace("giovedì","giovedi")
-        .replace("venerdì","venerdi");
-
-    const dayMap = {
-
-      domenica:0,
-      lunedi:1,
-      martedi:2,
-      mercoledi:3,
-      giovedi:4,
-      venerdi:5,
-      sabato:6
-
-    };
-
-    const target =
-      dayMap[normalized];
-
-    if(target !== undefined){
+      const target =
+        days[name];
 
       const now =
         new Date();
 
       let delta =
-        (target-now.getDay()+7)%7;
+        (
+          target-
+          now.getDay()+
+          7
+        )%7;
 
       if(delta===0){
         delta=7;
@@ -3504,83 +5186,135 @@ function parseMaviRequest(text){
         now.getDate()+delta
       );
 
-      date =
-        result.getFullYear()+
-        "-"+
-        String(
-          result.getMonth()+1
-        ).padStart(2,"0")+
-        "-"+
-        String(
-          result.getDate()
-        ).padStart(2,"0");
+      return dateToISO(
+        result
+      );
 
     }
 
   }
 
 
-  const isoMatch =
+  const iso =
     lower.match(
       /\b20\d{2}-\d{2}-\d{2}\b/
     );
 
-  if(isoMatch){
-
-    date =
-      isoMatch[0];
-
+  if(iso){
+    return iso[0];
   }
 
 
-  let clientName = null;
-
-
-  const explicitClient =
-    text.match(
-      /(?:per|cliente)\s+([A-Za-zÀ-ÿ' -]{2,40})/i
-    );
-
-  if(explicitClient){
-
-    clientName =
-      explicitClient[1]
-        .trim();
-
-  }
-
-
-  const nameMatch =
-    text.match(
-      /(?:mi chiamo|sono)\s+([A-Za-zÀ-ÿ' -]{2,40})/i
-    );
-
-  if(nameMatch){
-
-    clientName =
-      nameMatch[1]
-        .trim();
-
-  }
-
-
-  return {
-
-    service,
-
-    date,
-
-    time,
-
-    clientName
-
-  };
+  return null;
 
 }
 
 
 /* =========================================================
-   MAVI BOOKING FLOW
+   MAVI TIME PARSER
+========================================================= */
+
+function parseTimeFromText(text){
+
+  const match =
+    text.match(
+      /\b([01]?\d|2[0-3])(?:[:.]([0-5]\d))?\b/
+    );
+
+
+  if(!match){
+    return null;
+  }
+
+
+  const hour =
+    Number(match[1]);
+
+  const minute =
+    match[2]
+    ? Number(match[2])
+    : 0;
+
+
+  return (
+    String(hour)
+      .padStart(2,"0")+
+    ":"+
+    String(minute)
+      .padStart(2,"0")
+  );
+
+}
+
+
+/* =========================================================
+   MAVI SERVICE PARSER
+========================================================= */
+
+function parseServiceFromText(text){
+
+  const lower =
+    text.toLowerCase();
+
+
+  return appData.services
+    .find(
+      service =>
+        lower.includes(
+          service.name
+            .toLowerCase()
+        )
+    )
+    || null;
+
+}
+
+
+/* =========================================================
+   MAVI CLIENT PARSER
+========================================================= */
+
+function parseClientFromText(text){
+
+  const patterns = [
+
+    /(?:mi chiamo|sono)\s+([A-Za-zÀ-ÿ' -]{2,45})/i,
+
+    /(?:per il cliente|per la cliente|cliente)\s+([A-Za-zÀ-ÿ' -]{2,45})/i
+
+  ];
+
+
+  for(
+    const pattern
+    of patterns
+  ){
+
+    const match =
+      text.match(pattern);
+
+    if(match){
+
+      return match[1]
+        .trim()
+        .replace(
+          /\s+(alle|a|il|lunedì|lunedi|martedì|martedi|mercoledì|mercoledi|giovedì|giovedi|venerdì|venerdi|sabato|domenica).*$/i,
+          ""
+        )
+        .trim();
+
+    }
+
+  }
+
+
+  return null;
+
+}
+
+
+/* =========================================================
+   MAVI REQUEST
 ========================================================= */
 
 function handleMaviMessage(){
@@ -3591,147 +5325,60 @@ function handleMaviMessage(){
   const text =
     input.value.trim();
 
+
   if(!text){
     return;
   }
 
-  input.value = "";
+
+  input.value =
+    "";
 
   addUserMessage(
     text
   );
 
-  const parsed =
-    parseMaviRequest(text);
 
+  const lower =
+    text.toLowerCase();
+
+
+  /*
+   * CONFERMA PENDING
+   */
 
   if(
-    parsed.service ||
-    parsed.date ||
-    parsed.time ||
-    /prenot|appuntament|taglio|servizio/i.test(text)
+    pendingBooking &&
+    /^(si|sì|ok|confermo|conferma|va bene|prenota)$/i
+      .test(lower)
+  ){
+
+    confirmMaviBooking();
+
+    return;
+
+  }
+
+
+  /*
+   * ANNULLA PENDING
+   */
+
+  if(
+    pendingBooking &&
+    /^(no|annulla|cancella)$/i
+      .test(lower)
   ){
 
     pendingBooking =
-      Object.assign(
-        {},
-        pendingBooking || {},
-        parsed
-      );
+      null;
 
-
-    if(
-      !pendingBooking.clientName
-    ){
-
-      const nameMatch =
-        text.match(
-          /(?:mi chiamo|sono)\s+([A-Za-zÀ-ÿ' -]{2,40})/i
-        );
-
-      if(nameMatch){
-
-        pendingBooking.clientName =
-          nameMatch[1].trim();
-
-      }
-
-    }
-
-
-    const missing = [];
-
-
-    if(
-      !pendingBooking.clientName
-    ){
-
-      missing.push(
-        "nome del cliente"
-      );
-
-    }
-
-
-    if(
-      !pendingBooking.service
-    ){
-
-      missing.push(
-        "servizio"
-      );
-
-    }
-
-
-    if(
-      !pendingBooking.date
-    ){
-
-      missing.push(
-        "giorno"
-      );
-
-    }
-
-
-    if(
-      !pendingBooking.time
-    ){
-
-      missing.push(
-        "ora"
-      );
-
-    }
-
-
-    if(missing.length){
-
-      addMaviMessage(
-        "Per preparare la prenotazione mi serve: "+
-        missing.join(", ")+"."
-      );
-
-      return;
-
-    }
-
-
-    if(
-      !isSlotAvailable(
-        pendingBooking.date,
-        pendingBooking.time,
-        pendingBooking.service.duration
-      )
-    ){
-
-      addMaviMessage(
-        "Ho verificato il calendario: quell'orario non è disponibile."
-      );
-
-      return;
-
-    }
-
-
-    showBookingConfirmation();
-
-    return;
-
-  }
-
-
-  if(
-    /orari|apertura|chiusura/i
-      .test(text)
-  ){
+    $("#confirmationArea")
+      .innerHTML =
+      "";
 
     addMaviMessage(
-      "Gli orari configurati sono "+
-      appData.hours.open+
-      " - "+
-      appData.hours.close+"."
+      "Va bene. Non ho salvato nessuna prenotazione."
     );
 
     return;
@@ -3739,37 +5386,17 @@ function handleMaviMessage(){
   }
 
 
+  /*
+   * ORARI
+   */
+
   if(
-    /servizi|prezzo|prezzi|quanto costa/i
-      .test(text)
+    /orari|apertura|chiusura|pause|pausa/i
+      .test(lower)
   ){
 
-    if(!appData.services.length){
-
-      addMaviMessage(
-        "Non ci sono ancora servizi configurati."
-      );
-
-      return;
-
-    }
-
-    const list =
-      appData.services
-        .map(
-          s =>
-            s.name+
-            ": €"+
-            s.price+
-            " · "+
-            s.duration+
-            " min"
-        )
-        .join("\n");
-
-    addMaviMessage(
-      "Questi sono i servizi configurati:\n"+
-      list
+    answerHours(
+      parseDateFromText(text)
     );
 
     return;
@@ -3777,13 +5404,33 @@ function handleMaviMessage(){
   }
 
 
+  /*
+   * SERVIZI
+   */
+
   if(
-    /cliente|clienti/i
-      .test(text)
+    /servizi|prezzo|prezzi|costa|costo/i
+      .test(lower)
+  ){
+
+    answerServices();
+
+    return;
+
+  }
+
+
+  /*
+   * CLIENTI
+   */
+
+  if(
+    /quanti clienti|numero clienti/i
+      .test(lower)
   ){
 
     addMaviMessage(
-      "In Maviri sono presenti "+
+      "Attualmente sono presenti "+
       appData.clients.length+
       " clienti."
     );
@@ -3793,154 +5440,389 @@ function handleMaviMessage(){
   }
 
 
-  addMaviMessage(
-    "Posso gestire appuntamenti, disponibilità, clienti, servizi, orari e promozioni. Dimmi cosa vuoi fare."
-  );
+  /*
+   * PRENOTAZIONE
+   */
 
-}
+  if(
+    /prenot|appuntament|fissare|vorrei|voglio/i
+      .test(lower)
+  ){
 
-
-function showBookingConfirmation(){
-
-  const p =
-    pendingBooking;
-
-  $("#confirmationArea").innerHTML = `
-
-    <div class="confirmation">
-
-      <div class="confirmation-title">
-        Conferma prenotazione
-      </div>
-
-      <div>
-
-        <strong>
-          Cliente:
-        </strong>
-
-        ${escapeHTML(p.clientName)}
-
-      </div>
-
-      <div>
-
-        <strong>
-          Servizio:
-        </strong>
-
-        ${escapeHTML(p.service.name)}
-
-      </div>
-
-      <div>
-
-        <strong>
-          Giorno:
-        </strong>
-
-        ${formatDate(p.date)}
-
-      </div>
-
-      <div>
-
-        <strong>
-          Ora:
-        </strong>
-
-        ${escapeHTML(p.time)}
-
-      </div>
-
-      <div>
-
-        <strong>
-          Prezzo:
-        </strong>
-
-        € ${escapeHTML(p.service.price)}
-
-      </div>
-
-      <div
-        class="row"
-        style="margin-top:12px">
-
-        <button
-          class="btn primary"
-          id="confirmBooking">
-
-          CONFERMA PRENOTAZIONE
-
-        </button>
-
-        <button
-          class="btn secondary"
-          id="cancelPendingBooking">
-
-          Annulla
-
-        </button>
-
-      </div>
-
-    </div>
-
-  `;
-
-
-  $("#confirmBooking")
-    .addEventListener(
-      "click",
-      confirmBooking
+    startMaviBooking(
+      text
     );
 
+    return;
 
-  $("#cancelPendingBooking")
-    .addEventListener(
-      "click",
-      () => {
+  }
 
-        pendingBooking =
-          null;
 
-        $("#confirmationArea")
-          .innerHTML =
-          "";
+  /*
+   * DISPONIBILITÀ
+   */
 
-        addMaviMessage(
-          "Prenotazione annullata."
-        );
+  if(
+    /disponibil|libero|occupato/i
+      .test(lower)
+  ){
 
-      }
+    checkMaviAvailability(
+      text
     );
+
+    return;
+
+  }
 
 
   addMaviMessage(
-    "Ho verificato la disponibilità. La prenotazione non è ancora stata salvata. Premi CONFERMA PRENOTAZIONE per salvarla nel calendario."
+    "Posso aiutarti con appuntamenti, disponibilità, clienti, servizi, orari, pause e promozioni."
   );
 
 }
 
 
 /* =========================================================
-   FINAL BOOKING
+   MAVI HOURS
 ========================================================= */
 
-function confirmBooking(){
+function answerHours(date){
+
+  if(date){
+
+    const setting =
+      getOpeningSetting(date);
+
+    const day =
+      DAYS.find(
+        d =>
+          d.id ===
+          getDayKey(date)
+      );
+
+
+    if(
+      !setting ||
+      setting.closed
+    ){
+
+      addMaviMessage(
+        "Il "+day.name.toLowerCase()+
+        " l'attività è chiusa."
+      );
+
+      return;
+
+    }
+
+
+    const pauses =
+      setting.pauses.length
+      ? "\nPause: "+
+        setting.pauses
+          .map(
+            p =>
+              p.start+
+              "–"+
+              p.end
+          )
+          .join(", ")
+      : "";
+
+
+    addMaviMessage(
+      "Il "+
+      day.name.toLowerCase()+
+      " siamo aperti "+
+      setting.open+
+      "–"+
+      setting.close+
+      pauses+
+      "."
+    );
+
+    return;
+
+  }
+
+
+  addMaviMessage(
+    "Gli orari sono configurati per ogni giorno nella sezione Impostazioni → Orari."
+  );
+
+}
+
+
+/* =========================================================
+   MAVI SERVICES
+========================================================= */
+
+function answerServices(){
+
+  if(!appData.services.length){
+
+    addMaviMessage(
+      "Non ci sono ancora servizi configurati."
+    );
+
+    return;
+
+  }
+
+
+  const text =
+    appData.services
+      .map(
+        service =>
+          "• "+
+          service.name+
+          " — €"+
+          service.price+
+          " — "+
+          service.duration+
+          " min"
+      )
+      .join("\n");
+
+
+  addMaviMessage(
+    "Servizi configurati:\n"+
+    text
+  );
+
+}
+
+
+/* =========================================================
+   MAVI BOOKING
+========================================================= */
+
+function startMaviBooking(text){
+
+  if(!appData.services.length){
+
+    addMaviMessage(
+      "Prima di prenotare devi configurare almeno un servizio."
+    );
+
+    return;
+
+  }
+
+
+  const parsed = {
+
+    clientName:
+      parseClientFromText(text),
+
+    service:
+      parseServiceFromText(text),
+
+    date:
+      parseDateFromText(text),
+
+    time:
+      parseTimeFromText(text)
+
+  };
+
+
+  pendingBooking =
+    {
+      ...(pendingBooking||{}),
+      ...parsed
+    };
+
+
+  const missing = [];
+
+
+  if(
+    !pendingBooking.clientName
+  ){
+
+    missing.push(
+      "nome del cliente"
+    );
+
+  }
+
+
+  if(
+    !pendingBooking.service
+  ){
+
+    missing.push(
+      "servizio"
+    );
+
+  }
+
+
+  if(
+    !pendingBooking.date
+  ){
+
+    missing.push(
+      "giorno"
+    );
+
+  }
+
+
+  if(
+    !pendingBooking.time
+  ){
+
+    missing.push(
+      "ora"
+    );
+
+  }
+
+
+  if(missing.length){
+
+    addMaviMessage(
+      "Per preparare la prenotazione mi serve: "+
+      missing.join(", ")+"."
+    );
+
+    return;
+
+  }
+
+
+  const available =
+    isSlotAvailable(
+      pendingBooking.date,
+      pendingBooking.time,
+      pendingBooking.service.duration
+    );
+
+
+  if(!available){
+
+    addMaviMessage(
+      "Ho controllato il calendario, gli orari e le pause: "+
+      "l'orario richiesto non è disponibile."
+    );
+
+    return;
+
+  }
+
+
+  showMaviConfirmation();
+
+}
+
+
+function showMaviConfirmation(){
+
+  const p =
+    pendingBooking;
+
+
+  $("#confirmationArea")
+    .innerHTML = `
+
+      <div class="confirmation">
+
+        <div class="confirmation-title">
+          Prenotazione pronta
+        </div>
+
+        <div>
+          <strong>Cliente:</strong>
+          ${escapeHTML(p.clientName)}
+        </div>
+
+        <div>
+          <strong>Servizio:</strong>
+          ${escapeHTML(p.service.name)}
+        </div>
+
+        <div>
+          <strong>Giorno:</strong>
+          ${formatDate(p.date)}
+        </div>
+
+        <div>
+          <strong>Ora:</strong>
+          ${escapeHTML(p.time)}
+        </div>
+
+        <div>
+          <strong>Prezzo:</strong>
+          €${escapeHTML(p.service.price)}
+        </div>
+
+        <div
+          class="row"
+          style="margin-top:12px">
+
+          <button
+            class="btn primary"
+            onclick="confirmMaviBooking()">
+
+            CONFERMA PRENOTAZIONE
+
+          </button>
+
+          <button
+            class="btn secondary"
+            onclick="cancelMaviBooking()">
+
+            Annulla
+
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+  addMaviMessage(
+    "Ho verificato disponibilità, orari e pause. La prenotazione non è ancora stata salvata. Premi CONFERMA PRENOTAZIONE per salvarla."
+  );
+
+}
+
+
+function cancelMaviBooking(){
+
+  pendingBooking =
+    null;
+
+  $("#confirmationArea")
+    .innerHTML =
+    "";
+
+  addMaviMessage(
+    "Prenotazione annullata. Non ho salvato nulla."
+  );
+
+}
+
+
+function confirmMaviBooking(){
 
   if(!pendingBooking){
     return;
   }
+
 
   const p =
     pendingBooking;
 
 
   /*
-   * SECONDO CONTROLLO IMMEDIATO
-   * PRIMA DEL SALVATAGGIO
+   * SECONDO CONTROLLO
+   * immediatamente prima del salvataggio.
    */
 
   if(
@@ -3951,10 +5833,6 @@ function confirmBooking(){
     )
   ){
 
-    addMaviMessage(
-      "L'orario non è più disponibile. Non ho salvato la prenotazione."
-    );
-
     pendingBooking =
       null;
 
@@ -3962,14 +5840,14 @@ function confirmBooking(){
       .innerHTML =
       "";
 
+    addMaviMessage(
+      "L'orario non è più disponibile. Non ho salvato la prenotazione."
+    );
+
     return;
 
   }
 
-
-  /*
-   * CLIENTE
-   */
 
   const client =
     findOrCreateClient(
@@ -3978,7 +5856,7 @@ function confirmBooking(){
 
 
   /*
-   * CONTROLLO DUPLICATO
+   * TERZO CONTROLLO DUPLICATO
    */
 
   const duplicate =
@@ -3993,10 +5871,6 @@ function confirmBooking(){
 
   if(duplicate){
 
-    addMaviMessage(
-      "La prenotazione non è stata salvata perché l'orario risulta già occupato."
-    );
-
     pendingBooking =
       null;
 
@@ -4004,14 +5878,14 @@ function confirmBooking(){
       .innerHTML =
       "";
 
+    addMaviMessage(
+      "L'orario risulta già occupato. La prenotazione non è stata salvata."
+    );
+
     return;
 
   }
 
-
-  /*
-   * SALVATAGGIO
-   */
 
   const appointment = {
 
@@ -4070,7 +5944,6 @@ function confirmBooking(){
   pendingBooking =
     null;
 
-
   $("#confirmationArea")
     .innerHTML =
     "";
@@ -4092,46 +5965,129 @@ function confirmBooking(){
 
 
 /* =========================================================
+   MAVI AVAILABILITY
+========================================================= */
+
+function checkMaviAvailability(text){
+
+  const date =
+    parseDateFromText(text);
+
+  const time =
+    parseTimeFromText(text);
+
+  const service =
+    parseServiceFromText(text);
+
+
+  if(!date){
+
+    addMaviMessage(
+      "Dimmi il giorno che vuoi controllare."
+    );
+
+    return;
+
+  }
+
+
+  if(!time){
+
+    addMaviMessage(
+      "Dimmi anche l'orario che vuoi controllare."
+    );
+
+    return;
+
+  }
+
+
+  if(!service){
+
+    addMaviMessage(
+      "Dimmi il servizio da verificare."
+    );
+
+    return;
+
+  }
+
+
+  const available =
+    isSlotAvailable(
+      date,
+      time,
+      service.duration
+    );
+
+
+  if(available){
+
+    addMaviMessage(
+      "Sì. "+
+      formatDate(date)+
+      " alle "+
+      time+
+      " è disponibile per "+
+      service.name+"."
+    );
+
+  }else{
+
+    addMaviMessage(
+      "No. "+
+      time+
+      " non è disponibile per "+
+      service.name+
+      ". Controlla calendario, apertura e pause."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
    MAVI VOICE
 ========================================================= */
 
 function speak(text){
 
+  if(
+    !("speechSynthesis" in window)
+  ){
+
+    return;
+
+  }
+
+
   try{
 
-    if(
-      "speechSynthesis"
-      in window
-    ){
+    window.speechSynthesis.cancel();
 
-      window.speechSynthesis
-        .cancel();
+    const utterance =
+      new SpeechSynthesisUtterance(
+        text
+      );
 
-      const utterance =
-        new SpeechSynthesisUtterance(
-          text
-        );
+    utterance.lang =
+      "it-IT";
 
-      utterance.lang =
-        "it-IT";
+    utterance.rate =
+      1;
 
-      utterance.rate =
-        1;
+    utterance.pitch =
+      1;
 
-      utterance.pitch =
-        1;
-
-      window.speechSynthesis
-        .speak(
-          utterance
-        );
-
-    }
+    window.speechSynthesis.speak(
+      utterance
+    );
 
   }catch(error){
 
     console.error(
-      "Voice error",
+      "Speech error",
       error
     );
 
@@ -4140,7 +6096,8 @@ function speak(text){
 }
 
 
-let recognition = null;
+let recognition =
+  null;
 
 
 $("#voiceButton")
@@ -4152,14 +6109,15 @@ $("#voiceButton")
 
 function startVoiceRecognition(){
 
-  const SpeechRecognition =
+  const Recognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
-  if(!SpeechRecognition){
+
+  if(!Recognition){
 
     showToast(
-      "Riconoscimento vocale non disponibile su questo dispositivo."
+      "Riconoscimento vocale non disponibile"
     );
 
     return;
@@ -4168,7 +6126,7 @@ function startVoiceRecognition(){
 
 
   recognition =
-    new SpeechRecognition();
+    new Recognition();
 
   recognition.lang =
     "it-IT";
@@ -4188,12 +6146,13 @@ function startVoiceRecognition(){
   recognition.onresult =
     event => {
 
-      const transcript =
-        event.results[0][0].transcript;
+      const text =
+        event.results[0][0]
+          .transcript;
 
       $("#maviInput")
         .value =
-        transcript;
+        text;
 
       $("#maviStatus")
         .textContent =
@@ -4264,79 +6223,273 @@ $("#maviInput")
 
 
 /* =========================================================
-   CONTENT
+   SOCIAL CONTENT
 ========================================================= */
 
-function generatePost(){
+const SOCIALS = {
 
-  const topic =
-    $("#postTopic")
-      .value
-      .trim()
-      ||
-      "la nostra attività";
+  instagram:{
+    title:"Instagram",
+    description:"Caption e hashtag",
+  },
 
-  const style =
-    $("#postStyle").value;
+  facebook:{
+    title:"Facebook",
+    description:"Post completo",
+  },
 
-  const business =
-    appData.business.name
-    ||
-    "la nostra attività";
+  tiktok:{
+    title:"TikTok",
+    description:"Testo breve e hashtag",
+  },
 
+  whatsapp:{
+    title:"WhatsApp",
+    description:"Messaggio clienti",
+  },
 
-  let prefix = "";
+  telegram:{
+    title:"Telegram",
+    description:"Messaggio canale",
+  },
 
-  if(style==="Promozionale"){
-    prefix = "✨ ";
+  email:{
+    title:"Email / Google",
+    description:"Oggetto + email",
   }
 
+};
 
-  $("#postOutput").value =
 
-    prefix+
+$all("[data-social]")
+  .forEach(
+    button => {
 
-    topic.charAt(0)
-      .toUpperCase()+
-    topic.slice(1)+
+      button.addEventListener(
+        "click",
+        () => {
 
-    "\n\n"+
+          selectedSocial =
+            button.dataset.social;
 
-    "Presso "+
-    business+
-    " ci prendiamo cura di ogni dettaglio con professionalità e attenzione."+
+          $all("[data-social]")
+            .forEach(
+              b =>
+                b.classList.toggle(
+                  "active",
+                  b.dataset.social ===
+                  selectedSocial
+                )
+            );
 
-    "\n\n"+
+          updateSocialTitle();
 
-    "Scrivici per informazioni o per prenotare il tuo appuntamento."+
+        }
+      );
 
-    "\n\n"+
+    }
+  );
 
-    "#Maviri #"+
-    business
-      .replace(/\s+/g,"");
+
+function updateSocialTitle(){
+
+  const social =
+    SOCIALS[selectedSocial];
+
+
+  $("#contentChannelTitle")
+    .textContent =
+    social.title;
+
+  $("#contentChannelDescription")
+    .textContent =
+    social.description;
 
 }
 
 
-function copyPost(){
+function generateSocialContent(){
+
+  const topic =
+    $("#postTopic")
+      .value
+      .trim();
+
+
+  if(!topic){
+
+    showToast(
+      "Inserisci un argomento"
+    );
+
+    return;
+
+  }
+
+
+  const style =
+    $("#postStyle")
+      .value;
+
+
+  const business =
+    appData.business.name ||
+    "la nostra attività";
+
+
+  let output = "";
+
+
+  switch(selectedSocial){
+
+    case "instagram":
+
+      output =
+        `${topic.charAt(0).toUpperCase()+topic.slice(1)}
+
+Presso ${business} ci prendiamo cura di ogni dettaglio con professionalità e attenzione.
+
+Scrivici per informazioni o per prenotare il tuo appuntamento.
+
+#${business.replace(/\s+/g,"")} #servizi #prenotazione`;
+
+      break;
+
+
+    case "facebook":
+
+      output =
+        `${topic.charAt(0).toUpperCase()+topic.slice(1)}
+
+Da ${business} lavoriamo ogni giorno per offrirti un servizio professionale, curato e pensato per le tue esigenze.
+
+Per informazioni o prenotazioni contattaci direttamente.`;
+
+      break;
+
+
+    case "tiktok":
+
+      output =
+        `${topic}
+
+Scopri ${business}.
+
+Prenota il tuo appuntamento e vieni a trovarci.
+
+#${business.replace(/\s+/g,"")} #fyp #italia`;
+
+      break;
+
+
+    case "whatsapp":
+
+      output =
+        `Ciao! 👋
+
+Da ${business} abbiamo una novità per te:
+
+${topic}
+
+Per informazioni o per prenotare il tuo appuntamento rispondi direttamente a questo messaggio.`;
+
+      break;
+
+
+    case "telegram":
+
+      output =
+        `📢 ${topic}
+
+${business}
+
+Per informazioni e prenotazioni contattaci direttamente.`;
+
+      break;
+
+
+    case "email":
+
+      output =
+        `OGGETTO: ${topic}
+
+Buongiorno,
+
+ti contattiamo da ${business}.
+
+${topic.charAt(0).toUpperCase()+topic.slice(1)}.
+
+Per maggiori informazioni o per prenotare un appuntamento puoi rispondere a questa email.
+
+Cordiali saluti,
+${business}`;
+
+      break;
+
+  }
+
+
+  $("#postOutput")
+    .textContent =
+    output;
+
+
+  appData.contents.push({
+
+    id:uid(),
+
+    channel:selectedSocial,
+
+    topic,
+
+    style,
+
+    text:output,
+
+    createdAt:
+      new Date().toISOString()
+
+  });
+
+
+  saveData();
+
+}
+
+
+function copyContent(){
 
   const text =
     $("#postOutput")
-      .value;
+      .textContent;
+
 
   if(
     navigator.clipboard
   ){
 
     navigator.clipboard
-      .writeText(text);
+      .writeText(text)
+      .then(
+        () =>
+          showToast(
+            "Contenuto copiato"
+          )
+      )
+      .catch(
+        () =>
+          showToast(
+            "Copia non disponibile"
+          )
+      );
+
+  }else{
+
+    showToast(
+      "Copia non disponibile"
+    );
 
   }
-
-  showToast(
-    "Contenuto copiato"
-  );
 
 }
 
@@ -4361,21 +6514,21 @@ function renderAll(){
 
 
 /* =========================================================
-   INITIALIZATION
+   INIT
 ========================================================= */
 
 function init(){
 
+  initLogo();
+
   renderAll();
+
+  updateSocialTitle();
 
   openPage("home");
 
 }
 
-
-/* =========================================================
-   START
-========================================================= */
 
 init();
 
