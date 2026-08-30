@@ -3,347 +3,1524 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101827">
+<meta name="theme-color" content="#082B5C">
+<meta name="description" content="Maviri — manager digitale con Mavi">
 <link rel="manifest" href="manifest.json">
 <title>Maviri — Mavi</title>
+
 <style>
 *{box-sizing:border-box}
-:root{--bg:#f5f7fb;--surface:#fff;--ink:#142033;--muted:#667085;--line:#e4e8ef;--dark:#101827;--blue:#315efb;--blue2:#2449d8;--green:#169c5b;--red:#d63b3b;--amber:#b97800;--radius:18px;--shadow:0 8px 28px rgba(20,32,51,.07)}
-html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
-button,input,textarea,select{font:inherit}button{border:0;cursor:pointer;border-radius:12px;padding:10px 14px;font-weight:750}button:disabled{opacity:.5;cursor:not-allowed}
-header{background:var(--dark);color:#fff;padding:16px max(14px,calc((100% - 1180px)/2));position:relative}
-.brand{display:flex;align-items:center;gap:12px}.brand-logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#4774ff,#6b5cff);display:grid;place-items:center;font-size:21px;font-weight:900;box-shadow:0 8px 22px #0003}.brand h1{font-size:21px;margin:0}.brand small{color:#aeb8c8}
-.engine-pill{margin-left:auto;border:1px solid #ffffff20;background:#ffffff0d;padding:8px 11px;border-radius:999px;font-size:12px;color:#dbe4f3}
-.header-row{display:flex;align-items:center;gap:14px}
-nav{position:sticky;top:0;z-index:50;background:#ffffffee;backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;gap:5px;overflow:auto;padding:8px max(10px,calc((100% - 1180px)/2))}
-nav button{background:transparent;color:#566176;white-space:nowrap;padding:9px 13px}nav button.active{background:#eaf0ff;color:var(--blue)}
-main{width:min(1180px,100%);margin:auto;padding:22px 14px 70px}.page{display:none}.page.active{display:block;animation:in .16s ease}@keyframes in{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
-.heading{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin:3px 0 18px}.heading h2{margin:0;font-size:27px;letter-spacing:-.7px}.heading p{margin:4px 0;color:var(--muted)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:19px;margin-bottom:15px;box-shadow:var(--shadow)}
-.hero{background:linear-gradient(135deg,#101827,#253e83);color:#fff;border:0}.hero h2{margin:0 0 5px;font-size:27px}.hero p{color:#d9e3ff;margin:0}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{padding:17px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:var(--shadow)}.stat b{display:block;font-size:29px;line-height:1.1}.stat span{color:var(--muted);font-size:12px;font-weight:700}
-.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:17px}.quick button{text-align:left;background:#ffffff12;color:#fff;border:1px solid #ffffff20}.quick strong{display:block}.quick small{color:#cdd8ee}
-label{display:block;font-size:12px;font-weight:800;color:#566176;margin:8px 0 4px}input,textarea,select{width:100%;border:1px solid #cfd6e2;border-radius:12px;padding:11px 12px;background:#fff;color:var(--ink);outline:none}input:focus,textarea:focus,select:focus{border-color:#6b8cff;box-shadow:0 0 0 3px #315efb12}textarea{resize:vertical}
-.row{display:flex;gap:9px;align-items:center}.row>*{flex:1}.primary{background:var(--blue);color:#fff}.primary:hover{background:var(--blue2)}.secondary{background:#eef1f6;color:#344054}.success{background:#dff7e9;color:#12683e}.danger{background:#fee8e8;color:#a32121}.warning{background:#fff2cf;color:#805800}
-.muted{color:var(--muted);font-size:13px}.divider{border:0;border-top:1px solid var(--line);margin:20px 0}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.section-title h3{margin:0}
-.chat{height:430px;overflow:auto;border:1px solid var(--line);border-radius:16px;background:#f8faff;padding:13px}.msg{max-width:88%;padding:11px 13px;border-radius:15px;margin:8px 0;white-space:pre-wrap}.bot{background:#e9edf3}.user{background:#dbe7ff;color:#193d91;margin-left:auto}.thinking{opacity:.65}
-.voice{display:flex;align-items:center;gap:10px;margin-top:10px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#fbfcff}.mic{width:48px;height:48px;border-radius:50%;padding:0;background:#101827;color:#fff;font-size:19px}.mic.listening{background:#d63b3b;animation:pulse 1.2s infinite}@keyframes pulse{50%{box-shadow:0 0 0 8px #d63b3b18}}
-.engine-status{font-size:12px;color:var(--muted)}.engine-status.ready{color:var(--green)}.engine-status.error{color:var(--red)}
-.list-item{border:1px solid var(--line);background:#fafbfe;border-radius:14px;padding:13px;margin:8px 0}.list-item b{display:block}.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.small{font-size:12px;padding:7px 10px}
-.calendar-head{display:flex;gap:8px;align-items:center}.calendar-head input{margin:0}.calendar{display:grid;gap:6px;margin-top:15px}.slot{display:grid;grid-template-columns:60px 1fr;gap:7px}.slot-time{display:grid;place-items:center;color:var(--muted);font-size:12px;font-weight:800}.slot-box{min-height:46px;border:1px solid var(--line);border-radius:12px;padding:9px 11px;background:#f9fafc}.slot-box.free{cursor:pointer}.slot-box.free:hover{background:#edf3ff;border-color:#9bb1ff}.slot-box.busy{background:#e6edff;border-color:#a7baff}.slot-box.closed{color:#9aa4b2;background:#f0f2f5}
-.badge{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800}.confirmed{background:#dff7e9;color:#12683e}.completed{background:#e3ecff;color:#2449a5}.cancelled{background:#fee8e8;color:#a32121}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.modal-bg{display:none;position:fixed;inset:0;background:#10182799;z-index:100;align-items:center;justify-content:center;padding:14px}.modal-bg.open{display:flex}.modal{width:min(620px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:20px}
-.post-result{min-height:260px}.platforms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.platforms button{background:#f6f8fb;border:1px solid var(--line)}.platforms button.active{background:#eaf0ff;color:var(--blue);border-color:#9bb1ff}
-@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.quick,.two{grid-template-columns:1fr}.three{grid-template-columns:1fr}.engine-pill{display:none}}
-@media(max-width:560px){main{padding:16px 10px 50px}.card{padding:15px}.heading h2{font-size:23px}.row{flex-direction:column;align-items:stretch}.row>*{width:100%}.platforms{grid-template-columns:repeat(2,1fr)}.slot{grid-template-columns:52px 1fr}}
+:root{
+  --navy:#082B5C;
+  --navy2:#0D4F91;
+  --blue:#1479C9;
+  --cyan:#19B7D5;
+  --green:#72B82A;
+  --teal:#12A995;
+  --orange:#F2A05B;
+  --bg:#F4F8FC;
+  --surface:#fff;
+  --ink:#152238;
+  --muted:#68778D;
+  --line:#DCE5EF;
+  --soft:#EEF5FB;
+  --soft2:#E7F7F4;
+  --red:#C93636;
+  --shadow:0 10px 30px rgba(8,43,92,.08);
+  --radius:19px
+}
+
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif
+}
+
+button,input,textarea,select{font:inherit}
+
+button{
+  border:0;
+  cursor:pointer;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:750
+}
+
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed
+}
+
+header{
+  color:#fff;
+  padding:13px max(12px,calc((100% - 1180px)/2));
+  background:linear-gradient(
+    115deg,
+    var(--navy),
+    var(--navy2) 55%,
+    var(--teal)
+  );
+  box-shadow:0 5px 20px rgba(8,43,92,.15)
+}
+
+.header-row{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  min-height:62px
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0
+}
+
+.brand-logo{
+  width:54px;
+  height:54px;
+  object-fit:cover;
+  border-radius:15px;
+  background:#fff;
+  box-shadow:0 7px 20px rgba(0,0,0,.18);
+  flex:none
+}
+
+.brand h1{
+  font-size:21px;
+  margin:0;
+  letter-spacing:-.3px
+}
+
+.brand small{
+  display:block;
+  color:#DDEBFA;
+  margin-top:1px
+}
+
+.engine-pill{
+  margin-left:auto;
+  border:1px solid #ffffff32;
+  background:#ffffff14;
+  padding:8px 11px;
+  border-radius:999px;
+  font-size:12px;
+  color:#EFF8FF;
+  white-space:nowrap
+}
+
+nav{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:#ffffffee;
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  gap:5px;
+  overflow:auto;
+  padding:8px max(10px,calc((100% - 1180px)/2))
+}
+
+nav button{
+  background:transparent;
+  color:#59697F;
+  white-space:nowrap;
+  padding:9px 13px
+}
+
+nav button.active{
+  background:#E6F1FB;
+  color:var(--navy)
+}
+
+main{
+  width:min(1180px,100%);
+  margin:auto;
+  padding:22px 14px 70px
+}
+
+.page{display:none}
+
+.page.active{
+  display:block;
+  animation:in .16s ease
+}
+
+@keyframes in{
+  from{
+    opacity:.45;
+    transform:translateY(4px)
+  }
+  to{
+    opacity:1;
+    transform:none
+  }
+}
+
+.heading{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  align-items:flex-start;
+  margin:3px 0 18px
+}
+
+.heading h2{
+  margin:0;
+  font-size:27px;
+  letter-spacing:-.7px
+}
+
+.heading p{
+  margin:4px 0;
+  color:var(--muted)
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:19px;
+  margin-bottom:15px;
+  box-shadow:var(--shadow)
+}
+
+.hero{
+  background:linear-gradient(
+    135deg,
+    var(--navy),
+    #0D5EA8 55%,
+    var(--teal)
+  );
+  color:#fff;
+  border:0;
+  overflow:hidden;
+  position:relative
+}
+
+.hero:after{
+  content:"";
+  position:absolute;
+  width:210px;
+  height:210px;
+  border-radius:50%;
+  right:-70px;
+  top:-80px;
+  background:linear-gradient(
+    135deg,
+    #9ED33E55,
+    #19B7D555
+  )
+}
+
+.hero h2{
+  margin:0 0 5px;
+  font-size:27px;
+  position:relative;
+  z-index:1
+}
+
+.hero p{
+  color:#E1F0FF;
+  margin:0;
+  position:relative;
+  z-index:1
+}
+
+.hero-logo{
+  width:92px;
+  height:92px;
+  object-fit:cover;
+  border-radius:23px;
+  background:#fff;
+  float:right;
+  margin:-4px 0 12px 15px;
+  position:relative;
+  z-index:2;
+  box-shadow:0 10px 25px rgba(0,0,0,.18)
+}
+
+.quick{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:17px;
+  position:relative;
+  z-index:2
+}
+
+.quick button{
+  text-align:left;
+  background:#ffffff12;
+  color:#fff;
+  border:1px solid #ffffff28
+}
+
+.quick strong{display:block}
+
+.quick small{color:#D6E7F8}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px
+}
+
+.stat{
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  box-shadow:var(--shadow)
+}
+
+.stat b{
+  display:block;
+  font-size:29px;
+  line-height:1.1;
+  color:var(--navy)
+}
+
+.stat span{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700
+}
+
+label{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  color:#566176;
+  margin:8px 0 4px
+}
+
+input,textarea,select{
+  width:100%;
+  border:1px solid #CBD7E3;
+  border-radius:12px;
+  padding:11px 12px;
+  background:#fff;
+  color:var(--ink);
+  outline:none
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#62A9DA;
+  box-shadow:0 0 0 3px #1479C914
+}
+
+textarea{resize:vertical}
+
+.row{
+  display:flex;
+  gap:9px;
+  align-items:center
+}
+
+.row>*{flex:1}
+
+.primary{
+  background:linear-gradient(
+    135deg,
+    var(--blue),
+    var(--navy2)
+  );
+  color:#fff
+}
+
+.primary:hover{filter:brightness(.96)}
+
+.secondary{
+  background:#EDF2F7;
+  color:#344054
+}
+
+.success{
+  background:#DFF5E9;
+  color:#12683E
+}
+
+.danger{
+  background:#FDE8E8;
+  color:#A32121
+}
+
+.warning{
+  background:#FFF2CF;
+  color:#805800
+}
+
+.muted{
+  color:var(--muted);
+  font-size:13px
+}
+
+.divider{
+  border:0;
+  border-top:1px solid var(--line);
+  margin:20px 0
+}
+
+.section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px
+}
+
+.section-title h3{margin:0}
+
+.chat{
+  height:430px;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#F8FBFE;
+  padding:13px
+}
+
+.msg{
+  max-width:88%;
+  padding:11px 13px;
+  border-radius:15px;
+  margin:8px 0;
+  white-space:pre-wrap
+}
+
+.bot{background:#EAF1F6}
+
+.user{
+  background:#DCECFB;
+  color:#123E69;
+  margin-left:auto
+}
+
+.thinking{opacity:.65}
+
+.voice{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:10px;
+  padding:11px 13px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#FBFDFF
+}
+
+.mic{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  padding:0;
+  background:var(--navy);
+  color:#fff;
+  font-size:19px
+}
+
+.mic.listening{
+  background:var(--red);
+  animation:pulse 1.2s infinite
+}
+
+@keyframes pulse{
+  50%{
+    box-shadow:0 0 0 8px #C9363618
+  }
+}
+
+.engine-status{
+  font-size:12px;
+  color:var(--muted)
+}
+
+.engine-status.ready{color:var(--green)}
+
+.engine-status.error{color:var(--red)}
+
+.list-item{
+  border:1px solid var(--line);
+  background:#FAFCFE;
+  border-radius:14px;
+  padding:13px;
+  margin:8px 0
+}
+
+.list-item b{display:block}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:10px
+}
+
+.small{
+  font-size:12px;
+  padding:7px 10px
+}
+
+.calendar-head{
+  display:flex;
+  gap:8px;
+  align-items:center
+}
+
+.calendar-head input{margin:0}
+
+.calendar{
+  display:grid;
+  gap:6px;
+  margin-top:15px
+}
+
+.slot{
+  display:grid;
+  grid-template-columns:60px 1fr;
+  gap:7px
+}
+
+.slot-time{
+  display:grid;
+  place-items:center;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800
+}
+
+.slot-box{
+  min-height:46px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:9px 11px;
+  background:#F9FBFD
+}
+
+.slot-box.free{cursor:pointer}
+
+.slot-box.free:hover{
+  background:#EDF7FC;
+  border-color:#8CC5E6
+}
+
+.slot-box.busy{
+  background:#E5F0FA;
+  border-color:#A5C7E5
+}
+
+.slot-box.closed{
+  color:#9AA4B2;
+  background:#F0F2F5
+}
+
+.badge{
+  display:inline-block;
+  border-radius:999px;
+  padding:3px 8px;
+  font-size:11px;
+  font-weight:800
+}
+
+.confirmed{
+  background:#DFF5E9;
+  color:#12683E
+}
+
+.completed{
+  background:#E3ECFF;
+  color:#2449A5
+}
+
+.cancelled{
+  background:#FDE8E8;
+  color:#A32121
+}
+
+.two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px
+}
+
+.three{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px
+}
+
+.modal-bg{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#082B5C99;
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:14px
+}
+
+.modal-bg.open{display:flex}
+
+.modal{
+  width:min(620px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:20px;
+  padding:20px
+}
+
+.post-result{min-height:260px}
+
+.platforms{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px
+}
+
+.platforms button{
+  background:#F6F9FC;
+  border:1px solid var(--line)
+}
+
+.platforms button.active{
+  background:#E7F6F4;
+  color:#087E70;
+  border-color:#72CBBF
+}
+
+.logo-note{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:12px;
+  border-radius:15px;
+  background:linear-gradient(
+    135deg,
+    #EFF6FF,
+    #EDF9F4
+  );
+  border:1px solid #D7E9E6
+}
+
+.logo-note img{
+  width:54px;
+  height:54px;
+  object-fit:cover;
+  border-radius:13px;
+  background:#fff
+}
+
+@media(max-width:800px){
+  .grid{
+    grid-template-columns:repeat(2,1fr)
+  }
+
+  .quick,
+  .two{
+    grid-template-columns:1fr
+  }
+
+  .three{
+    grid-template-columns:1fr
+  }
+
+  .engine-pill{
+    display:none
+  }
+}
+
+@media(max-width:560px){
+  main{
+    padding:16px 10px 50px
+  }
+
+  .card{padding:15px}
+
+  .heading h2{font-size:23px}
+
+  .row{
+    flex-direction:column;
+    align-items:stretch
+  }
+
+  .row>*{width:100%}
+
+  .platforms{
+    grid-template-columns:repeat(2,1fr)
+  }
+
+  .slot{
+    grid-template-columns:52px 1fr
+  }
+
+  .hero-logo{
+    width:70px;
+    height:70px
+  }
+}
 </style>
 </head>
+
 <body>
 
 <header>
-<div class="header-row">
-<div class="brand">
-<div class="brand-logo">M</div>
-<div>
-<h1>Maviri</h1>
-<small>Mavi · intelligenza locale dell'attività</small>
-</div>
-</div>
-<div id="enginePill" class="engine-pill">Mavi: avvio…</div>
-</div>
+  <div class="header-row">
+
+    <div class="brand">
+
+      <img
+        class="brand-logo"
+        src="./mavi-logo.png"
+        alt="Mavi">
+
+      <div>
+        <h1>Maviri</h1>
+        <small>
+          Mavi · intelligenza locale dell'attività
+        </small>
+      </div>
+
+    </div>
+
+    <div
+      id="enginePill"
+      class="engine-pill">
+      Mavi · avvio…
+    </div>
+
+  </div>
 </header>
 
 <nav id="nav">
-<button data-page="home" onclick="showPage('home')">Home</button>
-<button data-page="mavi" onclick="showPage('mavi')">Mavi</button>
-<button data-page="calendar" onclick="showPage('calendar')">Calendario</button>
-<button data-page="clients" onclick="showPage('clients')">Clienti</button>
-<button data-page="post" onclick="showPage('post')">Contenuti</button>
-<button data-page="settings" onclick="showPage('settings')">Impostazioni</button>
+
+  <button
+    data-page="home"
+    onclick="showPage('home')">
+    Home
+  </button>
+
+  <button
+    data-page="mavi"
+    onclick="showPage('mavi')">
+    Mavi
+  </button>
+
+  <button
+    data-page="calendar"
+    onclick="showPage('calendar')">
+    Calendario
+  </button>
+
+  <button
+    data-page="clients"
+    onclick="showPage('clients')">
+    Clienti
+  </button>
+
+  <button
+    data-page="post"
+    onclick="showPage('post')">
+    Contenuti
+  </button>
+
+  <button
+    data-page="settings"
+    onclick="showPage('settings')">
+    Impostazioni
+  </button>
+
 </nav>
 
 <main>
 
 <section id="home" class="page active">
-<div class="heading">
-<div>
-<h2>Dashboard</h2>
-<p>Il centro operativo di Maviri.</p>
-</div>
-</div>
 
-<div class="card hero">
-<h2 id="welcome">La tua attività</h2>
-<p>Clienti, appuntamenti e informazioni sotto il controllo di Mavi.</p>
-<div class="quick">
-<button onclick="showPage('calendar')">
-<strong>Calendario</strong>
-<small>Appuntamenti e disponibilità</small>
-</button>
-<button onclick="showPage('clients')">
-<strong>Clienti</strong>
-<small>Schede e storico</small>
-</button>
-<button onclick="showPage('mavi')">
-<strong>Parla con Mavi</strong>
-<small>Chat o voce</small>
-</button>
-</div>
-</div>
+  <div class="heading">
+    <div>
+      <h2>Dashboard</h2>
+      <p>
+        Il centro operativo di Maviri.
+      </p>
+    </div>
+  </div>
 
-<div class="grid">
-<div class="stat"><b id="stServices">0</b><span>Servizi</span></div>
-<div class="stat"><b id="stClients">0</b><span>Clienti</span></div>
-<div class="stat"><b id="stAppointments">0</b><span>Appuntamenti attivi</span></div>
-<div class="stat"><b id="stPromotions">0</b><span>Promozioni</span></div>
-</div>
+  <div class="card hero">
 
-<div class="card">
-<div class="section-title">
-<h3>Stato Mavi</h3>
-<span id="homeEngineStatus" class="engine-status">Caricamento…</span>
-</div>
-<div class="muted">Il motore locale gira nel browser. Nessuna chiamata a OpenAI.</div>
-</div>
+    <img
+      class="hero-logo"
+      src="./mavi-logo.png"
+      alt="">
+
+    <h2 id="welcome">
+      La tua attività
+    </h2>
+
+    <p>
+      Clienti, appuntamenti e informazioni
+      sotto il controllo di Mavi.
+    </p>
+
+    <div class="quick">
+
+      <button
+        onclick="showPage('calendar')">
+
+        <strong>
+          Calendario
+        </strong>
+
+        <small>
+          Appuntamenti e disponibilità
+        </small>
+
+      </button>
+
+      <button
+        onclick="showPage('clients')">
+
+        <strong>
+          Clienti
+        </strong>
+
+        <small>
+          Schede e storico
+        </small>
+
+      </button>
+
+      <button
+        onclick="showPage('mavi')">
+
+        <strong>
+          Parla con Mavi
+        </strong>
+
+        <small>
+          Chat o voce
+        </small>
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="grid">
+
+    <div class="stat">
+      <b id="stServices">0</b>
+      <span>Servizi</span>
+    </div>
+
+    <div class="stat">
+      <b id="stClients">0</b>
+      <span>Clienti</span>
+    </div>
+
+    <div class="stat">
+      <b id="stAppointments">0</b>
+      <span>Appuntamenti attivi</span>
+    </div>
+
+    <div class="stat">
+      <b id="stPromotions">0</b>
+      <span>Promozioni</span>
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="section-title">
+
+      <h3>
+        Stato Mavi
+      </h3>
+
+      <span
+        id="homeEngineStatus"
+        class="engine-status">
+        Avvio…
+      </span>
+
+    </div>
+
+    <div class="logo-note">
+
+      <img
+        src="./mavi-logo.png"
+        alt="">
+
+      <div>
+
+        <b>
+          Mavi si occupa delle informazioni.
+        </b>
+
+        <div class="muted">
+          Il motore locale funziona nel browser,
+          senza OpenAI.
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
 </section>
+
 
 <section id="mavi" class="page">
-<div class="heading">
-<div>
-<h2>Mavi</h2>
-<p>La tua assistente locale per parlare, verificare e gestire l'attività.</p>
-</div>
-</div>
 
-<div class="card">
-<div id="chat" class="chat">
-<div class="msg bot">Sono Mavi. Posso consultare i dati di Maviri e aiutarti con clienti, servizi e appuntamenti.</div>
-</div>
+  <div class="heading">
 
-<div id="maviStatus" class="engine-status" style="margin:10px 0">
-Caricamento del motore locale…
-</div>
+    <div>
 
-<div class="row">
-<input id="maviInput" placeholder="Scrivi a Mavi…" onkeydown="if(event.key==='Enter')askMavi()">
-<button id="maviSend" class="primary" onclick="askMavi()">Invia</button>
-</div>
+      <h2>Mavi</h2>
 
-<div class="voice">
-<button id="micButton" class="mic" onclick="toggleVoice()" title="Parla con Mavi">●</button>
-<div>
-<b id="voiceLabel">Premi il microfono</b>
-<div class="muted">Voce → Mavi → risposta vocale</div>
-</div>
-</div>
+      <p>
+        La tua assistente locale per parlare,
+        verificare e gestire l'attività.
+      </p>
 
-<div class="actions">
-<button class="secondary small" onclick="clearMaviHistory()">Cancella conversazione</button>
-<button class="secondary small" onclick="preloadMavi()">Carica motore</button>
-</div>
-</div>
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div
+      id="chat"
+      class="chat">
+
+      <div class="msg bot">
+        Sono Mavi. Posso consultare i dati
+        di Maviri e aiutarti con clienti,
+        servizi e appuntamenti.
+      </div>
+
+    </div>
+
+    <div
+      id="maviStatus"
+      class="engine-status"
+      style="margin:10px 0">
+
+      Preparazione…
+
+    </div>
+
+    <div class="row">
+
+      <input
+        id="maviInput"
+        placeholder="Scrivi a Mavi…"
+        onkeydown="if(event.key==='Enter')askMavi()">
+
+      <button
+        id="maviSend"
+        class="primary"
+        onclick="askMavi()">
+
+        Invia
+
+      </button>
+
+    </div>
+
+    <div class="voice">
+
+      <button
+        id="micButton"
+        class="mic"
+        onclick="toggleVoice()"
+        title="Parla con Mavi">
+
+        ●
+
+      </button>
+
+      <div>
+
+        <b id="voiceLabel">
+          Premi il microfono
+        </b>
+
+        <div class="muted">
+          Voce → Mavi → risposta vocale
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="actions">
+
+      <button
+        class="secondary small"
+        onclick="clearMaviHistory()">
+
+        Cancella conversazione
+
+      </button>
+
+      <button
+        class="secondary small"
+        onclick="preloadMavi()">
+
+        Prepara Mavi
+
+      </button>
+
+    </div>
+
+  </div>
+
 </section>
+
 
 <section id="calendar" class="page">
-<div class="heading">
-<div>
-<h2>Calendario</h2>
-<p>Controllo visivo e gestione appuntamenti.</p>
-</div>
-</div>
 
-<div class="card">
-<div class="calendar-head">
-<button class="secondary" onclick="changeDay(-1)">‹</button>
-<input id="calendarDate" type="date" onchange="renderCalendar()">
-<button class="secondary" onclick="changeDay(1)">›</button>
-</div>
-<div id="dayTitle" class="muted" style="margin-top:10px"></div>
-<div id="calendarGrid" class="calendar"></div>
-</div>
+  <div class="heading">
 
-<div class="card">
-<div class="section-title">
-<h3>Appuntamenti del giorno</h3>
-<button class="primary small" onclick="openNewAppointment()">Nuovo</button>
-</div>
-<div id="dayAppointments"></div>
-</div>
+    <div>
 
-<div class="card">
-<h3>Ricerca appuntamenti</h3>
-<input id="appointmentSearch" placeholder="Nome cliente…" oninput="renderAppointmentSearch()">
-<div id="appointmentSearchResults"></div>
-</div>
+      <h2>
+        Calendario
+      </h2>
+
+      <p>
+        Controllo visivo e gestione appuntamenti.
+      </p>
+
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="calendar-head">
+
+      <button
+        class="secondary"
+        onclick="changeDay(-1)">
+        ‹
+      </button>
+
+      <input
+        id="calendarDate"
+        type="date"
+        onchange="renderCalendar()">
+
+      <button
+        class="secondary"
+        onclick="changeDay(1)">
+        ›
+      </button>
+
+    </div>
+
+    <div
+      id="dayTitle"
+      class="muted"
+      style="margin-top:10px">
+    </div>
+
+    <div
+      id="calendarGrid"
+      class="calendar">
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="section-title">
+
+      <h3>
+        Appuntamenti del giorno
+      </h3>
+
+      <button
+        class="primary small"
+        onclick="openNewAppointment()">
+
+        Nuovo
+
+      </button>
+
+    </div>
+
+    <div id="dayAppointments"></div>
+
+  </div>
+
+  <div class="card">
+
+    <h3>
+      Ricerca appuntamenti
+    </h3>
+
+    <input
+      id="appointmentSearch"
+      placeholder="Nome cliente…"
+      oninput="renderAppointmentSearch()">
+
+    <div
+      id="appointmentSearchResults">
+    </div>
+
+  </div>
+
 </section>
+
 
 <section id="clients" class="page">
-<div class="heading">
-<div>
-<h2>Clienti</h2>
-<p>Schede cliente, note e storico appuntamenti.</p>
-</div>
-<button class="primary" onclick="openNewClient()">Nuovo cliente</button>
-</div>
 
-<div class="card">
-<input id="clientSearch" placeholder="Cerca nome, telefono o email…" oninput="renderClients()">
-<div id="clientsList"></div>
-</div>
+  <div class="heading">
+
+    <div>
+
+      <h2>
+        Clienti
+      </h2>
+
+      <p>
+        Schede cliente, note e storico appuntamenti.
+      </p>
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="openNewClient()">
+
+      Nuovo cliente
+
+    </button>
+
+  </div>
+
+  <div class="card">
+
+    <input
+      id="clientSearch"
+      placeholder="Cerca nome, telefono o email…"
+      oninput="renderClients()">
+
+    <div id="clientsList"></div>
+
+  </div>
+
 </section>
+
 
 <section id="post" class="page">
-<div class="heading">
-<div>
-<h2>Contenuti</h2>
-<p>Mavi può creare testi usando esclusivamente i dati locali dell'attività.</p>
-</div>
-</div>
 
-<div class="card">
-<div class="two">
-<div>
-<label>Tipo</label>
-<select id="postType">
-<option>Servizio</option>
-<option>Promozione</option>
-<option>Novità</option>
-<option>Evento</option>
-<option>Informazione</option>
-<option>Post generico</option>
-</select>
+  <div class="heading">
 
-<label>Stile</label>
-<select id="postStyle">
-<option>Professionale</option>
-<option>Elegante</option>
-<option>Amichevole</option>
-<option>Diretto</option>
-<option>Promozionale</option>
-</select>
-</div>
+    <div>
 
-<div>
-<label>Piattaforma</label>
-<div class="platforms">
-<button class="active" data-platform="Instagram" onclick="selectPlatform(this)">Instagram</button>
-<button data-platform="Facebook" onclick="selectPlatform(this)">Facebook</button>
-<button data-platform="WhatsApp" onclick="selectPlatform(this)">WhatsApp</button>
-<button data-platform="Google" onclick="selectPlatform(this)">Google</button>
-<button data-platform="TikTok" onclick="selectPlatform(this)">TikTok</button>
-<button data-platform="Generico" onclick="selectPlatform(this)">Generico</button>
-</div>
-</div>
-</div>
+      <h2>
+        Contenuti
+      </h2>
 
-<label>Argomento</label>
-<input id="postTopic" placeholder="Es. voglio promuovere il taglio uomo del sabato">
+      <p>
+        Mavi crea testi usando i dati locali
+        dell'attività.
+      </p>
 
-<label>Indicazioni aggiuntive</label>
-<textarea id="postExtra" rows="3" placeholder="Pubblico, call to action, tono…"></textarea>
+    </div>
 
-<button id="postButton" class="primary" style="width:100%;margin-top:8px" onclick="generatePost()">Genera con Mavi</button>
+  </div>
 
-<p id="postStatus" class="muted"></p>
-</div>
+  <div class="card">
 
-<div class="card">
-<div class="section-title">
-<h3>Risultato</h3>
-<button class="secondary small" onclick="copyText('postOutput')">Copia</button>
-</div>
-<textarea id="postOutput" class="post-result" rows="14" placeholder="Il contenuto apparirà qui…"></textarea>
-</div>
+    <div class="two">
+
+      <div>
+
+        <label>
+          Tipo
+        </label>
+
+        <select id="postType">
+
+          <option>Servizio</option>
+          <option>Promozione</option>
+          <option>Novità</option>
+          <option>Evento</option>
+          <option>Informazione</option>
+          <option>Post generico</option>
+
+        </select>
+
+        <label>
+          Stile
+        </label>
+
+        <select id="postStyle">
+
+          <option>Professionale</option>
+          <option>Elegante</option>
+          <option>Amichevole</option>
+          <option>Diretto</option>
+          <option>Promozionale</option>
+
+        </select>
+
+      </div>
+
+      <div>
+
+        <label>
+          Piattaforma
+        </label>
+
+        <div class="platforms">
+
+          <button
+            class="active"
+            data-platform="Instagram"
+            onclick="selectPlatform(this)">
+            Instagram
+          </button>
+
+          <button
+            data-platform="Facebook"
+            onclick="selectPlatform(this)">
+            Facebook
+          </button>
+
+          <button
+            data-platform="WhatsApp"
+            onclick="selectPlatform(this)">
+            WhatsApp
+          </button>
+
+          <button
+            data-platform="Google"
+            onclick="selectPlatform(this)">
+            Google
+          </button>
+
+          <button
+            data-platform="TikTok"
+            onclick="selectPlatform(this)">
+            TikTok
+          </button>
+
+          <button
+            data-platform="Generico"
+            onclick="selectPlatform(this)">
+            Generico
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <label>
+      Argomento
+    </label>
+
+    <input
+      id="postTopic"
+      placeholder="Es. voglio promuovere il taglio uomo del sabato">
+
+    <label>
+      Indicazioni aggiuntive
+    </label>
+
+    <textarea
+      id="postExtra"
+      rows="3"
+      placeholder="Pubblico, call to action, tono…">
+    </textarea>
+
+    <button
+      id="postButton"
+      class="primary"
+      style="width:100%;margin-top:8px"
+      onclick="generatePost()">
+
+      Genera con Mavi
+
+    </button>
+
+    <p
+      id="postStatus"
+      class="muted">
+    </p>
+
+  </div>
+
+  <div class="card">
+
+    <div class="section-title">
+
+      <h3>
+        Risultato
+      </h3>
+
+      <button
+        class="secondary small"
+        onclick="copyText('postOutput')">
+
+        Copia
+
+      </button>
+
+    </div>
+
+    <textarea
+      id="postOutput"
+      class="post-result"
+      rows="14"
+      placeholder="Il contenuto apparirà qui…">
+    </textarea>
+
+  </div>
+
 </section>
 
+
 <section id="settings" class="page">
-<div class="heading">
-<div>
-<h2>Impostazioni</h2>
-<p>Configurazione locale di Maviri.</p>
-</div>
-</div>
 
-<div class="card">
-<h3>Attività</h3>
+  <div class="heading">
 
-<div class="two">
-<div>
-<label>Nome</label>
-<input id="setName">
+    <div>
 
-<label>Tipo</label>
-<input id="setType">
+      <h2>
+        Impostazioni
+      </h2>
 
-<label>Descrizione</label>
-<textarea id="setDescription" rows="3"></textarea>
-</div>
+      <p>
+        Configurazione locale di Maviri.
+      </p>
 
-<div>
-<label>Indirizzo</label>
-<input id="setAddress">
+    </div>
 
-<label>Telefono</label>
-<input id="setPhone">
+  </div>
 
-<label>WhatsApp</label>
-<input id="setWhatsapp">
-</div>
-</div>
 
-<button class="primary" onclick="saveSettings()">Salva</button>
-<p id="settingsStatus" class="muted"></p>
-</div>
+  <div class="card">
 
-<div class="card">
-<div class="section-title">
-<h3>Orari</h3>
-<button class="primary small" onclick="saveHours()">Salva orari</button>
-</div>
-<div id="hours"></div>
-</div>
+    <h3>
+      Attività
+    </h3>
 
-<div class="card">
-<h3>Servizi</h3>
+    <div class="two">
 
-<div class="three">
-<input id="serviceName" placeholder="Nome">
-<input id="serviceDuration" type="number" min="5" step="5" placeholder="Durata min">
-<input id="servicePrice" type="number" min="0" step=".01" placeholder="Prezzo">
-</div>
+      <div>
 
-<textarea id="serviceDescription" rows="2" placeholder="Descrizione"></textarea>
+        <label>
+          Nome
+        </label>
 
-<button class="primary" onclick="saveService()">Aggiungi servizio</button>
+        <input id="setName">
 
-<div id="servicesList"></div>
-</div>
+        <label>
+          Tipo
+        </label>
 
-<div class="card">
-<h3>Promozioni</h3>
+        <input id="setType">
 
-<div class="two">
-<input id="promoTitle" placeholder="Titolo">
-<input id="promoStart" type="date">
-</div>
+        <label>
+          Descrizione
+        </label>
 
-<textarea id="promoDescription" rows="2" placeholder="Descrizione"></textarea>
+        <textarea
+          id="setDescription"
+          rows="3">
+        </textarea>
 
-<label>Fine</label>
-<input id="promoEnd" type="date">
+      </div>
 
-<button class="primary" onclick="savePromotion()">Aggiungi promozione</button>
+      <div>
 
-<div id="promotionsList"></div>
-</div>
+        <label>
+          Indirizzo
+        </label>
+
+        <input id="setAddress">
+
+        <label>
+          Telefono
+        </label>
+
+        <input id="setPhone">
+
+        <label>
+          WhatsApp
+        </label>
+
+        <input id="setWhatsapp">
+
+      </div>
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="saveSettings()">
+
+      Salva
+
+    </button>
+
+    <p
+      id="settingsStatus"
+      class="muted">
+    </p>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="section-title">
+
+      <h3>
+        Orari
+      </h3>
+
+      <button
+        class="primary small"
+        onclick="saveHours()">
+
+        Salva orari
+
+      </button>
+
+    </div>
+
+    <div id="hours"></div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>
+      Servizi
+    </h3>
+
+    <div class="three">
+
+      <input
+        id="serviceName"
+        placeholder="Nome">
+
+      <input
+        id="serviceDuration"
+        type="number"
+        min="5"
+        step="5"
+        placeholder="Durata min">
+
+      <input
+        id="servicePrice"
+        type="number"
+        min="0"
+        step=".01"
+        placeholder="Prezzo">
+
+    </div>
+
+    <textarea
+      id="serviceDescription"
+      rows="2"
+      placeholder="Descrizione">
+    </textarea>
+
+    <button
+      class="primary"
+      onclick="saveService()">
+
+      Aggiungi servizio
+
+    </button>
+
+    <div id="servicesList"></div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>
+      Promozioni
+    </h3>
+
+    <div class="two">
+
+      <input
+        id="promoTitle"
+        placeholder="Titolo">
+
+      <input
+        id="promoStart"
+        type="date">
+
+    </div>
+
+    <textarea
+      id="promoDescription"
+      rows="2"
+      placeholder="Descrizione">
+    </textarea>
+
+    <label>
+      Fine
+    </label>
+
+    <input
+      id="promoEnd"
+      type="date">
+
+    <button
+      class="primary"
+      onclick="savePromotion()">
+
+      Aggiungi promozione
+
+    </button>
+
+    <div id="promotionsList"></div>
+
+  </div>
+
 </section>
 
 </main>
 
-<div id="modalBg" class="modal-bg" onclick="if(event.target===this)closeModal()">
-<div class="modal" id="modal"></div>
+
+<div
+  id="modalBg"
+  class="modal-bg"
+  onclick="if(event.target===this)closeModal()">
+
+  <div
+    class="modal"
+    id="modal">
+  </div>
+
 </div>
+
 
 <script src="./mavi-engine.js"></script>
 
@@ -351,20 +1528,29 @@ Caricamento del motore locale…
 "use strict";
 
 const $=id=>document.getElementById(id);
+
 const KEY="appData";
 const BACKUP="appData_backup";
 const HIST="maviConversation";
 
-const DAYS=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+const DAYS=[
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday"
+];
 
 const DAY_LABEL=[
-"Domenica",
-"Lunedì",
-"Martedì",
-"Mercoledì",
-"Giovedì",
-"Venerdì",
-"Sabato"
+  "Domenica",
+  "Lunedì",
+  "Martedì",
+  "Mercoledì",
+  "Giovedì",
+  "Venerdì",
+  "Sabato"
 ];
 
 let data={};
@@ -372,385 +1558,591 @@ let selectedPlatform="Instagram";
 let recognition=null;
 let listening=false;
 let busy=false;
+let visualThinkingTimer=null;
+
 
 function today(){
-return new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome"}).format(new Date())
+
+  return new Intl.DateTimeFormat(
+    "en-CA",
+    {
+      timeZone:"Europe/Rome"
+    }
+  ).format(new Date());
+
 }
+
 
 function uid(){
-return crypto.randomUUID
-?crypto.randomUUID()
-:Date.now()+"-"+Math.random().toString(36).slice(2)
+
+  return crypto.randomUUID
+    ?crypto.randomUUID()
+    :Date.now()+"-"+Math.random()
+      .toString(36)
+      .slice(2);
+
 }
+
 
 function defaultHours(){
-const h={};
 
-DAYS.forEach((d,i)=>{
-h[d]=i===0
-?{
-closed:true,
-start:"09:00",
-end:"18:00",
-breakStart:"",
-breakEnd:""
-}
-:{
-closed:false,
-start:"09:00",
-end:"18:00",
-breakStart:"13:00",
-breakEnd:"14:00"
-}
-});
+  const h={};
 
-return h
+  DAYS.forEach((d,i)=>{
+
+    h[d]=i===0
+
+      ?{
+        closed:true,
+        start:"09:00",
+        end:"18:00",
+        breakStart:"",
+        breakEnd:""
+      }
+
+      :{
+        closed:false,
+        start:"09:00",
+        end:"18:00",
+        breakStart:"13:00",
+        breakEnd:"14:00"
+      };
+
+  });
+
+  return h;
+
 }
+
 
 function defaults(){
-return {
-version:3,
-revision:1,
-updatedAt:new Date().toISOString(),
 
-business:{
-name:"",
-type:"",
-description:"",
-address:"",
-phone:"",
-whatsapp:""
-},
+  return {
 
-settings:{
-name:"",
-type:"",
-description:"",
-address:"",
-phone:"",
-whatsapp:"",
-hours:defaultHours()
-},
+    version:3,
 
-services:[],
-promotions:[],
-appointments:[],
-clients:[]
-}
-}
+    revision:1,
 
-function load(){
+    updatedAt:
+      new Date().toISOString(),
 
-try{
+    business:{
+      name:"",
+      type:"",
+      description:"",
+      address:"",
+      phone:"",
+      whatsapp:""
+    },
 
-const a=JSON.parse(localStorage.getItem(KEY)||"null");
+    settings:{
+      name:"",
+      type:"",
+      description:"",
+      address:"",
+      phone:"",
+      whatsapp:"",
+      hours:defaultHours()
+    },
 
-const b=JSON.parse(localStorage.getItem(BACKUP)||"null");
+    services:[],
+    promotions:[],
+    appointments:[],
+    clients:[]
 
-data=a&&typeof a==="object"
-?a
-:(b||defaults());
-
-}catch{
-
-data=defaults();
+  };
 
 }
 
-data=normalizeData(data);
-
-persist(false);
-
-}
 
 function normalizeData(d){
 
-const x=defaults();
+  const x=defaults();
+  const z=d||{};
 
-const z=d||{};
+  x.version=z.version||3;
 
-x.version=z.version||3;
-x.revision=z.revision||1;
-x.updatedAt=z.updatedAt||new Date().toISOString();
+  x.revision=
+    z.revision||1;
 
-x.business={
-...x.business,
-...(z.business||{})
-};
+  x.updatedAt=
+    z.updatedAt||
+    new Date().toISOString();
 
-x.settings={
-...x.settings,
-...(z.settings||{})
-};
+  x.business={
+    ...x.business,
+    ...(z.business||{})
+  };
 
-x.settings.hours={
-...defaultHours(),
-...(z.settings?.hours||{})
-};
+  x.settings={
+    ...x.settings,
+    ...(z.settings||{})
+  };
 
-x.services=Array.isArray(z.services)
-?z.services
-:[];
+  x.settings.hours={
+    ...defaultHours(),
+    ...(z.settings?.hours||{})
+  };
 
-x.promotions=Array.isArray(z.promotions)
-?z.promotions
-:[];
+  x.services=
+    Array.isArray(z.services)
+      ?z.services
+      :[];
 
-x.appointments=Array.isArray(z.appointments)
-?z.appointments
-:[];
+  x.promotions=
+    Array.isArray(z.promotions)
+      ?z.promotions
+      :[];
 
-x.clients=Array.isArray(z.clients)
-?z.clients
-:[];
+  x.appointments=
+    Array.isArray(z.appointments)
+      ?z.appointments
+      :[];
 
-if(!x.business.name&&x.settings.name)
-x.business.name=x.settings.name;
+  x.clients=
+    Array.isArray(z.clients)
+      ?z.clients
+      :[];
 
-if(!x.settings.name&&x.business.name)
-x.settings.name=x.business.name;
+  if(
+    !x.business.name&&
+    x.settings.name
+  ){
 
-return x
+    x.business.name=
+      x.settings.name;
+
+  }
+
+  if(
+    !x.settings.name&&
+    x.business.name
+  ){
+
+    x.settings.name=
+      x.business.name;
+
+  }
+
+  return x;
+
 }
+
+
+function load(){
+
+  try{
+
+    const a=
+      JSON.parse(
+        localStorage.getItem(KEY)||"null"
+      );
+
+    const b=
+      JSON.parse(
+        localStorage.getItem(BACKUP)||"null"
+      );
+
+    data=
+      normalizeData(
+        a&&typeof a==="object"
+          ?a
+          :(b||defaults())
+      );
+
+  }catch{
+
+    data=defaults();
+
+  }
+
+  persist(false);
+
+}
+
 
 function persist(update=true){
 
-if(update){
+  if(update){
 
-data.revision=(data.revision||0)+1;
+    data.revision=
+      (data.revision||0)+1;
 
-data.updatedAt=new Date().toISOString();
+    data.updatedAt=
+      new Date().toISOString();
+
+  }
+
+  localStorage.setItem(
+    KEY,
+    JSON.stringify(data)
+  );
+
+  localStorage.setItem(
+    BACKUP,
+    JSON.stringify(data)
+  );
 
 }
 
-localStorage.setItem(KEY,JSON.stringify(data));
-
-localStorage.setItem(BACKUP,JSON.stringify(data));
-
-}
-
-function settings(){
-return data.settings
-}
 
 function save(){
-persist();
-renderAll();
+
+  persist();
+
+  renderAll();
+
 }
+
 
 function activeAppointments(){
 
-return data.appointments.filter(
-a=>!["cancellato","cancelled","annullato"]
-.includes(String(a.status||"confermato").toLowerCase())
-)
+  return data.appointments.filter(
+
+    a=>
+
+      ![
+        "cancellato",
+        "cancelled",
+        "annullato"
+      ].includes(
+        String(
+          a.status||
+          "confermato"
+        ).toLowerCase()
+      )
+
+  );
 
 }
+
 
 function showPage(id){
 
-document.querySelectorAll(".page")
-.forEach(p=>p.classList.remove("active"));
+  document
+    .querySelectorAll(".page")
+    .forEach(
+      p=>p.classList.remove("active")
+    );
 
-$(id).classList.add("active");
+  $(id).classList.add("active");
 
-document.querySelectorAll("nav button")
-.forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+  document
+    .querySelectorAll("nav button")
+    .forEach(
+      b=>
+        b.classList.toggle(
+          "active",
+          b.dataset.page===id
+        )
+    );
 
-if(id==="calendar")
-renderCalendar();
+  if(id==="calendar")
+    renderCalendar();
 
-if(id==="clients")
-renderClients();
+  if(id==="clients")
+    renderClients();
 
 }
+
 
 function esc(s){
 
-return String(s??"")
-.replace(/[&<>"']/g,c=>({
-"&":"&amp;",
-"<":"&lt;",
-">":"&gt;",
-'"':"&quot;",
-"'":"&#39;"
-}[c]));
+  return String(s??"")
+    .replace(
+      /[&<>"']/g,
+      c=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[c])
+    );
 
 }
+
+
+function safeDate(value){
+
+  const s=
+    String(value||"")
+      .trim();
+
+  if(
+    !/^\d{4}-\d{2}-\d{2}$/.test(s)
+  )
+    return null;
+
+  const d=
+    new Date(
+      s+"T12:00:00"
+    );
+
+  return Number.isNaN(
+    d.getTime()
+  )
+    ?null
+    :d;
+
+}
+
 
 function formatDate(d){
 
-if(!d)
-return "";
+  const dt=
+    safeDate(d);
 
-return new Intl.DateTimeFormat(
-"it-IT",
-{dateStyle:"medium"}
-).format(new Date(d+"T12:00:00"));
+  return dt
+    ?new Intl.DateTimeFormat(
+      "it-IT",
+      {
+        dateStyle:"medium"
+      }
+    ).format(dt)
+    :"Data non valida";
 
 }
+
 
 function serviceByName(n){
 
-const t=String(n||"")
-.trim()
-.toLowerCase();
+  const t=
+    String(n||"")
+      .trim()
+      .toLowerCase();
 
-return data.services.find(
-s=>String(s.name||"")
-.trim()
-.toLowerCase()===t
-)
-||
-data.services.find(
-s=>String(s.name||"")
-.toLowerCase().includes(t)
-||
-t.includes(String(s.name||"").toLowerCase())
-);
+  if(!t)
+    return null;
+
+  return data.services.find(
+
+    s=>
+      String(s.name||"")
+        .trim()
+        .toLowerCase()===t
+
+  )||
+
+  data.services.find(
+
+    s=>
+      String(s.name||"")
+        .toLowerCase()
+        .includes(t)
+
+      ||
+
+      t.includes(
+        String(s.name||"")
+          .toLowerCase()
+      )
+
+  );
 
 }
+
 
 function clientForName(n){
 
-const t=String(n||"")
-.trim()
-.toLowerCase();
+  const t=
+    String(n||"")
+      .trim()
+      .toLowerCase();
 
-return data.clients.find(
-c=>String(c.name||"")
-.trim()
-.toLowerCase()===t
-);
+  return data.clients.find(
+
+    c=>
+      String(c.name||"")
+        .trim()
+        .toLowerCase()===t
+
+  );
 
 }
+
 
 function ensureClient(name){
 
-if(!name)
-return null;
+  if(!name)
+    return null;
 
-let c=clientForName(name);
+  let c=
+    clientForName(name);
 
-if(!c){
+  if(!c){
 
-c={
-id:uid(),
-name:name.trim(),
-phone:"",
-whatsapp:"",
-email:"",
-notes:"",
-createdAt:new Date().toISOString()
-};
+    c={
+      id:uid(),
+      name:name.trim(),
+      phone:"",
+      whatsapp:"",
+      email:"",
+      notes:"",
+      createdAt:
+        new Date().toISOString()
+    };
 
-data.clients.push(c);
+    data.clients.push(c);
+
+  }
+
+  return c;
 
 }
 
-return c
-
-}
 
 function renderAll(){
 
-$("welcome").textContent=
-data.business.name||
-data.settings.name||
-"La tua attività";
+  $("welcome").textContent=
+    data.business.name||
+    data.settings.name||
+    "La tua attività";
 
-$("stServices").textContent=data.services.length;
+  $("stServices").textContent=
+    data.services.length;
 
-$("stClients").textContent=data.clients.length;
+  $("stClients").textContent=
+    data.clients.length;
 
-$("stAppointments").textContent=
-activeAppointments().length;
+  $("stAppointments").textContent=
+    activeAppointments().length;
 
-$("stPromotions").textContent=
-data.promotions.length;
+  $("stPromotions").textContent=
+    data.promotions.length;
 
-fillSettings();
-
-renderHours();
-
-renderServices();
-
-renderPromotions();
-
-renderCalendar();
+  fillSettings();
+  renderHours();
+  renderServices();
+  renderPromotions();
+  renderCalendar();
+  renderClients();
 
 }
+
 
 function fillSettings(){
 
-const s=data.settings;
-const b=data.business;
+  const s=data.settings;
+  const b=data.business;
 
-[
-["setName",b.name||s.name],
-["setType",b.type||s.type],
-["setDescription",b.description||s.description],
-["setAddress",b.address||s.address],
-["setPhone",b.phone||s.phone],
-["setWhatsapp",b.whatsapp||s.whatsapp]
-]
-.forEach(([id,v])=>{
-$(id).value=v||"";
-});
+  [
+    ["setName",b.name||s.name],
+    ["setType",b.type||s.type],
+    [
+      "setDescription",
+      b.description||s.description
+    ],
+    [
+      "setAddress",
+      b.address||s.address
+    ],
+    [
+      "setPhone",
+      b.phone||s.phone
+    ],
+    [
+      "setWhatsapp",
+      b.whatsapp||s.whatsapp
+    ]
+  ]
+
+  .forEach(
+    ([id,v])=>
+      $(id).value=v||""
+  );
 
 }
+
 
 function saveSettings(){
 
-const b={
-name:$("setName").value.trim(),
-type:$("setType").value.trim(),
-description:$("setDescription").value.trim(),
-address:$("setAddress").value.trim(),
-phone:$("setPhone").value.trim(),
-whatsapp:$("setWhatsapp").value.trim()
-};
+  const b={
 
-data.business={
-...data.business,
-...b
-};
+    name:
+      $("setName")
+        .value
+        .trim(),
 
-data.settings={
-...data.settings,
-...b,
-hours:data.settings.hours
-};
+    type:
+      $("setType")
+        .value
+        .trim(),
 
-save();
+    description:
+      $("setDescription")
+        .value
+        .trim(),
 
-$("settingsStatus").textContent=
-"Impostazioni salvate.";
+    address:
+      $("setAddress")
+        .value
+        .trim(),
+
+    phone:
+      $("setPhone")
+        .value
+        .trim(),
+
+    whatsapp:
+      $("setWhatsapp")
+        .value
+        .trim()
+
+  };
+
+  data.business={
+    ...data.business,
+    ...b
+  };
+
+  data.settings={
+    ...data.settings,
+    ...b,
+    hours:data.settings.hours
+  };
+
+  save();
+
+  $("settingsStatus")
+    .textContent=
+      "Impostazioni salvate.";
 
 }
 
+
 function renderHours(){
 
-const h=data.settings.hours;
+  const h=
+    data.settings.hours;
 
-$("hours").innerHTML=
-DAYS.map((d,i)=>{
+  $("hours").innerHTML=
 
-const x=h[d]||{};
+    DAYS.map((d,i)=>{
 
-return `
+      const x=
+        h[d]||{};
+
+      return `
+
 <div class="list-item">
-<b>${DAY_LABEL[i]}</b>
+
+<b>
+${DAY_LABEL[i]}
+</b>
 
 <div class="three">
 
 <label>
+
 <input
 type="checkbox"
 data-day="${d}"
 data-field="closed"
 ${x.closed?"checked":""}>
+
 Chiuso
+
 </label>
 
 <input
@@ -769,7 +2161,9 @@ value="${x.end||""}">
 
 <div class="three">
 
-<span class="muted">Pausa</span>
+<span class="muted">
+Pausa
+</span>
 
 <input
 data-day="${d}"
@@ -786,137 +2180,191 @@ value="${x.breakEnd||""}">
 </div>
 
 </div>
-`
 
-}).join("");
+`;
+
+    }).join("");
 
 }
+
 
 function saveHours(){
 
-document.querySelectorAll("[data-day]")
-.forEach(el=>{
+  document
+    .querySelectorAll("[data-day]")
+    .forEach(el=>{
 
-const d=el.dataset.day;
-const f=el.dataset.field;
+      const d=
+        el.dataset.day;
 
-if(!data.settings.hours[d])
-data.settings.hours[d]={};
+      const f=
+        el.dataset.field;
 
-data.settings.hours[d][f]=
-el.type==="checkbox"
-?el.checked
-:el.value;
+      if(!data.settings.hours[d])
+        data.settings.hours[d]={};
 
-});
+      data.settings.hours[d][f]=
+        el.type==="checkbox"
+          ?el.checked
+          :el.value;
 
-save();
+    });
+
+  save();
 
 }
+
 
 function renderServices(){
 
-$("servicesList").innerHTML=
-data.services.length
-?
-data.services.map((s,i)=>`
+  $("servicesList").innerHTML=
+
+    data.services.length
+
+      ?data.services.map(
+        (s,i)=>`
 
 <div class="list-item">
 
-<b>${esc(s.name)}</b>
+<b>
+${esc(s.name)}
+</b>
 
 <div class="muted">
-${s.duration||30} min ·
-${s.price!==""&&s.price!=null
-?"€"+s.price
-:"Prezzo non impostato"}
-${s.description
-?" · "+esc(s.description)
-:""}
+
+${s.duration||30}
+min ·
+
+${
+  s.price!==""&&
+  s.price!=null
+
+    ?"€"+esc(s.price)
+
+    :"Prezzo non impostato"
+}
+
+${
+  s.description
+    ?" · "+esc(s.description)
+    :""
+}
+
 </div>
 
 <div class="actions">
+
 <button
 class="danger small"
 onclick="deleteService(${i})">
+
 Elimina
+
 </button>
-</div>
 
 </div>
 
-`).join("")
-:
-`<div class="muted">Nessun servizio.</div>`;
+</div>
+
+`
+      ).join("")
+
+      :
+
+      `<div class="muted">
+        Nessun servizio.
+      </div>`;
 
 }
+
 
 function saveService(){
 
-const name=$("serviceName")
-.value.trim();
+  const name=
+    $("serviceName")
+      .value
+      .trim();
 
-if(!name)
-return;
+  if(!name)
+    return;
 
-data.services.push({
+  data.services.push({
 
-id:uid(),
+    id:uid(),
 
-name,
+    name,
 
-duration:
-Number($("serviceDuration").value)||30,
+    duration:
+      Number(
+        $("serviceDuration").value
+      )||30,
 
-price:
-$("servicePrice").value,
+    price:
+      $("servicePrice").value,
 
-description:
-$("serviceDescription").value.trim()
+    description:
+      $("serviceDescription")
+        .value
+        .trim()
 
-});
+  });
 
-[
-"serviceName",
-"serviceDuration",
-"servicePrice",
-"serviceDescription"
-]
-.forEach(id=>$(id).value="");
+  [
+    "serviceName",
+    "serviceDuration",
+    "servicePrice",
+    "serviceDescription"
+  ]
 
-save();
+  .forEach(
+    id=>$(id).value=""
+  );
+
+  save();
 
 }
+
 
 function deleteService(i){
 
-if(confirm("Eliminare questo servizio?")){
+  if(
+    confirm(
+      "Eliminare questo servizio?"
+    )
+  ){
 
-data.services.splice(i,1);
+    data.services.splice(i,1);
 
-save();
+    save();
+
+  }
 
 }
 
-}
 
 function renderPromotions(){
 
-$("promotionsList").innerHTML=
-data.promotions.length
-?
-data.promotions.map((p,i)=>`
+  $("promotionsList").innerHTML=
+
+    data.promotions.length
+
+      ?data.promotions.map(
+        (p,i)=>`
 
 <div class="list-item">
 
-<b>${esc(p.title)}</b>
+<b>
+${esc(p.title)}
+</b>
 
 <div>
 ${esc(p.description||"")}
 </div>
 
 <div class="muted">
-${p.start||""} → ${p.end||""}
+${esc(p.start||"")}
+→
+${esc(p.end||"")}
 </div>
 
 <div class="actions">
@@ -924,279 +2372,373 @@ ${p.start||""} → ${p.end||""}
 <button
 class="danger small"
 onclick="deletePromotion(${i})">
+
 Elimina
+
 </button>
 
 </div>
 
 </div>
 
-`).join("")
-:
-`<div class="muted">Nessuna promozione.</div>`;
+`
+      ).join("")
+
+      :
+
+      `<div class="muted">
+        Nessuna promozione.
+      </div>`;
 
 }
+
 
 function savePromotion(){
 
-const title=$("promoTitle")
-.value.trim();
+  const title=
+    $("promoTitle")
+      .value
+      .trim();
 
-if(!title)
-return;
+  if(!title)
+    return;
 
-data.promotions.push({
+  data.promotions.push({
 
-id:uid(),
+    id:uid(),
 
-title,
+    title,
 
-description:
-$("promoDescription").value.trim(),
+    description:
+      $("promoDescription")
+        .value
+        .trim(),
 
-start:
-$("promoStart").value,
+    start:
+      $("promoStart").value,
 
-end:
-$("promoEnd").value
+    end:
+      $("promoEnd").value
 
-});
+  });
 
-[
-"promoTitle",
-"promoDescription",
-"promoStart",
-"promoEnd"
-]
-.forEach(id=>$(id).value="");
+  [
+    "promoTitle",
+    "promoDescription",
+    "promoStart",
+    "promoEnd"
+  ]
 
-save();
+  .forEach(
+    id=>$(id).value=""
+  );
+
+  save();
 
 }
+
 
 function deletePromotion(i){
 
-if(confirm("Eliminare questa promozione?")){
+  if(
+    confirm(
+      "Eliminare questo promozione?"
+    )
+  ){
 
-data.promotions.splice(i,1);
+    data.promotions.splice(i,1);
 
-save();
+    save();
 
-}
-
-}
-
-async function businessApi(action,extra={}){
-
-const appointments=
-extra.__appointments||data.appointments;
-
-const payload={
-
-action,
-
-settings:data.settings,
-
-services:data.services,
-
-appointments,
-
-clients:data.clients,
-
-promotions:data.promotions,
-
-business:
-data.business?.name||
-data.settings?.name||
-"",
-
-...extra
-
-};
-
-delete payload.__appointments;
-
-const r=await fetch(
-"/api/chat",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(payload)
-}
-);
-
-let j={};
-
-try{
-j=await r.json();
-}
-catch{
-throw Error(
-"Risposta del server non valida."
-);
-}
-
-if(!r.ok)
-throw Error(
-j.error||
-"Errore del Business Engine."
-);
-
-return j;
+  }
 
 }
 
-async function availability(date,service){
 
-return businessApi(
-"availability",
-{
-date,
-service:service.name
-}
-);
+async function businessApi(
+  action,
+  extra={}
+){
+
+  const appointments=
+    extra.__appointments||
+    data.appointments;
+
+  const payload={
+
+    action,
+
+    settings:
+      data.settings,
+
+    services:
+      data.services,
+
+    appointments,
+
+    clients:
+      data.clients,
+
+    promotions:
+      data.promotions,
+
+    business:
+      data.business?.name||
+      data.settings?.name||
+      "",
+
+    ...extra
+
+  };
+
+  delete payload.__appointments;
+
+  const r=
+    await fetch(
+      "/api/chat",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:
+          JSON.stringify(payload)
+      }
+    );
+
+  let j={};
+
+  try{
+
+    j=await r.json();
+
+  }catch{
+
+    throw Error(
+      "Risposta del server non valida."
+    );
+
+  }
+
+  if(!r.ok)
+
+    throw Error(
+      j.error||
+      "Errore del Business Engine."
+    );
+
+  return j;
 
 }
+
 
 async function bookAppointment(a){
 
-const r=await businessApi(
-"book",
-{
-date:a.date,
-time:a.time,
-service:a.service,
-name:a.name,
-clientName:a.name
+  const r=
+    await businessApi(
+      "book",
+      {
+        date:a.date,
+        time:a.time,
+        service:a.service,
+        name:a.name,
+        clientName:a.name
+      }
+    );
+
+  if(!r.bookingConfirmed)
+
+    throw Error(
+      r.error||
+      "L'orario non è disponibile."
+    );
+
+  const ap={
+
+    ...r.appointment,
+
+    id:
+      r.appointment?.id||
+      uid(),
+
+    name:
+      a.name,
+
+    date:
+      a.date,
+
+    time:
+      a.time,
+
+    service:
+      a.service,
+
+    status:
+      "confermato",
+
+    createdAt:
+      new Date().toISOString()
+
+  };
+
+  data.appointments.push(ap);
+
+  ensureClient(a.name);
+
+  save();
+
+  return ap;
+
 }
-);
 
-if(!r.bookingConfirmed)
-throw Error(
-r.error||
-"L'orario non è disponibile."
-);
-
-const ap={
-
-...r.appointment,
-
-id:
-r.appointment?.id||
-uid(),
-
-name:a.name,
-
-date:a.date,
-
-time:a.time,
-
-service:a.service,
-
-status:"confermato",
-
-createdAt:
-new Date().toISOString()
-
-};
-
-data.appointments.push(ap);
-
-ensureClient(a.name);
-
-save();
-
-return ap;
-
-}
 
 function changeDay(n){
 
-const d=new Date(
-($("calendarDate").value||today())+
-"T12:00:00"
-);
+  const current=
+    safeDate(
+      $("calendarDate").value
+    )||
+    safeDate(today());
 
-d.setDate(
-d.getDate()+n
-);
+  current.setDate(
+    current.getDate()+n
+  );
 
-$("calendarDate").value=
-d.toISOString().slice(0,10);
+  const y=
+    current.getFullYear();
 
-renderCalendar();
+  const m=
+    String(
+      current.getMonth()+1
+    ).padStart(2,"0");
+
+  const d=
+    String(
+      current.getDate()
+    ).padStart(2,"0");
+
+  $("calendarDate").value=
+    `${y}-${m}-${d}`;
+
+  renderCalendar();
 
 }
+
 
 function renderCalendar(){
 
-const date=
-$("calendarDate").value||today();
+  const date=
+    $("calendarDate").value||
+    today();
 
-$("calendarDate").value=date;
+  $("calendarDate").value=
+    date;
 
-const dt=
-new Date(date+"T12:00:00");
+  const dt=
+    safeDate(date);
 
-const idx=dt.getDay();
+  if(!dt){
 
-const h=
-data.settings.hours[DAYS[idx]]||{};
+    $("dayTitle").textContent=
+      "Data non valida";
 
-$("dayTitle").textContent=
-`${DAY_LABEL[idx]} ${formatDate(date)}${h.closed?" · Chiuso":""}`;
+    $("calendarGrid").innerHTML="";
 
-const ap=
-activeAppointments()
-.filter(a=>a.date===date);
+    return;
 
-$("dayAppointments").innerHTML=
-ap.length
-?
-ap
-.sort((a,b)=>a.time.localeCompare(b.time))
-.map(appointmentHtml)
-.join("")
-:
-`<div class="muted">Nessun appuntamento.</div>`;
+  }
 
-if(h.closed){
+  const idx=
+    dt.getDay();
 
-$("calendarGrid").innerHTML=
-`<div class="slot-box closed">Attività chiusa.</div>`;
+  const h=
+    data.settings.hours[
+      DAYS[idx]
+    ]||{};
 
-return;
+  $("dayTitle").textContent=
 
-}
+    `${DAY_LABEL[idx]} ${formatDate(date)}`+
+    `${h.closed?" · Chiuso":""}`;
 
-const open=toMin(h.start);
-const close=toMin(h.end);
+  const ap=
+    activeAppointments()
+      .filter(
+        a=>a.date===date
+      );
 
-if(open==null||close==null){
+  $("dayAppointments").innerHTML=
 
-$("calendarGrid").innerHTML=
-`<div class="slot-box closed">Configura gli orari nelle Impostazioni.</div>`;
+    ap.length
 
-return;
+      ?ap
+        .sort(
+          (a,b)=>
+            String(a.time)
+              .localeCompare(
+                String(b.time)
+              )
+        )
+        .map(appointmentHtml)
+        .join("")
 
-}
+      :
 
-let out="";
+      `<div class="muted">
+        Nessun appuntamento.
+      </div>`;
 
-for(
-let m=open;
-m<close;
-m+=30
-){
+  if(h.closed){
 
-const t=fmt(m);
+    $("calendarGrid").innerHTML=
+      `<div class="slot-box closed">
+        Attività chiusa.
+      </div>`;
 
-const a=
-ap.find(x=>x.time===t);
+    return;
 
-out+=`
+  }
+
+  const open=
+    toMin(h.start);
+
+  const close=
+    toMin(h.end);
+
+  if(
+    open==null||
+    close==null
+  ){
+
+    $("calendarGrid").innerHTML=
+      `<div class="slot-box closed">
+        Configura gli orari nelle Impostazioni.
+      </div>`;
+
+    return;
+
+  }
+
+  let out="";
+
+  for(
+    let m=open;
+    m<close;
+    m+=30
+  ){
+
+    const t=
+      fmt(m);
+
+    const a=
+      ap.find(
+        x=>x.time===t
+      );
+
+    out+=`
 
 <div class="slot">
 
@@ -1206,26 +2748,33 @@ ${t}
 
 <div
 class="slot-box ${a?"busy":"free"}"
+
 ${
-a
-?
-`onclick="openAppointment('${esc(a.id)}')"`
-:
-`onclick="quickAppointment('${date}','${t}')"`
+  a
+
+    ?`onclick="openAppointment('${esc(a.id)}')"`
+
+    :`onclick="quickAppointment('${date}','${t}')"`
 }
+
 >
 
 ${
-a
-?
-`
-<b>${esc(a.name)}</b>
+  a
+
+    ?`
+
+<b>
+${esc(a.name)}
+</b>
+
 <div class="muted">
 ${esc(a.service)}
 </div>
+
 `
-:
-`Disponibile`
+
+    :`Disponibile`
 }
 
 </div>
@@ -1234,58 +2783,72 @@ ${esc(a.service)}
 
 `;
 
+  }
+
+  $("calendarGrid").innerHTML=
+    out;
+
 }
 
-$("calendarGrid").innerHTML=out;
-
-}
 
 function toMin(v){
 
-const m=
-String(v||"")
-.match(/^(\d{1,2}):(\d{2})$/);
+  const m=
+    String(v||"")
+      .match(
+        /^(\d{1,2}):(\d{2})$/
+      );
 
-return m
-?
-Number(m[1])*60+Number(m[2])
-:
-null;
+  return m
+    ?Number(m[1])*60+
+      Number(m[2])
+    :null;
 
 }
+
 
 function fmt(m){
 
-return String(
-Math.floor(m/60)
-).padStart(2,"0")
-+
-":"+
-String(m%60)
-.padStart(2,"0");
+  return String(
+    Math.floor(m/60)
+  )
+  .padStart(2,"0")
+  +
+  ":"
+  +
+  String(
+    m%60
+  )
+  .padStart(2,"0");
 
 }
 
+
 function appointmentHtml(a){
 
-const st=
-String(a.status||"confermato");
+  const st=
+    String(
+      a.status||
+      "confermato"
+    );
 
-const cls=
-st==="completato"
-?"completed"
-:
-st==="cancellato"
-?"cancelled"
-:
-"confirmed";
+  const cls=
+    st==="completato"
+      ?"completed"
+      :
+    st==="cancellato"
+      ?"cancelled"
+      :
+      "confirmed";
 
-return `
+  return `
 
 <div class="list-item">
 
 <b>
-${esc(a.time)} · ${esc(a.name)}
+${esc(a.time)}
+·
+${esc(a.name)}
 </b>
 
 <div class="muted">
@@ -1301,19 +2864,25 @@ ${esc(st)}
 <button
 class="secondary small"
 onclick="openAppointment('${esc(a.id)}')">
+
 Modifica
+
 </button>
 
 <button
 class="danger small"
 onclick="cancelAppointment('${esc(a.id)}')">
+
 Annulla
+
 </button>
 
 <button
 class="success small"
 onclick="completeAppointment('${esc(a.id)}')">
+
 Completa
+
 </button>
 
 </div>
@@ -1324,39 +2893,49 @@ Completa
 
 }
 
+
 function renderAppointmentSearch(){
 
-const q=
-$("appointmentSearch")
-.value
-.trim()
-.toLowerCase();
+  const q=
+    $("appointmentSearch")
+      .value
+      .trim()
+      .toLowerCase();
 
-if(!q){
+  if(!q){
 
-$("appointmentSearchResults").innerHTML="";
+    $("appointmentSearchResults")
+      .innerHTML="";
 
-return;
+    return;
 
-}
+  }
 
-const a=
-data.appointments
-.filter(x=>
-String(x.name||"")
-.toLowerCase()
-.includes(q)
-);
+  const a=
+    data.appointments
+      .filter(
+        x=>
+          String(x.name||"")
+            .toLowerCase()
+            .includes(q)
+      );
 
-$("appointmentSearchResults").innerHTML=
-a.length
-?
-a
-.sort((x,y)=>
-(x.date+x.time)
-.localeCompare(y.date+y.time)
-)
-.map(x=>`
+  $("appointmentSearchResults").innerHTML=
+
+    a.length
+
+      ?a
+
+        .sort(
+          (x,y)=>
+            (x.date+x.time)
+              .localeCompare(
+                y.date+y.time
+              )
+        )
+
+        .map(
+          x=>`
 
 <div class="list-item">
 
@@ -1374,139 +2953,179 @@ ${esc(x.service)}
 
 </div>
 
-`).join("")
-:
-`<div class="muted">Nessun risultato.</div>`;
+`
+        )
+
+        .join("")
+
+      :
+
+      `<div class="muted">
+        Nessun risultato.
+      </div>`;
 
 }
+
 
 function openNewAppointment(
-date=today(),
-time=""
+  date=today(),
+  time=""
 ){
 
-openAppointmentModal({
+  openAppointmentModal({
 
-id:"",
+    id:"",
+    name:"",
+    date,
+    time,
+    service:"",
+    status:"confermato"
 
-name:"",
-
-date,
-
-time,
-
-service:"",
-
-status:"confermato"
-
-});
+  });
 
 }
+
 
 function quickAppointment(
-date,
-time
+  date,
+  time
 ){
 
-openNewAppointment(
-date,
-time
-);
+  openNewAppointment(
+    date,
+    time
+  );
 
 }
+
 
 function openAppointment(id){
 
-const a=
-data.appointments
-.find(
-x=>String(x.id)===String(id)
-);
+  const a=
+    data.appointments.find(
+      x=>
+        String(x.id)===
+        String(id)
+    );
 
-if(a)
-openAppointmentModal(a);
+  if(a)
+    openAppointmentModal(a);
 
 }
 
+
 function openAppointmentModal(a){
 
-openModal(`
+  openModal(`
 
 <h3>
+
 ${a.id?"Modifica":"Nuovo"}
 appuntamento
+
 </h3>
 
-<label>Cliente</label>
+<label>
+Cliente
+</label>
 
 <input
 id="mName"
 value="${esc(a.name)}">
 
-<label>Data</label>
+<label>
+Data
+</label>
 
 <input
 id="mDate"
 type="date"
 value="${esc(a.date)}">
 
-<label>Ora</label>
+<label>
+Ora
+</label>
 
 <input
 id="mTime"
 type="time"
 value="${esc(a.time)}">
 
-<label>Servizio</label>
+<label>
+Servizio
+</label>
 
 <select id="mService">
 
-${data.services.map(s=>`
+${
+  data.services
+    .map(
+      s=>`
 
 <option
 ${s.name===a.service?"selected":""}>
+
 ${esc(s.name)}
+
 </option>
 
-`).join("")}
+`
+    )
+    .join("")
+}
 
 </select>
 
-<label>Stato</label>
+<label>
+Stato
+</label>
 
 <select id="mStatus">
 
 <option
 ${a.status==="confermato"?"selected":""}>
+
 confermato
+
 </option>
 
 <option
 ${a.status==="completato"?"selected":""}>
+
 completato
+
 </option>
 
 <option
 ${a.status==="cancellato"?"selected":""}>
+
 cancellato
+
 </option>
 
 </select>
 
-<p id="mError" class="muted"></p>
+<p
+id="mError"
+class="muted">
+</p>
 
 <div class="actions">
 
 <button
 class="primary"
 onclick="saveAppointmentModal('${esc(a.id)}')">
+
 Salva
+
 </button>
 
 <button
 class="secondary"
 onclick="closeModal()">
+
 Chiudi
+
 </button>
 
 </div>
@@ -1515,230 +3134,291 @@ Chiudi
 
 }
 
+
 async function saveAppointmentModal(id){
 
-const a={
+  const a={
 
-id,
+    id,
 
-name:
-$("mName").value.trim(),
+    name:
+      $("mName")
+        .value
+        .trim(),
 
-date:
-$("mDate").value,
+    date:
+      $("mDate").value,
 
-time:
-$("mTime").value,
+    time:
+      $("mTime").value,
 
-service:
-$("mService").value,
+    service:
+      $("mService").value,
 
-status:
-$("mStatus").value
+    status:
+      $("mStatus").value
 
-};
+  };
 
-if(
-!a.name||
-!a.date||
-!a.time||
-!a.service
-){
+  if(
+    !a.name||
+    !a.date||
+    !a.time||
+    !a.service
+  ){
 
-$("mError").textContent=
-"Compila tutti i campi.";
+    $("mError").textContent=
+      "Compila tutti i campi.";
 
-return;
+    return;
+
+  }
+
+  if(!safeDate(a.date)){
+
+    $("mError").textContent=
+      "Data non valida.";
+
+    return;
+
+  }
+
+  try{
+
+    if(id){
+
+      const old=
+        data.appointments.find(
+          x=>
+            String(x.id)===
+            String(id)
+        );
+
+      if(!old)
+
+        throw Error(
+          "Appuntamento non trovato."
+        );
+
+      if(
+        a.status==="cancellato"||
+        a.status==="completato"
+      ){
+
+        Object.assign(
+          old,
+          a
+        );
+
+        ensureClient(
+          a.name
+        );
+
+        save();
+
+        closeModal();
+
+        return;
+
+      }
+
+      const withoutOld=
+        data.appointments.filter(
+          x=>
+            String(x.id)!==
+            String(id)
+        );
+
+      const check=
+        await businessApi(
+          "availability",
+          {
+            date:a.date,
+            service:a.service,
+            __appointments:
+              withoutOld
+          }
+        );
+
+      if(
+        !check.available||
+        !Array.isArray(check.slots)||
+        !check.slots.includes(
+          a.time
+        )
+      )
+
+        throw Error(
+          "L'orario scelto non è disponibile."
+        );
+
+      Object.assign(
+        old,
+        a
+      );
+
+      ensureClient(
+        a.name
+      );
+
+      save();
+
+      closeModal();
+
+    }else{
+
+      await bookAppointment(a);
+
+      closeModal();
+
+    }
+
+  }catch(e){
+
+    $("mError").textContent=
+      e.message||
+      "Errore.";
+
+  }
 
 }
 
-try{
-
-if(id){
-
-const old=
-data.appointments
-.find(
-x=>String(x.id)===String(id)
-);
-
-if(!old)
-throw Error(
-"Appuntamento non trovato."
-);
-
-if(
-a.status==="cancellato"||
-a.status==="completato"
-){
-
-Object.assign(old,a);
-
-ensureClient(a.name);
-
-save();
-
-closeModal();
-
-return;
-
-}
-
-const withoutOld=
-data.appointments.filter(
-x=>String(x.id)!==String(id)
-);
-
-const check=
-await businessApi(
-"availability",
-{
-date:a.date,
-service:a.service,
-__appointments:withoutOld
-}
-);
-
-if(
-!check.available||
-!Array.isArray(check.slots)||
-!check.slots.includes(a.time)
-){
-
-throw Error(
-"L'orario scelto non è disponibile."
-);
-
-}
-
-Object.assign(old,a);
-
-ensureClient(a.name);
-
-save();
-
-closeModal();
-
-}else{
-
-await bookAppointment(a);
-
-closeModal();
-
-}
-
-}catch(e){
-
-$("mError").textContent=
-e.message;
-
-}
-
-}
 
 function cancelAppointment(id){
 
-const a=
-data.appointments
-.find(
-x=>String(x.id)===String(id)
-);
+  const a=
+    data.appointments.find(
+      x=>
+        String(x.id)===
+        String(id)
+    );
 
-if(a){
+  if(a){
 
-a.status="cancellato";
+    a.status=
+      "cancellato";
 
-save();
+    save();
+
+  }
 
 }
 
-}
 
 function completeAppointment(id){
 
-const a=
-data.appointments
-.find(
-x=>String(x.id)===String(id)
-);
+  const a=
+    data.appointments.find(
+      x=>
+        String(x.id)===
+        String(id)
+    );
 
-if(a){
+  if(a){
 
-a.status="completato";
+    a.status=
+      "completato";
 
-save();
+    save();
+
+  }
 
 }
 
-}
 
 function renderClients(){
 
-const q=
-$("clientSearch")
-.value
-.trim()
-.toLowerCase();
+  const q=
+    $("clientSearch")
+      .value
+      .trim()
+      .toLowerCase();
 
-const arr=
-data.clients.filter(
-c=>
-!q||
-[c.name,c.phone,c.whatsapp,c.email]
-.join(" ")
-.toLowerCase()
-.includes(q)
-);
+  const arr=
+    data.clients.filter(
 
-$("clientsList").innerHTML=
-arr.length
-?
-arr.map(c=>{
+      c=>
 
-const hist=
-data.appointments
-.filter(a=>a.name===c.name);
+        !q||
 
-const next=
-hist
-.filter(
-a=>
-a.date>=today()&&
-a.status!=="cancellato"
-)
-.sort(
-(a,b)=>
-(a.date+a.time)
-.localeCompare(
-b.date+b.time
-)
-)[0];
+        [
+          c.name,
+          c.phone,
+          c.whatsapp,
+          c.email
+        ]
 
-return `
+        .join(" ")
+        .toLowerCase()
+        .includes(q)
+
+    );
+
+  $("clientsList").innerHTML=
+
+    arr.length
+
+      ?arr.map(c=>{
+
+        const hist=
+          data.appointments.filter(
+            a=>a.name===c.name
+          );
+
+        const next=
+          hist
+
+            .filter(
+              a=>
+                a.date>=today()&&
+                a.status!=="cancellato"
+            )
+
+            .sort(
+              (a,b)=>
+                (a.date+a.time)
+                  .localeCompare(
+                    b.date+b.time
+                  )
+            )[0];
+
+        return `
 
 <div class="list-item">
 
-<b>${esc(c.name)}</b>
+<b>
+${esc(c.name)}
+</b>
 
 <div class="muted">
 
-${esc(c.phone||"Nessun telefono")}
+${esc(
+  c.phone||
+  "Nessun telefono"
+)}
+
 ·
-${esc(c.email||"Nessuna email")}
+
+${esc(
+  c.email||
+  "Nessuna email"
+)}
 
 </div>
 
-<div class="client-stat">
+<div>
 
 ${hist.length}
 appuntamenti
 
 ${
-next
-?
-` · prossimo ${formatDate(next.date)} ${next.time}`
-:
-""
+  next
+
+    ?` · prossimo
+      ${formatDate(next.date)}
+      ${esc(next.time)}`
+
+    :""
 }
 
 </div>
@@ -1748,7 +3428,9 @@ next
 <button
 class="primary small"
 onclick="openClient('${esc(c.id)}')">
+
 Apri scheda
+
 </button>
 
 </div>
@@ -1757,85 +3439,104 @@ Apri scheda
 
 `;
 
-}).join("")
-:
-`<div class="muted">Nessun cliente.</div>`;
+      }).join("")
+
+      :
+
+      `<div class="muted">
+        Nessun cliente.
+      </div>`;
 
 }
+
 
 function openNewClient(){
 
-openClientModal({
+  openClientModal({
 
-id:"",
+    id:"",
+    name:"",
+    phone:"",
+    whatsapp:"",
+    email:"",
+    notes:""
 
-name:"",
-
-phone:"",
-
-whatsapp:"",
-
-email:"",
-
-notes:""
-
-});
+  });
 
 }
+
 
 function openClient(id){
 
-const c=
-data.clients
-.find(x=>x.id===id);
+  const c=
+    data.clients.find(
+      x=>x.id===id
+    );
 
-if(c)
-openClientModal(c);
+  if(c)
+    openClientModal(c);
 
 }
 
+
 function openClientModal(c){
 
-const hist=
-data.appointments
-.filter(a=>a.name===c.name)
-.sort(
-(a,b)=>
-(b.date+b.time)
-.localeCompare(
-a.date+a.time
-)
-);
+  const hist=
+    data.appointments
 
-openModal(`
+      .filter(
+        a=>a.name===c.name
+      )
 
-<h3>Scheda cliente</h3>
+      .sort(
+        (a,b)=>
+          (b.date+b.time)
+            .localeCompare(
+              a.date+a.time
+            )
+      );
 
-<label>Nome</label>
+  openModal(`
+
+<h3>
+Scheda cliente
+</h3>
+
+<label>
+Nome
+</label>
 
 <input
 id="cName"
 value="${esc(c.name)}">
 
-<label>Telefono</label>
+<label>
+Telefono
+</label>
 
 <input
 id="cPhone"
 value="${esc(c.phone)}">
 
-<label>WhatsApp</label>
+<label>
+WhatsApp
+</label>
 
 <input
 id="cWhatsapp"
 value="${esc(c.whatsapp)}">
 
-<label>Email</label>
+<label>
+Email
+</label>
 
 <input
 id="cEmail"
 value="${esc(c.email)}">
 
-<label>Note</label>
+<label>
+Note
+</label>
 
 <textarea
 id="cNotes"
@@ -1843,12 +3544,15 @@ rows="5">${esc(c.notes)}</textarea>
 
 <hr class="divider">
 
-<h4>Storico</h4>
+<h4>
+Storico
+</h4>
 
 ${
-hist.length
-?
-hist.map(a=>`
+  hist.length
+
+    ?hist.map(
+      a=>`
 
 <div class="list-item">
 
@@ -1859,16 +3563,26 @@ ${esc(a.time)}
 </b>
 
 <div class="muted">
+
 ${esc(a.service)}
 ·
-${esc(a.status||"confermato")}
-</div>
+${esc(
+  a.status||
+  "confermato"
+)}
 
 </div>
 
-`).join("")
-:
-`<div class="muted">Nessun appuntamento.</div>`
+</div>
+
+`
+    ).join("")
+
+    :
+
+    `<div class="muted">
+      Nessun appuntamento.
+    </div>`
 }
 
 <div class="actions">
@@ -1876,13 +3590,17 @@ ${esc(a.status||"confermato")}
 <button
 class="primary"
 onclick="saveClientModal('${esc(c.id)}')">
+
 Salva
+
 </button>
 
 <button
 class="secondary"
 onclick="closeModal()">
+
 Chiudi
+
 </button>
 
 </div>
@@ -1891,382 +3609,529 @@ Chiudi
 
 }
 
+
 function saveClientModal(id){
 
-const c={
+  const c={
 
-id:id||uid(),
+    id:
+      id||
+      uid(),
 
-name:
-$("cName").value.trim(),
+    name:
+      $("cName")
+        .value
+        .trim(),
 
-phone:
-$("cPhone").value.trim(),
+    phone:
+      $("cPhone")
+        .value
+        .trim(),
 
-whatsapp:
-$("cWhatsapp").value.trim(),
+    whatsapp:
+      $("cWhatsapp")
+        .value
+        .trim(),
 
-email:
-$("cEmail").value.trim(),
+    email:
+      $("cEmail")
+        .value
+        .trim(),
 
-notes:
-$("cNotes").value.trim(),
+    notes:
+      $("cNotes")
+        .value
+        .trim(),
 
-createdAt:
-new Date().toISOString()
+    createdAt:
+      new Date().toISOString()
 
-};
+  };
 
-if(!c.name)
-return;
+  if(!c.name)
+    return;
 
-if(id){
+  if(id){
 
-const old=
-data.clients
-.find(x=>x.id===id);
+    const old=
+      data.clients.find(
+        x=>x.id===id
+      );
 
-const oldName=old.name;
+    const oldName=
+      old.name;
 
-Object.assign(old,c);
+    Object.assign(
+      old,
+      c
+    );
 
-data.appointments
-.forEach(a=>{
-if(a.name===oldName)
-a.name=c.name;
-});
+    data.appointments
+      .forEach(
+        a=>{
+          if(
+            a.name===oldName
+          )
+            a.name=c.name;
+        }
+      );
 
-}else{
+  }else{
 
-data.clients.push(c);
+    data.clients.push(c);
+
+  }
+
+  save();
+
+  closeModal();
 
 }
 
-save();
-
-closeModal();
-
-}
 
 function history(){
 
-try{
+  try{
 
-return JSON.parse(
-localStorage.getItem(HIST)||"[]"
-).slice(-12);
+    return JSON.parse(
+      localStorage.getItem(
+        HIST
+      )||"[]"
+    ).slice(-12);
 
-}catch{
+  }catch{
 
-return [];
+    return [];
+
+  }
 
 }
 
-}
 
 function saveHistory(u,a){
 
-const h=history();
+  const h=
+    history();
 
-h.push(
-{role:"user",content:u},
-{role:"assistant",content:a}
-);
+  h.push(
+    {
+      role:"user",
+      content:u
+    },
+    {
+      role:"assistant",
+      content:a
+    }
+  );
 
-localStorage.setItem(
-HIST,
-JSON.stringify(h.slice(-12))
-);
+  localStorage.setItem(
+    HIST,
+    JSON.stringify(
+      h.slice(-12)
+    )
+  );
 
 }
+
 
 function clearMaviHistory(){
 
-localStorage.removeItem(HIST);
+  localStorage.removeItem(
+    HIST
+  );
 
-$("chat").innerHTML=
-`
-<div class="msg bot">
-Conversazione cancellata. Sono pronta.
-</div>
-`;
+  $("chat").innerHTML=
+
+    '<div class="msg bot">'+
+    'Conversazione cancellata. Sono pronta.'+
+    '</div>';
 
 }
+
 
 async function preloadMavi(){
 
-if(window.MaviAI?.preload)
+  if(
+    window.MaviAI?.preload
+  )
 
-try{
+    try{
 
-await window.MaviAI.preload();
+      await window.MaviAI.preload();
 
-}catch(e){}
+    }catch(e){
 
-}
+      console.warn(e);
 
-function engineContext(){
-
-return data;
-
-}
-
-function addChat(text,role){
-
-const d=document.createElement("div");
-
-d.className="msg "+role;
-
-d.textContent=text;
-
-$("chat").appendChild(d);
-
-$("chat").scrollTop=
-$("chat").scrollHeight;
+    }
 
 }
 
-async function askMavi(
-text=$("maviInput").value.trim(),
-speak=true
+
+function addChat(
+  text,
+  role
 ){
 
-if(busy||!text)
-return;
+  const d=
+    document.createElement(
+      "div"
+    );
 
-busy=true;
+  d.className=
+    "msg "+role;
 
-$("maviInput").value="";
+  d.textContent=
+    text;
 
-$("maviSend").disabled=true;
+  $("chat")
+    .appendChild(d);
 
-addChat(text,"user");
-
-$("maviStatus").textContent=
-"Mavi sta elaborando…";
-
-try{
-
-if(!window.MaviAI?.ask)
-throw Error(
-"Mavi Engine non disponibile."
-);
-
-const ctx={
-
-...data,
-
-business:
-data.business?.name||
-data.settings?.name||
-"Attività locale"
-
-};
-
-const r=
-await window.MaviAI.ask({
-
-message:text,
-
-history:history(),
-
-businessData:ctx,
-
-temperature:.35
-
-});
-
-if(!r.ok)
-throw Error(
-r.error||"Errore Mavi."
-);
-
-addChat(r.reply,"bot");
-
-saveHistory(
-text,
-r.reply
-);
-
-$("maviStatus").textContent=
-`Mavi è pronta · ${r.device||"locale"}`;
-
-if(speak)
-speakText(r.reply);
-
-}catch(e){
-
-addChat(
-e.message,
-"bot"
-);
-
-$("maviStatus").textContent=
-e.message;
-
-}finally{
-
-busy=false;
-
-$("maviSend").disabled=false;
+  $("chat").scrollTop=
+    $("chat").scrollHeight;
 
 }
 
+
+function setVisualThinking(on){
+
+  clearTimeout(
+    visualThinkingTimer
+  );
+
+  if(on){
+
+    $("maviStatus")
+      .textContent=
+        "Mavi sta elaborando…";
+
+    $("enginePill")
+      .textContent=
+        "Mavi · al lavoro…";
+
+    visualThinkingTimer=
+      setTimeout(
+        ()=>{
+
+          if(busy){
+
+            $("maviStatus")
+              .textContent=
+                "Mavi è ancora al lavoro…";
+
+            $("enginePill")
+              .textContent=
+                "Mavi · attiva";
+
+          }
+
+        },
+        12000
+      );
+
+  }
+
 }
+
+
+async function askMavi(
+  text=$("maviInput").value.trim(),
+  speak=true
+){
+
+  if(
+    busy||
+    !text
+  )
+    return;
+
+  busy=true;
+
+  $("maviInput")
+    .value="";
+
+  $("maviSend")
+    .disabled=true;
+
+  addChat(
+    text,
+    "user"
+  );
+
+  setVisualThinking(true);
+
+  try{
+
+    if(
+      !window.MaviAI?.ask
+    )
+
+      throw Error(
+        "Mavi Engine non disponibile."
+      );
+
+    const ctx={
+
+      ...data,
+
+      business:
+        data.business?.name||
+        data.settings?.name||
+        "Attività locale"
+
+    };
+
+    const r=
+      await window.MaviAI.ask({
+
+        message:text,
+
+        history:
+          history(),
+
+        businessData:
+          ctx,
+
+        temperature:.35
+
+      });
+
+    if(!r.ok)
+
+      throw Error(
+        r.error||
+        "Errore Mavi."
+      );
+
+    addChat(
+      r.reply,
+      "bot"
+    );
+
+    saveHistory(
+      text,
+      r.reply
+    );
+
+    $("maviStatus")
+      .textContent=
+        `Mavi è pronta · ${
+          r.device||
+          "locale"
+        }`;
+
+    $("enginePill")
+      .textContent=
+        "Mavi · pronta";
+
+    if(speak)
+      speakText(
+        r.reply
+      );
+
+  }catch(e){
+
+    addChat(
+      e.message||
+      "Errore Mavi.",
+      "bot"
+    );
+
+    $("maviStatus")
+      .textContent=
+        e.message||
+        "Errore Mavi.";
+
+  }finally{
+
+    setVisualThinking(false);
+
+    busy=false;
+
+    $("maviSend")
+      .disabled=false;
+
+  }
+
+}
+
 
 function speakText(text){
 
-if(!("speechSynthesis" in window))
-return;
+  if(
+    !("speechSynthesis" in window)
+  )
+    return;
 
-speechSynthesis.cancel();
+  speechSynthesis.cancel();
 
-const u=
-new SpeechSynthesisUtterance(text);
+  const u=
+    new SpeechSynthesisUtterance(
+      text
+    );
 
-u.lang="it-IT";
+  u.lang=
+    "it-IT";
 
-u.rate=.98;
+  u.rate=
+    .98;
 
-speechSynthesis.speak(u);
+  speechSynthesis.speak(u);
 
 }
+
 
 function toggleVoice(){
 
-if(listening){
+  if(listening){
 
-recognition?.stop();
+    recognition?.stop();
 
-return;
+    return;
+
+  }
+
+  if(
+    !(
+      "SpeechRecognition" in window||
+      "webkitSpeechRecognition" in window
+    )
+  ){
+
+    alert(
+      "Il riconoscimento vocale non è supportato da questo browser."
+    );
+
+    return;
+
+  }
+
+  const SR=
+    window.SpeechRecognition||
+    window.webkitSpeechRecognition;
+
+  recognition=
+    new SR();
+
+  recognition.lang=
+    "it-IT";
+
+  recognition.interimResults=
+    false;
+
+  recognition.continuous=
+    false;
+
+  if(
+    "processLocally" in recognition
+  )
+
+    recognition.processLocally=
+      true;
+
+  recognition.onstart=()=>{
+
+    listening=true;
+
+    $("micButton")
+      .classList
+      .add("listening");
+
+    $("voiceLabel")
+      .textContent=
+        "Sto ascoltando…";
+
+  };
+
+  recognition.onresult=e=>
+
+    askMavi(
+      e.results[0][0]
+        .transcript,
+      true
+    );
+
+  recognition.onerror=e=>{
+
+    $("voiceLabel")
+      .textContent=
+        e.error===
+        "language-not-supported"
+
+          ?"Riconoscimento locale non disponibile"
+
+          :"Errore microfono";
+
+    console.warn(e);
+
+  };
+
+  recognition.onend=()=>{
+
+    listening=false;
+
+    $("micButton")
+      .classList
+      .remove("listening");
+
+    $("voiceLabel")
+      .textContent=
+        "Premi il microfono";
+
+  };
+
+  recognition.start();
 
 }
 
-if(
-!("SpeechRecognition"in window||
-"webkitSpeechRecognition"in window)
-){
-
-alert(
-"Il riconoscimento vocale non è supportato da questo browser."
-);
-
-return;
-
-}
-
-const SR=
-window.SpeechRecognition||
-window.webkitSpeechRecognition;
-
-recognition=new SR();
-
-recognition.lang="it-IT";
-
-recognition.interimResults=false;
-
-recognition.continuous=false;
-
-if("processLocally" in recognition)
-recognition.processLocally=true;
-
-recognition.onstart=()=>{
-
-listening=true;
-
-$("micButton")
-.classList.add("listening");
-
-$("voiceLabel").textContent=
-"Sto ascoltando…";
-
-};
-
-recognition.onresult=e=>{
-
-const t=
-e.results[0][0].transcript;
-
-askMavi(
-t,
-true
-);
-
-};
-
-recognition.onerror=e=>{
-
-$("voiceLabel").textContent=
-e.error==="language-not-supported"
-?
-"Riconoscimento locale non disponibile"
-:
-"Errore microfono";
-
-console.warn(e);
-
-};
-
-recognition.onend=()=>{
-
-listening=false;
-
-$("micButton")
-.classList.remove("listening");
-
-$("voiceLabel").textContent=
-"Premi il microfono";
-
-};
-
-recognition.start();
-
-}
 
 async function generatePost(){
 
-const topic=
-$("postTopic")
-.value
-.trim();
+  const topic=
+    $("postTopic")
+      .value
+      .trim();
 
-const extra=
-$("postExtra")
-.value
-.trim();
+  const extra=
+    $("postExtra")
+      .value
+      .trim();
 
-const type=
-$("postType").value;
+  const type=
+    $("postType").value;
 
-const style=
-$("postStyle").value;
+  const style=
+    $("postStyle").value;
 
-const platform=
-selectedPlatform;
+  const platform=
+    selectedPlatform;
 
-if(
-!topic&&
-!data.services.length&&
-!data.promotions.length
-){
+  if(
+    !topic&&
+    !data.services.length&&
+    !data.promotions.length
+  ){
 
-$("postStatus").textContent=
-"Inserisci un argomento.";
+    $("postStatus")
+      .textContent=
+        "Inserisci un argomento.";
 
-return;
+    return;
 
-}
+  }
 
-const b=$("postButton");
+  const b=
+    $("postButton");
 
-b.disabled=true;
+  b.disabled=true;
 
-$("postStatus").textContent=
-"Mavi sta creando il contenuto…";
+  $("postStatus")
+    .textContent=
+      "Mavi sta creando il contenuto…";
 
-try{
+  try{
 
-const prompt=
+    const prompt=
 
 `Crea un contenuto per ${platform}.
 Tipo: ${type}.
@@ -2277,154 +4142,221 @@ Usa solo dati reali presenti nei dati dell'attività.
 Non inventare prezzi, servizi o promozioni.
 Restituisci solo il testo pronto da pubblicare.`;
 
-const ctx={
+    const ctx={
 
-...data,
+      ...data,
 
-business:
-data.business?.name||
-data.settings?.name||
-"Attività locale"
+      business:
+        data.business?.name||
+        data.settings?.name||
+        "Attività locale"
 
-};
+    };
 
-const r=
-await window.MaviAI.ask({
+    const r=
+      await window.MaviAI.ask({
 
-message:prompt,
+        message:
+          prompt,
 
-history:[],
+        history:[],
 
-businessData:ctx,
+        businessData:
+          ctx,
 
-temperature:.6
+        temperature:.6
 
-});
+      });
 
-if(!r.ok)
-throw Error(
-r.error||"Errore Mavi."
-);
+    if(!r.ok)
 
-$("postOutput").value=
-r.reply;
+      throw Error(
+        r.error||
+        "Errore Mavi."
+      );
 
-$("postStatus").textContent=
-"Contenuto generato localmente da Mavi.";
+    $("postOutput")
+      .value=
+        r.reply;
 
-}catch(e){
+    $("postStatus")
+      .textContent=
+        "Contenuto generato localmente da Mavi.";
 
-$("postStatus").textContent=
-e.message;
+  }catch(e){
 
-}finally{
+    $("postStatus")
+      .textContent=
+        e.message||
+        "Errore.";
 
-b.disabled=false;
+  }finally{
+
+    b.disabled=false;
+
+  }
 
 }
 
-}
 
 function selectPlatform(el){
 
-document
-.querySelectorAll(".platforms button")
-.forEach(
-b=>b.classList.remove("active")
-);
+  document
+    .querySelectorAll(
+      ".platforms button"
+    )
+    .forEach(
+      b=>
+        b.classList.remove(
+          "active"
+        )
+    );
 
-el.classList.add("active");
+  el.classList.add(
+    "active"
+  );
 
-selectedPlatform=
-el.dataset.platform;
+  selectedPlatform=
+    el.dataset.platform;
 
 }
+
 
 function copyText(id){
 
-const t=$(id).value;
+  const t=
+    $(id).value;
 
-navigator.clipboard?.writeText(t);
+  navigator
+    .clipboard
+    ?.writeText(t);
 
 }
+
 
 function openModal(content){
 
-$("modal").innerHTML=content;
+  $("modal")
+    .innerHTML=
+      content;
 
-$("modalBg")
-.classList.add("open");
+  $("modalBg")
+    .classList
+    .add("open");
 
 }
+
 
 function closeModal(){
 
-$("modalBg")
-.classList.remove("open");
+  $("modalBg")
+    .classList
+    .remove("open");
 
-$("modal").innerHTML="";
+  $("modal")
+    .innerHTML="";
 
 }
+
 
 window.addEventListener(
-"mavi-engine-status",
-e=>{
+  "mavi-engine-status",
+  e=>{
 
-const d=e.detail||{};
+    const d=
+      e.detail||{};
 
-const s=d.status||"";
+    const s=
+      d.status||"";
 
-const t=d.detail||"";
+    const t=
+      d.detail||"";
 
-$("maviStatus").textContent=
-t||s;
+    /*
+     * Evita che gli aggiornamenti del
+     * motore durante una richiesta
+     * sovrascrivano lo stato della chat.
+     */
 
-$("homeEngineStatus").textContent=
-s==="ready"
-?
-"Mavi è pronta"
-:
-t||s;
+    if(
+      busy&&
+      s==="thinking"
+    )
+      return;
 
-$("homeEngineStatus").className=
-"engine-status "+
-(
-s==="ready"
-?
-"ready"
-:
-s==="error"
-?
-"error"
-:
-""
+    $("maviStatus")
+      .textContent=
+        t||s;
+
+    $("homeEngineStatus")
+      .textContent=
+        s==="ready"
+          ?"Mavi è pronta"
+          :t||s;
+
+    $("homeEngineStatus")
+      .className=
+        "engine-status "+
+        (
+          s==="ready"
+            ?"ready"
+            :
+          s==="error"
+            ?"error"
+            :""
+        );
+
+    $("enginePill")
+      .textContent=
+
+        s==="ready"
+
+          ?"Mavi · pronta"
+
+          :
+
+        s==="thinking"
+
+          ?(
+            busy
+              ?"Mavi · al lavoro…"
+              :"Mavi · attiva"
+          )
+
+          :
+
+        s==="error"
+
+          ?"Mavi · errore"
+
+          :
+
+        s==="idle"
+
+          ?"Mavi · locale"
+
+          :
+
+          "Mavi · preparazione…";
+
+  }
 );
 
-$("enginePill").textContent=
-s==="ready"
-?
-"Mavi · pronta"
-:
-s==="thinking"
-?
-"Mavi · elaborazione…"
-:
-s==="error"
-?
-"Mavi · errore"
-:
-"Mavi · caricamento…";
-
-}
-);
 
 load();
 
-$("calendarDate").value=today();
+$("calendarDate")
+  .value=
+    today();
 
 renderAll();
 
 showPage("home");
+
+/*
+ * Il caricamento del motore parte
+ * in background e non blocca l'app.
+ */
 
 preloadMavi();
 
