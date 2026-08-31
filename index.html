@@ -136,8 +136,186 @@ function toast(s){const x=$("toast");x.textContent=s;x.classList.add("show");cle
 function go(p){page=p;document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===p));document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("title").textContent=titles[p][0];$("subtitle").textContent=titles[p][1];renderAll()}
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));
 async function api(action,extra={}){const body={action,business:data.business,settings:{...data.settings,name:data.business.name},services:data.services,appointments:data.appointments,clients:data.clients,promotions:data.promotions,...extra};const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";const headers={"Content-Type":"application/json"};if(token)headers["x-maviri-owner-token"]=token;const r=await fetch("/api/chat",{method:"POST",headers,body:JSON.stringify(body)});let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.ok===false)throw new Error(j.error||"Errore del server Maviri.");return j}
-function saveSyncToken(){const t=$("ownerSyncToken").value.trim();if(!t)return toast("Inserisci il token proprietario.");localStorage.setItem("MAVIRI_OWNER_SYNC_TOKEN",t);toast("Token salvato.");syncOwnerData()}
-async function syncOwnerData(){const badge=$("syncBadge");if(!badge)return;const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";if(!token){badge.textContent="Token mancante";return}badge.textContent="Sincronizzazione…";try{await api("owner-sync");badge.textContent="Sincronizzato";badge.className="badge";toast("Dati pubblicati per Mavi cliente.")}catch(e){badge.textContent="Errore";badge.className="badge blue";toast(e.message||"Sincronizzazione non riuscita.")}}
+
+/* ============================================================
+   OWNER PULL — sincronizzazione automatica Maviri ← server
+   Il token resta esclusivamente in localStorage e viene inviato
+   nell'header x-maviri-owner-token. Nessun token nel sorgente.
+============================================================ */
+let ownerPullBusy=false, ownerPullTimer=null;
+
+function pullAppointmentKey(a){
+  if(!a)return "";
+  const d=a.date||a.d||"", t=a.time||a.t||"", s=norm(a.service||a.s||"");
+  const n=norm(a.name||a.clientName||"");
+  return [d,t,s,n].join("|");
+}
+
+function mergeRemoteList(localList,remoteList,keyFn){
+  const out=[], byId=new Map(), byKey=new Map();
+  for(const item of Array.isArray(localList)?localList:[]){
+    if(!item||typeof item!=="object")continue;
+    const id=item.id!=null?String(item.id):"";
+    const key=keyFn(item);
+    if(id&&byId.has(id))continue;
+    if(key&&byKey.has(key))continue;
+    out.push(item);
+    if(id)byId.set(id,item);
+    if(key)byKey.set(key,item);
+  }
+  for(const item of Array.isArray(remoteList)?remoteList:[]){
+    if(!item||typeof item!=="object")continue;
+    const id=item.id!=null?String(item.id):"";
+    const key=keyFn(item);
+    const existing=(id&&byId.get(id))||(key&&byKey.get(key));
+    if(existing){
+      Object.assign(existing,item);
+      if(id)byId.set(id,existing);
+      if(key)byKey.set(key,existing);
+    }else{
+      out.push(item);
+      if(id)byId.set(id,item);
+      if(key)byKey.set(key,item);
+    }
+  }
+  return out;
+}
+
+function applyOwnerPullPayload(j){
+  const remote=j?.data&&typeof j.data==="object"?j.data:j;
+  const hasAppointments=Array.isArray(remote?.appointments);
+  const hasClients=Array.isArray(remote?.clients);
+  const hasServices=Array.isArray(remote?.services);
+  const hasPromotions=Array.isArray(remote?.promotions);
+  const hasSettings=remote?.settings&&typeof remote.settings==="object";
+  const hasBusiness=remote?.business&&typeof remote.business==="object";
+
+  if(!hasAppointments&&!hasClients&&!hasServices&&!hasPromotions&&!hasSettings&&!hasBusiness)return false;
+
+  /* Il server è la fonte per i dati gestionali. Le liste vengono
+     fuse in modo idempotente per evitare duplicati, mentre i dati
+     ricevuti dal server sovrascrivono l'eventuale copia locale. */
+  if(hasAppointments){
+    data.appointments=mergeRemoteList(
+      data.appointments,
+      remote.appointments,
+      pullAppointmentKey
+    );
+  }
+  if(hasClients){
+    data.clients=mergeRemoteList(
+      data.clients,
+      remote.clients,
+      c=>c?.id!=null?String(c.id):norm(c?.name||"")+"|"+clean(c?.phone||c?.whatsapp||"")
+    );
+  }
+  if(hasServices){
+    data.services=mergeRemoteList(
+      data.services,
+      remote.services,
+      s=>s?.id!=null?String(s.id):norm(s?.name||"")
+    );
+  }
+  if(hasPromotions){
+    data.promotions=mergeRemoteList(
+      data.promotions,
+      remote.promotions,
+      p=>p?.id!=null?String(p.id):norm(p?.title||p?.name||"")+"|"+clean(p?.valid||p?.validUntil||"")
+    );
+  }
+  if(hasSettings){
+    data.settings={
+      ...data.settings,
+      ...remote.settings,
+      hours:remote.settings.hours
+        ? normalizeHours(remote.settings.hours)
+        : data.settings.hours
+    };
+  }
+  if(hasBusiness)data.business={...data.business,...remote.business};
+
+  if(remote.revision!=null)data.revision=Number(remote.revision)||data.revision;
+  if(remote.updatedAt)data.updatedAt=remote.updatedAt;
+
+  const snapshot=JSON.stringify(data);
+  localStorage.setItem(KEY,snapshot);
+  localStorage.setItem("appData_backup",snapshot);
+  renderAll();
+  return true;
+}
+
+async function pullOwnerData(silent=true){
+  if(ownerPullBusy)return;
+  const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";
+  if(!token)return;
+
+  ownerPullBusy=true;
+  try{
+    const r=await fetch("/api/chat",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-maviri-owner-token":token
+      },
+      body:JSON.stringify({action:"owner-pull"})
+    });
+    let j={};
+    try{j=await r.json()}catch{}
+    if(!r.ok||j.ok===false)throw new Error(j.error||"Sincronizzazione proprietario non riuscita.");
+    const changed=applyOwnerPullPayload(j);
+    const badge=$("syncBadge");
+    if(badge){
+      badge.textContent=changed?"Aggiornato":"Sincronizzato";
+      badge.className="badge";
+    }
+  }catch(e){
+    const badge=$("syncBadge");
+    if(badge){
+      badge.textContent="Offline";
+      badge.className="badge blue";
+    }
+    if(!silent)toast(e.message||"Impossibile aggiornare i dati dal server.");
+  }finally{
+    ownerPullBusy=false;
+  }
+}
+
+function startOwnerPull(){
+  if(ownerPullTimer)clearInterval(ownerPullTimer);
+  if(localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")){
+    pullOwnerData(true);
+    ownerPullTimer=setInterval(()=>pullOwnerData(true),10000);
+  }
+}
+
+function saveSyncToken(){
+  const t=$("ownerSyncToken").value.trim();
+  if(!t)return toast("Inserisci il token proprietario.");
+  localStorage.setItem("MAVIRI_OWNER_SYNC_TOKEN",t);
+  toast("Token salvato.");
+  startOwnerPull();
+  syncOwnerData();
+}
+
+async function syncOwnerData(){
+  const badge=$("syncBadge");
+  if(!badge)return;
+  const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";
+  if(!token){badge.textContent="Token mancante";return}
+  badge.textContent="Sincronizzazione…";
+  try{
+    await api("owner-sync");
+    badge.textContent="Sincronizzato";
+    badge.className="badge";
+    toast("Dati pubblicati per Mavi cliente.");
+    await pullOwnerData(true);
+  }catch(e){
+    badge.textContent="Errore";
+    badge.className="badge blue";
+    toast(e.message||"Sincronizzazione non riuscita.");
+  }
+}
+
 function renderAll(){$("sA").textContent=data.appointments.filter(x=>x.status!=="cancelled").length;$("sC").textContent=data.clients.length;$("sS").textContent=data.services.length;$("sP").textContent=data.promotions.length;renderHome();renderCal();renderClients();renderSettings();renderHours();renderPromos()}
 function apHtml(a){const status=a.status||"confirmed",label=status==="completed"?"Completato":status==="cancelled"?"Annullato":"Confermato";return`<div class="item"><div class="between"><strong>${esc(a.name)}</strong><span class="badge ${status==="completed"?"":"blue"}">${esc(a.time)}</span></div><div class="meta">${date(a.date)} · ${esc(a.service)}${a.duration?` · ${a.duration} min`:""} · ${label}</div><div class="row" style="margin-top:8px"><button class="btn small" onclick="editAp('${a.id}')">Modifica</button>${status!=="completed"?`<button class="btn small" onclick="completeAp('${a.id}')">Completa</button>`:""}${status!=="cancelled"?`<button class="btn danger small" onclick="cancelAp('${a.id}')">Annulla</button>`:""}</div></div>`}
 function renderHome(){const a=data.appointments.filter(x=>x.status!=="cancelled").sort((x,y)=>(x.date+x.time).localeCompare(y.date+y.time)).slice(0,6);$("homeAp").innerHTML=a.length?a.map(apHtml).join(""):"<div class=\"empty\">Nessun appuntamento.</div>"}
@@ -185,6 +363,7 @@ function addPromo(){modal(`<h3>Nuova promozione</h3><div class="form"><div class
 function savePromo(){const t=$("pt").value.trim();if(!t)return toast("Inserisci un titolo.");data.promotions.push({id:uid(),title:t,description:$("pd").value.trim(),valid:$("pv").value.trim()});closeModal();save()}
 if("SpeechRecognition"in window||"webkitSpeechRecognition"in window){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;$("voice").onclick=()=>{const r=new SR();r.lang="it-IT";r.interimResults=false;r.onresult=e=>{$("maviInput").value=e.results[0][0].transcript;sendMavi()};r.onerror=()=>toast("Microfono non disponibile.");r.start()}}else $("voice").disabled=true;
 renderAll();
+startOwnerPull();
 </script>
 </body>
 </html>
