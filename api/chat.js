@@ -8,14 +8,16 @@
  * - Mavi cliente
  * - public-context
  * - owner-sync
+ * - owner-pull
  * - disponibilità reale
  * - prenotazione con conferma
  * - seconda verifica server-side
- * - lock anti-doppia prenotazione
+ * - lock Redis anti-doppia prenotazione
  * - Upstash Redis per dati condivisi
  * - modifica appuntamenti
  * - cancellazione appuntamenti
  * - gestione clienti
+ * - base pronta per collegamento WhatsApp
  */
 
 const LOCK_TTL = 15000;
@@ -29,18 +31,14 @@ const REDIS_TOKEN =
 const OWNER_TOKEN =
   process.env.MAVIRI_OWNER_SYNC_TOKEN || "";
 
-const PUBLIC_KEY =
-  "maviri:public-context";
-
 const DATA_KEY =
   "maviri:owner-data";
 
-const locks =
-  globalThis.__maviriLocks ||
-  new Map();
+const PUBLIC_KEY =
+  "maviri:public-context";
 
-globalThis.__maviriLocks =
-  locks;
+const REDIS_LOCK_PREFIX =
+  "maviri:booking-lock:";
 
 
 /* ============================================================
@@ -82,10 +80,12 @@ const mins = v => {
   const m =
     s.match(/^(\d{1,2}):(\d{2})$/);
 
-  if (!m) return null;
+  if (!m) {
+    return null;
+  }
 
-  const h = +m[1];
-  const n = +m[2];
+  const h = Number(m[1]);
+  const n = Number(m[2]);
 
   return (
     h >= 0 &&
@@ -120,8 +120,13 @@ const todayRome = () =>
     }
   ).format(new Date());
 
-const dayKey = d =>
-  [
+const dayKey = d => {
+
+  if (!validDate(d)) {
+    return "";
+  }
+
+  return [
     "sunday",
     "monday",
     "tuesday",
@@ -134,6 +139,7 @@ const dayKey = d =>
       `${d}T12:00:00`
     ).getDay()
   ];
+};
 
 const active = a =>
   ![
@@ -262,6 +268,94 @@ async function redisSet(
   );
 }
 
+async function redisSetNX(
+  key,
+  value,
+  ttl
+) {
+
+  return redisCommand(
+    "SET",
+    key,
+    value,
+    "NX",
+    "PX",
+    String(ttl)
+  );
+}
+
+async function redisDelete(
+  key
+) {
+
+  return redisCommand(
+    "DEL",
+    key
+  );
+}
+
+
+/* ============================================================
+   LOCK DISTRIBUITO
+   ============================================================ */
+
+function redisLockKey(
+  key
+) {
+
+  return (
+    REDIS_LOCK_PREFIX +
+    norm(key)
+      .replace(/\s+/g, "-")
+  );
+}
+
+async function acquireDistributedLock(
+  key
+) {
+
+  const lockKey =
+    redisLockKey(key);
+
+  const token =
+    `${Date.now()}-${crypto.randomUUID()}`;
+
+  const result =
+    await redisSetNX(
+      lockKey,
+      token,
+      LOCK_TTL
+    );
+
+  return {
+    acquired:
+      String(result).toUpperCase() ===
+      "OK",
+    lockKey,
+    token
+  };
+}
+
+async function releaseDistributedLock(
+  lock
+) {
+
+  if (
+    !lock ||
+    !lock.lockKey
+  ) {
+    return;
+  }
+
+  try {
+    await redisDelete(
+      lock.lockKey
+    );
+  } catch {
+    /* nessun errore bloccante */
+  }
+}
+
 
 /* ============================================================
    TOKEN PROPRIETARIO
@@ -301,12 +395,12 @@ function getHours(
       ? settings.hours
       : {};
 
-  const k =
+  const key =
     dayKey(date);
 
   const raw =
-    obj(hours[k])
-      ? hours[k]
+    obj(hours[key])
+      ? hours[key]
       : null;
 
   if (!raw) {
@@ -321,15 +415,15 @@ function getHours(
           .map(p => ({
             from:
               clean(
-                p.from ||
-                p.start ||
-                p.pauseStart
+                p?.from ||
+                p?.start ||
+                p?.pauseStart
               ),
             to:
               clean(
-                p.to ||
-                p.end ||
-                p.pauseEnd
+                p?.to ||
+                p?.end ||
+                p?.pauseEnd
               )
           }))
           .filter(
@@ -343,7 +437,11 @@ function getHours(
 
   if (
     clean(raw.breakStart) &&
-    clean(raw.breakEnd)
+    clean(raw.breakEnd) &&
+    mins(raw.breakStart) !== null &&
+    mins(raw.breakEnd) !== null &&
+    mins(raw.breakStart) <
+    mins(raw.breakEnd)
   ) {
 
     pauses.push({
@@ -394,10 +492,10 @@ function findService(
   name
 ) {
 
-  const t =
+  const target =
     norm(name);
 
-  if (!t) {
+  if (!target) {
     return null;
   }
 
@@ -405,20 +503,21 @@ function findService(
 
     services.find(
       s =>
-        norm(s.name) === t
+        norm(s?.name) ===
+        target
     ) ||
 
     services.find(
       s => {
 
         const n =
-          norm(s.name);
+          norm(s?.name);
 
         return (
           n &&
           (
-            t.includes(n) ||
-            n.includes(t)
+            target.includes(n) ||
+            n.includes(target)
           )
         );
       }
@@ -509,7 +608,7 @@ function freeSlot({
     return false;
   }
 
-  if (
+  const pauseConflict =
     day.pauses.some(
       p => {
 
@@ -531,7 +630,10 @@ function freeSlot({
           end > ps
         );
       }
-    )
+    );
+
+  if (
+    pauseConflict
   ) {
     return false;
   }
@@ -553,7 +655,8 @@ function freeSlot({
       }
 
       if (
-        apDate(a) !== date
+        apDate(a) !==
+        date
       ) {
         return false;
       }
@@ -669,69 +772,6 @@ function availableSlots({
 
 
 /* ============================================================
-   LOCK
-   ============================================================ */
-
-function bookingKey(
-  date,
-  time,
-  service,
-  name
-) {
-
-  return [
-    date,
-    time,
-    norm(
-      service?.name ||
-      service
-    ),
-    norm(name)
-  ].join("|");
-}
-
-function acquire(
-  key
-) {
-
-  const now =
-    Date.now();
-
-  for (
-    const [k, t]
-    of locks
-  ) {
-
-    if (
-      now - t >
-      LOCK_TTL
-    ) {
-      locks.delete(k);
-    }
-  }
-
-  if (
-    locks.has(key)
-  ) {
-    return false;
-  }
-
-  locks.set(
-    key,
-    now
-  );
-
-  return true;
-}
-
-function release(
-  key
-) {
-  locks.delete(key);
-}
-
-
-/* ============================================================
    CLIENTI
    ============================================================ */
 
@@ -791,13 +831,19 @@ function findClient(
     clients.find(
       c =>
         n &&
-        norm(c.name) === n
+        norm(c?.name) === n
     ) ||
 
     clients.find(
       c =>
         p &&
-        clean(c.phone) === p
+        clean(c?.phone) === p
+    ) ||
+
+    clients.find(
+      c =>
+        p &&
+        clean(c?.whatsapp) === p
     ) ||
 
     null
@@ -817,36 +863,40 @@ function clientFromBooking({
     findClient(
       clients,
       name,
-      phone
+      phone ||
+      whatsapp
     );
 
   if (existing) {
 
+    const normalized =
+      normalizeClient(
+        existing
+      );
+
     return {
 
-      ...normalizeClient(
-        existing
-      ),
+      ...normalized,
 
       name:
         clean(name) ||
-        existing.name,
+        normalized.name,
 
       phone:
         clean(phone) ||
-        existing.phone,
+        normalized.phone,
 
       whatsapp:
         clean(whatsapp) ||
-        existing.whatsapp,
+        normalized.whatsapp,
 
       email:
         clean(email) ||
-        existing.email,
+        normalized.email,
 
       notes:
         clean(notes) ||
-        existing.notes
+        normalized.notes
     };
   }
 
@@ -882,12 +932,12 @@ function makePublicContext(
 ) {
 
   const business =
-    obj(data.business)
+    obj(data?.business)
       ? data.business
       : {};
 
   const settings =
-    obj(data.settings)
+    obj(data?.settings)
       ? data.settings
       : {};
 
@@ -900,7 +950,7 @@ function makePublicContext(
     local: true,
 
     engine:
-      "maviri-business-engine-v4",
+      "maviri-business-engine-v5",
 
     today:
       todayRome(),
@@ -945,23 +995,18 @@ function makePublicContext(
     },
 
     services:
-      arr(data.services),
+      arr(data?.services),
 
     promotions:
-      arr(data.promotions),
+      arr(data?.promotions),
 
-    /*
-     * Nessun cliente.
-     * Nessun appuntamento privato.
-     * Nessuna nota interna.
-     */
     appointments: []
   };
 }
 
 
 /* ============================================================
-   DATASET PROPRIETARIO
+   DATASET
    ============================================================ */
 
 function sanitizeOwnerData(
@@ -1010,11 +1055,6 @@ function sanitizeOwnerData(
   };
 }
 
-
-/* ============================================================
-   DATASET SERVER
-   ============================================================ */
-
 async function getServerData() {
 
   const data =
@@ -1033,7 +1073,319 @@ async function getServerData() {
 
 
 /* ============================================================
-   RISPOSTA MAVIRI
+   MERGE SICURO DATI
+   ============================================================ */
+
+/*
+ * Importantissimo:
+ *
+ * L'app del titolare invia il proprio dataset.
+ * Nel frattempo Mavi cliente/WhatsApp potrebbe aver
+ * creato un appuntamento sul server.
+ *
+ * Non dobbiamo quindi cancellare gli elementi
+ * presenti sul server ma non ancora presenti
+ * nell'HTML del titolare.
+ */
+
+function mergeClients(
+  local,
+  server
+) {
+
+  const result = [];
+  const byId = new Map();
+
+  for (
+    const c of arr(server)
+  ) {
+
+    const normalized =
+      normalizeClient(c);
+
+    if (!normalized) {
+      continue;
+    }
+
+    byId.set(
+      String(normalized.id),
+      normalized
+    );
+
+    result.push(
+      normalized
+    );
+  }
+
+  for (
+    const c of arr(local)
+  ) {
+
+    const normalized =
+      normalizeClient(c);
+
+    if (!normalized) {
+      continue;
+    }
+
+    const id =
+      String(normalized.id);
+
+    if (
+      byId.has(id)
+    ) {
+
+      const old =
+        byId.get(id);
+
+      const merged = {
+
+        ...old,
+
+        ...normalized,
+
+        name:
+          normalized.name ||
+          old.name,
+
+        phone:
+          normalized.phone ||
+          old.phone,
+
+        whatsapp:
+          normalized.whatsapp ||
+          old.whatsapp,
+
+        email:
+          normalized.email ||
+          old.email,
+
+        notes:
+          normalized.notes ||
+          old.notes
+      };
+
+      const index =
+        result.findIndex(
+          x =>
+            String(x.id) === id
+        );
+
+      if (
+        index >= 0
+      ) {
+        result[index] =
+          merged;
+      }
+
+      byId.set(
+        id,
+        merged
+      );
+
+    } else {
+
+      result.push(
+        normalized
+      );
+
+      byId.set(
+        id,
+        normalized
+      );
+    }
+  }
+
+  return result;
+}
+
+function mergeAppointments(
+  local,
+  server
+) {
+
+  const result = [];
+  const byId = new Map();
+
+  /*
+   * Server first.
+   */
+
+  for (
+    const a of arr(server)
+  ) {
+
+    if (!a?.id) {
+      continue;
+    }
+
+    const id =
+      String(a.id);
+
+    byId.set(
+      id,
+      a
+    );
+
+    result.push(
+      a
+    );
+  }
+
+  /*
+   * Local dataset:
+   * se esiste già sul server viene
+   * mantenuto il record locale più
+   * recente quando ha updatedAt.
+   */
+
+  for (
+    const a of arr(local)
+  ) {
+
+    if (!a?.id) {
+      continue;
+    }
+
+    const id =
+      String(a.id);
+
+    if (
+      !byId.has(id)
+    ) {
+
+      result.push(a);
+      byId.set(id, a);
+
+      continue;
+    }
+
+    const existing =
+      byId.get(id);
+
+    const existingTime =
+      Date.parse(
+        existing.updatedAt ||
+        existing.createdAt ||
+        ""
+      ) || 0;
+
+    const localTime =
+      Date.parse(
+        a.updatedAt ||
+        a.createdAt ||
+        ""
+      ) || 0;
+
+    if (
+      localTime > existingTime
+    ) {
+
+      const index =
+        result.findIndex(
+          x =>
+            String(x.id) === id
+        );
+
+      if (
+        index >= 0
+      ) {
+        result[index] = a;
+      }
+
+      byId.set(
+        id,
+        a
+      );
+    }
+  }
+
+  return result;
+}
+
+function mergeOwnerData(
+  local,
+  server
+) {
+
+  if (
+    !server
+  ) {
+    return sanitizeOwnerData(
+      local
+    );
+  }
+
+  const incoming =
+    sanitizeOwnerData(
+      local
+    );
+
+  return {
+
+    ...server,
+
+    version:
+      incoming.version ||
+      server.version ||
+      1,
+
+    business:
+      incoming.business &&
+      Object.keys(
+        incoming.business
+      ).length
+        ? incoming.business
+        : server.business,
+
+    settings:
+      incoming.settings &&
+      Object.keys(
+        incoming.settings
+      ).length
+        ? incoming.settings
+        : server.settings,
+
+    services:
+      incoming.services.length
+        ? incoming.services
+        : arr(server.services),
+
+    promotions:
+      incoming.promotions.length
+        ? incoming.promotions
+        : arr(server.promotions),
+
+    clients:
+      mergeClients(
+        incoming.clients,
+        server.clients
+      ),
+
+    appointments:
+      mergeAppointments(
+        incoming.appointments,
+        server.appointments
+      ),
+
+    revision:
+      Math.max(
+        Number(
+          incoming.revision || 0
+        ),
+        Number(
+          server.revision || 0
+        )
+      ),
+
+    updatedAt:
+      new Date().toISOString()
+  };
+}
+
+
+/* ============================================================
+   RISPOSTE MAVIRI
    ============================================================ */
 
 function businessName(
@@ -1054,13 +1406,17 @@ function serviceList(
   if (
     !services.length
   ) {
-    return "Non risultano servizi configurati.";
+    return (
+      "Non risultano servizi configurati."
+    );
   }
 
   return services
     .map(
       s =>
-        `${s.name} — ${Number(s.price || 0).toFixed(2)} € — ${duration(s)} minuti`
+        `${clean(s.name)} — ` +
+        `${Number(s.price || 0).toFixed(2)} € — ` +
+        `${duration(s)} minuti`
     )
     .join("\n");
 }
@@ -1069,13 +1425,22 @@ function promotionList(
   promotions
 ) {
 
+  const activePromos =
+    promotions.filter(
+      p =>
+        p.active !== false &&
+        p.enabled !== false
+    );
+
   if (
-    !promotions.length
+    !activePromos.length
   ) {
-    return "Non risultano promozioni attive.";
+    return (
+      "Non risultano promozioni attive."
+    );
   }
 
-  return promotions
+  return activePromos
     .map(
       p =>
         clean(
@@ -1090,7 +1455,7 @@ function promotionList(
 
 
 /* ============================================================
-   RICONOSCIMENTO RICHIESTE
+   RICONOSCIMENTO
    ============================================================ */
 
 function detectService(
@@ -1104,11 +1469,32 @@ function detectService(
   return (
     services.find(
       s =>
+        norm(s?.name) &&
         n.includes(
           norm(s.name)
         )
     ) ||
     null
+  );
+}
+
+function addDaysISO(
+  isoDate,
+  amount
+) {
+
+  const d =
+    new Date(
+      `${isoDate}T12:00:00`
+    );
+
+  d.setDate(
+    d.getDate() + amount
+  );
+
+  return (
+    d.toISOString()
+      .slice(0, 10)
   );
 }
 
@@ -1120,28 +1506,30 @@ function detectDate(
     norm(text);
 
   const today =
-    new Date();
+    todayRome();
 
   if (
-    n.includes("oggi")
+    /\boggi\b/.test(n)
   ) {
-    return todayRome();
+    return today;
   }
 
   if (
-    n.includes("domani")
+    /\bdomani\b/.test(n)
   ) {
-
-    const d =
-      new Date(today);
-
-    d.setDate(
-      d.getDate() + 1
+    return addDaysISO(
+      today,
+      1
     );
+  }
 
-    return d
-      .toISOString()
-      .slice(0, 10);
+  if (
+    /\bdopodomani\b/.test(n)
+  ) {
+    return addDaysISO(
+      today,
+      2
+    );
   }
 
   const match =
@@ -1154,7 +1542,9 @@ function detectDate(
     let year =
       match[3]
         ? Number(match[3])
-        : today.getFullYear();
+        : Number(
+            today.slice(0, 4)
+          );
 
     if (
       year < 100
@@ -1172,18 +1562,39 @@ function detectDate(
         Number(match[1])
       ).padStart(2, "0");
 
-    return `${year}-${month}-${day}`;
+    const result =
+      `${year}-${month}-${day}`;
+
+    return validDate(result)
+      ? result
+      : null;
   }
 
   const weekdays = {
+
     domenica: 0,
     lunedi: 1,
+    lunedì: 1,
+
     martedi: 2,
+    martedì: 2,
+
     mercoledi: 3,
+    mercoledì: 3,
+
     giovedi: 4,
+    giovedì: 4,
+
     venerdi: 5,
+    venerdì: 5,
+
     sabato: 6
   };
+
+  const base =
+    new Date(
+      `${today}T12:00:00`
+    );
 
   for (
     const [name, index]
@@ -1196,11 +1607,8 @@ function detectDate(
       n.includes(name)
     ) {
 
-      const d =
-        new Date(today);
-
       const current =
-        d.getDay();
+        base.getDay();
 
       let delta =
         index - current;
@@ -1211,8 +1619,12 @@ function detectDate(
         delta += 7;
       }
 
+      const d =
+        new Date(base);
+
       d.setDate(
-        d.getDate() + delta
+        d.getDate() +
+        delta
       );
 
       return d
@@ -1249,9 +1661,29 @@ function detectTime(
   );
 }
 
+function detectExplicitConfirmation(
+  text
+) {
+
+  return /^(si|sì|yes|confermo|confermata|confermato|va bene|ok|okay|perfetto|procedi|prenota|prenotala|prenotalo)\b/i
+    .test(
+      clean(text)
+    );
+}
+
+function detectCancellation(
+  text
+) {
+
+  return /annulla|cancella|disdici|disdire/i
+    .test(
+      clean(text)
+    );
+}
+
 
 /* ============================================================
-   CHAT LOCALE MAVIRI
+   CHAT LOCALE
    ============================================================ */
 
 async function localChat({
@@ -1276,17 +1708,21 @@ async function localChat({
   const name =
     businessName(data);
 
-
   /*
    * SALUTO
    */
 
   if (
-    /^(ciao|salve|buongiorno|buonasera|hey|ehi)\b/
+    /^(ciao|salve|buongiorno|buonasera|buon giorno|hey|ehi)\b/
       .test(text)
   ) {
 
-    return `Ciao. Sono Mavi, l'assistente di ${name}. Posso aiutarti con servizi, prezzi, promozioni e disponibilità.`;
+    return {
+      answer:
+        `Ciao. Sono Mavi, l'assistente di ${name}. Posso aiutarti con servizi, prezzi, promozioni, orari, disponibilità e prenotazioni.`,
+
+      booking: null
+    };
   }
 
 
@@ -1299,10 +1735,14 @@ async function localChat({
       .test(text)
   ) {
 
-    return (
-      `Questi sono i servizi disponibili:\n\n` +
-      serviceList(services)
-    );
+    return {
+
+      answer:
+        `Questi sono i servizi disponibili:\n\n` +
+        serviceList(services),
+
+      booking: null
+    };
   }
 
 
@@ -1323,17 +1763,25 @@ async function localChat({
 
     if (service) {
 
-      return (
-        `${service.name} costa ` +
-        `${Number(service.price || 0).toFixed(2)} €. ` +
-        `La durata prevista è di ${duration(service)} minuti.`
-      );
+      return {
+
+        answer:
+          `${service.name} costa ` +
+          `${Number(service.price || 0).toFixed(2)} €. ` +
+          `La durata prevista è di ${duration(service)} minuti.`,
+
+        booking: null
+      };
     }
 
-    return (
-      `Posso indicarti i prezzi dei servizi:\n\n` +
-      serviceList(services)
-    );
+    return {
+
+      answer:
+        `Posso indicarti i prezzi dei servizi:\n\n` +
+        serviceList(services),
+
+      booking: null
+    };
   }
 
 
@@ -1346,16 +1794,16 @@ async function localChat({
       .test(text)
   ) {
 
-    return (
-      `Le promozioni disponibili sono:\n\n` +
-      promotionList(promotions)
-    );
+    return {
+
+      answer:
+        `Le promozioni disponibili sono:\n\n` +
+        promotionList(promotions),
+
+      booking: null
+    };
   }
 
-
-  /*
-   * IDENTIFICAZIONE SERVIZIO
-   */
 
   const service =
     detectService(
@@ -1371,79 +1819,7 @@ async function localChat({
 
 
   /*
-   * DISPONIBILITÀ
-   */
-
-  if (
-    /disponibil|libero|libera|posto|orario|appuntamento|prenotare|prenotazione/
-      .test(text) &&
-    service &&
-    date
-  ) {
-
-    const slots =
-      availableSlots({
-        date,
-        service,
-        appointments,
-        settings:
-          data.settings,
-        services
-      });
-
-    if (
-      !slots.length
-    ) {
-
-      return (
-        `Per ${service.name} il ` +
-        `${date} non risultano orari disponibili. ` +
-        `Posso verificare un altro giorno.`
-      );
-    }
-
-    if (
-      time
-    ) {
-
-      if (
-        freeSlot({
-          date,
-          time,
-          service,
-          appointments,
-          settings:
-            data.settings,
-          services
-        })
-      ) {
-
-        return (
-          `Sì, ${time} è disponibile per ` +
-          `${service.name} il ${date}. ` +
-          `Se vuoi prenotarlo, indicami il tuo nome.`
-        );
-      }
-
-      return (
-        `Alle ${time} non è disponibile. ` +
-        `Gli orari disponibili sono: ` +
-        slots.join(", ") +
-        "."
-      );
-    }
-
-    return (
-      `Per ${service.name} il ${date} ` +
-      `gli orari disponibili sono: ` +
-      slots.join(", ") +
-      "."
-    );
-  }
-
-
-  /*
-   * ORARI ATTIVITÀ
+   * ORARI
    */
 
   if (
@@ -1466,15 +1842,17 @@ async function localChat({
       h.closed
     ) {
 
-      return (
-        `Per il ${dateForHours} ` +
-        `${name} è chiuso.`
-      );
+      return {
+
+        answer:
+          `Per il ${dateForHours} ${name} è chiuso.`,
+
+        booking: null
+      };
     }
 
     let answer =
-      `${name} è aperto ` +
-      `dalle ${h.open} alle ${h.close}.`;
+      `${name} è aperto dalle ${h.open} alle ${h.close}.`;
 
     if (
       h.pauses.length
@@ -1491,7 +1869,10 @@ async function localChat({
         ".";
     }
 
-    return answer;
+    return {
+      answer,
+      booking: null
+    };
   }
 
 
@@ -1533,14 +1914,114 @@ async function localChat({
       );
     }
 
-    return parts.length
-      ? parts.join("\n")
-      : "I dati di contatto non sono ancora configurati.";
+    return {
+
+      answer:
+        parts.length
+          ? parts.join("\n")
+          : "I dati di contatto non sono ancora configurati.",
+
+      booking: null
+    };
   }
 
 
   /*
-   * RICHIESTA PRENOTAZIONE SENZA DATI SUFFICIENTI
+   * DISPONIBILITÀ
+   */
+
+  if (
+    /disponibil|libero|libera|posto|orario|appuntamento|prenotare|prenotazione/
+      .test(text) &&
+    service &&
+    date
+  ) {
+
+    const slots =
+      availableSlots({
+
+        date,
+
+        service,
+
+        appointments,
+
+        settings:
+          data.settings,
+
+        services
+      });
+
+    if (
+      !slots.length
+    ) {
+
+      return {
+
+        answer:
+          `Per ${service.name} il ${date} non risultano orari disponibili. Posso verificare un altro giorno.`,
+
+        booking: null
+      };
+    }
+
+    if (
+      time
+    ) {
+
+      if (
+        freeSlot({
+
+          date,
+          time,
+          service,
+          appointments,
+          settings:
+            data.settings,
+          services
+        })
+      ) {
+
+        return {
+
+          answer:
+            `Sì, ${time} è disponibile per ${service.name} il ${date}. Se vuoi prenotarlo, indicami il tuo nome.`,
+
+          booking: {
+
+            status:
+              "pending",
+
+            date,
+            time,
+
+            service:
+              service.name
+          }
+        };
+      }
+
+      return {
+
+        answer:
+          `Alle ${time} non è disponibile. Gli orari disponibili sono: ${slots.join(", ")}.`,
+
+        booking: null
+      };
+    }
+
+    return {
+
+      answer:
+        `Per ${service.name} il ${date} gli orari disponibili sono: ${slots.join(", ")}.`,
+
+      booking: null
+    };
+  }
+
+
+  /*
+   * PRENOTAZIONE SENZA DATI
    */
 
   if (
@@ -1550,53 +2031,200 @@ async function localChat({
 
     if (!service) {
 
-      return (
-        "Certo. Quale servizio vuoi prenotare?"
-      );
+      return {
+
+        answer:
+          "Certo. Quale servizio vuoi prenotare?",
+
+        booking: {
+          status:
+            "collecting-service"
+        }
+      };
     }
 
     if (!date) {
 
-      return (
-        `Per ${service.name}, quale giorno preferisci?`
-      );
+      return {
+
+        answer:
+          `Per ${service.name}, quale giorno preferisci?`,
+
+        booking: {
+          status:
+            "collecting-date",
+
+          service:
+            service.name
+        }
+      };
     }
 
     const slots =
       availableSlots({
+
         date,
+
         service,
+
         appointments,
+
         settings:
           data.settings,
+
         services
       });
 
     if (!slots.length) {
 
-      return (
-        `Per ${service.name} il ${date} ` +
-        `non ci sono orari disponibili.`
-      );
+      return {
+
+        answer:
+          `Per ${service.name} il ${date} non ci sono orari disponibili.`,
+
+        booking: null
+      };
     }
 
-    return (
-      `Per ${service.name} il ${date} ` +
-      `sono disponibili: ${slots.join(", ")}. ` +
-      `Quale orario preferisci?`
-    );
+    if (!time) {
+
+      return {
+
+        answer:
+          `Per ${service.name} il ${date} sono disponibili: ${slots.join(", ")}. Quale orario preferisci?`,
+
+        booking: {
+          status:
+            "collecting-time",
+
+          date,
+
+          service:
+            service.name
+        }
+      };
+    }
+
+    return {
+
+      answer:
+        `L'orario ${time} è disponibile. Per procedere indicami il tuo nome.`,
+
+      booking: {
+        status:
+          "collecting-name",
+
+        date,
+        time,
+
+        service:
+          service.name
+      }
+    };
   }
 
 
   /*
-   * FALLBACK LOCALE
+   * CONFERMA ESPLICITA
+   *
+   * La conferma definitiva viene comunque
+   * controllata dall'endpoint BOOK.
    */
 
-  return (
-    "Posso aiutarti con servizi, prezzi, " +
-    "promozioni, orari, disponibilità e prenotazioni. " +
-    "Dimmi cosa ti serve."
-  );
+  if (
+    detectExplicitConfirmation(
+      text
+    )
+  ) {
+
+    return {
+
+      answer:
+        "Perfetto. Per completare la prenotazione ho bisogno dei dati dell'appuntamento già concordati.",
+
+      booking: {
+        status:
+          "confirmation-required"
+      }
+    };
+  }
+
+
+  /*
+   * FALLBACK
+   */
+
+  return {
+
+    answer:
+      "Posso aiutarti con servizi, prezzi, promozioni, orari, disponibilità e prenotazioni. Dimmi cosa ti serve.",
+
+    booking: null
+  };
+}
+
+
+/* ============================================================
+   CREAZIONE APPUNTAMENTO
+   ============================================================ */
+
+function createAppointment({
+  id,
+  client,
+  date,
+  time,
+  service,
+  notes,
+  source,
+  mode
+}) {
+
+  return {
+
+    id,
+
+    clientId:
+      client.id,
+
+    name:
+      client.name,
+
+    phone:
+      client.phone,
+
+    whatsapp:
+      client.whatsapp,
+
+    email:
+      client.email,
+
+    date,
+
+    time,
+
+    service:
+      service.name,
+
+    duration:
+      duration(service),
+
+    status:
+      "confirmed",
+
+    notes:
+      clean(notes),
+
+    createdAt:
+      new Date().toISOString(),
+
+    source:
+      source ||
+      (
+        mode === "client"
+          ? "mavi-client"
+          : "mavi-owner"
+      )
+  };
 }
 
 
@@ -1679,11 +2307,6 @@ export default async function handler(
           });
       }
 
-      const data =
-        sanitizeOwnerData(
-          body
-        );
-
       if (
         !REDIS_URL ||
         !REDIS_TOKEN
@@ -1694,23 +2317,40 @@ export default async function handler(
           .json({
             ok: false,
             error:
-              "Sincronizzazione server non configurata: Upstash Redis mancante."
+              "Upstash Redis non configurato."
           });
       }
 
-      await redisSet(
-        DATA_KEY,
-        data
-      );
+      const incoming =
+        sanitizeOwnerData(
+          body
+        );
 
-      const publicContext =
-        makePublicContext(
-          data
+      const server =
+        await getServerData();
+
+      /*
+       * MERGE:
+       * non cancelliamo prenotazioni
+       * create da Mavi cliente/WhatsApp.
+       */
+
+      const merged =
+        mergeOwnerData(
+          incoming,
+          server
         );
 
       await redisSet(
+        DATA_KEY,
+        merged
+      );
+
+      await redisSet(
         PUBLIC_KEY,
-        publicContext
+        makePublicContext(
+          merged
+        )
       );
 
       return res
@@ -1722,13 +2362,93 @@ export default async function handler(
           synced: true,
 
           revision:
-            data.revision,
+            merged.revision,
 
           updatedAt:
-            data.updatedAt,
+            merged.updatedAt,
+
+          /*
+           * Restituito anche il dataset
+           * aggiornato: il nuovo index potrà
+           * utilizzarlo per sincronizzare
+           * immediatamente il calendario.
+           */
+
+          data:
+            merged,
 
           message:
-            "Dati Maviri sincronizzati con Mavi cliente."
+            "Dati Maviri sincronizzati."
+        });
+    }
+
+
+    /* ========================================================
+       OWNER PULL
+       ======================================================== */
+
+    if (
+      action === "owner-pull"
+    ) {
+
+      if (
+        !ownerAuthorized(req)
+      ) {
+
+        return res
+          .status(401)
+          .json({
+            ok: false,
+            error:
+              "Token proprietario non valido."
+          });
+      }
+
+      if (
+        !REDIS_URL ||
+        !REDIS_TOKEN
+      ) {
+
+        return res
+          .status(503)
+          .json({
+            ok: false,
+            error:
+              "Upstash Redis non configurato."
+          });
+      }
+
+      const data =
+        await getServerData();
+
+      if (
+        !data
+      ) {
+
+        return res
+          .status(404)
+          .json({
+            ok: false,
+            error:
+              "Nessun dato Maviri presente sul server."
+          });
+      }
+
+      return res
+        .status(200)
+        .json({
+
+          ok: true,
+
+          data,
+
+          revision:
+            Number(
+              data.revision || 0
+            ),
+
+          updatedAt:
+            data.updatedAt || null
         });
     }
 
@@ -1755,10 +2475,39 @@ export default async function handler(
           });
       }
 
-      const context =
+      let context =
         await redisGet(
           PUBLIC_KEY
         );
+
+      /*
+       * Se il public context manca ma
+       * esiste il dataset proprietario,
+       * lo ricostruiamo automaticamente.
+       */
+
+      if (
+        !context
+      ) {
+
+        const data =
+          await getServerData();
+
+        if (
+          data
+        ) {
+
+          context =
+            makePublicContext(
+              data
+            );
+
+          await redisSet(
+            PUBLIC_KEY,
+            context
+          );
+        }
+      }
 
       if (
         !context
@@ -1792,16 +2541,14 @@ export default async function handler(
       ) {
 
         const context =
-          REDIS_URL &&
-          REDIS_TOKEN
-            ? await redisGet(
-                PUBLIC_KEY
-              )
-            : null;
+          await redisGet(
+            PUBLIC_KEY
+          );
 
         if (
           context
         ) {
+
           return res
             .status(200)
             .json(context);
@@ -1827,7 +2574,7 @@ export default async function handler(
           local: true,
 
           engine:
-            "maviri-business-engine-v4",
+            "maviri-business-engine-v5",
 
           today:
             todayRome(),
@@ -1912,7 +2659,7 @@ export default async function handler(
         };
       }
 
-      const answer =
+      const result =
         await localChat({
 
           message:
@@ -1941,9 +2688,13 @@ export default async function handler(
           local: true,
 
           engine:
-            "maviri-business-engine-v4",
+            "maviri-business-engine-v5",
 
-          answer
+          answer:
+            result.answer,
+
+          booking:
+            result.booking || null
         });
     }
 
@@ -1986,9 +2737,15 @@ export default async function handler(
       const date =
         clean(body.date);
 
+      const services =
+        arr(data.services);
+
+      const appointments =
+        arr(data.appointments);
+
       const service =
         findService(
-          arr(data.services),
+          services,
           body.service ||
           body.serviceName
         );
@@ -2026,14 +2783,12 @@ export default async function handler(
 
           service,
 
-          appointments:
-            arr(data.appointments),
+          appointments,
 
           settings:
             data.settings,
 
-          services:
-            arr(data.services)
+          services
         });
 
       return res
@@ -2086,7 +2841,8 @@ export default async function handler(
             .status(503)
             .json({
               ok: false,
-              bookingConfirmed: false,
+              bookingConfirmed:
+                false,
               error:
                 "Dati dell'attività non disponibili."
             });
@@ -2094,7 +2850,10 @@ export default async function handler(
 
       } else {
 
-        data = body;
+        data =
+          sanitizeOwnerData(
+            body
+          );
       }
 
       const date =
@@ -2160,9 +2919,7 @@ export default async function handler(
 
 
       /*
-       * Il server richiede che la
-       * richiesta arrivi dopo una
-       * conferma esplicita.
+       * CONFERMA OBBLIGATORIA
        */
 
       const confirmed =
@@ -2198,26 +2955,37 @@ export default async function handler(
               duration:
                 duration(service),
 
-              name
+              name,
+
+              phone,
+
+              whatsapp
             },
 
             message:
-              `Confermi la prenotazione di ${service.name} ` +
-              `per ${name} il ${date} alle ${time}?`
+              `Confermi la prenotazione di ${service.name} per ${name} il ${date} alle ${time}?`
           });
       }
 
 
+      /*
+       * LOCK DISTRIBUITO REDIS
+       */
+
       const key =
-        bookingKey(
+        [
           date,
           time,
-          service,
-          name
+          norm(service.name)
+        ].join("|");
+
+      const lock =
+        await acquireDistributedLock(
+          key
         );
 
       if (
-        !acquire(key)
+        !lock.acquired
       ) {
 
         return res
@@ -2234,11 +3002,65 @@ export default async function handler(
           });
       }
 
+
       try {
 
         /*
-         * SECONDO CONTROLLO
+         * SECONDO CONTROLLO SERVER-SIDE
+         *
+         * Per modalità cliente ricarichiamo
+         * nuovamente il dataset dal server,
+         * così il controllo usa l'ultima versione.
          */
+
+        if (
+          mode === "client"
+        ) {
+
+          const fresh =
+            await getServerData();
+
+          if (
+            fresh
+          ) {
+            data = fresh;
+          }
+        }
+
+        const freshServices =
+          arr(data.services);
+
+        const freshAppointments =
+          arr(data.appointments);
+
+        const freshClients =
+          arr(data.clients);
+
+        const freshService =
+          findService(
+            freshServices,
+            body.service ||
+            body.serviceName ||
+            service.name
+          );
+
+        if (
+          !freshService
+        ) {
+
+          return res
+            .status(400)
+            .json({
+
+              ok: false,
+
+              bookingConfirmed:
+                false,
+
+              error:
+                "Servizio non più disponibile."
+            });
+        }
 
         if (
           !freeSlot({
@@ -2247,14 +3069,17 @@ export default async function handler(
 
             time,
 
-            service,
+            service:
+              freshService,
 
-            appointments,
+            appointments:
+              freshAppointments,
 
             settings:
               data.settings,
 
-            services
+            services:
+              freshServices
           })
         ) {
 
@@ -2275,23 +3100,31 @@ export default async function handler(
 
                   date,
 
-                  service,
+                  service:
+                    freshService,
 
-                  appointments,
+                  appointments:
+                    freshAppointments,
 
                   settings:
                     data.settings,
 
-                  services
+                  services:
+                    freshServices
                 })
             });
         }
 
 
+        /*
+         * CLIENTE
+         */
+
         const client =
           clientFromBooking({
 
-            clients,
+            clients:
+              freshClients,
 
             name,
 
@@ -2305,99 +3138,120 @@ export default async function handler(
           });
 
 
+        /*
+         * ID UNIVOCO
+         */
+
         const id =
-          clean(body.ignoreId) ||
+          clean(body.id) ||
           `${date}|${time}|${crypto.randomUUID()}`;
 
 
-        const appointment = {
+        /*
+         * APPUNTAMENTO
+         */
 
-          id,
+        const appointment =
+          createAppointment({
 
-          clientId:
-            client.id,
+            id,
 
-          name,
+            client,
 
-          phone,
+            date,
 
-          whatsapp,
+            time,
 
-          email,
+            service:
+              freshService,
 
-          date,
+            notes,
 
-          time,
+            source:
+              body.source ||
+              (
+                mode === "client"
+                  ? "mavi-client"
+                  : "mavi-owner"
+              ),
 
-          service:
-            service.name,
-
-          duration:
-            duration(service),
-
-          status:
-            "confirmed",
-
-          notes,
-
-          createdAt:
-            new Date().toISOString(),
-
-          source:
-            mode === "client"
-              ? "mavi-client"
-              : "mavi-owner"
-        };
+            mode
+          });
 
 
         /*
-         * CLIENTE:
-         * ritorniamo il risultato.
-         *
-         * TITOLARE:
-         * l'index lo salva nel localStorage.
-         *
-         * Per Mavi cliente la sincronizzazione
-         * server viene aggiornata qui.
+         * CLIENTE
          */
 
+        const nextClients =
+          [...freshClients];
+
+        const existingClientIndex =
+          nextClients.findIndex(
+            c =>
+              String(c.id) ===
+              String(client.id)
+          );
+
         if (
-          mode === "client"
+          existingClientIndex >= 0
         ) {
 
-          const current =
-            data;
+          nextClients[
+            existingClientIndex
+          ] = client;
 
-          const nextClients =
-            arr(
-              current.clients
-            );
+        } else {
 
-          if (
-            !nextClients.some(
-              c =>
-                String(c.id) ===
-                String(client.id)
-            )
-          ) {
+          nextClients.push(
+            client
+          );
+        }
 
-            nextClients.push(
-              client
-            );
-          }
 
-          const nextAppointments =
-            arr(
-              current.appointments
-            );
+        /*
+         * APPUNTAMENTI
+         */
+
+        const nextAppointments =
+          [...freshAppointments];
+
+        /*
+         * Evita doppio inserimento
+         * dello stesso ID.
+         */
+
+        const duplicate =
+          nextAppointments.find(
+            a =>
+              String(a.id) ===
+              String(appointment.id)
+          );
+
+        if (
+          !duplicate
+        ) {
 
           nextAppointments.push(
             appointment
           );
+        }
+
+
+        /*
+         * MODALITÀ CLIENTE:
+         * scrittura immediata sul database
+         */
+
+        if (
+          mode === "client" ||
+          body.persist === true ||
+          body.source === "whatsapp"
+        ) {
 
           const nextData = {
 
-            ...current,
+            ...data,
 
             clients:
               nextClients,
@@ -2407,7 +3261,7 @@ export default async function handler(
 
             revision:
               Number(
-                current.revision || 0
+                data.revision || 0
               ) + 1,
 
             updatedAt:
@@ -2427,6 +3281,7 @@ export default async function handler(
           );
         }
 
+
         return res
           .status(200)
           .json({
@@ -2436,17 +3291,24 @@ export default async function handler(
             bookingConfirmed:
               true,
 
+            persisted:
+              mode === "client" ||
+              body.persist === true ||
+              body.source === "whatsapp",
+
             appointment,
 
             client,
 
             message:
-              "Prenotazione confermata."
+              "Prenotazione confermata e registrata."
           });
 
       } finally {
 
-        release(key);
+        await releaseDistributedLock(
+          lock
+        );
       }
     }
 
@@ -2468,22 +3330,25 @@ export default async function handler(
         data =
           await getServerData();
 
-        if (
-          !data
-        ) {
-
-          return res
-            .status(503)
-            .json({
-              ok: false,
-              error:
-                "Dati attività non disponibili."
-            });
-        }
-
       } else {
 
-        data = body;
+        data =
+          sanitizeOwnerData(
+            body
+          );
+      }
+
+      if (
+        !data
+      ) {
+
+        return res
+          .status(503)
+          .json({
+            ok: false,
+            error:
+              "Dati attività non disponibili."
+          });
       }
 
       const id =
@@ -2533,17 +3398,20 @@ export default async function handler(
           });
       }
 
-
-      const key =
-        bookingKey(
+      const lockKey =
+        [
           date,
           time,
-          service,
-          name
+          norm(service.name)
+        ].join("|");
+
+      const lock =
+        await acquireDistributedLock(
+          lockKey
         );
 
       if (
-        !acquire(key)
+        !lock.acquired
       ) {
 
         return res
@@ -2575,7 +3443,8 @@ export default async function handler(
 
             services,
 
-            ignoreId: id
+            ignoreId:
+              id
           })
         ) {
 
@@ -2606,25 +3475,57 @@ export default async function handler(
         }
 
 
+        const old =
+          appointments.find(
+            a =>
+              String(a.id) ===
+              String(id)
+          );
+
+        if (
+          !old
+        ) {
+
+          return res
+            .status(404)
+            .json({
+
+              ok: false,
+
+              error:
+                "Appuntamento non trovato."
+            });
+        }
+
+
         const updated = {
 
-          id,
+          ...old,
 
-          clientId:
-            clean(
-              body.clientId
-            ),
+          id,
 
           name,
 
           phone:
-            clean(body.phone),
+            clean(
+              body.phone
+            ) ||
+            old.phone ||
+            "",
 
           whatsapp:
-            clean(body.whatsapp),
+            clean(
+              body.whatsapp
+            ) ||
+            old.whatsapp ||
+            "",
 
           email:
-            clean(body.email),
+            clean(
+              body.email
+            ) ||
+            old.email ||
+            "",
 
           date,
 
@@ -2638,6 +3539,7 @@ export default async function handler(
 
           status:
             clean(body.status) ||
+            old.status ||
             "confirmed",
 
           notes:
@@ -2648,21 +3550,19 @@ export default async function handler(
         };
 
 
+        const nextAppointments =
+          appointments.map(
+            a =>
+              String(a.id) ===
+              String(id)
+                ? updated
+                : a
+          );
+
+
         if (
           mode === "client"
         ) {
-
-          const nextAppointments =
-            appointments.map(
-              a =>
-                String(a.id) ===
-                String(id)
-                  ? {
-                      ...a,
-                      ...updated
-                    }
-                  : a
-            );
 
           const nextData = {
 
@@ -2702,13 +3602,18 @@ export default async function handler(
             appointment:
               updated,
 
+            persisted:
+              mode === "client",
+
             message:
               "Appuntamento modificato."
           });
 
       } finally {
 
-        release(key);
+        await releaseDistributedLock(
+          lock
+        );
       }
     }
 
@@ -2760,6 +3665,30 @@ export default async function handler(
             });
         }
 
+        const exists =
+          arr(
+            data.appointments
+          ).some(
+            a =>
+              String(a.id) ===
+              String(id)
+          );
+
+        if (
+          !exists
+        ) {
+
+          return res
+            .status(404)
+            .json({
+
+              ok: false,
+
+              error:
+                "Appuntamento non trovato."
+            });
+        }
+
         const nextAppointments =
           arr(
             data.appointments
@@ -2769,9 +3698,14 @@ export default async function handler(
               String(id)
                 ? {
                     ...a,
+
                     status:
                       "cancelled",
+
                     cancelledAt:
+                      new Date().toISOString(),
+
+                    updatedAt:
                       new Date().toISOString()
                   }
                 : a
@@ -2814,6 +3748,9 @@ export default async function handler(
 
           cancelled:
             true,
+
+          persisted:
+            mode === "client",
 
           id,
 
@@ -2928,6 +3865,139 @@ export default async function handler(
 
           appointments:
             history
+        });
+    }
+
+
+    /* ========================================================
+       WHATSAPP MESSAGE
+       ========================================================
+       Endpoint interno predisposto per il futuro
+       webhook WhatsApp.
+
+       Il provider WhatsApp dovrà trasformare
+       il messaggio ricevuto in:
+
+       {
+         action: "whatsapp-message",
+         from: "...",
+         message: "..."
+       }
+
+       Mavi risponde usando esclusivamente
+       il motore locale.
+       ======================================================== */
+
+    if (
+      action === "whatsapp-message"
+    ) {
+
+      const from =
+        clean(
+          body.from ||
+          body.phone ||
+          body.whatsapp
+        );
+
+      const message =
+        clean(
+          body.message ||
+          body.text
+        );
+
+      if (
+        !from ||
+        !message
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            ok: false,
+
+            error:
+              "Mittente o messaggio WhatsApp mancanti."
+          });
+      }
+
+
+      const data =
+        await getServerData();
+
+      if (
+        !data
+      ) {
+
+        return res
+          .status(503)
+          .json({
+
+            ok: false,
+
+            error:
+              "Mavi non è ancora collegata ai dati dell'attività."
+          });
+      }
+
+
+      const client =
+        findClient(
+          arr(data.clients),
+          "",
+          from
+        );
+
+
+      const result =
+        await localChat({
+
+          message,
+
+          history:
+            Array.isArray(
+              body.history
+            )
+              ? body.history
+              : [],
+
+          mode:
+            "client",
+
+          data
+        });
+
+
+      /*
+       * Non vengono esposti:
+       * - clienti
+       * - appuntamenti privati
+       * - note interne
+       * - dati del titolare
+       */
+
+      return res
+        .status(200)
+        .json({
+
+          ok: true,
+
+          channel:
+            "whatsapp",
+
+          from,
+
+          knownClient:
+            !!client,
+
+          answer:
+            result.answer,
+
+          booking:
+            result.booking || null,
+
+          engine:
+            "maviri-business-engine-v5"
         });
     }
 
