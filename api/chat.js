@@ -133,11 +133,6 @@ function getHours(settings, date) {
           )
       : [];
 
-  /*
-   * Compatibilità con il vecchio formato
-   * breakStart / breakEnd
-   */
-
   if (
     clean(raw.breakStart) &&
     clean(raw.breakEnd)
@@ -256,20 +251,12 @@ function freeSlot({
 
   const end = start + dur;
 
-  /*
-   * Fuori dall'orario di apertura
-   */
-
   if (
     start < open ||
     end > close
   ) {
     return false;
   }
-
-  /*
-   * Controllo pause
-   */
 
   if (
     day.pauses.some(p => {
@@ -296,20 +283,11 @@ function freeSlot({
     return false;
   }
 
-  /*
-   * Controllo sovrapposizione appuntamenti
-   */
-
   return !appointments.some(a => {
 
     if (!active(a)) {
       return false;
     }
-
-    /*
-     * Quando modifichiamo un appuntamento,
-     * ignoriamo il suo stesso ID.
-     */
 
     if (
       String(a.id) ===
@@ -340,15 +318,6 @@ function freeSlot({
     const existingEnd =
       existingStart +
       duration(existingService);
-
-    /*
-     * Due intervalli si sovrappongono
-     * se:
-     *
-     * start < existingEnd
-     * &&
-     * end > existingStart
-     */
 
     return (
       start < existingEnd &&
@@ -385,10 +354,6 @@ function availableSlots({
 
   const close =
     mins(day.close);
-
-  /*
-   * Slot ogni 30 minuti.
-   */
 
   const step = 30;
 
@@ -457,11 +422,6 @@ function acquire(key) {
   const now =
     Date.now();
 
-  /*
-   * Pulizia automatica dei lock
-   * scaduti.
-   */
-
   for (
     const [k, t]
     of locks
@@ -474,11 +434,6 @@ function acquire(key) {
       locks.delete(k);
     }
   }
-
-  /*
-   * Se esiste già un lock,
-   * rifiutiamo la richiesta.
-   */
 
   if (
     locks.has(key)
@@ -496,6 +451,137 @@ function acquire(key) {
 
 function release(key) {
   locks.delete(key);
+}
+
+
+/* ============================================================
+   CLIENTI
+   ============================================================ */
+
+function normalizeClient(client) {
+
+  if (!obj(client)) {
+    return null;
+  }
+
+  return {
+    id:
+      clean(client.id) ||
+      `client-${crypto.randomUUID()}`,
+
+    name:
+      clean(client.name),
+
+    phone:
+      clean(client.phone),
+
+    whatsapp:
+      clean(
+        client.whatsapp ||
+        client.phone
+      ),
+
+    email:
+      clean(client.email),
+
+    notes:
+      clean(
+        client.notes ||
+        client.personalNotes
+      )
+  };
+}
+
+function findClient(clients, name, phone) {
+
+  const n =
+    norm(name);
+
+  const p =
+    clean(phone);
+
+  return (
+    clients.find(c =>
+      n &&
+      norm(c.name) === n
+    ) ||
+
+    clients.find(c =>
+      p &&
+      clean(c.phone) === p
+    ) ||
+
+    null
+  );
+}
+
+
+/* ============================================================
+   CREAZIONE CLIENTE DA PRENOTAZIONE
+   ============================================================ */
+
+function clientFromBooking({
+  clients,
+  name,
+  phone,
+  whatsapp,
+  email,
+  notes
+}) {
+
+  const existing =
+    findClient(
+      clients,
+      name,
+      phone
+    );
+
+  if (existing) {
+
+    return {
+      ...normalizeClient(existing),
+
+      name:
+        clean(name) ||
+        existing.name,
+
+      phone:
+        clean(phone) ||
+        existing.phone,
+
+      whatsapp:
+        clean(whatsapp) ||
+        existing.whatsapp,
+
+      email:
+        clean(email) ||
+        existing.email,
+
+      notes:
+        clean(notes) ||
+        existing.notes
+    };
+  }
+
+  return {
+    id:
+      `client-${crypto.randomUUID()}`,
+
+    name:
+      clean(name),
+
+    phone:
+      clean(phone),
+
+    whatsapp:
+      clean(whatsapp),
+
+    email:
+      clean(email),
+
+    notes:
+      clean(notes)
+  };
 }
 
 
@@ -523,10 +609,6 @@ export default async function handler(
     'DENY'
   );
 
-  /*
-   * Accettiamo solamente POST.
-   */
-
   if (
     req.method !== 'POST'
   ) {
@@ -547,9 +629,17 @@ export default async function handler(
     const action =
       clean(body.action);
 
+    const mode =
+      clean(body.mode || 'owner');
+
     const settings =
       obj(body.settings)
         ? body.settings
+        : {};
+
+    const business =
+      obj(body.business)
+        ? body.business
         : {};
 
     const services =
@@ -573,21 +663,99 @@ export default async function handler(
       action === 'context'
     ) {
 
+      /*
+       * CLIENTE:
+       * non restituiamo clienti,
+       * note interne o appuntamenti
+       * completi dell'attività.
+       */
+
+      if (mode === 'client') {
+
+        return res.status(200).json({
+
+          ok: true,
+
+          mode: 'client',
+
+          local: true,
+
+          engine:
+            'maviri-business-engine-v3',
+
+          today:
+            todayRome(),
+
+          business: {
+
+            name:
+              clean(
+                business.name ||
+                settings.name
+              ),
+
+            type:
+              clean(
+                business.type ||
+                settings.type
+              ),
+
+            description:
+              clean(
+                business.description ||
+                settings.description
+              ),
+
+            address:
+              clean(
+                business.address ||
+                settings.address
+              ),
+
+            phone:
+              clean(
+                business.phone ||
+                settings.phone
+              ),
+
+            whatsapp:
+              clean(
+                business.whatsapp ||
+                settings.whatsapp
+              )
+          },
+
+          services,
+
+          promotions,
+
+          appointments: []
+        });
+      }
+
+
+      /*
+       * TITOLARE:
+       * contesto completo.
+       */
+
       return res.status(200).json({
 
         ok: true,
 
+        mode: 'owner',
+
         local: true,
 
         engine:
-          'maviri-business-engine-v2',
+          'maviri-business-engine-v3',
 
         today:
           todayRome(),
 
         business:
+          business.name ||
           settings.name ||
-          body.business ||
           '',
 
         services,
@@ -625,25 +793,36 @@ export default async function handler(
       ) {
 
         return res.status(400).json({
+
           ok: false,
-          error: 'Data non valida.'
+
+          error:
+            'Data non valida.'
         });
       }
 
       if (!service) {
 
         return res.status(400).json({
+
           ok: false,
-          error: 'Servizio non trovato.'
+
+          error:
+            'Servizio non trovato.'
         });
       }
 
       const slots =
         availableSlots({
+
           date,
+
           service,
+
           appointments,
+
           settings,
+
           services
         });
 
@@ -658,6 +837,9 @@ export default async function handler(
 
         service:
           service.name,
+
+        duration:
+          duration(service),
 
         slots,
 
@@ -687,6 +869,18 @@ export default async function handler(
           body.clientName
         );
 
+      const phone =
+        clean(body.phone);
+
+      const whatsapp =
+        clean(body.whatsapp);
+
+      const email =
+        clean(body.email);
+
+      const notes =
+        clean(body.notes);
+
       const service =
         findService(
           services,
@@ -695,14 +889,8 @@ export default async function handler(
         );
 
       const ignoreId =
-        clean(
-          body.ignoreId
-        );
+        clean(body.ignoreId);
 
-
-      /*
-       * Validazione dati
-       */
 
       if (
         !validDate(date) ||
@@ -725,8 +913,7 @@ export default async function handler(
 
 
       /*
-       * Lock per impedire
-       * richieste simultanee.
+       * LOCK
        */
 
       const key =
@@ -757,18 +944,24 @@ export default async function handler(
       try {
 
         /*
-         * Ricontrollo server-side
-         * della disponibilità.
+         * SECONDO CONTROLLO SERVER-SIDE
          */
 
         if (
           !freeSlot({
+
             date,
+
             time,
+
             service,
+
             appointments,
+
             settings,
+
             services,
+
             ignoreId
           })
         ) {
@@ -785,10 +978,15 @@ export default async function handler(
 
             availableSlots:
               availableSlots({
+
                 date,
+
                 service,
+
                 appointments,
+
                 settings,
+
                 services
               })
           });
@@ -796,11 +994,28 @@ export default async function handler(
 
 
         /*
-         * ID appuntamento.
-         *
-         * In modifica manteniamo l'ID.
-         * In nuova prenotazione generiamo
-         * un UUID.
+         * CLIENTE
+         */
+
+        const client =
+          clientFromBooking({
+
+            clients,
+
+            name,
+
+            phone,
+
+            whatsapp,
+
+            email,
+
+            notes
+          });
+
+
+        /*
+         * ID
          */
 
         const id =
@@ -808,14 +1023,24 @@ export default async function handler(
           `${date}|${time}|${crypto.randomUUID()}`;
 
 
+        /*
+         * APPUNTAMENTO
+         */
+
         const appointment = {
 
           id,
 
+          clientId:
+            client.id,
+
           name,
 
-          phone:
-            clean(body.phone),
+          phone,
+
+          whatsapp,
+
+          email,
 
           date,
 
@@ -824,19 +1049,35 @@ export default async function handler(
           service:
             service.name,
 
+          duration:
+            duration(service),
+
           status:
             'confirmed',
 
-          notes:
-            clean(body.notes),
+          notes,
 
-          clientId:
-            clean(body.clientId),
+          createdAt:
+            new Date().toISOString(),
 
-          duration:
-            duration(service)
+          source:
+            mode === 'client'
+              ? 'mavi-client'
+              : 'mavi-owner'
         };
 
+
+        /*
+         * IMPORTANTE:
+         *
+         * Questa API non può scrivere
+         * direttamente nel localStorage del
+         * browser del titolare.
+         *
+         * Restituiamo quindi l'oggetto
+         * all'HTML che deve salvarlo
+         * nel proprio storage.
+         */
 
         return res.status(200).json({
 
@@ -845,9 +1086,13 @@ export default async function handler(
           bookingConfirmed:
             true,
 
-          appointment
-        });
+          appointment,
 
+          client,
+
+          message:
+            'Prenotazione confermata.'
+        });
 
       } finally {
 
@@ -857,18 +1102,27 @@ export default async function handler(
 
 
     /* ========================================================
-       CHECK
+       UPDATE BOOKING
        ======================================================== */
 
     if (
-      action === 'check'
+      action === 'update'
     ) {
+
+      const id =
+        clean(body.id);
 
       const date =
         clean(body.date);
 
       const time =
         clean(body.time);
+
+      const name =
+        clean(
+          body.name ||
+          body.clientName
+        );
 
       const service =
         findService(
@@ -877,16 +1131,12 @@ export default async function handler(
           body.serviceName
         );
 
-      const ignoreId =
-        clean(
-          body.ignoreId
-        );
-
-
       if (
+        !id ||
         !validDate(date) ||
-        !service ||
-        mins(time) === null
+        mins(time) === null ||
+        !name ||
+        !service
       ) {
 
         return res.status(400).json({
@@ -894,31 +1144,272 @@ export default async function handler(
           ok: false,
 
           error:
-            'Dati non validi.'
+            'Dati modifica appuntamento incompleti.'
         });
       }
 
+
+      const key =
+        bookingKey(
+          date,
+          time,
+          service,
+          name
+        );
+
+      if (
+        !acquire(key)
+      ) {
+
+        return res.status(409).json({
+
+          ok: false,
+
+          error:
+            'Modifica già in elaborazione.'
+        });
+      }
+
+
+      try {
+
+        if (
+          !freeSlot({
+
+            date,
+
+            time,
+
+            service,
+
+            appointments,
+
+            settings,
+
+            services,
+
+            ignoreId: id
+          })
+        ) {
+
+          return res.status(409).json({
+
+            ok: false,
+
+            error:
+              'Il nuovo orario non è disponibile.',
+
+            availableSlots:
+              availableSlots({
+
+                date,
+
+                service,
+
+                appointments,
+
+                settings,
+
+                services
+              })
+          });
+        }
+
+
+        const updated = {
+
+          id,
+
+          clientId:
+            clean(body.clientId),
+
+          name,
+
+          phone:
+            clean(body.phone),
+
+          whatsapp:
+            clean(body.whatsapp),
+
+          email:
+            clean(body.email),
+
+          date,
+
+          time,
+
+          service:
+            service.name,
+
+          duration:
+            duration(service),
+
+          status:
+            clean(body.status) ||
+            'confirmed',
+
+          notes:
+            clean(body.notes),
+
+          updatedAt:
+            new Date().toISOString()
+        };
+
+
+        return res.status(200).json({
+
+          ok: true,
+
+          appointment:
+            updated,
+
+          message:
+            'Appuntamento modificato.'
+        });
+
+      } finally {
+
+        release(key);
+      }
+    }
+
+
+    /* ========================================================
+       CANCEL
+       ======================================================== */
+
+    if (
+      action === 'cancel'
+    ) {
+
+      const id =
+        clean(body.id);
+
+      if (!id) {
+
+        return res.status(400).json({
+
+          ok: false,
+
+          error:
+            'ID appuntamento mancante.'
+        });
+      }
 
       return res.status(200).json({
 
         ok: true,
 
-        available:
-          freeSlot({
-            date,
-            time,
-            service,
-            appointments,
-            settings,
-            services,
-            ignoreId
-          })
+        cancelled:
+          true,
+
+        id,
+
+        status:
+          'cancelled',
+
+        message:
+          'Appuntamento annullato.'
       });
     }
 
 
     /* ========================================================
-       AZIONE NON RICONOSCIUTA
+       CLIENT LOOKUP
+       ======================================================== */
+
+    if (
+      action === 'client'
+    ) {
+
+      /*
+       * Questa funzione è riservata
+       * alla modalità titolare.
+       */
+
+      if (
+        mode !== 'owner'
+      ) {
+
+        return res.status(403).json({
+
+          ok: false,
+
+          error:
+            'Operazione non disponibile per il cliente.'
+        });
+      }
+
+      const name =
+        clean(body.name);
+
+      const phone =
+        clean(body.phone);
+
+      const client =
+        findClient(
+          clients,
+          name,
+          phone
+        );
+
+      if (!client) {
+
+        return res.status(404).json({
+
+          ok: false,
+
+          client: null,
+
+          error:
+            'Cliente non trovato.'
+        });
+      }
+
+      const history =
+        appointments
+          .filter(a => {
+
+            if (
+              !active(a)
+            ) {
+              return false;
+            }
+
+            if (
+              client.id &&
+              String(a.clientId) ===
+              String(client.id)
+            ) {
+              return true;
+            }
+
+            return (
+              norm(a.name) ===
+              norm(client.name)
+            );
+          })
+          .sort(
+            (a, b) =>
+              `${a.date} ${a.time}`.localeCompare(
+                `${b.date} ${b.time}`
+              )
+          );
+
+      return res.status(200).json({
+
+        ok: true,
+
+        client,
+
+        appointments:
+          history
+      });
+    }
+
+
+    /* ========================================================
+       UNKNOWN ACTION
        ======================================================== */
 
     return res.status(400).json({
@@ -926,15 +1417,14 @@ export default async function handler(
       ok: false,
 
       error:
-        'Azione non riconosciuta.'
+        'Azione API non riconosciuta.'
     });
 
-
-  } catch (e) {
+  } catch (error) {
 
     console.error(
-      'Maviri business engine error',
-      e
+      'MAVIRI API ERROR:',
+      error
     );
 
     return res.status(500).json({
@@ -942,7 +1432,7 @@ export default async function handler(
       ok: false,
 
       error:
-        'Errore interno del motore Maviri.'
+        'Errore interno del servizio Maviri.'
     });
   }
 }
