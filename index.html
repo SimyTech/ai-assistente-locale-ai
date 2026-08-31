@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07142F">
+<meta name="theme-color" content="#07142f">
 <meta name="description" content="Maviri — Manager digitale per la tua attività">
 <title>Maviri — Manager digitale</title>
 
@@ -13,7 +13,6 @@
   --navy2:#0b1d40;
   --panel:#10254c;
   --panel2:#142e5c;
-  --panel3:#0a1b39;
   --text:#f6f8ff;
   --muted:#9eafd0;
   --line:rgba(255,255,255,.09);
@@ -22,81 +21,30 @@
   --green:#39d98a;
   --danger:#ff6679;
   --warning:#ffbd5c;
-  --gradient:linear-gradient(135deg,#38a7ff 0%,#875cff 52%,#39d98a 100%);
+  --gradient:linear-gradient(135deg,#38a7ff,#875cff 52%,#39d98a);
   --shadow:0 20px 55px rgba(0,0,0,.28);
   --radius:22px;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 html,body{
   margin:0;
-  padding:0;
   min-height:100%;
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,
   "Segoe UI",Roboto,Arial,sans-serif;
   background:
-    radial-gradient(circle at 0% 0%,rgba(56,167,255,.12),transparent 30%),
+    radial-gradient(circle at 0 0,rgba(56,167,255,.12),transparent 30%),
     radial-gradient(circle at 100% 10%,rgba(135,92,255,.12),transparent 30%),
     var(--navy);
   color:var(--text);
 }
 
-body{
-  overflow-x:hidden;
-}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
 
-button,input,textarea,select{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
-button:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-}
-
-.app{
-  min-height:100vh;
-}
-
-/* =========================================================
-   LOGO
-========================================================= */
-
-.logo{
-  width:48px;
-  height:48px;
-  object-fit:contain;
-  display:block;
-}
-
-.logo.hero-logo{
-  width:105px;
-  height:105px;
-}
-
-.logo-fallback{
-  display:none;
-  width:48px;
-  height:48px;
-  border-radius:15px;
-  background:var(--gradient);
-  align-items:center;
-  justify-content:center;
-  font-size:25px;
-  font-weight:900;
-  color:#fff;
-}
-
-/* =========================================================
-   SIDEBAR
-========================================================= */
+.app{min-height:100vh}
 
 .sidebar{
   position:fixed;
@@ -115,20 +63,16 @@ button:disabled{
   padding:3px 8px 24px;
 }
 
-.brand-text{
-  min-width:0;
-}
+.brand-text{min-width:0}
 
 .brand-name{
   font-size:21px;
   font-weight:850;
-  letter-spacing:-.3px;
 }
 
 .brand-sub{
   color:var(--muted);
   font-size:12px;
-  margin-top:2px;
 }
 
 .nav{
@@ -147,7 +91,6 @@ button:disabled{
   gap:12px;
   padding:13px 14px;
   text-align:left;
-  transition:.18s ease;
 }
 
 .nav button:hover,
@@ -165,10 +108,6 @@ button:disabled{
   text-align:center;
   font-size:18px;
 }
-
-/* =========================================================
-   MAIN
-========================================================= */
 
 .main{
   width:calc(100% - 255px);
@@ -188,7 +127,6 @@ button:disabled{
 .topbar h1{
   margin:0;
   font-size:29px;
-  letter-spacing:-.7px;
 }
 
 .topbar p{
@@ -201,25 +139,16 @@ button:disabled{
   font-size:12px;
 }
 
-/* =========================================================
-   PAGE
-========================================================= */
-
-.page{
-  display:none;
-}
-
-.page.active{
-  display:block;
-}
-
-/* =========================================================
-   CARD
-========================================================= */
+.page{display:none}
+.page.active{display:block}
 
 .card{
   background:
-    linear-gradient(180deg,rgba(19,43,87,.96),rgba(10,29,62,.96));
+    linear-gradient(
+      180deg,
+      rgba(19,43,87,.96),
+      rgba(10,29,62,.96)
+    );
   border:1px solid var(--line);
   border-radius:var(--radius);
   padding:21px;
@@ -231,26 +160,15 @@ button:disabled{
   gap:18px;
 }
 
-.grid-2{
-  grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);
-}
-
-.grid-3{
-  grid-template-columns:repeat(3,minmax(0,1fr));
+.grid2{
+  grid-template-columns:
+    minmax(0,1.2fr)
+    minmax(300px,.8fr);
 }
 
 .stats{
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:repeat(4,1fr);
   margin-top:18px;
-}
-
-.stat{
-  padding:20px;
-}
-
-.stat-label{
-  color:var(--muted);
-  font-size:13px;
 }
 
 .stat-number{
@@ -259,16 +177,18 @@ button:disabled{
   margin-top:8px;
 }
 
+.stat-label,
+.meta{
+  color:var(--muted);
+  font-size:12px;
+}
+
 .gradient-line{
   height:4px;
   margin-top:16px;
   border-radius:99px;
   background:var(--gradient);
 }
-
-/* =========================================================
-   HERO
-========================================================= */
 
 .hero{
   min-height:245px;
@@ -282,7 +202,6 @@ button:disabled{
 .hero h2{
   margin:0 0 11px;
   font-size:36px;
-  letter-spacing:-1.2px;
 }
 
 .gradient-text{
@@ -298,21 +217,12 @@ button:disabled{
   color:var(--muted);
 }
 
-/* =========================================================
-   BUTTON
-========================================================= */
-
 .btn{
   border:1px solid var(--line);
   background:#193968;
   color:#fff;
   border-radius:13px;
   padding:10px 15px;
-  transition:.15s ease;
-}
-
-.btn:hover{
-  filter:brightness(1.1);
 }
 
 .btn.primary{
@@ -349,16 +259,12 @@ button:disabled{
   gap:12px;
 }
 
-/* =========================================================
-   FORM
-========================================================= */
-
 .form{
   display:grid;
   gap:13px;
 }
 
-.form.two{
+.form2{
   grid-template-columns:1fr 1fr;
 }
 
@@ -399,10 +305,6 @@ textarea{
   resize:vertical;
 }
 
-/* =========================================================
-   LIST
-========================================================= */
-
 .list{
   display:grid;
   gap:10px;
@@ -415,26 +317,13 @@ textarea{
   padding:14px;
 }
 
-.item strong{
-  display:block;
-}
-
-.meta{
-  margin-top:5px;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.45;
-}
+.item strong{display:block}
 
 .empty{
   color:var(--muted);
   padding:28px 10px;
   text-align:center;
 }
-
-/* =========================================================
-   BADGE
-========================================================= */
 
 .badge{
   display:inline-flex;
@@ -462,9 +351,42 @@ textarea{
   color:#ff8d9a;
 }
 
-/* =========================================================
-   CALENDAR
-========================================================= */
+/* LOGO MAVIRI */
+
+.logo-wrap{
+  width:52px;
+  height:52px;
+  border-radius:16px;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  flex:none;
+}
+
+.logo-wrap.large{
+  width:115px;
+  height:115px;
+  border-radius:30px;
+}
+
+.maviri-logo{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.logo-bg{
+  fill:#07142f;
+}
+
+.logo-m{
+  fill:url(#maviriGradient);
+  stroke:url(#maviriGradient);
+  stroke-width:1.5;
+  stroke-linejoin:round;
+}
+
+/* CALENDARIO */
 
 .calendar-head{
   display:flex;
@@ -476,7 +398,7 @@ textarea{
 
 .calendar{
   display:grid;
-  grid-template-columns:repeat(7,minmax(0,1fr));
+  grid-template-columns:repeat(7,1fr);
   gap:6px;
 }
 
@@ -502,18 +424,14 @@ textarea{
   background:rgba(56,167,255,.055);
 }
 
-.day.muted{
-  opacity:.25;
-}
+.day.muted{opacity:.25}
 
 .day.today .day-number{
   color:#79c7ff;
   font-weight:900;
 }
 
-.day-number{
-  font-size:12px;
-}
+.day-number{font-size:12px}
 
 .event-list{
   margin-top:6px;
@@ -529,17 +447,7 @@ textarea{
   color:#a9eecb;
 }
 
-.event-dot{
-  display:inline-block;
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:var(--green);
-}
-
-/* =========================================================
-   MAVI CHAT
-========================================================= */
+/* MAVI */
 
 .chat{
   height:650px;
@@ -580,9 +488,7 @@ textarea{
   gap:8px;
 }
 
-.chatbar input{
-  flex:1;
-}
+.chatbar input{flex:1}
 
 .voice-btn{
   width:48px;
@@ -597,14 +503,7 @@ textarea{
   background:rgba(57,217,138,.065);
 }
 
-.confirmation-title{
-  font-weight:850;
-  margin-bottom:8px;
-}
-
-/* =========================================================
-   SOCIAL CONTENT
-========================================================= */
+/* SOCIAL */
 
 .social-grid{
   display:grid;
@@ -614,7 +513,7 @@ textarea{
 }
 
 .social-btn{
-  min-height:75px;
+  min-height:82px;
   border:1px solid var(--line);
   border-radius:16px;
   background:rgba(255,255,255,.035);
@@ -646,25 +545,23 @@ textarea{
   margin-top:2px;
 }
 
-/* =========================================================
-   HOURS
-========================================================= */
+/* ORARI */
 
 .hours-list{
   display:grid;
-  gap:10px;
+  gap:12px;
 }
 
 .day-setting{
   border:1px solid var(--line);
-  border-radius:16px;
+  border-radius:17px;
   background:rgba(255,255,255,.025);
-  padding:13px;
+  padding:15px;
 }
 
 .day-setting-top{
   display:grid;
-  grid-template-columns:125px auto;
+  grid-template-columns:125px 1fr;
   align-items:center;
   gap:12px;
 }
@@ -680,7 +577,7 @@ textarea{
   flex-wrap:wrap;
 }
 
-.day-controls input[type="time"]{
+.day-controls input[type=time]{
   width:125px;
   padding:9px;
 }
@@ -688,19 +585,17 @@ textarea{
 .closed-toggle{
   display:flex;
   align-items:center;
-  gap:7px;
+  gap:8px;
   color:var(--muted);
   font-size:12px;
 }
 
-.closed-toggle input{
-  width:auto;
-}
+.closed-toggle input{width:auto}
 
 .pause-list{
   display:grid;
   gap:7px;
-  margin:11px 0 0 137px;
+  margin:12px 0 0 137px;
 }
 
 .pause-row{
@@ -719,14 +614,12 @@ textarea{
   width:50px;
 }
 
-.pause-row input[type="time"]{
+.pause-row input[type=time]{
   width:115px;
   padding:8px;
 }
 
-/* =========================================================
-   TOGGLE
-========================================================= */
+/* TOGGLE */
 
 .toggle{
   position:relative;
@@ -746,8 +639,6 @@ textarea{
   inset:0;
   border-radius:99px;
   background:#263a5f;
-  cursor:pointer;
-  transition:.2s;
 }
 
 .toggle-slider:before{
@@ -762,31 +653,23 @@ textarea{
   transition:.2s;
 }
 
-.toggle input:checked + .toggle-slider{
+.toggle input:checked+.toggle-slider{
   background:var(--gradient);
 }
 
-.toggle input:checked + .toggle-slider:before{
+.toggle input:checked+.toggle-slider:before{
   transform:translateX(20px);
 }
 
-/* =========================================================
-   SERVICES
-========================================================= */
-
 .service-row{
   display:grid;
-  grid-template-columns:1.4fr .8fr .7fr auto;
+  grid-template-columns:1.4fr .7fr .7fr auto;
   gap:8px;
   align-items:center;
 }
 
-/* =========================================================
-   SOCIAL PREVIEW
-========================================================= */
-
 .preview{
-  min-height:220px;
+  min-height:240px;
   white-space:pre-wrap;
   line-height:1.6;
   color:#eaf0ff;
@@ -795,10 +678,6 @@ textarea{
   padding:16px;
   background:#091a39;
 }
-
-/* =========================================================
-   MODAL
-========================================================= */
 
 .modal-backdrop{
   position:fixed;
@@ -823,13 +702,8 @@ textarea{
   border:1px solid var(--line);
   border-radius:22px;
   background:#0d2349;
-  box-shadow:var(--shadow);
   padding:21px;
 }
-
-/* =========================================================
-   TOAST
-========================================================= */
 
 .toast{
   position:fixed;
@@ -848,38 +722,18 @@ textarea{
   display:block;
 }
 
-/* =========================================================
-   MOBILE
-========================================================= */
-
 .mobile-nav{
   display:none;
 }
 
 @media(max-width:1050px){
-
-  .stats{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .grid-2{
-    grid-template-columns:1fr;
-  }
-
-  .grid-3{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .social-grid{
-    grid-template-columns:repeat(2,1fr);
-  }
+  .stats{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr}
+  .social-grid{grid-template-columns:repeat(2,1fr)}
 }
 
 @media(max-width:850px){
-
-  .sidebar{
-    display:none;
-  }
+  .sidebar{display:none}
 
   .main{
     width:100%;
@@ -907,7 +761,7 @@ textarea{
     background:none;
     color:var(--muted);
     font-size:9px;
-    padding:4px 7px;
+    padding:4px;
   }
 
   .mobile-nav button.active{
@@ -920,10 +774,6 @@ textarea{
     margin-bottom:2px;
   }
 
-  .topbar{
-    align-items:flex-start;
-  }
-
   .hero{
     min-height:auto;
   }
@@ -932,20 +782,16 @@ textarea{
     font-size:28px;
   }
 
-  .hero-logo{
+  .hero .logo-wrap{
     display:none;
   }
 
-  .form.two{
+  .form2{
     grid-template-columns:1fr;
   }
 
   .field.full{
     grid-column:auto;
-  }
-
-  .grid-3{
-    grid-template-columns:1fr;
   }
 
   .day-setting-top{
@@ -964,21 +810,6 @@ textarea{
     min-height:65px;
   }
 }
-
-@media(max-width:520px){
-
-  .stats{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .social-grid{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .day-controls input[type="time"]{
-    width:110px;
-  }
-}
 </style>
 </head>
 
@@ -986,24 +817,11 @@ textarea{
 
 <div class="app">
 
-<!-- =======================================================
-     SIDEBAR
-======================================================= -->
-
 <aside class="sidebar">
 
   <div class="brand">
 
-    <img
-      id="sidebarLogo"
-      class="logo"
-      alt="Maviri">
-
-    <div
-      id="sidebarLogoFallback"
-      class="logo-fallback">
-      M
-    </div>
+    <div class="logo-wrap" id="sidebarLogo"></div>
 
     <div class="brand-text">
       <div class="brand-name">Maviri</div>
@@ -1016,64 +834,59 @@ textarea{
 
     <button data-page="home" class="active">
       <span class="nav-icon">⌂</span>
-      <span>Home</span>
+      Home
     </button>
 
     <button data-page="mavi">
       <span class="nav-icon">✦</span>
-      <span>Mavi</span>
+      Mavi
     </button>
 
     <button data-page="calendar">
       <span class="nav-icon">□</span>
-      <span>Calendario</span>
+      Calendario
     </button>
 
     <button data-page="clients">
       <span class="nav-icon">♙</span>
-      <span>Clienti</span>
+      Clienti
     </button>
 
     <button data-page="content">
       <span class="nav-icon">▤</span>
-      <span>Contenuti</span>
+      Contenuti
     </button>
 
     <button data-page="settings">
       <span class="nav-icon">⚙</span>
-      <span>Impostazioni</span>
+      Impostazioni
     </button>
 
   </nav>
 
 </aside>
 
-<!-- =======================================================
-     MAIN
-======================================================= -->
-
 <main class="main">
 
-  <header class="topbar">
+<header class="topbar">
 
-    <div>
-      <h1 id="pageTitle">Home</h1>
-      <p id="pageSubtitle">
-        Il tuo lavoro organizzato. Mavi al tuo fianco.
-      </p>
-    </div>
+  <div>
+    <h1 id="pageTitle">Home</h1>
+    <p id="pageSubtitle">
+      Il tuo lavoro organizzato. Mavi al tuo fianco.
+    </p>
+  </div>
 
-    <div
-      class="save-status"
-      id="saveStatus">
-      Dati locali
-    </div>
+  <div
+    class="save-status"
+    id="saveStatus">
+    Dati locali
+  </div>
 
-  </header>
+</header>
 
-<!-- =======================================================
-     HOME
-======================================================= -->
+
+<!-- HOME -->
 
 <section
   class="page active"
@@ -1083,9 +896,7 @@ textarea{
 
     <div>
 
-      <div class="meta">
-        MAVIRI
-      </div>
+      <div class="meta">MAVIRI</div>
 
       <h2>
         Tu lavori.
@@ -1095,10 +906,8 @@ textarea{
       </h2>
 
       <p>
-        Appuntamenti, clienti, servizi, orari,
-        promozioni e contenuti in un unico posto.
-        Mavi utilizza i dati configurati nella tua attività
-        e non inventa disponibilità, prezzi o orari.
+        Appuntamenti, clienti, servizi, promozioni,
+        orari e contenuti in un unico posto.
       </p>
 
       <button
@@ -1109,83 +918,69 @@ textarea{
 
     </div>
 
-    <img
-      id="heroLogo"
-      class="logo hero-logo"
-      alt="Maviri">
+    <div
+      class="logo-wrap large"
+      id="heroLogo">
+    </div>
 
   </div>
 
+
   <div class="grid stats">
 
-    <div class="card stat">
-
+    <div class="card">
       <div class="stat-label">
         Appuntamenti oggi
       </div>
-
       <div
         class="stat-number"
         id="todayAppointments">
         0
       </div>
-
       <div class="gradient-line"></div>
-
     </div>
 
-    <div class="card stat">
-
+    <div class="card">
       <div class="stat-label">
         Appuntamenti futuri
       </div>
-
       <div
         class="stat-number"
         id="futureAppointments">
         0
       </div>
-
       <div class="gradient-line"></div>
-
     </div>
 
-    <div class="card stat">
-
+    <div class="card">
       <div class="stat-label">
         Clienti
       </div>
-
       <div
         class="stat-number"
         id="clientCount">
         0
       </div>
-
       <div class="gradient-line"></div>
-
     </div>
 
-    <div class="card stat">
-
+    <div class="card">
       <div class="stat-label">
         Servizi
       </div>
-
       <div
         class="stat-number"
         id="serviceCount">
         0
       </div>
-
       <div class="gradient-line"></div>
-
     </div>
 
   </div>
 
+
   <div
-    class="grid grid-2"
+    class="grid grid2"
     style="margin-top:18px">
 
     <div class="card">
@@ -1211,13 +1006,14 @@ textarea{
 
     </div>
 
+
     <div class="card">
 
       <h3>
         Accesso rapido
       </h3>
 
-      <div class="grid grid-2">
+      <div class="grid grid2">
 
         <button
           class="btn"
@@ -1251,15 +1047,14 @@ textarea{
 
 </section>
 
-<!-- =======================================================
-     MAVI
-======================================================= -->
+
+<!-- MAVI -->
 
 <section
   class="page"
   id="page-mavi">
 
-  <div class="grid grid-2">
+  <div class="grid grid2">
 
     <div class="card chat">
 
@@ -1288,14 +1083,15 @@ textarea{
         id="messages">
       </div>
 
-      <div id="confirmationArea"></div>
+      <div
+        id="confirmationArea">
+      </div>
 
       <div class="chatbar">
 
         <button
           class="btn voice-btn"
-          id="voiceButton"
-          title="Parla con Mavi">
+          id="voiceButton">
           🎙
         </button>
 
@@ -1314,6 +1110,7 @@ textarea{
 
     </div>
 
+
     <div class="card">
 
       <h2>
@@ -1325,31 +1122,30 @@ textarea{
         <div class="item">
           <strong>Prenotazioni</strong>
           <div class="meta">
-            Raccoglie cliente, servizio, giorno e ora.
+            Raccoglie cliente, servizio, giorno e ora
+            e salva solo dopo conferma.
           </div>
         </div>
 
         <div class="item">
           <strong>Disponibilità</strong>
           <div class="meta">
-            Controlla apertura, chiusura, pause e
-            appuntamenti già presenti.
+            Controlla apertura, chiusura,
+            pause e appuntamenti.
           </div>
         </div>
 
         <div class="item">
           <strong>Clienti</strong>
           <div class="meta">
-            Crea e aggiorna la scheda cliente collegata
-            agli appuntamenti.
+            Crea e aggiorna le schede cliente.
           </div>
         </div>
 
         <div class="item">
           <strong>Servizi</strong>
           <div class="meta">
-            Utilizza esclusivamente prezzi e durate
-            configurati nell'attività.
+            Usa prezzi e durate configurati.
           </div>
         </div>
 
@@ -1361,15 +1157,14 @@ textarea{
 
 </section>
 
-<!-- =======================================================
-     CALENDARIO
-======================================================= -->
+
+<!-- CALENDARIO -->
 
 <section
   class="page"
   id="page-calendar">
 
-  <div class="grid grid-2">
+  <div class="grid grid2">
 
     <div class="card">
 
@@ -1398,6 +1193,7 @@ textarea{
 
     </div>
 
+
     <div class="card">
 
       <div class="between">
@@ -1423,6 +1219,7 @@ textarea{
 
   </div>
 
+
   <div
     class="card"
     style="margin-top:18px">
@@ -1445,15 +1242,14 @@ textarea{
 
 </section>
 
-<!-- =======================================================
-     CLIENTI
-======================================================= -->
+
+<!-- CLIENTI -->
 
 <section
   class="page"
   id="page-clients">
 
-  <div class="grid grid-2">
+  <div class="grid grid2">
 
     <div class="card">
 
@@ -1472,7 +1268,7 @@ textarea{
       <input
         id="clientSearch"
         placeholder="Cerca cliente"
-        style="margin-bottom:12px">
+        style="margin:12px 0">
 
       <div
         id="clientsList"
@@ -1480,6 +1276,7 @@ textarea{
       </div>
 
     </div>
+
 
     <div class="card">
 
@@ -1490,8 +1287,7 @@ textarea{
       <div
         id="clientDetail"
         class="empty">
-        Seleziona un cliente per aprire
-        la scheda.
+        Seleziona un cliente per aprire la scheda.
       </div>
 
     </div>
@@ -1500,15 +1296,14 @@ textarea{
 
 </section>
 
-<!-- =======================================================
-     CONTENUTI
-======================================================= -->
+
+<!-- CONTENUTI -->
 
 <section
   class="page"
   id="page-content">
 
-  <div class="grid grid-2">
+  <div class="grid grid2">
 
     <div class="card">
 
@@ -1517,9 +1312,9 @@ textarea{
       </h2>
 
       <p class="meta">
-        Scegli il canale e crea un contenuto adattato
-        al formato della piattaforma.
+        Scegli il canale e prepara il contenuto.
       </p>
+
 
       <div class="social-grid">
 
@@ -1528,67 +1323,96 @@ textarea{
           data-social="instagram">
 
           <span class="social-icon">◎</span>
-          <span class="social-name">Instagram</span>
+
+          <span class="social-name">
+            Instagram
+          </span>
+
           <div class="social-description">
             Caption e hashtag
           </div>
 
         </button>
 
+
         <button
           class="social-btn"
           data-social="facebook">
 
           <span class="social-icon">f</span>
-          <span class="social-name">Facebook</span>
+
+          <span class="social-name">
+            Facebook
+          </span>
+
           <div class="social-description">
             Post completo
           </div>
 
         </button>
 
+
         <button
           class="social-btn"
           data-social="tiktok">
 
           <span class="social-icon">♪</span>
-          <span class="social-name">TikTok</span>
+
+          <span class="social-name">
+            TikTok
+          </span>
+
           <div class="social-description">
             Testo breve e hashtag
           </div>
 
         </button>
 
+
         <button
           class="social-btn"
           data-social="whatsapp">
 
           <span class="social-icon">◔</span>
-          <span class="social-name">WhatsApp</span>
+
+          <span class="social-name">
+            WhatsApp
+          </span>
+
           <div class="social-description">
             Messaggio clienti
           </div>
 
         </button>
 
+
         <button
           class="social-btn"
           data-social="telegram">
 
           <span class="social-icon">➤</span>
-          <span class="social-name">Telegram</span>
+
+          <span class="social-name">
+            Telegram
+          </span>
+
           <div class="social-description">
             Messaggio canale
           </div>
 
         </button>
 
+
         <button
           class="social-btn"
           data-social="email">
 
           <span class="social-icon">✉</span>
-          <span class="social-name">Email / Google</span>
+
+          <span class="social-name">
+            Google / Email
+          </span>
+
           <div class="social-description">
             Oggetto + email
           </div>
@@ -1596,6 +1420,7 @@ textarea{
         </button>
 
       </div>
+
 
       <div class="form">
 
@@ -1611,6 +1436,7 @@ textarea{
 
         </div>
 
+
         <div class="field">
 
           <label>
@@ -1619,21 +1445,22 @@ textarea{
 
           <select id="postStyle">
 
-            <option value="professionale">
+            <option>
               Professionale
             </option>
 
-            <option value="amichevole">
+            <option>
               Amichevole
             </option>
 
-            <option value="promozionale">
+            <option>
               Promozionale
             </option>
 
           </select>
 
         </div>
+
 
         <button
           class="btn primary"
@@ -1645,11 +1472,13 @@ textarea{
 
     </div>
 
+
     <div class="card">
 
       <div class="between">
 
         <div>
+
           <h2 id="contentChannelTitle">
             Instagram
           </h2>
@@ -1659,6 +1488,7 @@ textarea{
             id="contentChannelDescription">
             Caption e hashtag
           </div>
+
         </div>
 
         <button
@@ -1669,12 +1499,12 @@ textarea{
 
       </div>
 
+
       <div
         id="postOutput"
         class="preview"
         style="margin-top:14px">
-        Seleziona un argomento e genera
-        il contenuto.
+        Seleziona un argomento e genera il contenuto.
       </div>
 
     </div>
@@ -1683,25 +1513,28 @@ textarea{
 
 </section>
 
-<!-- =======================================================
-     IMPOSTAZIONI
-======================================================= -->
+
+<!-- IMPOSTAZIONI -->
 
 <section
   class="page"
   id="page-settings">
 
-  <!-- ATTIVITÀ -->
 
   <div class="card">
 
     <div class="between">
 
       <div>
-        <h2>La tua attività</h2>
+
+        <h2>
+          La tua attività
+        </h2>
+
         <div class="meta">
-          Queste informazioni vengono utilizzate da Mavi.
+          Informazioni utilizzate da Mavi.
         </div>
+
       </div>
 
       <span class="badge">
@@ -1710,8 +1543,9 @@ textarea{
 
     </div>
 
+
     <div
-      class="form two"
+      class="form form2"
       style="margin-top:15px">
 
       <div class="field">
@@ -1723,6 +1557,7 @@ textarea{
         <input id="businessName">
 
       </div>
+
 
       <div class="field">
 
@@ -1736,6 +1571,7 @@ textarea{
 
       </div>
 
+
       <div class="field">
 
         <label>
@@ -1745,6 +1581,7 @@ textarea{
         <input id="businessPhone">
 
       </div>
+
 
       <div class="field">
 
@@ -1756,6 +1593,7 @@ textarea{
 
       </div>
 
+
       <div class="field full">
 
         <label>
@@ -1766,19 +1604,19 @@ textarea{
 
       </div>
 
+
       <div class="field full">
 
         <label>
-          Descrizione attività
+          Descrizione
         </label>
 
-        <textarea
-          id="businessDescription">
-        </textarea>
+        <textarea id="businessDescription"></textarea>
 
       </div>
 
     </div>
+
 
     <button
       class="btn primary"
@@ -1788,6 +1626,7 @@ textarea{
     </button>
 
   </div>
+
 
   <!-- ORARI -->
 
@@ -1804,8 +1643,8 @@ textarea{
         </h2>
 
         <div class="meta">
-          Imposta apertura, chiusura e tutte le pause
-          direttamente per ogni giorno.
+          Gestione pratica per ogni giorno:
+          aperto/chiuso, apertura, chiusura e più pause.
         </div>
 
       </div>
@@ -1818,20 +1657,23 @@ textarea{
 
     </div>
 
+
     <div
       id="hoursList"
       class="hours-list"
       style="margin-top:15px">
     </div>
 
+
     <button
       class="btn primary"
       style="margin-top:15px"
       onclick="saveHours()">
-      Salva orari
+      Salva orari e pause
     </button>
 
   </div>
+
 
   <!-- SERVIZI -->
 
@@ -1842,11 +1684,15 @@ textarea{
     <div class="between">
 
       <div>
-        <h2>Servizi</h2>
+
+        <h2>
+          Servizi
+        </h2>
+
         <div class="meta">
-          Prezzo e durata vengono utilizzati
-          anche dal controllo disponibilità.
+          Nome, prezzo, durata e descrizione.
         </div>
+
       </div>
 
       <button
@@ -1857,6 +1703,7 @@ textarea{
 
     </div>
 
+
     <div
       id="servicesList"
       class="list"
@@ -1864,6 +1711,7 @@ textarea{
     </div>
 
   </div>
+
 
   <!-- PROMOZIONI -->
 
@@ -1874,10 +1722,15 @@ textarea{
     <div class="between">
 
       <div>
-        <h2>Promozioni</h2>
+
+        <h2>
+          Promozioni
+        </h2>
+
         <div class="meta">
           Promozioni disponibili per l'attività.
         </div>
+
       </div>
 
       <button
@@ -1887,6 +1740,7 @@ textarea{
       </button>
 
     </div>
+
 
     <div
       id="promotionsList"
@@ -1902,13 +1756,14 @@ textarea{
 
 </div>
 
-<!-- =======================================================
-     MOBILE NAV
-======================================================= -->
+
+<!-- MOBILE -->
 
 <nav class="mobile-nav">
 
-  <button data-page="home" class="active">
+  <button
+    data-page="home"
+    class="active">
     <span>⌂</span>
     Home
   </button>
@@ -1940,9 +1795,8 @@ textarea{
 
 </nav>
 
-<!-- =======================================================
-     APPOINTMENT MODAL
-======================================================= -->
+
+<!-- MODALE APPUNTAMENTO -->
 
 <div
   class="modal-backdrop"
@@ -1959,7 +1813,7 @@ textarea{
         </h2>
 
         <div class="meta">
-          Verifica automatica della disponibilità.
+          Controllo automatico disponibilità.
         </div>
 
       </div>
@@ -1971,6 +1825,7 @@ textarea{
       </button>
 
     </div>
+
 
     <div
       class="form"
@@ -1988,6 +1843,7 @@ textarea{
 
       </div>
 
+
       <div class="field">
 
         <label>
@@ -1998,7 +1854,8 @@ textarea{
 
       </div>
 
-      <div class="form two">
+
+      <div class="form form2">
 
         <div class="field">
 
@@ -2011,6 +1868,7 @@ textarea{
             id="appointmentDate">
 
         </div>
+
 
         <div class="field">
 
@@ -2026,10 +1884,12 @@ textarea{
 
       </div>
 
+
       <div
         id="appointmentAvailability"
         class="meta">
       </div>
+
 
       <button
         class="btn primary"
@@ -2044,165 +1904,69 @@ textarea{
 
 </div>
 
+
 <div
   class="toast"
   id="toast">
 </div>
 
+
 <script>
 
-/* =========================================================
-   CONFIGURAZIONE
-========================================================= */
-
-/*
- * IMPORTANTE:
- *
- * Inserire qui l'URL DIRETTA dell'immagine del logo definitivo.
- *
- * Non utilizzare il link chatgpt.com/s/... perché quello
- * è un link di condivisione e non necessariamente un file
- * immagine direttamente caricabile dal browser.
- */
-
-const MAVIRI_LOGO_URL = "";
-
-
-/* =========================================================
-   STORAGE
-========================================================= */
-
-const STORAGE_KEY =
-  "maviri_appData";
-
-const BACKUP_KEY =
-  "maviri_appData_backup";
-
-const STORAGE_VERSION = 4;
-
-
-/* =========================================================
-   DEFAULT DATA
-========================================================= */
-
-const DAYS = [
-  {
-    id:"monday",
-    name:"Lunedì"
-  },
-  {
-    id:"tuesday",
-    name:"Martedì"
-  },
-  {
-    id:"wednesday",
-    name:"Mercoledì"
-  },
-  {
-    id:"thursday",
-    name:"Giovedì"
-  },
-  {
-    id:"friday",
-    name:"Venerdì"
-  },
-  {
-    id:"saturday",
-    name:"Sabato"
-  },
-  {
-    id:"sunday",
-    name:"Domenica"
-  }
+const DAYS=[
+  ["monday","Lunedì"],
+  ["tuesday","Martedì"],
+  ["wednesday","Mercoledì"],
+  ["thursday","Giovedì"],
+  ["friday","Venerdì"],
+  ["saturday","Sabato"],
+  ["sunday","Domenica"]
 ];
+
+const SOCIALS={
+  instagram:["Instagram","Caption e hashtag"],
+  facebook:["Facebook","Post completo"],
+  tiktok:["TikTok","Testo breve e hashtag"],
+  whatsapp:["WhatsApp","Messaggio clienti"],
+  telegram:["Telegram","Messaggio canale"],
+  email:["Google / Email","Oggetto + email"]
+};
+
+const KEY="maviri_appData";
+const BACKUP="maviri_appData_backup";
+const VERSION=5;
 
 
 function defaultHours(){
 
-  return {
+  const h={};
 
-    monday:{
-      closed:false,
+  DAYS.forEach(([id])=>{
+
+    h[id]={
+      closed:id==="sunday",
       open:"09:00",
-      close:"19:00",
-      pauses:[
-        {
-          start:"13:00",
-          end:"14:00"
-        }
-      ]
-    },
+      close:id==="saturday"?"13:00":"19:00",
+      pauses:
+        id==="saturday" || id==="sunday"
+        ? []
+        : [
+            {
+              start:"13:00",
+              end:"14:00"
+            }
+          ]
+    };
 
-    tuesday:{
-      closed:false,
-      open:"09:00",
-      close:"19:00",
-      pauses:[
-        {
-          start:"13:00",
-          end:"14:00"
-        }
-      ]
-    },
+  });
 
-    wednesday:{
-      closed:false,
-      open:"09:00",
-      close:"19:00",
-      pauses:[
-        {
-          start:"13:00",
-          end:"14:00"
-        }
-      ]
-    },
-
-    thursday:{
-      closed:false,
-      open:"09:00",
-      close:"19:00",
-      pauses:[
-        {
-          start:"13:00",
-          end:"14:00"
-        }
-      ]
-    },
-
-    friday:{
-      closed:false,
-      open:"09:00",
-      close:"19:00",
-      pauses:[
-        {
-          start:"13:00",
-          end:"14:00"
-        }
-      ]
-    },
-
-    saturday:{
-      closed:false,
-      open:"09:00",
-      close:"13:00",
-      pauses:[]
-    },
-
-    sunday:{
-      closed:true,
-      open:"09:00",
-      close:"19:00",
-      pauses:[]
-    }
-
-  };
-
+  return h;
 }
 
 
-const DEFAULT_DATA = {
+const DEFAULT={
 
-  version:STORAGE_VERSION,
+  version:VERSION,
 
   revision:0,
 
@@ -2232,105 +1996,72 @@ const DEFAULT_DATA = {
 };
 
 
-let appData =
-  loadData();
+let appData=loadData();
+
+let currentCalendarDate=new Date();
+
+let selectedDate=todayISO();
+
+let pendingBooking=null;
+
+let selectedSocial="instagram";
+
+let maviInitialized=false;
 
 
-let currentCalendarDate =
-  new Date();
+const $=s=>document.querySelector(s);
+
+const $$=s=>document.querySelectorAll(s);
 
 
-let selectedDate =
-  todayISO();
-
-
-let pendingBooking =
-  null;
-
-
-let selectedSocial =
-  "instagram";
-
-
-/* =========================================================
-   BASIC HELPERS
-========================================================= */
-
-function $(selector){
-  return document.querySelector(selector);
+function clone(x){
+  return JSON.parse(JSON.stringify(x));
 }
 
 
-function $all(selector){
-  return document.querySelectorAll(selector);
-}
+function esc(v){
 
-
-function uid(){
-
-  return (
-    Date.now().toString(36)+
-    Math.random()
-      .toString(36)
-      .slice(2,9)
-  );
-
-}
-
-
-function escapeHTML(value){
-
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+  return String(v??"")
+    .replace(
+      /[&<>"']/g,
+      m=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      }[m])
+    );
 
 }
 
 
 function todayISO(){
 
-  const d =
-    new Date();
+  return dateISO(
+    new Date()
+  );
+
+}
+
+
+function dateISO(d){
 
   return (
     d.getFullYear()+
     "-"+
-    String(d.getMonth()+1)
-      .padStart(2,"0")+
+    String(d.getMonth()+1).padStart(2,"0")+
     "-"+
-    String(d.getDate())
-      .padStart(2,"0")
+    String(d.getDate()).padStart(2,"0")
   );
 
 }
 
 
-function dateToISO(date){
-
-  return (
-    date.getFullYear()+
-    "-"+
-    String(date.getMonth()+1)
-      .padStart(2,"0")+
-    "-"+
-    String(date.getDate())
-      .padStart(2,"0")
-  );
-
-}
-
-
-function formatDate(date){
-
-  if(!date){
-    return "";
-  }
+function formatDate(s){
 
   return new Date(
-    date+"T12:00:00"
+    s+"T12:00:00"
   ).toLocaleDateString(
     "it-IT",
     {
@@ -2344,47 +2075,23 @@ function formatDate(date){
 }
 
 
-function minutes(time){
+function mins(t){
 
-  if(!time){
-    return 0;
-  }
+  const [
+    h,
+    m
+  ]=String(
+    t||"0:0"
+  )
+  .split(":")
+  .map(Number);
 
-  const p =
-    time.split(":");
-
-  return (
-    Number(p[0])*60+
-    Number(p[1])
-  );
-
-}
-
-
-function overlap(
-  startA,
-  endA,
-  startB,
-  endB
-){
-
-  return (
-    startA < endB &&
-    startB < endA
-  );
+  return h*60+m;
 
 }
 
 
-function getDayKey(date){
-
-  const d =
-    new Date(
-      date+"T12:00:00"
-    );
-
-  const index =
-    d.getDay();
+function dayKey(date){
 
   return [
     "sunday",
@@ -2394,83 +2101,73 @@ function getDayKey(date){
     "thursday",
     "friday",
     "saturday"
-  ][index];
+  ][
+    new Date(
+      date+"T12:00:00"
+    ).getDay()
+  ];
 
 }
 
 
-/* =========================================================
-   STORAGE
-========================================================= */
-
 function normalizeHours(hours){
 
-  const defaults =
-    defaultHours();
+  const defaults=defaultHours();
 
-  const result =
-    {};
+  const result={};
 
-  DAYS.forEach(
-    day => {
+  DAYS.forEach(([id])=>{
 
-      const old =
-        hours?.[day.id] || {};
+    const x=hours?.[id]||{};
 
-      result[day.id] = {
+    result[id]={
 
-        closed:
-          Boolean(old.closed),
+      closed:!!x.closed,
 
-        open:
-          old.open ||
-          defaults[day.id].open,
+      open:
+        x.open ||
+        defaults[id].open,
 
-        close:
-          old.close ||
-          defaults[day.id].close,
+      close:
+        x.close ||
+        defaults[id].close,
 
-        pauses:
-          Array.isArray(old.pauses)
-          ? old.pauses
-          : []
+      pauses:
+        Array.isArray(x.pauses)
+        ? x.pauses
+        : []
 
-      };
+    };
 
-    }
-  );
+  });
 
   return result;
 
 }
 
 
-function normalizeData(data){
+function normalize(data){
 
-  const base =
-    structuredClone(DEFAULT_DATA);
+  const base=clone(DEFAULT);
 
   if(
     !data ||
-    typeof data !== "object"
+    typeof data!=="object"
   ){
-
     return base;
-
   }
 
-  return {
+  return{
 
     ...base,
 
     ...data,
 
-    version:
-      STORAGE_VERSION,
+    version:VERSION,
 
     business:{
       ...base.business,
-      ...(data.business || {})
+      ...(data.business||{})
     },
 
     hours:
@@ -2512,95 +2209,68 @@ function loadData(){
 
   try{
 
-    const raw =
-      localStorage.getItem(
-        STORAGE_KEY
+    const x=
+      localStorage.getItem(KEY);
+
+    if(x){
+      return normalize(
+        JSON.parse(x)
       );
-
-    if(raw){
-
-      return normalizeData(
-        JSON.parse(raw)
-      );
-
     }
 
-  }catch(error){
-
-    console.error(
-      "Errore caricamento dati",
-      error
-    );
-
-  }
+  }catch(e){}
 
 
   try{
 
-    const backup =
-      localStorage.getItem(
-        BACKUP_KEY
+    const x=
+      localStorage.getItem(BACKUP);
+
+    if(x){
+      return normalize(
+        JSON.parse(x)
       );
-
-    if(backup){
-
-      return normalizeData(
-        JSON.parse(backup)
-      );
-
     }
 
-  }catch(error){
-
-    console.error(
-      "Errore backup",
-      error
-    );
-
-  }
+  }catch(e){}
 
 
-  return structuredClone(
-    DEFAULT_DATA
-  );
+  return clone(DEFAULT);
 
 }
 
 
 function saveData(){
 
-  appData.revision =
-    Number(appData.revision || 0)+1;
+  appData.revision=
+    (appData.revision||0)+1;
 
-  appData.updatedAt =
+  appData.updatedAt=
     new Date().toISOString();
 
   try{
 
     localStorage.setItem(
-      BACKUP_KEY,
+      BACKUP,
       JSON.stringify(appData)
     );
 
     localStorage.setItem(
-      STORAGE_KEY,
+      KEY,
       JSON.stringify(appData)
     );
 
-    $("#saveStatus").textContent =
+    $("#saveStatus").textContent=
       "Salvato · "+
-      new Date()
-        .toLocaleTimeString(
-          "it-IT",
-          {
-            hour:"2-digit",
-            minute:"2-digit"
-          }
-        );
+      new Date().toLocaleTimeString(
+        "it-IT",
+        {
+          hour:"2-digit",
+          minute:"2-digit"
+        }
+      );
 
-  }catch(error){
-
-    console.error(error);
+  }catch(e){
 
     showToast(
       "Impossibile salvare i dati"
@@ -2611,68 +2281,84 @@ function saveData(){
 }
 
 
-/* =========================================================
-   LOGO
-========================================================= */
+/* LOGO */
 
-function initLogo(){
+function logoSVG(){
 
-  const sidebar =
-    $("#sidebarLogo");
+  return `
+  <svg
+    class="maviri-logo"
+    viewBox="0 0 100 100"
+    xmlns="http://www.w3.org/2000/svg">
 
-  const hero =
-    $("#heroLogo");
+    <defs>
 
-  if(MAVIRI_LOGO_URL){
+      <linearGradient
+        id="maviriGradient"
+        x1="0"
+        y1="0"
+        x2="1"
+        y2="1">
 
-    sidebar.src =
-      MAVIRI_LOGO_URL;
+        <stop
+          offset="0"
+          stop-color="#38a7ff"/>
 
-    hero.src =
-      MAVIRI_LOGO_URL;
+        <stop
+          offset=".52"
+          stop-color="#875cff"/>
 
-    sidebar.onerror =
-      () => {
+        <stop
+          offset="1"
+          stop-color="#39d98a"/>
 
-        sidebar.style.display =
-          "none";
+      </linearGradient>
 
-        $("#sidebarLogoFallback")
-          .style.display =
-          "flex";
+    </defs>
 
-      };
+    <rect
+      class="logo-bg"
+      width="100"
+      height="100"
+      rx="22"/>
 
-    hero.onerror =
-      () => {
+    <path
+      class="logo-m"
+      d="
+        M20 72
+        V28
+        H33
+        L50 52
+        L67 28
+        H80
+        V72
+        H67
+        V50
+        L50 73
+        L33 50
+        V72
+        Z
+      "/>
 
-        hero.style.display =
-          "none";
-
-      };
-
-  }else{
-
-    sidebar.style.display =
-      "none";
-
-    $("#sidebarLogoFallback")
-      .style.display =
-      "flex";
-
-    hero.style.display =
-      "none";
-
-  }
+  </svg>`;
 
 }
 
 
-/* =========================================================
-   NAVIGATION
-========================================================= */
+function initLogo(){
 
-const PAGE_INFO = {
+  $("#sidebarLogo").innerHTML=
+    logoSVG();
+
+  $("#heroLogo").innerHTML=
+    logoSVG();
+
+}
+
+
+/* NAV */
+
+const PAGE_INFO={
 
   home:[
     "Home",
@@ -2709,183 +2395,109 @@ const PAGE_INFO = {
 
 function openPage(page){
 
-  $all(".page")
+  $$(".page")
     .forEach(
-      el =>
-        el.classList.remove("active")
+      x=>x.classList.remove("active")
     );
 
-  const target =
-    $("#page-"+page);
+  $("#page-"+page)
+    .classList.add("active");
 
-  if(target){
-
-    target.classList.add("active");
-
-  }
-
-  $all("[data-page]")
+  $$("[data-page]")
     .forEach(
-      btn =>
-        btn.classList.toggle(
+      x=>
+        x.classList.toggle(
           "active",
-          btn.dataset.page === page
+          x.dataset.page===page
         )
     );
 
-  $("#pageTitle").textContent =
+  $("#pageTitle").textContent=
     PAGE_INFO[page][0];
 
-  $("#pageSubtitle").textContent =
+  $("#pageSubtitle").textContent=
     PAGE_INFO[page][1];
 
 
-  if(page==="home"){
+  if(page==="home")
     renderHome();
-  }
 
-  if(page==="mavi"){
+  if(page==="mavi")
     initMavi();
-  }
 
   if(page==="calendar"){
+
     renderCalendar();
+
     renderAppointmentSearch();
+
   }
 
-  if(page==="clients"){
+  if(page==="clients")
     renderClients();
-  }
 
-  if(page==="settings"){
+  if(page==="content")
+    updateSocialTitle();
+
+  if(page==="settings")
     renderSettings();
-  }
 
 }
 
 
-$all("[data-page]")
+$$("[data-page]")
   .forEach(
-    btn =>
-      btn.addEventListener(
+    b=>
+      b.addEventListener(
         "click",
-        () =>
+        ()=>{
           openPage(
-            btn.dataset.page
-          )
+            b.dataset.page
+          );
+        }
       )
   );
 
 
-/* =========================================================
-   TOAST
-========================================================= */
+/* TOAST */
 
-function showToast(message){
+function showToast(t){
 
-  const toast =
-    $("#toast");
+  const x=$("#toast");
 
-  toast.textContent =
-    message;
+  x.textContent=t;
 
-  toast.classList.add("show");
+  x.classList.add("show");
 
   clearTimeout(
-    window.__toastTimer
+    window.__toast
   );
 
-  window.__toastTimer =
+  window.__toast=
     setTimeout(
-      () =>
-        toast.classList.remove(
-          "show"
-        ),
+      ()=>{
+        x.classList.remove("show");
+      },
       2300
     );
 
 }
 
 
-/* =========================================================
-   HOME
-========================================================= */
+/* HOME */
 
 function activeAppointments(){
 
   return appData.appointments
     .filter(
-      a =>
-        a.status !== "cancelled"
+      a=>
+        a.status!=="cancelled"
     );
 
 }
 
 
-function renderHome(){
-
-  const today =
-    todayISO();
-
-  const active =
-    activeAppointments();
-
-  $("#todayAppointments")
-    .textContent =
-    active.filter(
-      a =>
-        a.date === today
-    ).length;
-
-  $("#futureAppointments")
-    .textContent =
-    active.filter(
-      a =>
-        a.date >= today
-    ).length;
-
-  $("#clientCount")
-    .textContent =
-    appData.clients.length;
-
-  $("#serviceCount")
-    .textContent =
-    appData.services.length;
-
-
-  const upcoming =
-    active
-      .filter(
-        a =>
-          a.date >= today
-      )
-      .sort(sortAppointments)
-      .slice(0,6);
-
-
-  if(!upcoming.length){
-
-    $("#homeAppointments")
-      .innerHTML =
-      '<div class="empty">Nessun appuntamento futuro.</div>';
-
-    return;
-
-  }
-
-
-  $("#homeAppointments")
-    .innerHTML =
-    upcoming
-      .map(
-        renderAppointmentItem
-      )
-      .join("");
-
-}
-
-
-function sortAppointments(a,b){
+function sortA(a,b){
 
   return (
     a.date+
@@ -2898,203 +2510,249 @@ function sortAppointments(a,b){
 }
 
 
-function renderAppointmentItem(a){
+function renderHome(){
 
-  return `
+  const today=
+    todayISO();
 
-    <div class="item">
+  const a=
+    activeAppointments();
 
-      <div class="between">
+  $("#todayAppointments")
+    .textContent=
+    a.filter(
+      x=>x.date===today
+    ).length;
 
-        <strong>
-          ${escapeHTML(a.time)}
-          ·
-          ${escapeHTML(a.clientName)}
-        </strong>
+  $("#futureAppointments")
+    .textContent=
+    a.filter(
+      x=>x.date>=today
+    ).length;
 
-        <span class="badge">
-          ${escapeHTML(a.status)}
-        </span>
+  $("#clientCount")
+    .textContent=
+    appData.clients.length;
 
+  $("#serviceCount")
+    .textContent=
+    appData.services.length;
+
+
+  const upcoming=
+    a
+      .filter(
+        x=>x.date>=today
+      )
+      .sort(sortA)
+      .slice(0,6);
+
+
+  $("#homeAppointments")
+    .innerHTML=
+    upcoming.length
+    ? upcoming.map(
+        renderA
+      ).join("")
+    : `
+      <div class="empty">
+        Nessun appuntamento futuro.
       </div>
-
-      <div class="meta">
-
-        ${formatDate(a.date)}
-        ·
-        ${escapeHTML(a.serviceName)}
-
-        ${
-          a.price !== undefined
-          ? " · €"+escapeHTML(a.price)
-          : ""
-        }
-
-      </div>
-
-    </div>
-
-  `;
+    `;
 
 }
 
 
-/* =========================================================
-   CALENDAR
-========================================================= */
+function renderA(a){
+
+  return `
+  <div class="item">
+
+    <div class="between">
+
+      <strong>
+        ${esc(a.time)}
+        ·
+        ${esc(a.clientName)}
+      </strong>
+
+      <span class="badge">
+        ${esc(a.status)}
+      </span>
+
+    </div>
+
+    <div class="meta">
+
+      ${formatDate(a.date)}
+      ·
+      ${esc(a.serviceName)}
+      ·
+      €${esc(a.price)}
+
+    </div>
+
+    ${
+      a.status!=="cancelled" &&
+      a.status!=="completed"
+      ?
+      `
+      <div
+        class="row"
+        style="margin-top:10px">
+
+        <button
+          class="btn small"
+          onclick="completeAppointment('${a.id}')">
+          Completa
+        </button>
+
+        <button
+          class="btn small danger"
+          onclick="cancelAppointment('${a.id}')">
+          Annulla
+        </button>
+
+      </div>
+      `
+      :
+      ""
+    }
+
+  </div>`;
+
+}
+
+
+/* CALENDARIO */
 
 function renderCalendar(){
 
-  const year =
-    currentCalendarDate
-      .getFullYear();
+  const y=
+    currentCalendarDate.getFullYear();
 
-  const month =
-    currentCalendarDate
-      .getMonth();
+  const m=
+    currentCalendarDate.getMonth();
+
+  const first=
+    new Date(y,m,1);
+
+  const last=
+    new Date(y,m+1,0);
+
 
   $("#calendarMonth")
-    .textContent =
-    currentCalendarDate
-      .toLocaleDateString(
-        "it-IT",
-        {
-          month:"long",
-          year:"numeric"
-        }
-      );
-
-
-  let html = "";
-
-  [
-    "Lun",
-    "Mar",
-    "Mer",
-    "Gio",
-    "Ven",
-    "Sab",
-    "Dom"
-  ].forEach(
-    day =>
-      html +=
-      `<div class="weekday">${day}</div>`
-  );
-
-
-  const first =
-    new Date(
-      year,
-      month,
-      1
+    .textContent=
+    currentCalendarDate.toLocaleDateString(
+      "it-IT",
+      {
+        month:"long",
+        year:"numeric"
+      }
     );
 
-  const last =
-    new Date(
-      year,
-      month+1,
-      0
-    );
 
-  const start =
-    (
-      first.getDay()+6
-    )%7;
+  let html=
+    [
+      "Lun",
+      "Mar",
+      "Mer",
+      "Gio",
+      "Ven",
+      "Sab",
+      "Dom"
+    ]
+    .map(
+      x=>
+        `<div class="weekday">${x}</div>`
+    )
+    .join("");
 
 
   for(
     let i=0;
-    i<start;
+    i<(first.getDay()+6)%7;
     i++
   ){
 
-    html +=
-      '<div class="day muted"></div>';
+    html+=
+      `<div class="day muted"></div>`;
 
   }
 
 
   for(
-    let day=1;
-    day<=last.getDate();
-    day++
+    let d=1;
+    d<=last.getDate();
+    d++
   ){
 
-    const iso =
-      year+
-      "-"+
-      String(month+1)
-        .padStart(2,"0")+
-      "-"+
-      String(day)
-        .padStart(2,"0");
+    const iso=
+      `${y}-${
+        String(m+1).padStart(2,"0")
+      }-${
+        String(d).padStart(2,"0")
+      }`;
 
-
-    const events =
+    const ev=
       appData.appointments
         .filter(
-          a =>
-            a.date === iso &&
-            a.status !== "cancelled"
+          a=>
+            a.date===iso &&
+            a.status!=="cancelled"
         )
-        .sort(sortAppointments);
+        .sort(sortA);
 
 
-    const isToday =
-      iso === todayISO();
+    html+=`
 
+    <div
+      class="
+        day
+        ${iso===selectedDate?"selected":""}
+        ${iso===todayISO()?"today":""}
+      "
+      onclick="selectCalendarDate('${iso}')">
 
-    html += `
+      <span class="day-number">
+        ${d}
+      </span>
 
-      <div
-        class="day
-          ${iso===selectedDate?"selected":""}
-          ${isToday?"today":""}"
-        onclick="selectCalendarDate('${iso}')">
+      ${
+        ev.length
+        ?
+        `
+        <div class="event-list">
 
-        <span class="day-number">
-          ${day}
-        </span>
+          ${
+            ev
+              .slice(0,3)
+              .map(
+                a=>
+                  `
+                  <div class="event-mini">
+                    ${esc(a.time)}
+                    ·
+                    ${esc(a.clientName)}
+                  </div>
+                  `
+              )
+              .join("")
+          }
 
-        ${
-          events.length
-          ? `
-            <div class="event-list">
+        </div>
+        `
+        :
+        ""
+      }
 
-              ${
-                events
-                  .slice(0,3)
-                  .map(
-                    event =>
-                    `<div class="event-mini">
-                      ${escapeHTML(event.time)}
-                      ·
-                      ${escapeHTML(event.clientName)}
-                    </div>`
-                  )
-                  .join("")
-              }
-
-              ${
-                events.length>3
-                ? `<span class="event-dot"></span>`
-                : ""
-              }
-
-            </div>
-          `
-          : ""
-        }
-
-      </div>
-
-    `;
+    </div>`;
 
   }
 
 
   $("#calendar")
-    .innerHTML =
+    .innerHTML=
     html;
 
   renderDayAppointments();
@@ -3102,10 +2760,9 @@ function renderCalendar(){
 }
 
 
-function selectCalendarDate(date){
+function selectCalendarDate(d){
 
-  selectedDate =
-    date;
+  selectedDate=d;
 
   renderCalendar();
 
@@ -3113,158 +2770,73 @@ function selectCalendarDate(date){
 
 
 $("#previousMonth")
-  .addEventListener(
-    "click",
-    () => {
+  .onclick=()=>{
 
-      currentCalendarDate
-        .setMonth(
-          currentCalendarDate.getMonth()-1
-        );
+    currentCalendarDate
+      .setMonth(
+        currentCalendarDate.getMonth()-1
+      );
 
-      renderCalendar();
+    renderCalendar();
 
-    }
-  );
+  };
 
 
 $("#nextMonth")
-  .addEventListener(
-    "click",
-    () => {
+  .onclick=()=>{
 
-      currentCalendarDate
-        .setMonth(
-          currentCalendarDate.getMonth()+1
-        );
+    currentCalendarDate
+      .setMonth(
+        currentCalendarDate.getMonth()+1
+      );
 
-      renderCalendar();
+    renderCalendar();
 
-    }
-  );
+  };
 
 
 function renderDayAppointments(){
 
+  const a=
+    appData.appointments
+      .filter(
+        x=>x.date===selectedDate
+      )
+      .sort(sortA);
+
+
   $("#selectedDayTitle")
-    .textContent =
+    .textContent=
     "Appuntamenti · "+
     formatDate(selectedDate);
 
 
-  const appointments =
-    appData.appointments
-      .filter(
-        a =>
-          a.date === selectedDate
-      )
-      .sort(sortAppointments);
-
-
-  if(!appointments.length){
-
-    $("#dayAppointments")
-      .innerHTML =
-      '<div class="empty">Nessun appuntamento.</div>';
-
-    return;
-
-  }
-
-
   $("#dayAppointments")
-    .innerHTML =
-    appointments
-      .map(
-        appointment => `
-
-          <div class="item">
-
-            <div class="between">
-
-              <div>
-
-                <strong>
-                  ${escapeHTML(appointment.time)}
-                  ·
-                  ${escapeHTML(appointment.clientName)}
-                </strong>
-
-                <div class="meta">
-
-                  ${escapeHTML(
-                    appointment.serviceName
-                  )}
-
-                </div>
-
-              </div>
-
-              <span class="badge ${
-                appointment.status === "cancelled"
-                ? "danger"
-                : appointment.status === "completed"
-                ? "blue"
-                : ""
-              }">
-
-                ${escapeHTML(
-                  appointment.status
-                )}
-
-              </span>
-
-            </div>
-
-            ${
-              appointment.status !== "cancelled"
-              ? `
-
-                <div
-                  class="row"
-                  style="margin-top:10px">
-
-                  <button
-                    class="btn small"
-                    onclick="completeAppointment('${appointment.id}')">
-                    Completa
-                  </button>
-
-                  <button
-                    class="btn small danger"
-                    onclick="cancelAppointment('${appointment.id}')">
-                    Annulla
-                  </button>
-
-                </div>
-
-              `
-              : ""
-            }
-
-          </div>
-
-        `
-      )
-      .join("");
+    .innerHTML=
+    a.length
+    ?
+    a.map(renderA).join("")
+    :
+    `
+    <div class="empty">
+      Nessun appuntamento.
+    </div>
+    `;
 
 }
 
 
 function completeAppointment(id){
 
-  const appointment =
+  const a=
     appData.appointments
       .find(
-        a =>
-          a.id === id
+        x=>x.id===id
       );
 
-  if(!appointment){
-    return;
-  }
+  if(!a)return;
 
-  appointment.status =
+  a.status=
     "completed";
 
   saveData();
@@ -3280,28 +2852,22 @@ function completeAppointment(id){
 
 function cancelAppointment(id){
 
-  const appointment =
+  const a=
     appData.appointments
       .find(
-        a =>
-          a.id === id
+        x=>x.id===id
       );
 
-  if(!appointment){
-    return;
-  }
-
   if(
+    !a ||
     !confirm(
       "Vuoi annullare questo appuntamento?"
     )
   ){
-
     return;
-
   }
 
-  appointment.status =
+  a.status=
     "cancelled";
 
   saveData();
@@ -3315,103 +2881,87 @@ function cancelAppointment(id){
 }
 
 
-/* =========================================================
-   APPOINTMENT SEARCH
-========================================================= */
+/* RICERCA */
 
 function renderAppointmentSearch(){
 
-  const input =
-    $("#appointmentSearch");
+  const q=
+    (
+      $("#appointmentSearch")
+        .value||""
+    )
+    .toLowerCase()
+    .trim();
 
-  const query =
-    (input.value || "")
-      .trim()
-      .toLowerCase();
 
-
-  const results =
+  const a=
     appData.appointments
       .filter(
-        a =>
+        x=>
           (
-            a.clientName+
+            x.clientName+
             " "+
-            a.serviceName+
+            x.serviceName+
             " "+
-            a.date+
+            x.date+
             " "+
-            a.time+
+            x.time+
             " "+
-            a.status
+            x.status
           )
           .toLowerCase()
-          .includes(query)
+          .includes(q)
       )
-      .sort(sortAppointments);
-
-
-  if(!results.length){
-
-    $("#appointmentResults")
-      .innerHTML =
-      '<div class="empty">Nessun risultato.</div>';
-
-    return;
-
-  }
+      .sort(sortA);
 
 
   $("#appointmentResults")
-    .innerHTML =
-    results
-      .map(
-        renderAppointmentItem
-      )
-      .join("");
+    .innerHTML=
+    a.length
+    ?
+    a.map(renderA).join("")
+    :
+    `
+      <div class="empty">
+        Nessun risultato.
+      </div>
+    `;
 
 }
 
 
 $("#appointmentSearch")
-  .addEventListener(
-    "input",
-    renderAppointmentSearch
+  .oninput=
+  renderAppointmentSearch;
+
+
+/* CLIENTI */
+
+function findClient(name){
+
+  return appData.clients.find(
+    c=>
+      c.name
+        .trim()
+        .toLowerCase()
+      ===
+      name
+        .trim()
+        .toLowerCase()
   );
-
-
-/* =========================================================
-   CLIENTS
-========================================================= */
-
-function findClientByName(name){
-
-  const normalized =
-    name
-      .trim()
-      .toLowerCase();
-
-  return appData.clients
-    .find(
-      client =>
-        client.name
-          .trim()
-          .toLowerCase() ===
-        normalized
-    );
 
 }
 
 
 function findOrCreateClient(name){
 
-  let client =
-    findClientByName(name);
+  let c=
+    findClient(name);
 
 
-  if(!client){
+  if(!c){
 
-    client = {
+    c={
 
       id:uid(),
 
@@ -3430,47 +2980,45 @@ function findOrCreateClient(name){
 
     };
 
-    appData.clients.push(
-      client
-    );
+    appData.clients.push(c);
 
   }
 
 
-  return client;
+  return c;
 
 }
 
 
 function renderClients(){
 
-  const query =
+  const q=
     (
-      $("#clientSearch").value ||
-      ""
+      $("#clientSearch")
+        .value||""
     )
-    .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .trim();
 
 
-  const clients =
+  const cs=
     appData.clients
       .filter(
-        client =>
+        c=>
           (
-            client.name+
+            c.name+
             " "+
-            (client.phone||"")+
+            c.phone+
             " "+
-            (client.whatsapp||"")+
+            c.whatsapp+
             " "+
-            (client.email||"")
+            c.email
           )
           .toLowerCase()
-          .includes(query)
+          .includes(q)
       )
       .sort(
-        (a,b) =>
+        (a,b)=>
           a.name.localeCompare(
             b.name,
             "it"
@@ -3478,105 +3026,83 @@ function renderClients(){
       );
 
 
-  if(!clients.length){
-
-    $("#clientsList")
-      .innerHTML =
-      '<div class="empty">Nessun cliente.</div>';
-
-    return;
-
-  }
-
-
   $("#clientsList")
-    .innerHTML =
-    clients
-      .map(
-        client => {
+    .innerHTML=
+    cs.length
+    ?
+    cs.map(
+      c=>
+      `
+      <div
+        class="item"
+        onclick="openClient('${c.id}')"
+        style="cursor:pointer">
 
-          const count =
-            appData.appointments
-              .filter(
-                a =>
-                  a.clientId ===
-                  client.id &&
-                  a.status !==
-                  "cancelled"
-              )
-              .length;
+        <div class="between">
 
-          return `
+          <strong>
+            ${esc(c.name)}
+          </strong>
 
-            <div
-              class="item"
-              style="cursor:pointer"
-              onclick="openClient('${client.id}')">
+          <span class="badge">
+            ${
+              appData.appointments
+                .filter(
+                  a=>
+                    a.clientId===c.id &&
+                    a.status!=="cancelled"
+                )
+                .length
+            }
+          </span>
 
-              <div class="between">
+        </div>
 
-                <strong>
-                  ${escapeHTML(client.name)}
-                </strong>
+        <div class="meta">
+          ${esc(
+            c.phone ||
+            c.whatsapp ||
+            c.email ||
+            "Nessun contatto"
+          )}
+        </div>
 
-                <span class="badge">
-                  ${count}
-                </span>
-
-              </div>
-
-              <div class="meta">
-
-                ${
-                  escapeHTML(
-                    client.phone ||
-                    client.whatsapp ||
-                    "Nessun contatto"
-                  )
-                }
-
-              </div>
-
-            </div>
-
-          `;
-
-        }
-      )
-      .join("");
+      </div>
+      `
+    ).join("")
+    :
+    `
+      <div class="empty">
+        Nessun cliente.
+      </div>
+    `;
 
 }
 
 
 $("#clientSearch")
-  .addEventListener(
-    "input",
-    renderClients
-  );
+  .oninput=
+  renderClients;
 
 
 function openClient(id){
 
-  const client =
+  const c=
     appData.clients
       .find(
-        c =>
-          c.id === id
+        x=>x.id===id
       );
 
-  if(!client){
-    return;
-  }
+  if(!c)return;
 
 
-  const history =
+  const hist=
     appData.appointments
       .filter(
-        a =>
-          a.clientId === id
+        a=>a.clientId===id
       )
       .sort(
-        (a,b) =>
+        (a,b)=>
           (
             b.date+
             b.time
@@ -3589,107 +3115,90 @@ function openClient(id){
 
 
   $("#clientDetail")
-    .innerHTML = `
+    .innerHTML=
+    `
+    <div class="form">
 
-      <div class="form">
+      <div class="field">
+        <label>Nome</label>
+        <input
+          id="editClientName"
+          value="${esc(c.name)}">
+      </div>
 
-        <div class="field">
+      <div class="field">
+        <label>Telefono</label>
+        <input
+          id="editClientPhone"
+          value="${esc(c.phone)}">
+      </div>
 
-          <label>Nome</label>
+      <div class="field">
+        <label>WhatsApp</label>
+        <input
+          id="editClientWhatsapp"
+          value="${esc(c.whatsapp)}">
+      </div>
 
-          <input
-            id="editClientName"
-            value="${escapeHTML(client.name)}">
+      <div class="field">
+        <label>Email</label>
+        <input
+          id="editClientEmail"
+          value="${esc(c.email)}">
+      </div>
 
-        </div>
+      <div class="field">
+        <label>Note personali</label>
+        <textarea
+          id="editClientNotes">${esc(c.notes)}</textarea>
+      </div>
 
-        <div class="field">
+      <button
+        class="btn primary"
+        onclick="saveClient('${c.id}')">
+        Salva scheda
+      </button>
 
-          <label>Telefono</label>
+      <h3>
+        Storico
+      </h3>
 
-          <input
-            id="editClientPhone"
-            value="${escapeHTML(client.phone||"")}">
+      <div class="list">
 
-        </div>
+        ${
+          hist.length
+          ?
+          hist.map(
+            a=>
+              `
+              <div class="item">
 
-        <div class="field">
+                <strong>
+                  ${formatDate(a.date)}
+                </strong>
 
-          <label>WhatsApp</label>
+                <div class="meta">
+                  ${esc(a.time)}
+                  ·
+                  ${esc(a.serviceName)}
+                  ·
+                  ${esc(a.status)}
+                </div>
 
-          <input
-            id="editClientWhatsapp"
-            value="${escapeHTML(client.whatsapp||"")}">
-
-        </div>
-
-        <div class="field">
-
-          <label>Email</label>
-
-          <input
-            id="editClientEmail"
-            value="${escapeHTML(client.email||"")}">
-
-        </div>
-
-        <div class="field">
-
-          <label>Note personali</label>
-
-          <textarea
-            id="editClientNotes">${escapeHTML(client.notes||"")}</textarea>
-
-        </div>
-
-        <button
-          class="btn primary"
-          onclick="saveClient('${client.id}')">
-
-          Salva scheda
-
-        </button>
-
-        <h3>
-          Storico
-        </h3>
-
-        <div class="list">
-
-          ${
-            history.length
-            ? history
-                .map(
-                  a => `
-
-                    <div class="item">
-
-                      <strong>
-                        ${formatDate(a.date)}
-                      </strong>
-
-                      <div class="meta">
-
-                        ${escapeHTML(a.time)}
-                        ·
-                        ${escapeHTML(a.serviceName)}
-                        ·
-                        ${escapeHTML(a.status)}
-
-                      </div>
-
-                    </div>
-
-                  `
-                )
-                .join("")
-            : '<div class="empty">Nessuno storico.</div>'
-          }
-
-        </div>
+              </div>
+              `
+          ).join("")
+          :
+          `
+          <div class="empty">
+            Nessuno storico.
+          </div>
+          `
+        }
 
       </div>
 
+    </div>
     `;
 
 }
@@ -3697,39 +3206,36 @@ function openClient(id){
 
 function saveClient(id){
 
-  const client =
+  const c=
     appData.clients
       .find(
-        c =>
-          c.id === id
+        x=>x.id===id
       );
 
-  if(!client){
-    return;
-  }
+  if(!c)return;
 
 
-  client.name =
+  c.name=
     $("#editClientName")
       .value
       .trim();
 
-  client.phone =
+  c.phone=
     $("#editClientPhone")
       .value
       .trim();
 
-  client.whatsapp =
+  c.whatsapp=
     $("#editClientWhatsapp")
       .value
       .trim();
 
-  client.email =
+  c.email=
     $("#editClientEmail")
       .value
       .trim();
 
-  client.notes =
+  c.notes=
     $("#editClientNotes")
       .value
       .trim();
@@ -3737,13 +3243,12 @@ function saveClient(id){
 
   appData.appointments
     .filter(
-      a =>
-        a.clientId === id
+      a=>a.clientId===id
     )
     .forEach(
-      a =>
-        a.clientName =
-          client.name
+      a=>
+        a.clientName=
+          c.name
     );
 
 
@@ -3764,7 +3269,7 @@ function saveClient(id){
 
 function newClient(){
 
-  const client = {
+  const c={
 
     id:uid(),
 
@@ -3784,9 +3289,7 @@ function newClient(){
   };
 
 
-  appData.clients.push(
-    client
-  );
+  appData.clients.push(c);
 
   saveData();
 
@@ -3794,69 +3297,68 @@ function newClient(){
 
   renderClients();
 
-  openClient(client.id);
+  openClient(c.id);
 
 }
 
 
-/* =========================================================
-   SETTINGS — BUSINESS
-========================================================= */
+/* ATTIVITÀ */
 
 function renderBusinessSettings(){
 
-  $("#businessName").value =
-    appData.business.name || "";
+  $("#businessName").value=
+    appData.business.name;
 
-  $("#businessType").value =
-    appData.business.type || "";
+  $("#businessType").value=
+    appData.business.type;
 
-  $("#businessPhone").value =
-    appData.business.phone || "";
+  $("#businessPhone").value=
+    appData.business.phone;
 
-  $("#businessWhatsapp").value =
-    appData.business.whatsapp || "";
+  $("#businessWhatsapp").value=
+    appData.business.whatsapp;
 
-  $("#businessAddress").value =
-    appData.business.address || "";
+  $("#businessAddress").value=
+    appData.business.address;
 
-  $("#businessDescription").value =
-    appData.business.description || "";
+  $("#businessDescription").value=
+    appData.business.description;
 
 }
 
 
 function saveBusiness(){
 
-  appData.business.name =
+  appData.business.name=
     $("#businessName")
       .value
       .trim();
 
-  appData.business.type =
+  appData.business.type=
     $("#businessType")
       .value
       .trim();
 
-  appData.business.phone =
+  appData.business.phone=
     $("#businessPhone")
       .value
       .trim();
 
-  appData.business.whatsapp =
+  appData.business.whatsapp=
     $("#businessWhatsapp")
       .value
       .trim();
 
-  appData.business.address =
+  appData.business.address=
     $("#businessAddress")
       .value
       .trim();
 
-  appData.business.description =
+  appData.business.description=
     $("#businessDescription")
       .value
       .trim();
+
 
   saveData();
 
@@ -3869,129 +3371,149 @@ function saveBusiness(){
 }
 
 
-/* =========================================================
-   SETTINGS — HOURS
-========================================================= */
+/* ORARI */
 
 function renderHours(){
 
   $("#hoursList")
-    .innerHTML =
-    DAYS
-      .map(
-        day => {
+    .innerHTML=
 
-          const setting =
-            appData.hours[day.id];
+    DAYS.map(
+      ([id,name])=>{
 
+        const s=
+          appData.hours[id];
 
-          return `
+        return `
 
-            <div class="day-setting">
+        <div class="day-setting">
 
-              <div class="day-setting-top">
+          <div class="day-setting-top">
 
-                <div class="day-name">
-                  ${day.name}
-                </div>
+            <div class="day-name">
+              ${name}
+            </div>
 
-                <div class="day-controls">
+            <div class="day-controls">
 
-                  <label class="closed-toggle">
+              <label class="closed-toggle">
 
-                    <span>
-                      Giorno chiuso
-                    </span>
+                Giorno chiuso
 
-                    <label class="toggle">
-
-                      <input
-                        type="checkbox"
-                        id="closed-${day.id}"
-                        ${setting.closed?"checked":""}
-                        onchange="toggleDayClosed('${day.id}')">
-
-                      <span class="toggle-slider"></span>
-
-                    </label>
-
-                  </label>
+                <label class="toggle">
 
                   <input
-                    type="time"
-                    id="open-${day.id}"
-                    value="${escapeHTML(setting.open)}"
-                    ${setting.closed?"disabled":""}>
+                    id="closed-${id}"
+                    type="checkbox"
+                    ${
+                      s.closed
+                      ?"checked"
+                      :""
+                    }
+                    onchange="
+                      toggleClosed('${id}')
+                    ">
 
-                  <span>—</span>
+                  <span
+                    class="toggle-slider">
+                  </span>
 
-                  <input
-                    type="time"
-                    id="close-${day.id}"
-                    value="${escapeHTML(setting.close)}"
-                    ${setting.closed?"disabled":""}>
+                </label>
 
-                  ${
-                    setting.closed
-                    ? '<span class="badge danger">CHIUSO</span>'
-                    : '<span class="badge">APERTO</span>'
-                  }
+              </label>
 
-                </div>
 
-              </div>
+              <input
+                id="open-${id}"
+                type="time"
+                value="${esc(s.open)}"
+                ${
+                  s.closed
+                  ?"disabled"
+                  :""
+                }>
 
-              <div
-                class="pause-list"
-                id="pauses-${day.id}">
+
+              <span>—</span>
+
+
+              <input
+                id="close-${id}"
+                type="time"
+                value="${esc(s.close)}"
+                ${
+                  s.closed
+                  ?"disabled"
+                  :""
+                }>
+
+
+              <span
+                class="
+                  badge
+                  ${s.closed?"danger":""}
+                ">
 
                 ${
-                  setting.closed
-                  ? ""
-                  : renderPauses(
-                      day.id,
-                      setting.pauses
-                    )
+                  s.closed
+                  ?"CHIUSO"
+                  :"APERTO"
                 }
 
-              </div>
-
-              ${
-                setting.closed
-                ? ""
-                : `
-
-                  <div
-                    style="margin:10px 0 0 137px">
-
-                    <button
-                      class="btn small secondary"
-                      onclick="addPause('${day.id}')">
-
-                      + Aggiungi pausa
-
-                    </button>
-
-                  </div>
-
-                `
-              }
+              </span>
 
             </div>
 
-          `;
+          </div>
 
-        }
-      )
-      .join("");
+
+          <div
+            class="pause-list">
+
+            ${
+              s.closed
+              ?""
+              :
+              renderPauses(
+                id,
+                s.pauses
+              )
+            }
+
+          </div>
+
+
+          ${
+            s.closed
+            ?""
+            :
+            `
+            <div
+              style="
+                margin:10px 0 0 137px
+              ">
+
+              <button
+                class="btn small secondary"
+                onclick="addPause('${id}')">
+
+                + Aggiungi pausa
+
+              </button>
+
+            </div>
+            `
+          }
+
+        </div>`;
+
+      }
+    ).join("");
 
 }
 
 
-function renderPauses(
-  dayId,
-  pauses
-){
+function renderPauses(id,pauses){
 
   if(!pauses.length){
 
@@ -4004,59 +3526,60 @@ function renderPauses(
   }
 
 
-  return pauses
-    .map(
-      (pause,index) => `
+  return pauses.map(
+    (p,i)=>
+    `
+    <div class="pause-row">
 
-        <div class="pause-row">
+      <span class="pause-label">
+        Pausa ${i+1}
+      </span>
 
-          <span class="pause-label">
-            Pausa ${index+1}
-          </span>
+      <input
+        type="time"
+        value="${esc(p.start)}"
+        onchange="
+          setPause(
+            '${id}',
+            ${i},
+            'start',
+            this.value
+          )
+        ">
 
-          <input
-            type="time"
-            value="${escapeHTML(pause.start)}"
-            onchange="updatePause(
-              '${dayId}',
-              ${index},
-              'start',
-              this.value
-            )">
+      <span>—</span>
 
-          <span>—</span>
+      <input
+        type="time"
+        value="${esc(p.end)}"
+        onchange="
+          setPause(
+            '${id}',
+            ${i},
+            'end',
+            this.value
+          )
+        ">
 
-          <input
-            type="time"
-            value="${escapeHTML(pause.end)}"
-            onchange="updatePause(
-              '${dayId}',
-              ${index},
-              'end',
-              this.value
-            )">
+      <button
+        class="btn small danger"
+        onclick="
+          removePause('${id}',${i})
+        ">
+        Elimina
+      </button>
 
-          <button
-            class="btn small danger"
-            onclick="removePause('${dayId}',${index})">
-
-            Elimina
-
-          </button>
-
-        </div>
-
-      `
-    )
-    .join("");
+    </div>
+    `
+  ).join("");
 
 }
 
 
-function toggleDayClosed(dayId){
+function toggleClosed(id){
 
-  appData.hours[dayId].closed =
-    $("#closed-"+dayId)
+  appData.hours[id].closed=
+    $("#closed-"+id)
       .checked;
 
   renderHours();
@@ -4064,9 +3587,9 @@ function toggleDayClosed(dayId){
 }
 
 
-function addPause(dayId){
+function addPause(id){
 
-  appData.hours[dayId]
+  appData.hours[id]
     .pauses
     .push({
       start:"13:00",
@@ -4078,38 +3601,31 @@ function addPause(dayId){
 }
 
 
-function removePause(
-  dayId,
-  index
-){
+function removePause(id,i){
 
-  appData.hours[dayId]
+  appData.hours[id]
     .pauses
-    .splice(
-      index,
-      1
-    );
+    .splice(i,1);
 
   renderHours();
 
 }
 
 
-function updatePause(
-  dayId,
-  index,
+function setPause(
+  id,
+  i,
   field,
   value
 ){
 
   if(
-    appData.hours[dayId] &&
-    appData.hours[dayId]
-      .pauses[index]
+    appData.hours[id] &&
+    appData.hours[id].pauses[i]
   ){
 
-    appData.hours[dayId]
-      .pauses[index][field] =
+    appData.hours[id]
+      .pauses[i][field]=
       value;
 
   }
@@ -4119,18 +3635,20 @@ function updatePause(
 
 function copyHoursToAll(){
 
-  const source =
-    appData.hours.monday;
+  const source=
+    clone(
+      appData.hours.monday
+    );
 
   DAYS.forEach(
-    day => {
+    ([id])=>{
 
-      if(day.id==="monday"){
-        return;
+      if(id!=="monday"){
+
+        appData.hours[id]=
+          clone(source);
+
       }
-
-      appData.hours[day.id] =
-        structuredClone(source);
 
     }
   );
@@ -4146,78 +3664,48 @@ function copyHoursToAll(){
 
 function saveHours(){
 
-  /*
-   * Prima leggiamo i valori dei campi.
-   */
-
-  DAYS.forEach(
-    day => {
-
-      const setting =
-        appData.hours[day.id];
-
-
-      const open =
-        $("#open-"+day.id);
-
-      const close =
-        $("#close-"+day.id);
-
-      const closed =
-        $("#closed-"+day.id);
-
-
-      if(open){
-
-        setting.open =
-          open.value ||
-          setting.open;
-
-      }
-
-      if(close){
-
-        setting.close =
-          close.value ||
-          setting.close;
-
-      }
-
-      if(closed){
-
-        setting.closed =
-          closed.checked;
-
-      }
-
-    }
-  );
-
-
-  /*
-   * Controllo di base:
-   * apertura < chiusura
-   */
-
   for(
-    const day
+    const [id,name]
     of DAYS
   ){
 
-    const setting =
-      appData.hours[day.id];
+    const s=
+      appData.hours[id];
 
-    if(setting.closed){
+    const open=
+      $("#open-"+id);
+
+    const close=
+      $("#close-"+id);
+
+
+    if(open)
+      s.open=
+        open.value ||
+        s.open;
+
+    if(close)
+      s.close=
+        close.value ||
+        s.close;
+
+
+    s.closed=
+      $("#closed-"+id)
+        .checked;
+
+
+    if(s.closed)
       continue;
-    }
+
 
     if(
-      minutes(setting.open) >=
-      minutes(setting.close)
+      mins(s.open)>=
+      mins(s.close)
     ){
 
       showToast(
-        "Controlla gli orari di "+day.name
+        "Controlla gli orari di "+name
       );
 
       return;
@@ -4226,18 +3714,17 @@ function saveHours(){
 
 
     for(
-      const pause
-      of setting.pauses
+      const p
+      of s.pauses
     ){
 
       if(
-        minutes(pause.start) >=
-        minutes(pause.end)
+        mins(p.start)>=
+        mins(p.end)
       ){
 
         showToast(
-          "Controlla le pause di "+
-          day.name
+          "Controlla le pause di "+name
         );
 
         return;
@@ -4260,17 +3747,21 @@ function saveHours(){
 }
 
 
-/* =========================================================
-   SETTINGS — SERVICES
-========================================================= */
+/* SERVIZI */
 
 function renderServices(){
 
-  if(!appData.services.length){
+  if(
+    !appData.services.length
+  ){
 
     $("#servicesList")
-      .innerHTML =
-      '<div class="empty">Nessun servizio configurato.</div>';
+      .innerHTML=
+      `
+      <div class="empty">
+        Nessun servizio configurato.
+      </div>
+      `;
 
     return;
 
@@ -4278,58 +3769,73 @@ function renderServices(){
 
 
   $("#servicesList")
-    .innerHTML =
-    appData.services
-      .map(
-        service => `
+    .innerHTML=
+    appData.services.map(
+      s=>
+      `
+      <div class="item">
 
-          <div class="item">
+        <div class="service-row">
 
-            <div class="service-row">
+          <input
+            value="${esc(s.name)}"
+            onchange="
+              updateService(
+                '${s.id}',
+                'name',
+                this.value
+              )
+            ">
 
-              <input
-                value="${escapeHTML(service.name)}"
-                onchange="updateService('${service.id}','name',this.value)">
+          <input
+            type="number"
+            min="0"
+            step=".01"
+            value="${esc(s.price)}"
+            onchange="
+              updateService(
+                '${s.id}',
+                'price',
+                this.value
+              )
+            ">
 
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value="${escapeHTML(service.price)}"
-                onchange="updateService('${service.id}','price',this.value)">
+          <input
+            type="number"
+            min="1"
+            value="${esc(s.duration)}"
+            onchange="
+              updateService(
+                '${s.id}',
+                'duration',
+                this.value
+              )
+            ">
 
-              <input
-                type="number"
-                min="1"
-                value="${escapeHTML(service.duration)}"
-                onchange="updateService('${service.id}','duration',this.value)">
+          <button
+            class="btn small danger"
+            onclick="
+              deleteService('${s.id}')
+            ">
+            Elimina
+          </button>
 
-              <button
-                class="btn small danger"
-                onclick="deleteService('${service.id}')">
+        </div>
 
-                Elimina
+        <div class="meta">
+          Nome · Prezzo € · Durata minuti
+        </div>
 
-              </button>
-
-            </div>
-
-            <div class="meta">
-              Prezzo · Durata in minuti
-            </div>
-
-          </div>
-
-        `
-      )
-      .join("");
+      </div>
+      `
+    ).join("");
 
 }
 
 
 function addService(){
 
-  const service = {
+  appData.services.push({
 
     id:uid(),
 
@@ -4341,12 +3847,7 @@ function addService(){
 
     duration:30
 
-  };
-
-
-  appData.services.push(
-    service
-  );
+  });
 
   saveData();
 
@@ -4363,26 +3864,25 @@ function updateService(
   value
 ){
 
-  const service =
+  const s=
     appData.services
       .find(
-        s =>
-          s.id === id
+        x=>x.id===id
       );
 
-  if(!service){
-    return;
-  }
+  if(!s)return;
 
 
   if(field==="price"){
 
-    service.price =
+    s.price=
       Number(value)||0;
 
-  }else if(field==="duration"){
+  }else if(
+    field==="duration"
+  ){
 
-    service.duration =
+    s.duration=
       Math.max(
         1,
         Number(value)||30
@@ -4390,7 +3890,7 @@ function updateService(
 
   }else{
 
-    service[field] =
+    s[field]=
       value.trim();
 
   }
@@ -4408,17 +3908,14 @@ function deleteService(id){
       "Eliminare questo servizio?"
     )
   ){
-
     return;
-
   }
 
 
-  appData.services =
+  appData.services=
     appData.services
       .filter(
-        service =>
-          service.id !== id
+        x=>x.id!==id
       );
 
 
@@ -4431,17 +3928,21 @@ function deleteService(id){
 }
 
 
-/* =========================================================
-   SETTINGS — PROMOTIONS
-========================================================= */
+/* PROMOZIONI */
 
 function renderPromotions(){
 
-  if(!appData.promotions.length){
+  if(
+    !appData.promotions.length
+  ){
 
     $("#promotionsList")
-      .innerHTML =
-      '<div class="empty">Nessuna promozione.</div>';
+      .innerHTML=
+      `
+      <div class="empty">
+        Nessuna promozione.
+      </div>
+      `;
 
     return;
 
@@ -4449,72 +3950,63 @@ function renderPromotions(){
 
 
   $("#promotionsList")
-    .innerHTML =
-    appData.promotions
-      .map(
-        promotion => `
+    .innerHTML=
+    appData.promotions.map(
+      p=>
+      `
+      <div class="item">
 
-          <div class="item">
+        <div class="between">
 
-            <div class="between">
+          <strong>
+            ${esc(p.name)}
+          </strong>
 
-              <strong>
-                ${escapeHTML(promotion.name)}
-              </strong>
+          <button
+            class="btn small danger"
+            onclick="
+              deletePromotion('${p.id}')
+            ">
+            Elimina
+          </button>
 
-              <button
-                class="btn small danger"
-                onclick="deletePromotion('${promotion.id}')">
+        </div>
 
-                Elimina
+        <div class="meta">
+          ${esc(p.description||"")}
+        </div>
 
-              </button>
-
-            </div>
-
-            <div class="meta">
-              ${escapeHTML(
-                promotion.description || ""
-              )}
-            </div>
-
-          </div>
-
-        `
-      )
-      .join("");
+      </div>
+      `
+    ).join("");
 
 }
 
 
 function addPromotion(){
 
-  const name =
+  const n=
     prompt(
       "Nome promozione"
     );
 
-  if(!name){
-    return;
-  }
+  if(!n)return;
 
 
-  const description =
+  const d=
     prompt(
-      "Descrizione promozione",
+      "Descrizione",
       ""
-    );
+    )||"";
 
 
   appData.promotions.push({
 
     id:uid(),
 
-    name:name.trim(),
+    name:n.trim(),
 
-    description:
-      description ||
-      ""
+    description:d
 
   });
 
@@ -4528,11 +4020,10 @@ function addPromotion(){
 
 function deletePromotion(id){
 
-  appData.promotions =
+  appData.promotions=
     appData.promotions
       .filter(
-        p =>
-          p.id !== id
+        p=>p.id!==id
       );
 
   saveData();
@@ -4555,57 +4046,34 @@ function renderSettings(){
 }
 
 
-/* =========================================================
-   AVAILABILITY
-========================================================= */
+/* DISPONIBILITÀ */
 
-function getOpeningSetting(date){
-
-  return appData.hours[
-    getDayKey(date)
-  ];
-
-}
-
-
-function isSlotAvailable(
+function isAvailable(
   date,
   time,
   duration
 ){
 
-  const setting =
-    getOpeningSetting(date);
+  const s=
+    appData.hours[
+      dayKey(date)
+    ];
 
-
-  if(!setting){
+  if(!s || s.closed)
     return false;
-  }
 
 
-  if(setting.closed){
-    return false;
-  }
+  const start=
+    mins(time);
 
-
-  const start =
-    minutes(time);
-
-  const end =
+  const end=
     start+
     Number(duration||30);
 
 
-  const opening =
-    minutes(setting.open);
-
-  const closing =
-    minutes(setting.close);
-
-
   if(
-    start < opening ||
-    end > closing
+    start<mins(s.open) ||
+    end>mins(s.close)
   ){
 
     return false;
@@ -4613,28 +4081,14 @@ function isSlotAvailable(
   }
 
 
-  /*
-   * PAUSE
-   */
-
   for(
-    const pause
-    of setting.pauses
+    const p
+    of s.pauses
   ){
 
-    const pauseStart =
-      minutes(pause.start);
-
-    const pauseEnd =
-      minutes(pause.end);
-
     if(
-      overlap(
-        start,
-        end,
-        pauseStart,
-        pauseEnd
-      )
+      start<mins(p.end) &&
+      mins(p.start)<end
     ){
 
       return false;
@@ -4644,44 +4098,30 @@ function isSlotAvailable(
   }
 
 
-  /*
-   * APPUNTAMENTI
-   */
-
   for(
-    const appointment
+    const a
     of appData.appointments
   ){
 
     if(
-      appointment.date !== date ||
-      appointment.status === "cancelled"
+      a.date!==date ||
+      a.status==="cancelled"
     ){
-
       continue;
-
     }
 
 
-    const appointmentStart =
-      minutes(
-        appointment.time
-      );
+    const as=
+      mins(a.time);
 
-    const appointmentEnd =
-      appointmentStart+
-      Number(
-        appointment.duration||30
-      );
+    const ae=
+      as+
+      Number(a.duration||30);
 
 
     if(
-      overlap(
-        start,
-        end,
-        appointmentStart,
-        appointmentEnd
-      )
+      start<ae &&
+      as<end
     ){
 
       return false;
@@ -4696,13 +4136,13 @@ function isSlotAvailable(
 }
 
 
-/* =========================================================
-   MANUAL APPOINTMENT MODAL
-========================================================= */
+/* APPUNTAMENTO */
 
 function openNewAppointmentModal(){
 
-  if(!appData.services.length){
+  if(
+    !appData.services.length
+  ){
 
     showToast(
       "Configura prima almeno un servizio"
@@ -4715,47 +4155,31 @@ function openNewAppointmentModal(){
   }
 
 
-  const select =
-    $("#appointmentService");
+  $("#appointmentService")
+    .innerHTML=
+    appData.services.map(
+      s=>
+      `
+      <option value="${s.id}">
+        ${esc(s.name)}
+        ·
+        €${esc(s.price)}
+        ·
+        ${esc(s.duration)} min
+      </option>
+      `
+    ).join("");
 
 
-  select.innerHTML =
-    appData.services
-      .map(
-        service => `
+  $("#appointmentClient").value="";
 
-          <option value="${service.id}">
-
-            ${escapeHTML(service.name)}
-            ·
-            €${escapeHTML(service.price)}
-            ·
-            ${escapeHTML(service.duration)} min
-
-          </option>
-
-        `
-      )
-      .join("");
-
-
-  $("#appointmentClient")
-    .value =
-    "";
-
-  $("#appointmentDate")
-    .value =
+  $("#appointmentDate").value=
     selectedDate;
 
-  $("#appointmentTime")
-    .value =
-    "";
-
+  $("#appointmentTime").value="";
 
   $("#appointmentAvailability")
-    .textContent =
-    "";
-
+    .textContent="";
 
   $("#appointmentModal")
     .classList.add("show");
@@ -4771,118 +4195,100 @@ function closeAppointmentModal(){
 }
 
 
-$("#appointmentDate")
-  .addEventListener(
-    "change",
-    updateManualAvailability
-  );
-
-
-$("#appointmentTime")
-  .addEventListener(
-    "change",
-    updateManualAvailability
-  );
-
-
-$("#appointmentService")
-  .addEventListener(
-    "change",
-    updateManualAvailability
-  );
+[
+  "appointmentDate",
+  "appointmentTime",
+  "appointmentService"
+].forEach(
+  id=>
+    $("#"+id)
+      .addEventListener(
+        "change",
+        updateManualAvailability
+      )
+);
 
 
 function updateManualAvailability(){
 
-  const date =
-    $("#appointmentDate")
-      .value;
+  const d=
+    $("#appointmentDate").value;
 
-  const time =
-    $("#appointmentTime")
-      .value;
+  const t=
+    $("#appointmentTime").value;
 
-  const service =
+  const s=
     appData.services
       .find(
-        s =>
-          s.id ===
-          $("#appointmentService")
-            .value
+        x=>
+          x.id===
+          $("#appointmentService").value
       );
 
 
-  if(
-    !date ||
-    !time ||
-    !service
-  ){
-
-    $("#appointmentAvailability")
-      .textContent =
-      "";
-
+  if(!d||!t||!s)
     return;
-
-  }
-
-
-  const available =
-    isSlotAvailable(
-      date,
-      time,
-      service.duration
-    );
 
 
   $("#appointmentAvailability")
-    .innerHTML =
-    available
-    ? '<span class="badge">Orario disponibile</span>'
-    : '<span class="badge danger">Orario non disponibile</span>';
+    .innerHTML=
+    isAvailable(
+      d,
+      t,
+      s.duration
+    )
+    ?
+    `
+    <span class="badge">
+      Orario disponibile
+    </span>
+    `
+    :
+    `
+    <span class="badge danger">
+      Orario non disponibile
+    </span>
+    `;
 
 }
 
 
 function saveManualAppointment(){
 
-  const button =
+  const b=
     $("#manualAppointmentSave");
 
-
-  if(button.disabled){
+  if(b.disabled)
     return;
-  }
 
 
-  const clientName =
+  const name=
     $("#appointmentClient")
       .value
       .trim();
 
-  const service =
-    appData.services
-      .find(
-        s =>
-          s.id ===
-          $("#appointmentService")
-            .value
-      );
-
-  const date =
+  const d=
     $("#appointmentDate")
       .value;
 
-  const time =
+  const t=
     $("#appointmentTime")
       .value;
 
+  const s=
+    appData.services
+      .find(
+        x=>
+          x.id===
+          $("#appointmentService").value
+      );
+
 
   if(
-    !clientName ||
-    !service ||
-    !date ||
-    !time
+    !name ||
+    !d ||
+    !t ||
+    !s
   ){
 
     showToast(
@@ -4894,26 +4300,21 @@ function saveManualAppointment(){
   }
 
 
-  button.disabled =
-    true;
+  b.disabled=true;
 
 
   try{
 
-    /*
-     * CONTROLLO IMMEDIATO
-     */
-
     if(
-      !isSlotAvailable(
-        date,
-        time,
-        service.duration
+      !isAvailable(
+        d,
+        t,
+        s.duration
       )
     ){
 
       showToast(
-        "L'orario non è disponibile"
+        "L’orario non è disponibile"
       );
 
       return;
@@ -4921,27 +4322,22 @@ function saveManualAppointment(){
     }
 
 
-    const client =
+    const c=
       findOrCreateClient(
-        clientName
+        name
       );
 
 
-    /*
-     * SECONDO CONTROLLO
-     * appena prima del push.
-     */
-
     if(
-      !isSlotAvailable(
-        date,
-        time,
-        service.duration
+      !isAvailable(
+        d,
+        t,
+        s.duration
       )
     ){
 
       showToast(
-        "L'orario è stato occupato"
+        "L’orario è stato occupato"
       );
 
       return;
@@ -4949,55 +4345,42 @@ function saveManualAppointment(){
     }
 
 
-    const appointment = {
+    appData.appointments.push({
 
       id:uid(),
 
-      clientId:
-        client.id,
+      clientId:c.id,
 
-      clientName:
-        client.name,
+      clientName:c.name,
 
-      date,
+      date:d,
 
-      time,
+      time:t,
 
-      serviceId:
-        service.id,
+      serviceId:s.id,
 
-      serviceName:
-        service.name,
+      serviceName:s.name,
 
-      price:
-        service.price,
+      price:s.price,
 
-      duration:
-        service.duration,
+      duration:s.duration,
 
-      status:
-        "confirmed",
+      status:"confirmed",
 
       createdAt:
         new Date().toISOString()
 
-    };
-
-
-    appData.appointments.push(
-      appointment
-    );
+    });
 
 
     saveData();
 
 
-    selectedDate =
-      date;
+    selectedDate=d;
 
-    currentCalendarDate =
+    currentCalendarDate=
       new Date(
-        date+"T12:00:00"
+        d+"T12:00:00"
       );
 
 
@@ -5011,141 +4394,118 @@ function saveManualAppointment(){
 
   }finally{
 
-    button.disabled =
-      false;
+    b.disabled=false;
 
   }
 
 }
 
 
-/* =========================================================
-   MAVI
-========================================================= */
-
-let maviInitialized =
-  false;
-
+/* MAVI */
 
 function initMavi(){
 
-  if(maviInitialized){
+  if(maviInitialized)
     return;
-  }
 
-  maviInitialized =
-    true;
+  maviInitialized=true;
 
-  addMaviMessage(
+  addMavi(
     "Sono Mavi. Posso aiutarti con appuntamenti, disponibilità, clienti, servizi, orari, pause e promozioni."
   );
 
 }
 
 
-function addMaviMessage(text){
+function addMavi(t){
 
-  const bubble =
+  const x=
     document.createElement(
       "div"
     );
 
-  bubble.className =
+  x.className=
     "bubble mavi";
 
-  bubble.textContent =
-    text;
+  x.textContent=t;
 
   $("#messages")
-    .appendChild(
-      bubble
-    );
+    .appendChild(x);
 
-  scrollMessages();
+  $("#messages")
+    .scrollTop=
+    $("#messages")
+      .scrollHeight;
 
 }
 
 
-function addUserMessage(text){
+function addUser(t){
 
-  const bubble =
+  const x=
     document.createElement(
       "div"
     );
 
-  bubble.className =
+  x.className=
     "bubble user";
 
-  bubble.textContent =
-    text;
+  x.textContent=t;
 
   $("#messages")
-    .appendChild(
-      bubble
-    );
+    .appendChild(x);
 
-  scrollMessages();
+  $("#messages")
+    .scrollTop=
+    $("#messages")
+      .scrollHeight;
 
 }
 
 
-function scrollMessages(){
+/* DATE PARSER */
 
-  $("#messages")
-    .scrollTop =
-    $("#messages").scrollHeight;
+function parseDate(t){
 
-}
-
-
-/* =========================================================
-   MAVI DATE PARSER
-========================================================= */
-
-function parseDateFromText(text){
-
-  const lower =
-    text.toLowerCase();
+  const l=
+    t.toLowerCase();
 
 
-  if(lower.includes("oggi")){
-
+  if(l.includes("oggi"))
     return todayISO();
 
-  }
 
+  if(l.includes("domani")){
 
-  if(lower.includes("domani")){
-
-    const d =
+    const d=
       new Date();
 
     d.setDate(
       d.getDate()+1
     );
 
-    return dateToISO(d);
+    return dateISO(d);
 
   }
 
 
-  const days = {
+  const names={
 
     domenica:0,
 
-    lunedì:1,
+    "lunedì":1,
     lunedi:1,
 
-    martedì:2,
+    "martedì":2,
     martedi:2,
 
-    mercoledì:3,
+    "mercoledì":3,
     mercoledi:3,
 
-    giovedì:4,
+    "giovedì":4,
     giovedi:4,
 
-    venerdì:5,
+    "venerdì":5,
     venerdi:5,
 
     sabato:6
@@ -5154,148 +4514,121 @@ function parseDateFromText(text){
 
 
   for(
-    const name
-    of Object.keys(days)
+    const n
+    in names
   ){
 
     if(
-      lower.includes(name)
+      l.includes(n)
     ){
 
-      const target =
-        days[name];
-
-      const now =
+      const d=
         new Date();
 
-      let delta =
+      const target=
+        names[n];
+
+      let delta=
         (
           target-
-          now.getDay()+
+          d.getDay()+
           7
         )%7;
 
-      if(delta===0){
+
+      if(!delta)
         delta=7;
-      }
 
-      const result =
-        new Date(now);
 
-      result.setDate(
-        now.getDate()+delta
+      d.setDate(
+        d.getDate()+delta
       );
 
-      return dateToISO(
-        result
-      );
+
+      return dateISO(d);
 
     }
 
   }
 
 
-  const iso =
-    lower.match(
+  return(
+    l.match(
       /\b20\d{2}-\d{2}-\d{2}\b/
-    );
-
-  if(iso){
-    return iso[0];
-  }
-
-
-  return null;
+    )||[]
+  )[0]||null;
 
 }
 
 
-/* =========================================================
-   MAVI TIME PARSER
-========================================================= */
+/* TIME PARSER */
 
-function parseTimeFromText(text){
+function parseTime(t){
 
-  const match =
-    text.match(
+  const m=
+    t.match(
       /\b([01]?\d|2[0-3])(?:[:.]([0-5]\d))?\b/
     );
 
-
-  if(!match){
+  if(!m)
     return null;
-  }
-
-
-  const hour =
-    Number(match[1]);
-
-  const minute =
-    match[2]
-    ? Number(match[2])
-    : 0;
 
 
   return (
-    String(hour)
+    String(+m[1])
       .padStart(2,"0")+
     ":"+
-    String(minute)
-      .padStart(2,"0")
+    String(
+      m[2]
+      ? +m[2]
+      : 0
+    ).padStart(2,"0")
   );
 
 }
 
 
-/* =========================================================
-   MAVI SERVICE PARSER
-========================================================= */
+/* SERVICE */
 
-function parseServiceFromText(text){
+function parseService(t){
 
-  const lower =
-    text.toLowerCase();
+  const l=
+    t.toLowerCase();
 
-
-  return appData.services
-    .find(
-      service =>
-        lower.includes(
-          service.name
-            .toLowerCase()
-        )
-    )
-    || null;
+  return appData.services.find(
+    s=>
+      l.includes(
+        s.name.toLowerCase()
+      )
+  )||null;
 
 }
 
 
-/* =========================================================
-   MAVI CLIENT PARSER
-========================================================= */
+/* CLIENTE */
 
-function parseClientFromText(text){
+function parseClient(t){
 
-  const patterns = [
+  const patterns=[
 
     /(?:mi chiamo|sono)\s+([A-Za-zÀ-ÿ' -]{2,45})/i,
 
-    /(?:per il cliente|per la cliente|cliente)\s+([A-Za-zÀ-ÿ' -]{2,45})/i
+    /(?:cliente|per il cliente|per la cliente)\s+([A-Za-zÀ-ÿ' -]{2,45})/i
 
   ];
 
 
   for(
-    const pattern
+    const p
     of patterns
   ){
 
-    const match =
-      text.match(pattern);
+    const m=
+      t.match(p);
 
-    if(match){
+    if(m){
 
-      return match[1]
+      return m[1]
         .trim()
         .replace(
           /\s+(alle|a|il|lunedì|lunedi|martedì|martedi|mercoledì|mercoledi|giovedì|giovedi|venerdì|venerdi|sabato|domenica).*$/i,
@@ -5307,302 +4640,20 @@ function parseClientFromText(text){
 
   }
 
-
   return null;
 
 }
 
 
-/* =========================================================
-   MAVI REQUEST
-========================================================= */
+/* BOOKING */
 
-function handleMaviMessage(){
-
-  const input =
-    $("#maviInput");
-
-  const text =
-    input.value.trim();
-
-
-  if(!text){
-    return;
-  }
-
-
-  input.value =
-    "";
-
-  addUserMessage(
-    text
-  );
-
-
-  const lower =
-    text.toLowerCase();
-
-
-  /*
-   * CONFERMA PENDING
-   */
+function startBooking(text){
 
   if(
-    pendingBooking &&
-    /^(si|sì|ok|confermo|conferma|va bene|prenota)$/i
-      .test(lower)
+    !appData.services.length
   ){
 
-    confirmMaviBooking();
-
-    return;
-
-  }
-
-
-  /*
-   * ANNULLA PENDING
-   */
-
-  if(
-    pendingBooking &&
-    /^(no|annulla|cancella)$/i
-      .test(lower)
-  ){
-
-    pendingBooking =
-      null;
-
-    $("#confirmationArea")
-      .innerHTML =
-      "";
-
-    addMaviMessage(
-      "Va bene. Non ho salvato nessuna prenotazione."
-    );
-
-    return;
-
-  }
-
-
-  /*
-   * ORARI
-   */
-
-  if(
-    /orari|apertura|chiusura|pause|pausa/i
-      .test(lower)
-  ){
-
-    answerHours(
-      parseDateFromText(text)
-    );
-
-    return;
-
-  }
-
-
-  /*
-   * SERVIZI
-   */
-
-  if(
-    /servizi|prezzo|prezzi|costa|costo/i
-      .test(lower)
-  ){
-
-    answerServices();
-
-    return;
-
-  }
-
-
-  /*
-   * CLIENTI
-   */
-
-  if(
-    /quanti clienti|numero clienti/i
-      .test(lower)
-  ){
-
-    addMaviMessage(
-      "Attualmente sono presenti "+
-      appData.clients.length+
-      " clienti."
-    );
-
-    return;
-
-  }
-
-
-  /*
-   * PRENOTAZIONE
-   */
-
-  if(
-    /prenot|appuntament|fissare|vorrei|voglio/i
-      .test(lower)
-  ){
-
-    startMaviBooking(
-      text
-    );
-
-    return;
-
-  }
-
-
-  /*
-   * DISPONIBILITÀ
-   */
-
-  if(
-    /disponibil|libero|occupato/i
-      .test(lower)
-  ){
-
-    checkMaviAvailability(
-      text
-    );
-
-    return;
-
-  }
-
-
-  addMaviMessage(
-    "Posso aiutarti con appuntamenti, disponibilità, clienti, servizi, orari, pause e promozioni."
-  );
-
-}
-
-
-/* =========================================================
-   MAVI HOURS
-========================================================= */
-
-function answerHours(date){
-
-  if(date){
-
-    const setting =
-      getOpeningSetting(date);
-
-    const day =
-      DAYS.find(
-        d =>
-          d.id ===
-          getDayKey(date)
-      );
-
-
-    if(
-      !setting ||
-      setting.closed
-    ){
-
-      addMaviMessage(
-        "Il "+day.name.toLowerCase()+
-        " l'attività è chiusa."
-      );
-
-      return;
-
-    }
-
-
-    const pauses =
-      setting.pauses.length
-      ? "\nPause: "+
-        setting.pauses
-          .map(
-            p =>
-              p.start+
-              "–"+
-              p.end
-          )
-          .join(", ")
-      : "";
-
-
-    addMaviMessage(
-      "Il "+
-      day.name.toLowerCase()+
-      " siamo aperti "+
-      setting.open+
-      "–"+
-      setting.close+
-      pauses+
-      "."
-    );
-
-    return;
-
-  }
-
-
-  addMaviMessage(
-    "Gli orari sono configurati per ogni giorno nella sezione Impostazioni → Orari."
-  );
-
-}
-
-
-/* =========================================================
-   MAVI SERVICES
-========================================================= */
-
-function answerServices(){
-
-  if(!appData.services.length){
-
-    addMaviMessage(
-      "Non ci sono ancora servizi configurati."
-    );
-
-    return;
-
-  }
-
-
-  const text =
-    appData.services
-      .map(
-        service =>
-          "• "+
-          service.name+
-          " — €"+
-          service.price+
-          " — "+
-          service.duration+
-          " min"
-      )
-      .join("\n");
-
-
-  addMaviMessage(
-    "Servizi configurati:\n"+
-    text
-  );
-
-}
-
-
-/* =========================================================
-   MAVI BOOKING
-========================================================= */
-
-function startMaviBooking(text){
-
-  if(!appData.services.length){
-
-    addMaviMessage(
+    addMavi(
       "Prima di prenotare devi configurare almeno un servizio."
     );
 
@@ -5611,82 +4662,70 @@ function startMaviBooking(text){
   }
 
 
-  const parsed = {
+  const p={
 
     clientName:
-      parseClientFromText(text),
+      parseClient(text),
 
     service:
-      parseServiceFromText(text),
+      parseService(text),
 
     date:
-      parseDateFromText(text),
+      parseDate(text),
 
     time:
-      parseTimeFromText(text)
+      parseTime(text)
 
   };
 
 
-  pendingBooking =
-    {
-      ...(pendingBooking||{}),
-      ...parsed
-    };
+  pendingBooking={
+    ...(pendingBooking||{}),
+    ...p
+  };
 
 
-  const missing = [];
+  const missing=[];
 
 
   if(
     !pendingBooking.clientName
-  ){
-
+  )
     missing.push(
       "nome del cliente"
     );
 
-  }
-
 
   if(
     !pendingBooking.service
-  ){
-
+  )
     missing.push(
       "servizio"
     );
 
-  }
-
 
   if(
     !pendingBooking.date
-  ){
-
+  )
     missing.push(
       "giorno"
     );
 
-  }
-
 
   if(
     !pendingBooking.time
-  ){
-
+  )
     missing.push(
       "ora"
     );
 
-  }
-
 
   if(missing.length){
 
-    addMaviMessage(
-      "Per preparare la prenotazione mi serve: "+
-      missing.join(", ")+"."
+    addMavi(
+      "Mi serve ancora: "+
+      missing.join(", ")+
+      "."
     );
 
     return;
@@ -5694,19 +4733,16 @@ function startMaviBooking(text){
   }
 
 
-  const available =
-    isSlotAvailable(
+  if(
+    !isAvailable(
       pendingBooking.date,
       pendingBooking.time,
       pendingBooking.service.duration
-    );
+    )
+  ){
 
-
-  if(!available){
-
-    addMaviMessage(
-      "Ho controllato il calendario, gli orari e le pause: "+
-      "l'orario richiesto non è disponibile."
+    addMavi(
+      "Ho controllato calendario, apertura e pause: l’orario richiesto non è disponibile."
     );
 
     return;
@@ -5714,134 +4750,115 @@ function startMaviBooking(text){
   }
 
 
-  showMaviConfirmation();
+  showConfirmation();
 
 }
 
 
-function showMaviConfirmation(){
+function showConfirmation(){
 
-  const p =
+  const p=
     pendingBooking;
 
 
   $("#confirmationArea")
-    .innerHTML = `
+    .innerHTML=
+    `
+    <div class="confirmation">
 
-      <div class="confirmation">
+      <strong>
+        Prenotazione pronta
+      </strong>
 
-        <div class="confirmation-title">
-          Prenotazione pronta
-        </div>
+      <div
+        class="meta"
+        style="margin-top:8px">
 
-        <div>
-          <strong>Cliente:</strong>
-          ${escapeHTML(p.clientName)}
-        </div>
-
-        <div>
-          <strong>Servizio:</strong>
-          ${escapeHTML(p.service.name)}
-        </div>
-
-        <div>
-          <strong>Giorno:</strong>
-          ${formatDate(p.date)}
-        </div>
-
-        <div>
-          <strong>Ora:</strong>
-          ${escapeHTML(p.time)}
-        </div>
-
-        <div>
-          <strong>Prezzo:</strong>
-          €${escapeHTML(p.service.price)}
-        </div>
-
-        <div
-          class="row"
-          style="margin-top:12px">
-
-          <button
-            class="btn primary"
-            onclick="confirmMaviBooking()">
-
-            CONFERMA PRENOTAZIONE
-
-          </button>
-
-          <button
-            class="btn secondary"
-            onclick="cancelMaviBooking()">
-
-            Annulla
-
-          </button>
-
-        </div>
+        ${esc(p.clientName)}
+        ·
+        ${esc(p.service.name)}
+        ·
+        ${formatDate(p.date)}
+        ·
+        ${esc(p.time)}
+        ·
+        €${esc(p.service.price)}
 
       </div>
 
+
+      <div
+        class="row"
+        style="margin-top:12px">
+
+        <button
+          class="btn primary"
+          onclick="confirmBooking()">
+
+          CONFERMA PRENOTAZIONE
+
+        </button>
+
+
+        <button
+          class="btn secondary"
+          onclick="cancelBooking()">
+
+          Annulla
+
+        </button>
+
+      </div>
+
+    </div>
     `;
 
 
-  addMaviMessage(
+  addMavi(
     "Ho verificato disponibilità, orari e pause. La prenotazione non è ancora stata salvata. Premi CONFERMA PRENOTAZIONE per salvarla."
   );
 
 }
 
 
-function cancelMaviBooking(){
+function cancelBooking(){
 
-  pendingBooking =
-    null;
+  pendingBooking=null;
 
   $("#confirmationArea")
-    .innerHTML =
-    "";
+    .innerHTML="";
 
-  addMaviMessage(
+  addMavi(
     "Prenotazione annullata. Non ho salvato nulla."
   );
 
 }
 
 
-function confirmMaviBooking(){
+function confirmBooking(){
 
-  if(!pendingBooking){
-    return;
-  }
-
-
-  const p =
+  const p=
     pendingBooking;
 
+  if(!p)
+    return;
 
-  /*
-   * SECONDO CONTROLLO
-   * immediatamente prima del salvataggio.
-   */
 
   if(
-    !isSlotAvailable(
+    !isAvailable(
       p.date,
       p.time,
       p.service.duration
     )
   ){
 
-    pendingBooking =
-      null;
+    pendingBooking=null;
 
     $("#confirmationArea")
-      .innerHTML =
-      "";
+      .innerHTML="";
 
-    addMaviMessage(
-      "L'orario non è più disponibile. Non ho salvato la prenotazione."
+    addMavi(
+      "L’orario non è più disponibile. Non ho salvato la prenotazione."
     );
 
     return;
@@ -5849,37 +4866,27 @@ function confirmMaviBooking(){
   }
 
 
-  const client =
+  const c=
     findOrCreateClient(
       p.clientName
     );
 
 
-  /*
-   * TERZO CONTROLLO DUPLICATO
-   */
+  if(
+    !isAvailable(
+      p.date,
+      p.time,
+      p.service.duration
+    )
+  ){
 
-  const duplicate =
-    appData.appointments
-      .some(
-        a =>
-          a.date === p.date &&
-          a.time === p.time &&
-          a.status !== "cancelled"
-      );
-
-
-  if(duplicate){
-
-    pendingBooking =
-      null;
+    pendingBooking=null;
 
     $("#confirmationArea")
-      .innerHTML =
-      "";
+      .innerHTML="";
 
-    addMaviMessage(
-      "L'orario risulta già occupato. La prenotazione non è stata salvata."
+    addMavi(
+      "L’orario è stato occupato."
     );
 
     return;
@@ -5887,69 +4894,54 @@ function confirmMaviBooking(){
   }
 
 
-  const appointment = {
+  appData.appointments.push({
 
     id:uid(),
 
-    clientId:
-      client.id,
+    clientId:c.id,
 
-    clientName:
-      client.name,
+    clientName:c.name,
 
-    date:
-      p.date,
+    date:p.date,
 
-    time:
-      p.time,
+    time:p.time,
 
-    serviceId:
-      p.service.id,
+    serviceId:p.service.id,
 
-    serviceName:
-      p.service.name,
+    serviceName:p.service.name,
 
-    price:
-      p.service.price,
+    price:p.service.price,
 
-    duration:
-      p.service.duration,
+    duration:p.service.duration,
 
-    status:
-      "confirmed",
+    status:"confirmed",
 
     createdAt:
       new Date().toISOString()
 
-  };
-
-
-  appData.appointments.push(
-    appointment
-  );
+  });
 
 
   saveData();
 
 
-  selectedDate =
+  selectedDate=
     p.date;
 
-  currentCalendarDate =
+  currentCalendarDate=
     new Date(
-      p.date+"T12:00:00"
+      p.date+
+      "T12:00:00"
     );
 
 
-  pendingBooking =
-    null;
+  pendingBooking=null;
 
   $("#confirmationArea")
-    .innerHTML =
-    "";
+    .innerHTML="";
 
 
-  addMaviMessage(
+  addMavi(
     "Prenotazione confermata e salvata nel calendario."
   );
 
@@ -5964,26 +4956,135 @@ function confirmMaviBooking(){
 }
 
 
-/* =========================================================
-   MAVI AVAILABILITY
-========================================================= */
+/* MAVI */
 
-function checkMaviAvailability(text){
+function handleMavi(){
 
-  const date =
-    parseDateFromText(text);
+  const i=
+    $("#maviInput");
 
-  const time =
-    parseTimeFromText(text);
+  const t=
+    i.value.trim();
 
-  const service =
-    parseServiceFromText(text);
 
+  if(!t)
+    return;
+
+
+  i.value="";
+
+  addUser(t);
+
+
+  const l=
+    t.toLowerCase();
+
+
+  if(
+    pendingBooking &&
+    /^(si|sì|ok|confermo|conferma|va bene|prenota)$/
+      .test(l)
+  ){
+
+    confirmBooking();
+
+    return;
+
+  }
+
+
+  if(
+    pendingBooking &&
+    /^(no|annulla|cancella)$/
+      .test(l)
+  ){
+
+    cancelBooking();
+
+    return;
+
+  }
+
+
+  if(
+    /orari|apertura|chiusura|pause|pausa/
+      .test(l)
+  ){
+
+    answerHours(
+      parseDate(t)
+    );
+
+    return;
+
+  }
+
+
+  if(
+    /servizi|prezzo|prezzi|costa|costo/
+      .test(l)
+  ){
+
+    answerServices();
+
+    return;
+
+  }
+
+
+  if(
+    /quanti clienti|numero clienti/
+      .test(l)
+  ){
+
+    addMavi(
+      "Sono presenti "+
+      appData.clients.length+
+      " clienti."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    /prenot|appuntament|fissare|vorrei|voglio/
+      .test(l)
+  ){
+
+    startBooking(t);
+
+    return;
+
+  }
+
+
+  if(
+    /disponibil|libero|occupato/
+      .test(l)
+  ){
+
+    answerAvailability(t);
+
+    return;
+
+  }
+
+
+  addMavi(
+    "Posso aiutarti con appuntamenti, disponibilità, clienti, servizi, orari, pause e promozioni."
+  );
+
+}
+
+
+function answerHours(date){
 
   if(!date){
 
-    addMaviMessage(
-      "Dimmi il giorno che vuoi controllare."
+    addMavi(
+      "Gli orari sono configurati in Impostazioni → Orari."
     );
 
     return;
@@ -5991,10 +5092,23 @@ function checkMaviAvailability(text){
   }
 
 
-  if(!time){
+  const key=
+    dayKey(date);
 
-    addMaviMessage(
-      "Dimmi anche l'orario che vuoi controllare."
+  const s=
+    appData.hours[key];
+
+  const name=
+    DAYS.find(
+      x=>x[0]===key
+    )[1];
+
+
+  if(s.closed){
+
+    addMavi(
+      name+
+      " siamo chiusi."
     );
 
     return;
@@ -6002,315 +5116,295 @@ function checkMaviAvailability(text){
   }
 
 
-  if(!service){
+  addMavi(
 
-    addMaviMessage(
-      "Dimmi il servizio da verificare."
-    );
+    name+
+    " siamo aperti "+
+    s.open+
+    "–"+
+    s.close+
+    (
+      s.pauses.length
+      ?
+      " · Pause: "+
+      s.pauses
+        .map(
+          p=>
+            p.start+
+            "–"+
+            p.end
+        )
+        .join(", ")
+      :
+      ""
+    )+
+    "."
 
-    return;
-
-  }
-
-
-  const available =
-    isSlotAvailable(
-      date,
-      time,
-      service.duration
-    );
-
-
-  if(available){
-
-    addMaviMessage(
-      "Sì. "+
-      formatDate(date)+
-      " alle "+
-      time+
-      " è disponibile per "+
-      service.name+"."
-    );
-
-  }else{
-
-    addMaviMessage(
-      "No. "+
-      time+
-      " non è disponibile per "+
-      service.name+
-      ". Controlla calendario, apertura e pause."
-    );
-
-  }
+  );
 
 }
 
 
-/* =========================================================
-   MAVI VOICE
-========================================================= */
+function answerServices(){
 
-function speak(text){
+  addMavi(
+
+    appData.services.length
+
+    ?
+
+    "Servizi configurati:\n"+
+    appData.services
+      .map(
+        s=>
+          "• "+
+          s.name+
+          " — €"+
+          s.price+
+          " — "+
+          s.duration+
+          " min"
+      )
+      .join("\n")
+
+    :
+
+    "Non ci sono ancora servizi configurati."
+
+  );
+
+}
+
+
+function answerAvailability(t){
+
+  const d=
+    parseDate(t);
+
+  const tm=
+    parseTime(t);
+
+  const s=
+    parseService(t);
+
+
+  if(!d){
+
+    addMavi(
+      "Dimmi il giorno da controllare."
+    );
+
+    return;
+
+  }
+
+
+  if(!tm){
+
+    addMavi(
+      "Dimmi anche l’orario."
+    );
+
+    return;
+
+  }
+
+
+  if(!s){
+
+    addMavi(
+      "Dimmi il servizio."
+    );
+
+    return;
+
+  }
+
+
+  addMavi(
+
+    isAvailable(
+      d,
+      tm,
+      s.duration
+    )
+
+    ?
+
+    "Sì, l’orario è disponibile."
+
+    :
+
+    "No, l’orario non è disponibile."
+
+  );
+
+}
+
+
+/* VOCE */
+
+function speak(t){
 
   if(
     !("speechSynthesis" in window)
-  ){
-
+  )
     return;
 
-  }
+
+  window.speechSynthesis.cancel();
 
 
-  try{
-
-    window.speechSynthesis.cancel();
-
-    const utterance =
-      new SpeechSynthesisUtterance(
-        text
-      );
-
-    utterance.lang =
-      "it-IT";
-
-    utterance.rate =
-      1;
-
-    utterance.pitch =
-      1;
-
-    window.speechSynthesis.speak(
-      utterance
+  const u=
+    new SpeechSynthesisUtterance(
+      t
     );
 
-  }catch(error){
+  u.lang="it-IT";
 
-    console.error(
-      "Speech error",
-      error
-    );
-
-  }
+  window.speechSynthesis.speak(u);
 
 }
 
 
-let recognition =
-  null;
-
-
-$("#voiceButton")
-  .addEventListener(
-    "click",
-    startVoiceRecognition
-  );
-
-
-function startVoiceRecognition(){
-
-  const Recognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
-
-
-  if(!Recognition){
-
-    showToast(
-      "Riconoscimento vocale non disponibile"
-    );
-
-    return;
-
-  }
-
-
-  recognition =
-    new Recognition();
-
-  recognition.lang =
-    "it-IT";
-
-  recognition.interimResults =
-    false;
-
-  recognition.continuous =
-    false;
-
-
-  $("#maviStatus")
-    .textContent =
-    "Ascolto";
-
-
-  recognition.onresult =
-    event => {
-
-      const text =
-        event.results[0][0]
-          .transcript;
-
-      $("#maviInput")
-        .value =
-        text;
-
-      $("#maviStatus")
-        .textContent =
-        "Elaborazione";
-
-      handleMaviMessage();
-
-    };
-
-
-  recognition.onerror =
-    () => {
-
-      $("#maviStatus")
-        .textContent =
-        "Pronta";
-
-    };
-
-
-  recognition.onend =
-    () => {
-
-      $("#maviStatus")
-        .textContent =
-        "Pronta";
-
-    };
-
-
-  try{
-
-    recognition.start();
-
-  }catch(error){
-
-    $("#maviStatus")
-      .textContent =
-      "Pronta";
-
-  }
-
-}
+let recognition=null;
 
 
 $("#maviSend")
-  .addEventListener(
-    "click",
-    handleMaviMessage
-  );
+  .onclick=
+  handleMavi;
 
 
 $("#maviInput")
-  .addEventListener(
-    "keydown",
-    event => {
+  .onkeydown=
+  e=>{
 
-      if(
-        event.key === "Enter"
-      ){
+    if(
+      e.key==="Enter"
+    )
+      handleMavi();
 
-        handleMaviMessage();
-
-      }
-
-    }
-  );
+  };
 
 
-/* =========================================================
-   SOCIAL CONTENT
-========================================================= */
+$("#voiceButton")
+  .onclick=()=>{
 
-const SOCIALS = {
-
-  instagram:{
-    title:"Instagram",
-    description:"Caption e hashtag",
-  },
-
-  facebook:{
-    title:"Facebook",
-    description:"Post completo",
-  },
-
-  tiktok:{
-    title:"TikTok",
-    description:"Testo breve e hashtag",
-  },
-
-  whatsapp:{
-    title:"WhatsApp",
-    description:"Messaggio clienti",
-  },
-
-  telegram:{
-    title:"Telegram",
-    description:"Messaggio canale",
-  },
-
-  email:{
-    title:"Email / Google",
-    description:"Oggetto + email",
-  }
-
-};
+    const R=
+      window.SpeechRecognition||
+      window.webkitSpeechRecognition;
 
 
-$all("[data-social]")
-  .forEach(
-    button => {
+    if(!R){
 
-      button.addEventListener(
-        "click",
-        () => {
-
-          selectedSocial =
-            button.dataset.social;
-
-          $all("[data-social]")
-            .forEach(
-              b =>
-                b.classList.toggle(
-                  "active",
-                  b.dataset.social ===
-                  selectedSocial
-                )
-            );
-
-          updateSocialTitle();
-
-        }
+      showToast(
+        "Riconoscimento vocale non disponibile"
       );
 
+      return;
+
     }
+
+
+    recognition=
+      new R();
+
+    recognition.lang=
+      "it-IT";
+
+    recognition.interimResults=
+      false;
+
+
+    $("#maviStatus")
+      .textContent=
+      "Ascolto";
+
+
+    recognition.onresult=
+      e=>{
+
+        $("#maviInput")
+          .value=
+          e.results[0][0]
+            .transcript;
+
+        handleMavi();
+
+      };
+
+
+    recognition.onend=
+      ()=>
+        $("#maviStatus")
+          .textContent=
+          "Pronta";
+
+
+    recognition.onerror=
+      ()=>
+        $("#maviStatus")
+          .textContent=
+          "Pronta";
+
+
+    try{
+
+      recognition.start();
+
+    }catch(e){
+
+      $("#maviStatus")
+        .textContent=
+        "Pronta";
+
+    }
+
+  };
+
+
+/* CONTENUTI */
+
+$$("[data-social]")
+  .forEach(
+    b=>
+      b.onclick=()=>{
+
+        selectedSocial=
+          b.dataset.social;
+
+        $$("[data-social]")
+          .forEach(
+            x=>
+              x.classList.toggle(
+                "active",
+                x.dataset.social===
+                selectedSocial
+              )
+          );
+
+        updateSocialTitle();
+
+      }
   );
 
 
 function updateSocialTitle(){
 
-  const social =
-    SOCIALS[selectedSocial];
-
-
   $("#contentChannelTitle")
-    .textContent =
-    social.title;
+    .textContent=
+    SOCIALS[selectedSocial][0];
 
   $("#contentChannelDescription")
-    .textContent =
-    social.description;
+    .textContent=
+    SOCIALS[selectedSocial][1];
 
 }
 
 
 function generateSocialContent(){
 
-  const topic =
+  const topic=
     $("#postTopic")
       .value
       .trim();
@@ -6327,111 +5421,118 @@ function generateSocialContent(){
   }
 
 
-  const style =
-    $("#postStyle")
-      .value;
-
-
-  const business =
-    appData.business.name ||
+  const business=
+    appData.business.name||
     "la nostra attività";
 
 
-  let output = "";
+  const first=
+    topic.charAt(0)
+    .toUpperCase()+
+    topic.slice(1);
 
 
-  switch(selectedSocial){
+  let out="";
 
-    case "instagram":
 
-      output =
-        `${topic.charAt(0).toUpperCase()+topic.slice(1)}
+  if(
+    selectedSocial==="instagram"
+  ){
 
-Presso ${business} ci prendiamo cura di ogni dettaglio con professionalità e attenzione.
+    out=
+`${first}
 
-Scrivici per informazioni o per prenotare il tuo appuntamento.
+Presso ${business} ci prendiamo cura di ogni dettaglio con professionalità.
+
+Scrivici per informazioni o prenotazioni.
 
 #${business.replace(/\s+/g,"")} #servizi #prenotazione`;
 
-      break;
+  }
 
 
-    case "facebook":
+  if(
+    selectedSocial==="facebook"
+  ){
 
-      output =
-        `${topic.charAt(0).toUpperCase()+topic.slice(1)}
+    out=
+`${first}
 
-Da ${business} lavoriamo ogni giorno per offrirti un servizio professionale, curato e pensato per le tue esigenze.
+Da ${business} lavoriamo ogni giorno per offrirti un servizio professionale e pensato per le tue esigenze.
 
 Per informazioni o prenotazioni contattaci direttamente.`;
 
-      break;
+  }
 
 
-    case "tiktok":
+  if(
+    selectedSocial==="tiktok"
+  ){
 
-      output =
-        `${topic}
+    out=
+`${topic}
 
-Scopri ${business}.
-
-Prenota il tuo appuntamento e vieni a trovarci.
+Scopri ${business}. Prenota il tuo appuntamento.
 
 #${business.replace(/\s+/g,"")} #fyp #italia`;
 
-      break;
+  }
 
 
-    case "whatsapp":
+  if(
+    selectedSocial==="whatsapp"
+  ){
 
-      output =
-        `Ciao! 👋
+    out=
+`Ciao!
 
 Da ${business} abbiamo una novità per te:
 
 ${topic}
 
-Per informazioni o per prenotare il tuo appuntamento rispondi direttamente a questo messaggio.`;
+Per informazioni o prenotazioni rispondi a questo messaggio.`;
 
-      break;
+  }
 
 
-    case "telegram":
+  if(
+    selectedSocial==="telegram"
+  ){
 
-      output =
-        `📢 ${topic}
+    out=
+`📢 ${topic}
 
 ${business}
 
 Per informazioni e prenotazioni contattaci direttamente.`;
 
-      break;
+  }
 
 
-    case "email":
+  if(
+    selectedSocial==="email"
+  ){
 
-      output =
-        `OGGETTO: ${topic}
+    out=
+`OGGETTO: ${topic}
 
 Buongiorno,
 
 ti contattiamo da ${business}.
 
-${topic.charAt(0).toUpperCase()+topic.slice(1)}.
+${first}.
 
 Per maggiori informazioni o per prenotare un appuntamento puoi rispondere a questa email.
 
 Cordiali saluti,
 ${business}`;
 
-      break;
-
   }
 
 
   $("#postOutput")
-    .textContent =
-    output;
+    .textContent=
+    out;
 
 
   appData.contents.push({
@@ -6442,9 +5543,7 @@ ${business}`;
 
     topic,
 
-    style,
-
-    text:output,
+    text:out,
 
     createdAt:
       new Date().toISOString()
@@ -6459,7 +5558,7 @@ ${business}`;
 
 function copyContent(){
 
-  const text =
+  const t=
     $("#postOutput")
       .textContent;
 
@@ -6469,34 +5568,20 @@ function copyContent(){
   ){
 
     navigator.clipboard
-      .writeText(text)
+      .writeText(t)
       .then(
-        () =>
+        ()=>
           showToast(
             "Contenuto copiato"
           )
-      )
-      .catch(
-        () =>
-          showToast(
-            "Copia non disponibile"
-          )
       );
-
-  }else{
-
-    showToast(
-      "Copia non disponibile"
-    );
 
   }
 
 }
 
 
-/* =========================================================
-   RENDER ALL
-========================================================= */
+/* RENDER */
 
 function renderAll(){
 
@@ -6513,9 +5598,7 @@ function renderAll(){
 }
 
 
-/* =========================================================
-   INIT
-========================================================= */
+/* INIT */
 
 function init(){
 
