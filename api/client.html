@@ -1,31 +1,186 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#07142f"><title>Mavi â€” Prenotazioni</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07142f">
+<title>Mavi â€” Prenotazioni</title>
 <style>
 :root{--n:#07142f;--n2:#0b1d40;--t:#f6f8ff;--m:#9eafd0;--l:rgba(255,255,255,.09);--grad:linear-gradient(135deg,#38a7ff,#875cff 52%,#39d98a)}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(circle at 0 0,rgba(56,167,255,.13),transparent 35%),radial-gradient(circle at 100% 10%,rgba(135,92,255,.13),transparent 35%),var(--n);color:var(--t)}
-.wrap{width:min(900px,100%);margin:auto;padding:22px}.card{background:linear-gradient(180deg,rgba(19,43,87,.97),rgba(10,29,62,.97));border:1px solid var(--l);border-radius:24px;padding:22px;box-shadow:0 20px 55px rgba(0,0,0,.28)}.brand{display:flex;align-items:center;gap:12px;margin-bottom:16px}.logo{width:54px;height:54px;border-radius:16px;object-fit:cover}.muted{color:var(--m);font-size:13px}.badge{display:inline-flex;padding:5px 9px;border-radius:99px;background:rgba(57,217,138,.12);color:#72e9ae;font-size:11px}.chat{height:calc(100vh - 100px);min-height:560px;display:flex;flex-direction:column}.messages{flex:1;overflow:auto;display:grid;align-content:start;gap:10px;padding:18px 2px}.bubble{max-width:88%;padding:12px 15px;border-radius:17px;line-height:1.5;white-space:pre-wrap}.mavi{justify-self:start;background:#091a39;border:1px solid var(--l)}.user{justify-self:end;background:var(--grad)}.bar{display:flex;gap:8px}.bar input{flex:1;border:1px solid var(--l);border-radius:13px;background:#091a39;color:#fff;padding:13px;outline:none}.btn{border:1px solid var(--l);border-radius:13px;background:#193968;color:#fff;padding:11px 14px;cursor:pointer}.primary{background:var(--grad);border:0;font-weight:800}.btn:disabled{opacity:.45;cursor:not-allowed}.info{margin-top:14px;color:var(--m);font-size:11px;line-height:1.5}@media(max-width:600px){.wrap{padding:10px}.chat{height:calc(100vh - 20px);min-height:0}.bubble{max-width:94%}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(circle at 0 0,rgba(56,167,255,.13),transparent 35%),radial-gradient(circle at 100% 10%,rgba(135,92,255,.13),transparent 35%),var(--n);color:var(--t)}
+.wrap{width:min(900px,100%);margin:auto;padding:22px}
+.card{background:linear-gradient(180deg,rgba(19,43,87,.97),rgba(10,29,62,.97));border:1px solid var(--l);border-radius:24px;padding:22px;box-shadow:0 20px 55px rgba(0,0,0,.28)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.logo{width:54px;height:54px;border-radius:16px;object-fit:cover}
+.mark{width:54px;height:54px;border-radius:16px;background:var(--grad);display:grid;place-items:center;font-size:28px;font-weight:900}
+.muted{color:var(--m);font-size:13px}
+.badge{display:inline-flex;padding:5px 9px;border-radius:99px;background:rgba(57,217,138,.12);color:#72e9ae;font-size:11px}
+.chat{height:calc(100vh - 100px);min-height:560px;display:flex;flex-direction:column}
+.messages{flex:1;overflow:auto;display:grid;align-content:start;gap:10px;padding:18px 2px}
+.bubble{max-width:88%;padding:12px 15px;border-radius:17px;line-height:1.5;white-space:pre-wrap}
+.mavi{justify-self:start;background:#091a39;border:1px solid var(--l)}
+.user{justify-self:end;background:var(--grad)}
+.bar{display:flex;gap:8px}
+.bar input{flex:1;border:1px solid var(--l);border-radius:13px;background:#091a39;color:#fff;padding:13px;outline:none}
+.btn{border:1px solid var(--l);border-radius:13px;background:#193968;color:#fff;padding:11px 14px;cursor:pointer}
+.primary{background:var(--grad);border:0;font-weight:800}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.info{margin-top:14px;color:var(--m);font-size:11px;line-height:1.5}
+@media(max-width:600px){.wrap{padding:10px}.chat{height:calc(100vh - 20px);min-height:0}.bubble{max-width:94%}}
 </style>
 </head>
 <body>
-<div class="wrap"><div class="card chat">
-  <div class="brand"><div><strong id="businessName">Mavi</strong><div class="muted">Assistente clienti per informazioni e prenotazioni</div></div><span class="badge">ONLINE</span></div>
-  <div class="messages" id="messages"><div class="bubble mavi">Ciao, sono Mavi. Posso aiutarti con servizi, prezzi, orari e prenotazioni.</div></div>
-  <div class="bar"><button class="btn" id="voice" title="Parla con Mavi">ðŸŽ™</button><input id="input" placeholder="Scrivi a Maviâ€¦" autocomplete="off"><button class="btn primary" id="send">Invia</button></div>
-  <div class="info">Mavi utilizza esclusivamente le informazioni pubbliche configurate dall'attivitÃ . Per una prenotazione chiederÃ  conferma prima di procedere.</div>
-</div></div>
+<div class="wrap">
+<div class="card chat">
+  <div class="brand">
+    <div class="mark">M</div>
+    <div style="flex:1">
+      <strong id="businessName">Mavi</strong>
+      <div class="muted">Assistente clienti per informazioni e prenotazioni</div>
+    </div>
+    <span class="badge">ONLINE</span>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="bubble mavi">Ciao, sono Mavi. Posso aiutarti con servizi, prezzi, orari e prenotazioni.</div>
+  </div>
+
+  <div class="bar">
+    <button class="btn" id="voice" title="Parla con Mavi">ðŸŽ™</button>
+    <input id="input" placeholder="Scrivi a Maviâ€¦" autocomplete="off">
+    <button class="btn primary" id="send">Invia</button>
+  </div>
+
+  <div class="info">
+    Mavi utilizza esclusivamente le informazioni pubbliche configurate dall'attivitÃ .
+    Per una prenotazione chiederÃ  sempre una conferma esplicita prima di procedere.
+  </div>
+</div>
+</div>
+
 <script>
 "use strict";
-const $=id=>document.getElementById(id),sessionId=(crypto.randomUUID?crypto.randomUUID():Date.now()+""),history=[];
+
+const $=id=>document.getElementById(id);
+const sessionId=crypto.randomUUID?crypto.randomUUID():String(Date.now());
+const history=[];
 let publicContext=null;
-function add(text,cls){const x=document.createElement("div");x.className="bubble "+cls;x.textContent=text;$("messages").appendChild(x);$("messages").scrollTop=$("messages").scrollHeight;return x}
-async function api(action,extra={}){const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,role:"client",sessionId,...extra})});let j={};try{j=await r.json()}catch{}if(!r.ok||j.ok===false)throw new Error(j.error||"Servizio Mavi non disponibile.");return j}
-async function init(){try{publicContext=await api("public-context");$("businessName").textContent=publicContext.business?.name||"Mavi";const n=publicContext.business?.name;if(n)document.title="Mavi â€” "+n;}catch(e){add("Il servizio clienti non Ã¨ ancora configurato. Contatta l'attivitÃ .","mavi");$("send").disabled=true;$("input").disabled=true;}}
-async function send(){const i=$("input"),q=i.value.trim();if(!q)return;i.value="";add(q,"user");const wait=add("Sto verificandoâ€¦","mavi");$("send").disabled=true;try{const r=await api("chat",{message:q,history});wait.textContent=r.answer||"Non ho ricevuto risposta.";history.push({role:"user",content:q},{role:"assistant",content:r.answer||""});if("speechSynthesis"in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(r.answer||"");u.lang="it-IT";speechSynthesis.speak(u)}}catch(e){wait.textContent=e.message||"Non riesco a rispondere in questo momento."}finally{$("send").disabled=false;i.focus()}}
-$("send").onclick=send;$("input").onkeydown=e=>{if(e.key==="Enter")send()};
-if("SpeechRecognition"in window||"webkitSpeechRecognition"in window){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;$("voice").onclick=()=>{const r=new SR();r.lang="it-IT";r.interimResults=false;r.onresult=e=>{$("input").value=e.results[0][0].transcript;send()};r.onerror=()=>add("Microfono non disponibile.","mavi");r.start()}}else $("voice").disabled=true;
+
+function add(text,cls){
+  const x=document.createElement("div");
+  x.className="bubble "+cls;
+  x.textContent=text;
+  $("messages").appendChild(x);
+  $("messages").scrollTop=$("messages").scrollHeight;
+  return x;
+}
+
+async function api(action,extra={}){
+  const r=await fetch("/api/chat",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      action,
+      role:"client",
+      mode:"client",
+      sessionId,
+      ...extra
+    })
+  });
+
+  let j={};
+  try{j=await r.json()}catch{}
+
+  if(!r.ok||j.ok===false){
+    throw new Error(j.error||"Servizio Mavi non disponibile.");
+  }
+
+  return j;
+}
+
+async function init(){
+  try{
+    publicContext=await api("public-context");
+    $("businessName").textContent=publicContext.business?.name||"Mavi";
+
+    const n=publicContext.business?.name;
+    if(n)document.title="Mavi â€” "+n;
+  }catch(e){
+    add("Il servizio clienti non Ã¨ ancora configurato. Contatta l'attivitÃ .","mavi");
+    $("send").disabled=true;
+    $("input").disabled=true;
+  }
+}
+
+async function send(){
+  const i=$("input");
+  const q=i.value.trim();
+  if(!q)return;
+
+  i.value="";
+  add(q,"user");
+
+  const wait=add("Sto verificandoâ€¦","mavi");
+  $("send").disabled=true;
+  i.disabled=true;
+
+  try{
+    const r=await api("chat",{
+      message:q,
+      history
+    });
+
+    const answer=r.answer||"Non ho ricevuto risposta.";
+    wait.textContent=answer;
+
+    history.push(
+      {role:"user",content:q},
+      {role:"assistant",content:answer}
+    );
+
+    if("speechSynthesis" in window){
+      speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(answer);
+      u.lang="it-IT";
+      speechSynthesis.speak(u);
+    }
+  }catch(e){
+    wait.textContent=e.message||"Non riesco a rispondere in questo momento.";
+  }finally{
+    $("send").disabled=false;
+    i.disabled=false;
+    i.focus();
+  }
+}
+
+$("send").onclick=send;
+
+$("input").onkeydown=e=>{
+  if(e.key==="Enter")send();
+};
+
+if("SpeechRecognition" in window||"webkitSpeechRecognition" in window){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+
+  $("voice").onclick=()=>{
+    const r=new SR();
+    r.lang="it-IT";
+    r.interimResults=false;
+    r.onresult=e=>{
+      $("input").value=e.results[0][0].transcript;
+      send();
+    };
+    r.onerror=()=>{
+      add("Microfono non disponibile.","mavi");
+    };
+    r.start();
+  };
+}else{
+  $("voice").disabled=true;
+}
+
 init();
 </script>
-</body></html>
+</body>
+</html>
