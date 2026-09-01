@@ -8,6 +8,6 @@
     "test": "node --test",
     "verify": "npm run check && npm test"
   },
-  "engines": { "node": ">=20" },
+  "engines": { "node": "24.x" },
   "dependencies": {}
 }
