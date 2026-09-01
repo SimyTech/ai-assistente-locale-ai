@@ -12,6 +12,7 @@ test("un'attività su appuntamento mette il calendario in primo piano", () => {
   assert.equal(plan.order[1], "calendar");
   assert.equal(plan.visible.calendar, true);
   assert.equal(plan.labels.appointments, "Appuntamenti");
+  assert.equal(plan.primaryAction, "Nuovo appuntamento");
 });
 
 test("un negozio senza agenda non mostra il calendario", () => {
@@ -33,6 +34,7 @@ test("usa correttamente termini personalizzati di settori diversi", () => {
   });
   assert.equal(health.labels.clients, "Pazienti");
   assert.equal(health.labels.appointments, "Visite");
+  assert.equal(health.primaryAction, "Nuova visita");
 
   const fitness = adaptiveDashboardPlan({
     workflowMode: "mixed",
@@ -41,6 +43,7 @@ test("usa correttamente termini personalizzati di settori diversi", () => {
   assert.equal(fitness.labels.services, "Lezioni/servizi");
   assert.equal(fitness.labels.clients, "Soci");
   assert.equal(fitness.labels.appointments, "Prenotazioni");
+  assert.equal(fitness.primaryAction, "Nuova prenotazione");
 });
 
 test("le capability possono togliere moduli non utili senza dipendere dal settore", () => {
@@ -54,4 +57,5 @@ test("le capability possono togliere moduli non utili senza dipendere dal settor
   assert.equal(plan.visible.services, false);
   assert.equal(plan.visible.promotions, false);
   assert.equal(plan.visible.content, false);
+  assert.equal(plan.primaryAction, "Nuova prenotazione");
 });
