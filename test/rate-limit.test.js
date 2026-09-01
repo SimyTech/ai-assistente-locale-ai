@@ -16,5 +16,7 @@ test("applica limiti più severi alle operazioni sensibili", () => {
   assert.ok(rateLimitPolicy("book").limit < rateLimitPolicy("availability").limit);
   assert.equal(rateLimitPolicy("auth").limit, 8);
   assert.equal(rateLimitPolicy("auth").windowSeconds, 900);
+  assert.equal(rateLimitPolicy("account").limit, 8);
+  assert.equal(rateLimitPolicy("account").windowSeconds, 600);
   assert.equal(rateLimitPolicy("unknown"), null);
 });
