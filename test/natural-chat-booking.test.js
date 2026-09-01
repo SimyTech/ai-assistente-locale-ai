@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import handler, { normalizeFrontendHours } from "../api/chat-proxy.js";
+import chatEntryHandler, { normalizeExplicitDateTimeMessage } from "../api/chat-entry.js";
 
 function response() {
   return {
@@ -56,6 +57,45 @@ test("Mavi riconosce domani ore 15 come slot libero nella chat titolare", async 
   assert.match(res.payload.answer, /15:00.*disponibile/i);
   assert.equal(res.payload.booking?.time, "15:00");
   assert.equal(res.payload.booking?.service, "Taglio uomo");
+});
+
+test("normalizza data esplicita senza scambiare il giorno per l'orario", () => {
+  const cases = [
+    ["appuntamento il 02/09/2026 ore 15", "ore 15:00"],
+    ["appuntamento il 02/09/2026 alle 15:30", "ore 15:30"],
+    ["appuntamento 02-09-2026 h 9", "ore 09:00"]
+  ];
+
+  for (const [message, expectedPrefix] of cases) {
+    const normalized = normalizeExplicitDateTimeMessage({ action: "chat", message });
+    assert.match(normalized.message, new RegExp(`^${expectedPrefix}`));
+    assert.match(normalized.message, /02[\/-]09[\/-]2026/);
+  }
+});
+
+test("Mavi usa l'orario dopo 'ore' quando la richiesta contiene una data esplicita", async () => {
+  const res = response();
+
+  await chatEntryHandler({
+    method: "POST",
+    headers: {},
+    body: {
+      action: "chat",
+      role: "owner",
+      message: "Simone, appuntamento taglio uomo il 07/09/2026 ore 15",
+      business: { name: "Attività Test" },
+      settings: { hours: Array.from({ length: 7 }, () => ({ ...openDay })) },
+      services: [{ id: "s1", name: "Taglio uomo", duration: 30, price: 20 }],
+      appointments: [],
+      clients: [],
+      promotions: []
+    }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.payload.ok, true);
+  assert.equal(res.payload.booking?.date, "2026-09-07");
+  assert.equal(res.payload.booking?.time, "15:00");
 });
 
 const customerDataset = {
