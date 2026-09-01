@@ -67,10 +67,16 @@ test("la registrazione può verificare l'email con un token monouso", async () =
     }, env);
     assert.equal(before?.emailVerified, false);
 
-    const requested = await requestEmailVerification("owner@example.com", env);
+    const wrongTenant = await requestEmailVerification("owner@example.com", env, "studio-due");
+    assert.deepEqual(wrongTenant, { accepted: false, sent: false, reason: "tenant-mismatch" });
+
+    const requested = await requestEmailVerification("owner@example.com", env, "studio-uno");
     assert.equal(requested.sent, true);
     const token = mock.token();
     assert.match(token, /^[a-f0-9]{64}$/);
+
+    const tooSoon = await requestEmailVerification("owner@example.com", env, "studio-uno");
+    assert.deepEqual(tooSoon, { accepted: false, sent: false, reason: "cooldown" });
 
     const verified = await consumeEmailVerification(token, env);
     assert.equal(verified.verified, true);

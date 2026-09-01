@@ -32,10 +32,17 @@ export default async function handler(req, res) {
     const email = clean(body.email).toLowerCase();
     if (!email) return res.status(400).json({ ok: false, error: "Email account non disponibile." });
     try {
-      const result = await requestEmailVerification(email);
+      const result = await requestEmailVerification(email, process.env, tenantId);
       if (result.reason === "already-verified") return res.status(200).json({ ok: true, sent: false, verified: true });
       if (result.reason === "email-not-configured") {
         return res.status(503).json({ ok: false, error: "Invio email Maviri non ancora configurato." });
+      }
+      if (result.reason === "cooldown") {
+        res.setHeader("Retry-After", "60");
+        return res.status(429).json({ ok: false, error: "Email già inviata. Attendi un minuto prima di riprovare." });
+      }
+      if (result.reason === "tenant-mismatch") {
+        return res.status(403).json({ ok: false, error: "L'account non appartiene a questa attività." });
       }
       if (!result.accepted) return res.status(400).json({ ok: false, error: "Impossibile inviare la verifica email." });
       return res.status(200).json({ ok: true, sent: result.sent === true, verified: false });
