@@ -213,20 +213,11 @@ function applyOwnerPullPayload(j){
       c=>c?.id!=null?String(c.id):norm(c?.name||"")+"|"+clean(c?.phone||c?.whatsapp||"")
     );
   }
-  if(hasServices){
-    data.services=mergeRemoteList(
-      data.services,
-      remote.services,
-      s=>s?.id!=null?String(s.id):norm(s?.name||"")
-    );
-  }
-  if(hasPromotions){
-    data.promotions=mergeRemoteList(
-      data.promotions,
-      remote.promotions,
-      p=>p?.id!=null?String(p.id):norm(p?.title||p?.name||"")+"|"+clean(p?.valid||p?.validUntil||"")
-    );
-  }
+  /* Queste liste sono amministrate dal titolare: il server è
+     autorevole anche quando restituisce un array vuoto, così le
+     eliminazioni restano coerenti su tutti i dispositivi. */
+  if(hasServices)data.services=remote.services.map(item=>({...item}));
+  if(hasPromotions)data.promotions=remote.promotions.map(item=>({...item}));
   if(hasSettings){
     data.settings={
       ...data.settings,
