@@ -9,6 +9,10 @@
       "destination": "/app.html"
     },
     {
+      "source": "/setup",
+      "destination": "/setup.html"
+    },
+    {
       "source": "/api/chat",
       "destination": "/api/chat-proxy"
     }
