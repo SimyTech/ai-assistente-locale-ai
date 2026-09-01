@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142f">
+<title>Maviri — Accesso</title>
+<style>
+:root{--n:#07142f;--n2:#0b1d40;--p:#10254c;--t:#f6f8ff;--m:#9eafd0;--l:rgba(255,255,255,.1);--b:#38a7ff;--v:#875cff;--g:#39d98a;--d:#ff6679;--grad:linear-gradient(135deg,#38a7ff,#875cff 52%,#39d98a)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(circle at 10% 10%,rgba(56,167,255,.14),transparent 34%),radial-gradient(circle at 90% 15%,rgba(135,92,255,.14),transparent 34%),var(--n);color:var(--t)}
+body{display:grid;place-items:center;padding:22px}.shell{width:min(980px,100%);display:grid;grid-template-columns:1.05fr .95fr;border:1px solid var(--l);border-radius:30px;overflow:hidden;background:rgba(8,25,55,.94);box-shadow:0 32px 90px rgba(0,0,0,.38)}
+.hero{padding:54px;background:linear-gradient(145deg,rgba(56,167,255,.12),rgba(135,92,255,.1) 48%,rgba(57,217,138,.08));display:flex;flex-direction:column;justify-content:space-between;min-height:590px}.brand{font-size:30px;font-weight:900;letter-spacing:-.5px}.brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.hero h1{font-size:48px;line-height:1.06;margin:0 0 18px}.hero p{color:var(--m);font-size:16px;line-height:1.65;max-width:520px}.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;background:rgba(57,217,138,.1);color:#82efb8;font-size:12px;width:max-content}.dot{width:8px;height:8px;border-radius:50%;background:var(--g)}
+.panel{padding:54px;display:flex;flex-direction:column;justify-content:center}.panel h2{font-size:30px;margin:0 0 8px}.sub{color:var(--m);margin:0 0 28px;line-height:1.5}.field{display:grid;gap:7px;margin-bottom:15px}.field label{font-size:12px;color:var(--m)}input{width:100%;border:1px solid var(--l);border-radius:14px;background:#091a39;color:#fff;padding:14px 15px;outline:none;font-size:15px}input:focus{border-color:rgba(56,167,255,.75);box-shadow:0 0 0 3px rgba(56,167,255,.08)}button{width:100%;border:0;border-radius:14px;padding:14px 16px;color:#fff;background:var(--grad);font-weight:800;font-size:15px;cursor:pointer;margin-top:5px}button:disabled{opacity:.55;cursor:wait}.msg{min-height:22px;margin-top:14px;font-size:13px;color:var(--m)}.msg.error{color:#ff9aaa}.msg.ok{color:#83edb7}.foot{margin-top:22px;color:var(--m);font-size:11px;line-height:1.55}.tech{margin-top:18px;border-top:1px solid var(--l);padding-top:16px}.tech summary{cursor:pointer;color:var(--m);font-size:12px}.techbox{display:none;margin-top:12px}.tech[open] .techbox{display:block}.tech button{background:rgba(255,255,255,.07);border:1px solid var(--l)}
+@media(max-width:800px){.shell{grid-template-columns:1fr}.hero{min-height:auto;padding:32px}.hero h1{font-size:36px}.panel{padding:32px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<section class="hero">
+  <div class="brand"><span>Maviri</span></div>
+  <div>
+    <div class="pill"><i class="dot"></i> Manager digitale per la tua attività</div>
+    <h1>Entra nel tuo spazio Maviri.</h1>
+    <p>Appuntamenti, clienti, Mavi e automazioni della tua attività restano separati e protetti nel tuo account.</p>
+  </div>
+  <div class="foot">Mavi lavora con i dati della tua attività. L’accesso viene mantenuto tramite una sessione protetta HttpOnly.</div>
+</section>
+<section class="panel">
+  <h2>Accedi</h2>
+  <p class="sub">Usa email o nome utente e la password del tuo account.</p>
+  <form id="loginForm">
+    <div class="field"><label for="login">Email o nome utente</label><input id="login" name="login" autocomplete="username" required></div>
+    <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+    <button id="submitBtn" type="submit">Entra in Maviri</button>
+    <div id="message" class="msg" aria-live="polite"></div>
+  </form>
+  <details class="tech" id="legacyArea">
+    <summary>Accesso tecnico temporaneo</summary>
+    <div class="techbox">
+      <div class="field"><label for="legacyTenant">ID attività</label><input id="legacyTenant" autocomplete="off" placeholder="default"></div>
+      <div class="field"><label for="legacyToken">Token amministratore</label><input id="legacyToken" type="password" autocomplete="off"></div>
+      <button type="button" id="legacyBtn">Accedi con metodo precedente</button>
+    </div>
+  </details>
+</section>
+</main>
+<script>
+const AUTH_KEY="MAVIRI_OWNER_AUTHENTICATED";
+const TENANT_KEY="MAVIRI_TENANT_ID";
+const ACCOUNT_KEY="MAVIRI_OWNER_ACCOUNT";
+const LEGACY_TOKEN_KEY="MAVIRI_OWNER_SYNC_TOKEN";
+const $=id=>document.getElementById(id);
+function message(text,type=""){const el=$("message");el.textContent=text||"";el.className="msg"+(type?" "+type:"")}
+function rememberSession(payload){
+  localStorage.setItem(AUTH_KEY,"true");
+  localStorage.setItem(TENANT_KEY,String(payload.tenantId||"default"));
+  if(payload.account)localStorage.setItem(ACCOUNT_KEY,JSON.stringify(payload.account));else localStorage.removeItem(ACCOUNT_KEY);
+  localStorage.removeItem(LEGACY_TOKEN_KEY);
+}
+async function authStatus(){
+  const tenant=(localStorage.getItem(TENANT_KEY)||"").trim();
+  if(!tenant)return false;
+  try{
+    const r=await fetch("/api/auth",{method:"GET",headers:{"x-maviri-tenant":tenant},credentials:"same-origin",cache:"no-store"});
+    if(!r.ok)return false;
+    const j=await r.json();
+    if(j.authenticated){localStorage.setItem(AUTH_KEY,"true");return true}
+  }catch{}
+  return false;
+}
+async function loginAccount(login,password){
+  const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({login,password})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||!j.authenticated)throw new Error(j.error||"Accesso non riuscito.");
+  rememberSession(j);return j;
+}
+async function loginLegacy(tenantId,token){
+  const tenant=(tenantId||"default").trim().toLowerCase();
+  const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json","x-maviri-tenant":tenant},credentials:"same-origin",body:JSON.stringify({tenantId:tenant,token})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||!j.authenticated)throw new Error(j.error||"Accesso tecnico non riuscito.");
+  rememberSession(j);return j;
+}
+async function migrateLegacy(){
+  const oldToken=(localStorage.getItem(LEGACY_TOKEN_KEY)||"").trim();
+  if(!oldToken)return false;
+  const tenant=(localStorage.getItem(TENANT_KEY)||"default").trim();
+  try{await loginLegacy(tenant,oldToken);return true}catch{return false}
+}
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();const btn=$("submitBtn");btn.disabled=true;message("Verifica credenziali…");
+  try{await loginAccount($("login").value.trim(),$("password").value);message("Accesso riuscito.","ok");location.replace("/app")}catch(err){message(err.message||"Credenziali non valide.","error");btn.disabled=false}
+});
+$("legacyBtn").addEventListener("click",async()=>{
+  const btn=$("legacyBtn");btn.disabled=true;message("Verifica accesso tecnico…");
+  try{await loginLegacy($("legacyTenant").value,$("legacyToken").value);message("Accesso riuscito.","ok");location.replace("/app")}catch(err){message(err.message||"Accesso non riuscito.","error");btn.disabled=false}
+});
+(async()=>{
+  if(await authStatus()){location.replace("/app");return}
+  localStorage.removeItem(AUTH_KEY);
+  if(await migrateLegacy()){location.replace("/app")}
+})();
+</script>
+</body>
+</html>
