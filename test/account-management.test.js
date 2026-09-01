@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import {
   authenticateStoredOwnerAccount,
   changeStoredOwnerPassword,
-  createStoredOwnerAccount
+  createStoredOwnerAccount,
+  updateStoredOwnerProfile
 } from "../lib/account-store.js";
 
 function redisFetchMock() {
@@ -85,6 +86,58 @@ test("il titolare può cambiare password senza esporla o cambiare tenant", async
     }, env);
     assert.equal(authenticated?.tenantId, "attivita-uno");
     assert.equal(authenticated?.email, "titolare@example.com");
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("il titolare può aggiornare il nome visualizzato solo nel proprio tenant", async () => {
+  const originalFetch = global.fetch;
+  global.fetch = redisFetchMock();
+  const env = {
+    UPSTASH_REDIS_REST_URL: "https://redis.test",
+    UPSTASH_REDIS_REST_TOKEN: "test-token"
+  };
+
+  try {
+    const created = await createStoredOwnerAccount({
+      email: "owner@example.com",
+      password: "PasswordSicura!1",
+      tenantId: "studio-uno",
+      displayName: "Nome Vecchio"
+    }, env);
+    assert.equal(created.created, true);
+
+    const wrongTenant = await updateStoredOwnerProfile({
+      login: "owner@example.com",
+      displayName: "Nome Nuovo",
+      tenantId: "studio-due"
+    }, env);
+    assert.equal(wrongTenant.updated, false);
+    assert.equal(wrongTenant.reason, "tenant-mismatch");
+
+    const invalid = await updateStoredOwnerProfile({
+      login: "owner@example.com",
+      displayName: "A",
+      tenantId: "studio-uno"
+    }, env);
+    assert.equal(invalid.updated, false);
+    assert.equal(invalid.reason, "invalid-display-name");
+
+    const updated = await updateStoredOwnerProfile({
+      login: "owner@example.com",
+      displayName: "Nome Nuovo",
+      tenantId: "studio-uno"
+    }, env);
+    assert.equal(updated.updated, true);
+    assert.equal(updated.account?.displayName, "Nome Nuovo");
+    assert.equal(Object.hasOwn(updated.account || {}, "passwordHash"), false);
+
+    const authenticated = await authenticateStoredOwnerAccount({
+      login: "owner@example.com",
+      password: "PasswordSicura!1"
+    }, env);
+    assert.equal(authenticated?.displayName, "Nome Nuovo");
   } finally {
     global.fetch = originalFetch;
   }
