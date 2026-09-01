@@ -20,13 +20,24 @@ const LEGACY_TOKEN_KEY="MAVIRI_OWNER_SYNC_TOKEN";
 const gate=document.getElementById("gate");
 const frame=document.getElementById("appFrame");
 function clearLocalAuth(){localStorage.removeItem(AUTH_KEY);localStorage.removeItem(ACCOUNT_KEY);localStorage.removeItem(LEGACY_TOKEN_KEY)}
+function tenant(){return(localStorage.getItem(TENANT_KEY)||"").trim()}
 async function verify(){
-  const tenant=(localStorage.getItem(TENANT_KEY)||"").trim();
-  if(!tenant)return false;
+  const currentTenant=tenant();
+  if(!currentTenant)return false;
   try{
-    const r=await fetch("/api/auth",{method:"GET",headers:{"x-maviri-tenant":tenant},credentials:"same-origin",cache:"no-store"});
+    const r=await fetch("/api/auth",{method:"GET",headers:{"x-maviri-tenant":currentTenant},credentials:"same-origin",cache:"no-store"});
     const j=await r.json().catch(()=>({}));
     return r.ok&&j.authenticated===true;
+  }catch{return false}
+}
+async function activityConfigured(){
+  const currentTenant=tenant();
+  if(!currentTenant)return false;
+  try{
+    const r=await fetch("/api/activity-profile",{method:"GET",headers:{"x-maviri-tenant":currentTenant},credentials:"same-origin",cache:"no-store"});
+    if(r.status===401)return false;
+    const j=await r.json().catch(()=>({}));
+    return r.ok&&j.configured===true;
   }catch{return false}
 }
 function sanitizeLegacyUi(doc){
@@ -69,6 +80,7 @@ frame.addEventListener("load",()=>{
 (async()=>{
   if(!(await verify())){clearLocalAuth();location.replace("/");return}
   localStorage.setItem(AUTH_KEY,"true");
+  if(!(await activityConfigured())){location.replace("/setup");return}
 })();
 </script>
 </body>
