@@ -10,11 +10,21 @@ test("la root Maviri passa dalla schermata di accesso", async () => {
   const config = JSON.parse(await text("vercel.json"));
   const routes = new Map(config.rewrites.map(item => [item.source, item.destination]));
   assert.equal(routes.get("/"), "/login.html");
+  assert.equal(routes.get("/login"), "/login.html");
   assert.equal(routes.get("/register"), "/register.html");
   assert.equal(routes.get("/app"), "/app.html");
   assert.equal(routes.get("/setup"), "/setup.html");
   assert.equal(routes.get("/api/chat"), "/api/chat-proxy");
   assert.equal(routes.get("/api/whatsapp"), "/api/whatsapp-proxy");
+});
+
+test("le pagine di accesso non vengono servite da cache", async () => {
+  const config = JSON.parse(await text("vercel.json"));
+  const headers = new Map(config.headers.map(item => [item.source, item.headers]));
+  for (const route of ["/", "/login", "/register", "/app", "/setup"]) {
+    const values = headers.get(route) || [];
+    assert.ok(values.some(item => item.key === "Cache-Control" && /no-store/.test(item.value)));
+  }
 });
 
 test("il login usa credenziali account e salva il tenant restituito dal server", async () => {
@@ -27,6 +37,16 @@ test("il login usa credenziali account e salva il tenant restituito dal server",
   assert.match(html, /href="\/register"/);
 });
 
+test("l'accesso esplicito mostra il form anche con una sessione già valida", async () => {
+  const html = await text("login.html");
+  assert.match(html, /new URLSearchParams\(location\.search\)\.get\("switch"\)===\"1\"/);
+  assert.match(html, /if\(FORCE_LOGIN\)\{/);
+  assert.match(html, /Inserisci le credenziali dell’account che vuoi usare/);
+  const forceIndex = html.indexOf("if(FORCE_LOGIN)");
+  const authIndex = html.indexOf("if(await authStatus())");
+  assert.ok(forceIndex >= 0 && authIndex > forceIndex);
+});
+
 test("una nuova attività può registrarsi senza configurazione tecnica", async () => {
   const html = await text("register.html");
   assert.match(html, /Nome attività/);
@@ -35,6 +55,7 @@ test("una nuova attività può registrarsi senza configurazione tecnica", async 
   assert.match(html, /fetch\("\/api\/register"/);
   assert.match(html, /localStorage\.setItem\(TENANT_KEY/);
   assert.match(html, /location\.replace\("\/setup"\)/);
+  assert.match(html, /href="\/login\?switch=1"/);
 });
 
 test("la configurazione iniziale riusa nome ed email inseriti in registrazione", async () => {
