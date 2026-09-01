@@ -1,526 +1,123 @@
 /* MAVIRI — WHATSAPP WEBHOOK
- * Copyright © 2026 Maviri / SimyTech.
- * Proprietary software. All rights reserved.
- *
- * WhatsApp Cloud API bridge
- *
- * FLUSSO:
- * WhatsApp cliente
- *      ↓
- * /api/whatsapp
- *      ↓
- * /api/chat
- *      ↓
- * Mavi
- *      ↓
- * risposta
- *      ↓
- * WhatsApp cliente
- *
- * ENV richieste:
- *
- * WHATSAPP_VERIFY_TOKEN
- * WHATSAPP_ACCESS_TOKEN
- * WHATSAPP_PHONE_NUMBER_ID
- *
- * opzionale:
- * WHATSAPP_APP_SECRET
- *
- * Redis:
- *
- * UPSTASH_REDIS_REST_URL
- * UPSTASH_REDIS_REST_TOKEN
+ * Multi-tenant WhatsApp Cloud API bridge.
  */
 
-const VERIFY_TOKEN =
-  process.env.WHATSAPP_VERIFY_TOKEN || "";
+import { createHmac, timingSafeEqual } from "node:crypto";
+import {
+  resolveWhatsAppTenant,
+  whatsappMetadata,
+  whatsappProcessedKey,
+  whatsappSessionKey
+} from "../lib/whatsapp-tenant.js";
 
-const WHATSAPP_ACCESS_TOKEN =
-  process.env.WHATSAPP_ACCESS_TOKEN || "";
-
-const WHATSAPP_PHONE_NUMBER_ID =
-  process.env.WHATSAPP_PHONE_NUMBER_ID || "";
-
-const WHATSAPP_APP_SECRET =
-  process.env.WHATSAPP_APP_SECRET || "";
-
-const REDIS_URL =
-  process.env.UPSTASH_REDIS_REST_URL || "";
-
-const REDIS_TOKEN =
-  process.env.UPSTASH_REDIS_REST_TOKEN || "";
-
-const TENANT_ID =
-  process.env.MAVIRI_DEFAULT_TENANT || "default";
-
+const clean = value => String(value ?? "").replace(/\u0000/g, "").trim();
 const MAX_HISTORY = 20;
+const SESSION_TTL = 1000 * 60 * 60 * 24 * 7;
+const PROCESSED_TTL = 1000 * 60 * 60 * 24;
 
-const SESSION_TTL =
-  1000 * 60 * 60 * 24 * 7;
+const redisUrl = () => process.env.UPSTASH_REDIS_REST_URL || "";
+const redisToken = () => process.env.UPSTASH_REDIS_REST_TOKEN || "";
 
-
-/* ============================================================
-   UTILITY
-   ============================================================ */
-
-const clean = value =>
-  String(value ?? "")
-    .replace(/\u0000/g, "")
-    .trim();
-
-
-const jsonResponse = (
-  res,
-  status,
-  data
-) => {
-
-  res.status(status);
-
-  res.setHeader(
-    "Content-Type",
-    "application/json; charset=utf-8"
-  );
-
-  return res.json(data);
-};
-
-
-const textResponse = (
-  res,
-  status,
-  text
-) => {
-
-  res.status(status);
-
-  res.setHeader(
-    "Content-Type",
-    "text/plain; charset=utf-8"
-  );
-
-  return res.send(text);
-};
-
-
-/* ============================================================
-   REDIS
-   ============================================================ */
-
-async function redisCommand(
-  command,
-  ...args
-) {
-
-  if (
-    !REDIS_URL ||
-    !REDIS_TOKEN
-  ) {
-    throw new Error(
-      "Upstash Redis non configurato."
-    );
-  }
-
-  const response =
-    await fetch(
-      REDIS_URL,
-      {
-        method: "POST",
-
-        headers: {
-          Authorization:
-            `Bearer ${REDIS_TOKEN}`,
-
-          "Content-Type":
-            "application/json"
-        },
-
-        body:
-          JSON.stringify([
-            command,
-            ...args
-          ])
-      }
-    );
-
-  if (!response.ok) {
-
-    throw new Error(
-      `Redis HTTP ${response.status}`
-    );
-  }
-
-  const result =
-    await response.json();
-
-  if (result.error) {
-
-    throw new Error(
-      String(result.error)
-    );
-  }
-
-  return result.result;
+function jsonResponse(res, status, data) {
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  return res.status(status).json(data);
 }
 
-
-async function redisGet(
-  key
-) {
-
-  const value =
-    await redisCommand(
-      "GET",
-      key
-    );
-
-  if (
-    value === null ||
-    value === undefined ||
-    value === ""
-  ) {
-    return null;
-  }
-
-  try {
-
-    return JSON.parse(
-      value
-    );
-
-  } catch {
-
-    return value;
-  }
+function textResponse(res, status, text) {
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  return res.status(status).send(text);
 }
 
+async function redisCommand(command, ...args) {
+  if (!redisUrl() || !redisToken()) throw new Error("Upstash Redis non configurato.");
 
-async function redisSet(
-  key,
-  value,
-  ttl = null
-) {
+  const response = await fetch(redisUrl(), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${redisToken()}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify([command, ...args])
+  });
 
-  if (ttl) {
-
-    return redisCommand(
-      "SET",
-      key,
-      JSON.stringify(value),
-      "PX",
-      String(ttl)
-    );
-  }
-
-  return redisCommand(
-    "SET",
-    key,
-    JSON.stringify(value)
-  );
+  if (!response.ok) throw new Error(`Redis HTTP ${response.status}`);
+  const payload = await response.json();
+  if (payload.error) throw new Error(String(payload.error));
+  return payload.result;
 }
 
-
-/* ============================================================
-   SESSIONE WHATSAPP
-   ============================================================ */
-
-function sessionKey(
-  phone
-) {
-
-  return (
-    "maviri:whatsapp:session:" +
-    clean(phone)
-  );
+async function redisGet(key) {
+  const value = await redisCommand("GET", key);
+  if (value === null || value === undefined || value === "") return null;
+  try { return JSON.parse(value); } catch { return value; }
 }
 
+async function redisSet(key, value, ttl = null) {
+  const args = [key, JSON.stringify(value)];
+  if (ttl) args.push("PX", String(ttl));
+  return redisCommand("SET", ...args);
+}
 
-async function loadSession(
-  phone
-) {
+function sessionId(tenantId, phone) {
+  return `whatsapp-${tenantId}-${clean(phone)}`;
+}
 
-  const session =
-    await redisGet(
-      sessionKey(phone)
-    );
-
-  if (
-    !session ||
-    typeof session !== "object"
-  ) {
-
-    return {
-      phone:
-        clean(phone),
-
-      sessionId:
-        `whatsapp-${clean(phone)}`,
-
-      history: []
-    };
+async function loadSession(tenantId, phone) {
+  const stored = await redisGet(whatsappSessionKey(tenantId, phone));
+  if (!stored || typeof stored !== "object") {
+    return { phone: clean(phone), tenantId, sessionId: sessionId(tenantId, phone), history: [] };
   }
 
   return {
-
-    phone:
-      clean(phone),
-
-    sessionId:
-      clean(
-        session.sessionId
-      ) ||
-      `whatsapp-${clean(phone)}`,
-
-    history:
-      Array.isArray(
-        session.history
-      )
-        ? session.history.slice(
-            -MAX_HISTORY
-          )
-        : []
+    phone: clean(phone),
+    tenantId,
+    sessionId: clean(stored.sessionId) || sessionId(tenantId, phone),
+    history: Array.isArray(stored.history) ? stored.history.slice(-MAX_HISTORY) : []
   };
 }
 
-
-async function saveSession(
-  phone,
-  session
-) {
-
-  const history =
-    Array.isArray(
-      session.history
-    )
-      ? session.history.slice(
-          -MAX_HISTORY
-        )
-      : [];
-
+async function saveSession(tenantId, phone, session) {
   await redisSet(
-    sessionKey(phone),
+    whatsappSessionKey(tenantId, phone),
     {
-      phone:
-        clean(phone),
-
-      sessionId:
-        clean(
-          session.sessionId
-        ) ||
-        `whatsapp-${clean(phone)}`,
-
-      history
+      phone: clean(phone),
+      tenantId,
+      sessionId: clean(session.sessionId) || sessionId(tenantId, phone),
+      history: Array.isArray(session.history) ? session.history.slice(-MAX_HISTORY) : []
     },
     SESSION_TTL
   );
 }
 
-
-/* ============================================================
-   STORICO CONVERSAZIONE
-   ============================================================ */
-
-function addHistory(
-  session,
-  role,
-  content
-) {
-
-  if (
-    !Array.isArray(
-      session.history
-    )
-  ) {
-
-    session.history = [];
-  }
-
-  session.history.push({
-
-    role:
-      clean(role),
-
-    content:
-      clean(content)
-  });
-
-  session.history =
-    session.history.slice(
-      -MAX_HISTORY
-    );
+function addHistory(session, role, content) {
+  if (!Array.isArray(session.history)) session.history = [];
+  session.history.push({ role: clean(role), content: clean(content) });
+  session.history = session.history.slice(-MAX_HISTORY);
 }
 
+function extractIncomingMessage(body) {
+  const entries = Array.isArray(body?.entry) ? body.entry : [];
 
-/* ============================================================
-   WHATSAPP API
-   ============================================================ */
+  for (const entry of entries) {
+    const changes = Array.isArray(entry?.changes) ? entry.changes : [];
+    for (const change of changes) {
+      const value = change?.value;
+      const messages = Array.isArray(value?.messages) ? value.messages : [];
 
-async function sendWhatsAppMessage(
-  to,
-  message
-) {
+      for (const message of messages) {
+        if (message?.type !== "text") continue;
 
-  if (
-    !WHATSAPP_ACCESS_TOKEN ||
-    !WHATSAPP_PHONE_NUMBER_ID
-  ) {
+        const phone = clean(message?.from);
+        const text = clean(message?.text?.body);
+        if (!phone || !text) continue;
 
-    throw new Error(
-      "WhatsApp Cloud API non configurata."
-    );
-  }
-
-  const url =
-    `https://graph.facebook.com/v23.0/` +
-    `${WHATSAPP_PHONE_NUMBER_ID}/messages`;
-
-  const response =
-    await fetch(
-      url,
-      {
-        method: "POST",
-
-        headers: {
-
-          Authorization:
-            `Bearer ${WHATSAPP_ACCESS_TOKEN}`,
-
-          "Content-Type":
-            "application/json"
-        },
-
-        body:
-          JSON.stringify({
-
-            messaging_product:
-              "whatsapp",
-
-            recipient_type:
-              "individual",
-
-            to:
-              clean(to),
-
-            type:
-              "text",
-
-            text: {
-
-              preview_url:
-                false,
-
-              body:
-                clean(message)
-            }
-          })
-      }
-    );
-
-  const data =
-    await response.json();
-
-  if (!response.ok) {
-
-    throw new Error(
-      data?.error?.message ||
-      `WhatsApp HTTP ${response.status}`
-    );
-  }
-
-  return data;
-}
-
-
-/* ============================================================
-   ESTRAZIONE MESSAGGIO
-   ============================================================ */
-
-function extractIncomingMessage(
-  body
-) {
-
-  const entries =
-    Array.isArray(
-      body?.entry
-    )
-      ? body.entry
-      : [];
-
-  for (
-    const entry of entries
-  ) {
-
-    const changes =
-      Array.isArray(
-        entry?.changes
-      )
-        ? entry.changes
-        : [];
-
-    for (
-      const change of changes
-    ) {
-
-      const value =
-        change?.value;
-
-      const messages =
-        Array.isArray(
-          value?.messages
-        )
-          ? value.messages
-          : [];
-
-      for (
-        const message of messages
-      ) {
-
-        if (
-          message?.type !==
-          "text"
-        ) {
-
-          continue;
-        }
-
-        const phone =
-          clean(
-            message?.from
-          );
-
-        const text =
-          clean(
-            message?.text?.body
-          );
-
-        if (
-          phone &&
-          text
-        ) {
-
-          return {
-
-            phone,
-
-            messageId:
-              clean(
-                message?.id
-              ),
-
-            text,
-
-            profileName:
-              clean(
-                value?.contacts?.[0]
-                  ?.profile?.name
-              ),
-
-            timestamp:
-              clean(
-                message?.timestamp
-              )
-          };
-        }
+        return {
+          phone,
+          text,
+          messageId: clean(message?.id),
+          profileName: clean(value?.contacts?.[0]?.profile?.name),
+          timestamp: clean(message?.timestamp)
+        };
       }
     }
   }
@@ -528,623 +125,177 @@ function extractIncomingMessage(
   return null;
 }
 
+function verifyWebhook(req) {
+  const mode = clean(req.query?.["hub.mode"]);
+  const token = clean(req.query?.["hub.verify_token"]);
+  const challenge = clean(req.query?.["hub.challenge"]);
+  const expected = clean(process.env.WHATSAPP_VERIFY_TOKEN);
 
-/* ============================================================
-   VERIFICA WEBHOOK META
-   ============================================================ */
-
-function verifyWebhook(
-  req
-) {
-
-  const mode =
-    clean(
-      req.query?.["hub.mode"]
-    );
-
-  const token =
-    clean(
-      req.query?.["hub.verify_token"]
-    );
-
-  const challenge =
-    clean(
-      req.query?.["hub.challenge"]
-    );
-
-  if (
-    mode !==
-    "subscribe"
-  ) {
-
-    return {
-      ok: false,
-      status: 400
-    };
-  }
-
-  if (
-    !VERIFY_TOKEN ||
-    token !==
-    VERIFY_TOKEN
-  ) {
-
-    return {
-      ok: false,
-      status: 403
-    };
-  }
-
-  return {
-
-    ok: true,
-
-    challenge
-  };
+  if (mode !== "subscribe") return { ok: false, status: 400 };
+  if (!expected || token !== expected) return { ok: false, status: 403 };
+  return { ok: true, challenge };
 }
 
-
-/* ============================================================
-   FIRMA META
-   ============================================================ */
-
-async function verifySignature(
-  req
-) {
-
-  /*
-   * La verifica della firma viene eseguita
-   * solo se WHATSAPP_APP_SECRET è configurato.
-   *
-   * Vercel normalmente espone req.rawBody
-   * quando disponibile.
-   */
-
-  if (
-    !WHATSAPP_APP_SECRET
-  ) {
-
-    return true;
-  }
-
-  const signature =
-    clean(
-      req.headers[
-        "x-hub-signature-256"
-      ]
-    );
-
-  if (
-    !signature.startsWith(
-      "sha256="
-    )
-  ) {
-
-    return false;
-  }
-
-  const rawBody =
-    req.rawBody;
-
-  if (
-    !rawBody
-  ) {
-
-    /*
-     * Se il runtime non rende disponibile
-     * rawBody non possiamo verificare
-     * crittograficamente la firma.
-     *
-     * In questo caso rifiutiamo la richiesta
-     * anziché considerarla valida.
-     */
-
-    return false;
-  }
-
-  const expected =
-    await crypto.subtle.sign(
-      "HMAC",
-      await crypto.subtle.importKey(
-        "raw",
-        new TextEncoder().encode(
-          WHATSAPP_APP_SECRET
-        ),
-        {
-          name:
-            "HMAC",
-
-          hash:
-            "SHA-256"
-        },
-        false,
-        ["sign"]
-      ),
-      new TextEncoder().encode(
-        rawBody
-      )
-    );
-
-  const hex =
-    Array.from(
-      new Uint8Array(
-        expected
-      )
-    )
-      .map(
-        byte =>
-          byte
-            .toString(16)
-            .padStart(2, "0")
-      )
-      .join("");
-
-  return (
-    signature ===
-    `sha256=${hex}`
-  );
+function safeEqualHex(left, right) {
+  const a = Buffer.from(clean(left));
+  const b = Buffer.from(clean(right));
+  return a.length > 0 && a.length === b.length && timingSafeEqual(a, b);
 }
 
+function verifySignature(req) {
+  const secret = clean(process.env.WHATSAPP_APP_SECRET);
+  if (!secret) return true;
 
-/* ============================================================
-   CHIAMATA A MAVI
-   ============================================================ */
+  const signature = clean(req.headers?.["x-hub-signature-256"]);
+  if (!signature.startsWith("sha256=")) return false;
 
-async function callMavi(
-  req,
-  {
-    phone,
-    text,
-    profileName,
-    session
-  }
-) {
+  const raw = req.rawBody;
+  if (!raw) return false;
 
-  /*
-   * Usiamo la stessa API interna di Maviri.
-   *
-   * Non duplichiamo:
-   * - servizi
-   * - orari
-   * - disponibilità
-   * - prenotazioni
-   * - clienti
-   * - conferme
-   *
-   * Tutto rimane nel motore /api/chat.js.
-   */
-
-  const origin =
-    `${req.headers["x-forwarded-proto"] || "https"}://` +
-    `${req.headers["x-forwarded-host"] || req.headers.host}`;
-
-  const response =
-    await fetch(
-      `${origin}/api/chat`,
-      {
-        method: "POST",
-
-        headers: {
-
-          "Content-Type":
-            "application/json",
-
-          "x-maviri-tenant":
-            TENANT_ID
-        },
-
-        body:
-          JSON.stringify({
-
-            action:
-              "chat",
-
-            tenantId:
-              TENANT_ID,
-
-            role:
-              "client",
-
-            mode:
-              "client",
-
-            sessionId:
-              session.sessionId,
-
-            message:
-              text,
-
-            history:
-              session.history,
-
-            clientPhone:
-              phone,
-
-            clientWhatsapp:
-              phone,
-
-            clientName:
-              profileName
-          })
-      }
-    );
-
-  const data =
-    await response.json()
-      .catch(
-        () => ({})
-      );
-
-  if (!response.ok) {
-
-    throw new Error(
-      data?.error ||
-      `Mavi HTTP ${response.status}`
-    );
-  }
-
-  /*
-   * Compatibilità con le diverse forme
-   * di risposta già utilizzate dal motore.
-   */
-
-  const reply =
-    clean(
-      data?.reply ||
-      data?.message ||
-      data?.response ||
-      data?.text ||
-      data?.answer
-    );
-
-  if (!reply) {
-
-    throw new Error(
-      "Mavi non ha restituito una risposta."
-    );
-  }
-
-  return {
-
-    reply,
-
-    raw:
-      data
-  };
+  const source = Buffer.isBuffer(raw) ? raw : Buffer.from(String(raw));
+  const expected = `sha256=${createHmac("sha256", secret).update(source).digest("hex")}`;
+  return safeEqualHex(signature, expected);
 }
 
+async function callMavi(req, { tenantId, phone, text, profileName, session }) {
+  const origin = `${req.headers["x-forwarded-proto"] || "https"}://${req.headers["x-forwarded-host"] || req.headers.host}`;
+  const response = await fetch(`${origin}/api/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-maviri-tenant": tenantId
+    },
+    body: JSON.stringify({
+      action: "chat",
+      tenantId,
+      role: "client",
+      mode: "client",
+      channel: "whatsapp",
+      source: "whatsapp",
+      sessionId: session.sessionId,
+      message: text,
+      history: session.history,
+      clientPhone: phone,
+      clientWhatsapp: phone,
+      clientName: profileName
+    })
+  });
 
-/* ============================================================
-   HANDLER
-   ============================================================ */
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data?.error || `Mavi HTTP ${response.status}`);
 
-export default async function handler(
-  req,
-  res
-) {
+  const reply = clean(data?.reply || data?.message || data?.response || data?.text || data?.answer);
+  if (!reply) throw new Error("Mavi non ha restituito una risposta.");
 
-  /*
-   * ----------------------------------------------------------
-   * GET
-   * Verifica webhook Meta
-   * ----------------------------------------------------------
-   */
+  return { reply, raw: data };
+}
 
-  if (
-    req.method ===
-    "GET"
-  ) {
+async function sendWhatsAppMessage(to, message, phoneNumberId) {
+  const token = clean(process.env.WHATSAPP_ACCESS_TOKEN);
+  const senderId = clean(phoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID);
+  if (!token || !senderId) throw new Error("WhatsApp Cloud API non configurata.");
 
-    const verification =
-      verifyWebhook(req);
+  const response = await fetch(`https://graph.facebook.com/v23.0/${senderId}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: clean(to),
+      type: "text",
+      text: { preview_url: false, body: clean(message) }
+    })
+  });
 
-    if (
-      !verification.ok
-    ) {
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data?.error?.message || `WhatsApp HTTP ${response.status}`);
+  return data;
+}
 
-      return textResponse(
-        res,
-        verification.status,
-        "Forbidden"
-      );
-    }
+export default async function handler(req, res) {
+  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-Content-Type-Options", "nosniff");
 
-    return textResponse(
-      res,
-      200,
-      verification.challenge
-    );
+  if (req.method === "GET") {
+    const verification = verifyWebhook(req);
+    if (!verification.ok) return textResponse(res, verification.status, "Forbidden");
+    return textResponse(res, 200, verification.challenge);
   }
 
-
-  /*
-   * ----------------------------------------------------------
-   * Solo POST per i messaggi
-   * ----------------------------------------------------------
-   */
-
-  if (
-    req.method !==
-    "POST"
-  ) {
-
-    res.setHeader(
-      "Allow",
-      "GET, POST"
-    );
-
-    return jsonResponse(
-      res,
-      405,
-      {
-        ok: false,
-
-        error:
-          "Method Not Allowed"
-      }
-    );
+  if (req.method !== "POST") {
+    res.setHeader("Allow", "GET, POST");
+    return jsonResponse(res, 405, { ok: false, error: "Method Not Allowed" });
   }
 
-
-  /*
-   * ----------------------------------------------------------
-   * Verifica firma
-   * ----------------------------------------------------------
-   */
-
-  const signatureValid =
-    await verifySignature(req);
-
-  if (
-    !signatureValid
-  ) {
-
-    return jsonResponse(
-      res,
-      401,
-      {
-        ok: false,
-
-        error:
-          "Firma WhatsApp non valida."
-      }
-    );
+  if (!verifySignature(req)) {
+    return jsonResponse(res, 401, { ok: false, error: "Firma WhatsApp non valida." });
   }
 
-
-  /*
-   * ----------------------------------------------------------
-   * Estrazione messaggio
-   * ----------------------------------------------------------
-   */
-
-  const incoming =
-    extractIncomingMessage(
-      req.body
-    );
-
-
-  /*
-   * Meta può inviare notifiche che
-   * non contengono messaggi testuali.
-   *
-   * Rispondiamo comunque 200 per evitare
-   * retry inutili.
-   */
+  const metadata = whatsappMetadata(req.body);
+  const tenantId = resolveWhatsAppTenant(req.body);
+  const incoming = extractIncomingMessage(req.body);
 
   if (!incoming) {
-
-    return jsonResponse(
-      res,
-      200,
-      {
-        ok: true,
-
-        ignored:
-          true
-      }
-    );
+    return jsonResponse(res, 200, { ok: true, ignored: true, tenantId });
   }
 
-
-  const {
-
-    phone,
-
-    messageId,
-
-    text,
-
-    profileName
-
-  } = incoming;
-
-
-  /*
-   * ----------------------------------------------------------
-   * Carica sessione cliente
-   * ----------------------------------------------------------
-   */
+  const { phone, messageId, text, profileName } = incoming;
 
   try {
+    const session = await loadSession(tenantId, phone);
+    const processedKey = messageId ? whatsappProcessedKey(tenantId, messageId) : "";
 
-    const session =
-      await loadSession(
-        phone
-      );
-
-
-    /*
-     * --------------------------------------------------------
-     * Evita elaborazioni duplicate
-     * --------------------------------------------------------
-     *
-     * Meta può ritrasmettere lo stesso webhook.
-     */
-
-    const processedKey =
-      `maviri:whatsapp:processed:${messageId}`;
-
-    if (
-      messageId
-    ) {
-
-      const alreadyProcessed =
-        await redisGet(
-          processedKey
-        );
-
-      if (
-        alreadyProcessed
-      ) {
-
-        return jsonResponse(
-          res,
-          200,
-          {
-            ok: true,
-
-            duplicate:
-              true
-          }
-        );
+    if (processedKey) {
+      const alreadyProcessed = await redisGet(processedKey);
+      if (alreadyProcessed) {
+        return jsonResponse(res, 200, { ok: true, duplicate: true, tenantId, messageId });
       }
 
-      await redisSet(
-        processedKey,
-        {
-          phone,
-
-          messageId
-        },
-        1000 * 60 * 60 * 24
-      );
+      await redisSet(processedKey, { tenantId, phone, messageId }, PROCESSED_TTL);
     }
 
+    addHistory(session, "user", text);
 
-    /*
-     * --------------------------------------------------------
-     * Salva messaggio cliente
-     * --------------------------------------------------------
-     */
-
-    addHistory(
-      session,
-      "user",
-      text
-    );
-
-
-    /*
-     * --------------------------------------------------------
-     * Mavi
-     * --------------------------------------------------------
-     */
-
-    const result =
-      await callMavi(
-        req,
-        {
-          phone,
-
-          text,
-
-          profileName,
-
-          session
-        }
-      );
-
-
-    /*
-     * --------------------------------------------------------
-     * Salva risposta Mavi
-     * --------------------------------------------------------
-     */
-
-    addHistory(
-      session,
-      "assistant",
-      result.reply
-    );
-
-    await saveSession(
+    const result = await callMavi(req, {
+      tenantId,
       phone,
+      text,
+      profileName,
       session
-    );
+    });
 
+    addHistory(session, "assistant", result.reply);
+    await saveSession(tenantId, phone, session);
+    await sendWhatsAppMessage(phone, result.reply, metadata.phoneNumberId);
 
-    /*
-     * --------------------------------------------------------
-     * Invia risposta WhatsApp
-     * --------------------------------------------------------
-     */
-
-    await sendWhatsAppMessage(
+    return jsonResponse(res, 200, {
+      ok: true,
+      tenantId,
+      phoneNumberId: metadata.phoneNumberId || null,
+      messageId,
       phone,
-      result.reply
-    );
-
-
-    /*
-     * --------------------------------------------------------
-     * Fine
-     * --------------------------------------------------------
-     */
-
-    return jsonResponse(
-      res,
-      200,
-      {
-        ok: true,
-
-        messageId,
-
-        phone,
-
-        reply:
-          result.reply
-      }
-    );
-
+      reply: result.reply
+    });
   } catch (error) {
-
-    console.error(
-      "MAVIRI WHATSAPP ERROR:",
-      error
-    );
-
-    /*
-     * Non inviamo dettagli tecnici
-     * al cliente.
-     */
+    console.error("MAVIRI WHATSAPP ERROR:", error);
 
     try {
-
       await sendWhatsAppMessage(
         phone,
-        "Si è verificato un problema temporaneo. Riprova tra poco."
+        "Si è verificato un problema temporaneo. Riprova tra poco.",
+        metadata.phoneNumberId
       );
-
-    } catch (
-      sendError
-    ) {
-
-      console.error(
-        "WHATSAPP SEND ERROR:",
-        sendError
-      );
+    } catch (sendError) {
+      console.error("WHATSAPP SEND ERROR:", sendError);
     }
 
-    return jsonResponse(
-      res,
-      500,
-      {
-        ok: false,
-
-        error:
-          "Errore interno WhatsApp."
-      }
-    );
+    return jsonResponse(res, 500, {
+      ok: false,
+      tenantId,
+      error: "Errore interno WhatsApp."
+    });
   }
 }
