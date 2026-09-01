@@ -21,19 +21,19 @@
   </section>
   <section class="card" id="profileCard">
     <h2>Nome del titolare</h2><p class="sub">È il nome mostrato nelle aree account di Maviri. Non modifica il nome dell’attività.</p>
-    <form id="profileForm">
-      <div class="field"><label for="displayName">Nome visualizzato</label><input id="displayName" autocomplete="name" minlength="2" maxlength="80" required></div>
-      <button id="profileBtn" type="submit">Salva nome</button><div id="profileMessage" class="msg" aria-live="polite"></div>
+    <form id="profileForm"><div class="field"><label for="displayName">Nome visualizzato</label><input id="displayName" autocomplete="name" minlength="2" maxlength="80" required></div><button id="profileBtn" type="submit">Salva nome</button><div id="profileMessage" class="msg" aria-live="polite"></div></form>
+  </section>
+  <section class="card" id="emailCard">
+    <h2>Cambia email di accesso</h2><p class="sub">Per sicurezza devi confermare la modifica con la password attuale. La nuova email dovrà poi essere verificata.</p>
+    <form id="emailForm">
+      <div class="field"><label for="newEmail">Nuova email</label><input id="newEmail" type="email" autocomplete="email" maxlength="254" required></div>
+      <div class="field"><label for="emailPassword">Password attuale</label><input id="emailPassword" type="password" autocomplete="current-password" required></div>
+      <button id="emailBtn" type="submit">Aggiorna email</button><div id="changeEmailMessage" class="msg" aria-live="polite"></div>
     </form>
   </section>
   <section class="card" id="passwordCard">
     <h2>Cambia password</h2><p class="sub">La nuova password deve avere almeno 10 caratteri.</p>
-    <form id="passwordForm">
-      <div class="field"><label for="currentPassword">Password attuale</label><input id="currentPassword" type="password" autocomplete="current-password" required></div>
-      <div class="field"><label for="newPassword">Nuova password</label><input id="newPassword" type="password" autocomplete="new-password" minlength="10" required></div>
-      <div class="field"><label for="confirmPassword">Ripeti nuova password</label><input id="confirmPassword" type="password" autocomplete="new-password" minlength="10" required></div>
-      <button id="saveBtn" type="submit">Aggiorna password</button><div id="message" class="msg" aria-live="polite"></div>
-    </form>
+    <form id="passwordForm"><div class="field"><label for="currentPassword">Password attuale</label><input id="currentPassword" type="password" autocomplete="current-password" required></div><div class="field"><label for="newPassword">Nuova password</label><input id="newPassword" type="password" autocomplete="new-password" minlength="10" required></div><div class="field"><label for="confirmPassword">Ripeti nuova password</label><input id="confirmPassword" type="password" autocomplete="new-password" minlength="10" required></div><button id="saveBtn" type="submit">Aggiorna password</button><div id="message" class="msg" aria-live="polite"></div></form>
   </section>
   <section class="card"><h2>Recupero password</h2><p class="note">Se dimentichi la password puoi usare “Password dimenticata?” dalla schermata di accesso. Il link ricevuto via email è temporaneo e monouso.</p></section>
 </main>
@@ -43,14 +43,17 @@ const $=id=>document.getElementById(id);
 function tenant(){return(localStorage.getItem(TENANT_KEY)||"").trim()}
 function account(){try{return JSON.parse(localStorage.getItem(ACCOUNT_KEY)||"null")}catch{return null}}
 function rememberAccount(a){if(a&&typeof a==="object")localStorage.setItem(ACCOUNT_KEY,JSON.stringify(a))}
-function msg(text,type=""){const el=$("message");el.textContent=text||"";el.className="msg"+(type?" "+type:"")}
-function profileMsg(text,type=""){const el=$("profileMessage");el.textContent=text||"";el.className="msg"+(type?" "+type:"")}
-function emailMsg(text,type=""){const el=$("emailMessage");el.textContent=text||"";el.className="msg"+(type?" "+type:"")}
+function setMsg(id,text,type=""){const el=$(id);el.textContent=text||"";el.className="msg"+(type?" "+type:"")}
+function msg(text,type=""){setMsg("message",text,type)}
+function profileMsg(text,type=""){setMsg("profileMessage",text,type)}
+function emailMsg(text,type=""){setMsg("emailMessage",text,type)}
+function changeEmailMsg(text,type=""){setMsg("changeEmailMessage",text,type)}
 function renderEmailStatus(a){if(!a||!a.email)return;$("emailStatus").classList.remove("hidden");const verified=a.emailVerified===true;$("emailStatusText").textContent=verified?"Verificata":"Da verificare";$("emailStatusText").className=verified?"ok":"warn";$("resendBtn").classList.toggle("hidden",verified)}
-function renderAccount(a){if(!a)return false;$("accountName").textContent=a.displayName||a.username||"Titolare";$("accountEmail").textContent=a.email||a.username||"—";$("displayName").value=a.displayName||"";renderEmailStatus(a);return true}
+function renderAccount(a){if(!a)return false;$("accountName").textContent=a.displayName||a.username||"Titolare";$("accountEmail").textContent=a.email||a.username||"—";$("displayName").value=a.displayName||"";$("newEmail").value="";renderEmailStatus(a);return true}
 async function authenticatedAccount(){const t=tenant();if(!t)return null;try{const r=await fetch("/api/auth",{headers:{"x-maviri-tenant":t},credentials:"same-origin",cache:"no-store"});if(!r.ok)return null;const j=await r.json();if(!j.authenticated)return null;localStorage.setItem(AUTH_KEY,"true");if(j.account){rememberAccount(j.account);return j.account}return account()}catch{return null}}
-(async()=>{const a=await authenticatedAccount();if(!a){const t=tenant();if(!t){localStorage.removeItem(AUTH_KEY);location.replace("/");return}$("passwordCard").classList.add("hidden");$("profileCard").classList.add("hidden");$("legacyNotice").classList.remove("hidden");return}renderAccount(a)})();
+(async()=>{const a=await authenticatedAccount();if(!a){const t=tenant();if(!t){localStorage.removeItem(AUTH_KEY);location.replace("/");return}$("passwordCard").classList.add("hidden");$("profileCard").classList.add("hidden");$("emailCard").classList.add("hidden");$("legacyNotice").classList.remove("hidden");return}renderAccount(a)})();
 $("profileForm").addEventListener("submit",async e=>{e.preventDefault();const a=account();if(!a){profileMsg("Account non modificabile da questa schermata.","error");return}const displayName=$("displayName").value.trim();if(displayName.length<2||displayName.length>80){profileMsg("Inserisci un nome da 2 a 80 caratteri.","error");return}const btn=$("profileBtn");btn.disabled=true;profileMsg("Salvataggio nome…");try{const r=await fetch("/api/account",{method:"POST",headers:{"Content-Type":"application/json","x-maviri-tenant":tenant()},credentials:"same-origin",body:JSON.stringify({action:"update-profile",login:a.email||a.username,displayName})});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok||!j.account)throw new Error(j.error||"Aggiornamento non riuscito.");rememberAccount(j.account);renderAccount(j.account);profileMsg("Nome aggiornato correttamente.","ok")}catch(err){profileMsg(err.message||"Aggiornamento non riuscito.","error")}finally{btn.disabled=false}});
+$("emailForm").addEventListener("submit",async e=>{e.preventDefault();const a=account();if(!a){changeEmailMsg("Account non modificabile da questa schermata.","error");return}const newEmail=$("newEmail").value.trim().toLowerCase(),currentPassword=$("emailPassword").value;if(!newEmail||!currentPassword){changeEmailMsg("Inserisci nuova email e password attuale.","error");return}const btn=$("emailBtn");btn.disabled=true;changeEmailMsg("Aggiornamento email…");try{const r=await fetch("/api/account",{method:"POST",headers:{"Content-Type":"application/json","x-maviri-tenant":tenant()},credentials:"same-origin",body:JSON.stringify({action:"change-email",login:a.email||a.username,newEmail,currentPassword})});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok||!j.account)throw new Error(j.error||"Cambio email non riuscito.");rememberAccount(j.account);renderAccount(j.account);$("emailPassword").value="";changeEmailMsg("Email aggiornata. Verifica il nuovo indirizzo prima possibile.","ok");emailMsg("Nuova email da verificare.","")}catch(err){changeEmailMsg(err.message||"Cambio email non riuscito.","error")}finally{btn.disabled=false}});
 $("resendBtn").addEventListener("click",async()=>{const a=account();if(!a?.email)return;const btn=$("resendBtn");btn.disabled=true;emailMsg("Invio email di verifica…");try{const r=await fetch("/api/email-verification",{method:"POST",headers:{"Content-Type":"application/json","x-maviri-tenant":tenant()},credentials:"same-origin",body:JSON.stringify({email:a.email})});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||"Invio non riuscito.");if(j.verified){a.emailVerified=true;rememberAccount(a);renderEmailStatus(a);emailMsg("Email già verificata.","ok")}else emailMsg("Email di verifica inviata. Controlla la posta.","ok")}catch(err){emailMsg(err.message||"Invio non riuscito.","error")}finally{btn.disabled=false}});
 $("passwordForm").addEventListener("submit",async e=>{e.preventDefault();const a=account();if(!a){msg("Account non modificabile da questa schermata.","error");return}const currentPassword=$("currentPassword").value,newPassword=$("newPassword").value,confirmPassword=$("confirmPassword").value;if(newPassword.length<10){msg("La nuova password deve contenere almeno 10 caratteri.","error");return}if(newPassword!==confirmPassword){msg("Le due nuove password non coincidono.","error");return}const btn=$("saveBtn");btn.disabled=true;msg("Aggiornamento password…");try{const r=await fetch("/api/account",{method:"POST",headers:{"Content-Type":"application/json","x-maviri-tenant":tenant()},credentials:"same-origin",body:JSON.stringify({action:"change-password",login:a.email||a.username,currentPassword,newPassword})});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||"Aggiornamento non riuscito.");$("passwordForm").reset();msg("Password aggiornata correttamente.","ok")}catch(err){msg(err.message||"Aggiornamento non riuscito.","error")}finally{btn.disabled=false}});
 </script>
