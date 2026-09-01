@@ -11,6 +11,7 @@ La piattaforma mantiene compatibilità con il tenant storico `default` e separa 
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
 - `MAVIRI_OWNER_SYNC_TOKEN`
+- `MAVIRI_OWNER_TOKENS` (JSON con un token distinto per tenant)
 - `MAVIRI_DEFAULT_TENANT` (facoltativa)
 - `WHATSAPP_VERIFY_TOKEN`
 - `WHATSAPP_ACCESS_TOKEN`

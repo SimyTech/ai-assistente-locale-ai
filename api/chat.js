@@ -26,17 +26,26 @@ import {
   tenantLockPrefix,
   tenantPublicKey
 } from "../lib/tenant.js";
+import {
+  clientOwnsAppointment,
+  ownerAuthorized
+} from "../lib/auth.js";
 
 const LOCK_TTL = 15000;
+
+const OWNER_PROTECTED_ACTIONS = new Set([
+  "book",
+  "update",
+  "cancel",
+  "client",
+  "whatsapp-message"
+]);
 
 const REDIS_URL =
   process.env.UPSTASH_REDIS_REST_URL || "";
 
 const REDIS_TOKEN =
   process.env.UPSTASH_REDIS_REST_TOKEN || "";
-
-const OWNER_TOKEN =
-  process.env.MAVIRI_OWNER_SYNC_TOKEN || "";
 
 /* ============================================================
    UTILITY
@@ -353,30 +362,6 @@ async function releaseDistributedLock(
   } catch {
     /* nessun errore bloccante */
   }
-}
-
-
-/* ============================================================
-   TOKEN PROPRIETARIO
-   ============================================================ */
-
-function ownerAuthorized(req) {
-
-  if (!OWNER_TOKEN) {
-    return false;
-  }
-
-  const token =
-    clean(
-      req.headers[
-        "x-maviri-owner-token"
-      ]
-    );
-
-  return (
-    token &&
-    token === OWNER_TOKEN
-  );
 }
 
 
@@ -2295,6 +2280,19 @@ export default async function handler(
     const PUBLIC_KEY =
       tenantPublicKey(tenantId);
 
+    if (
+      mode === "owner" &&
+      OWNER_PROTECTED_ACTIONS.has(action) &&
+      !ownerAuthorized(req, tenantId)
+    ) {
+      return res
+        .status(401)
+        .json({
+          ok: false,
+          error: "Autenticazione proprietario richiesta."
+        });
+    }
+
 
     /* ========================================================
        OWNER SYNC
@@ -2305,7 +2303,7 @@ export default async function handler(
     ) {
 
       if (
-        !ownerAuthorized(req)
+        !ownerAuthorized(req, tenantId)
       ) {
 
         return res
@@ -2402,7 +2400,7 @@ export default async function handler(
     ) {
 
       if (
-        !ownerAuthorized(req)
+        !ownerAuthorized(req, tenantId)
       ) {
 
         return res
@@ -3509,6 +3507,18 @@ export default async function handler(
             });
         }
 
+        if (
+          mode === "client" &&
+          !clientOwnsAppointment(old, body)
+        ) {
+          return res
+            .status(403)
+            .json({
+              ok: false,
+              error: "Verifica cliente non riuscita."
+            });
+        }
+
 
         const updated = {
 
@@ -3677,17 +3687,17 @@ export default async function handler(
             });
         }
 
-        const exists =
+        const appointment =
           arr(
             data.appointments
-          ).some(
+          ).find(
             a =>
               String(a.id) ===
               String(id)
           );
 
         if (
-          !exists
+          !appointment
         ) {
 
           return res
@@ -3698,6 +3708,17 @@ export default async function handler(
 
               error:
                 "Appuntamento non trovato."
+            });
+        }
+
+        if (
+          !clientOwnsAppointment(appointment, body)
+        ) {
+          return res
+            .status(403)
+            .json({
+              ok: false,
+              error: "Verifica cliente non riuscita."
             });
         }
 
