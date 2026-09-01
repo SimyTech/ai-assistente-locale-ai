@@ -242,7 +242,7 @@ export function ownerManagerInsight(body = {}) {
   const appointmentPlural = pluralizeItalian(labels.appointment);
   const entityWords = "client|pazient|soci|socio|ospit|utent|contatt";
   const asksRegular = new RegExp(`(?:${entityWords}).*(?:abitual|fedel|frequent)|(?:abitual|fedel|frequent).*(?:${entityWords})`).test(message);
-  const asksInactive = new RegExp(`(?:${entityWords}).*(?:non (?:vengono|viene|tornano|torna)|da un po|da tempo|inattiv|pers[io])|(?:inattiv|pers[io]).*(?:${entityWords})`).test(message);
+  const asksInactive = new RegExp(`(?:${entityWords}).*(?:non (?:vengono|viene|tornano|torna)|da un po|da tempo|inattiv|pers[io]|ricontatt|recuper)|(?:inattiv|pers[io]|ricontatt|recuper).*(?:${entityWords})`).test(message);
   const asksBest = new RegExp(`(?:miglior|top|piu important|piu valore).*(?:${entityWords})|(?:${entityWords}).*(?:miglior|top|piu important|piu valore)`).test(message);
   const asksNew = new RegExp(`(?:nuov).*(?:${entityWords})|(?:${entityWords}).*(?:nuov)`).test(message) && /mese|questo mese|ultimi 30/.test(message);
   const asksCount = new RegExp(`quant[ioe].*(?:${entityWords})|numero.*(?:${entityWords})`).test(message);
@@ -377,11 +377,14 @@ export function ownerManagerInsight(body = {}) {
   }
 
   if (asksInactive) {
+    const recentContactLimit = todayTime - 30 * 86400000;
     const inactive = stats
       .filter(item => {
         if (!item.lastVisit) return false;
         const last = Date.parse(`${item.lastVisit}T12:00:00Z`);
-        return Number.isFinite(last) && (todayTime - last) / 86400000 >= 60;
+        const contacted = Date.parse(clean(item.client?.recoveryContactedAt));
+        const hasUpcoming = appointments.some(appointment => clean(appointment?.clientId) === clean(item.client?.id) && appointmentConfirmed(appointment) && appointmentDate(appointment) >= today);
+        return Number.isFinite(last) && (todayTime - last) / 86400000 >= 60 && !hasUpcoming && (!Number.isFinite(contacted) || contacted < recentContactLimit);
       })
       .sort((a, b) => clean(a.lastVisit).localeCompare(clean(b.lastVisit)))
       .slice(0, 10);
@@ -390,7 +393,7 @@ export function ownerManagerInsight(body = {}) {
       return `Non risultano ${clientPlural.toLowerCase()} con una visita registrata che mancano da almeno 60 giorni.`;
     }
 
-    return `Questi ${clientPlural.toLowerCase()} non tornano da almeno 60 giorni:\n` + inactive
+    return `Questi ${clientPlural.toLowerCase()} sono da ricontattare: non tornano da almeno 60 giorni, non hanno un prossimo appuntamento e non sono stati contattati negli ultimi 30 giorni:\n` + inactive
       .map(item => `• ${item.name} — ultima visita ${item.lastVisit}`)
       .join("\n");
   }
