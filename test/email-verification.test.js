@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { authenticateStoredOwnerAccount, createStoredOwnerAccount } from "../lib/account-store.js";
-import { consumeEmailVerification, requestEmailVerification } from "../lib/email-verification.js";
+import { accountLoginKey, authenticateStoredOwnerAccount, createStoredOwnerAccount } from "../lib/account-store.js";
+import { consumeEmailVerification, emailVerificationKey, requestEmailVerification } from "../lib/email-verification.js";
 
 function fetchMock() {
   const store = new Map();
@@ -36,6 +36,7 @@ function fetchMock() {
   };
 
   mock.token = () => verificationToken;
+  mock.store = store;
   return mock;
 }
 
@@ -90,6 +91,55 @@ test("la registrazione può verificare l'email con un token monouso", async () =
 
     const reused = await consumeEmailVerification(token, env);
     assert.deepEqual(reused, { verified: false, reason: "invalid-or-expired" });
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test("un vecchio token non può verificare un account diverso che riusa la stessa email", async () => {
+  const originalFetch = global.fetch;
+  const mock = fetchMock();
+  const env = {
+    UPSTASH_REDIS_REST_URL: "https://redis.test",
+    UPSTASH_REDIS_REST_TOKEN: "redis-token",
+    RESEND_API_KEY: "resend-token",
+    MAVIRI_EMAIL_FROM: "Maviri <noreply@maviri.test>",
+    MAVIRI_PUBLIC_URL: "https://maviri.test"
+  };
+
+  try {
+    global.fetch = mock;
+    const first = await createStoredOwnerAccount({
+      email: "riusata@example.com",
+      password: "PasswordSicura!1",
+      tenantId: "tenant-originale"
+    }, env);
+    assert.equal(first.created, true);
+    assert.equal((await requestEmailVerification("riusata@example.com", env)).sent, true);
+
+    const token = mock.token();
+    const tokenKey = emailVerificationKey(token);
+    const tokenPayload = JSON.parse(mock.store.get(tokenKey));
+    tokenPayload.tenantId = "tenant-nuovo";
+    mock.store.set(tokenKey, JSON.stringify(tokenPayload));
+
+    const secondAccount = {
+      id: "account-diverso",
+      tenantId: "tenant-nuovo",
+      username: "",
+      email: "riusata@example.com",
+      displayName: "Nuovo titolare",
+      role: "owner",
+      passwordHash: "non-rilevante",
+      disabled: false,
+      emailVerified: false
+    };
+    mock.store.set(accountLoginKey("riusata@example.com"), JSON.stringify(secondAccount));
+
+    const result = await consumeEmailVerification(token, env);
+    assert.equal(result.verified, false);
+    assert.equal(result.reason, "account-mismatch");
+    assert.equal(JSON.parse(mock.store.get(accountLoginKey("riusata@example.com"))).emailVerified, false);
   } finally {
     global.fetch = originalFetch;
   }
