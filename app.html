@@ -9,15 +9,15 @@
 html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
 #gate{position:fixed;inset:0;display:grid;place-items:center;color:#dfe7ff;font-size:14px;background:#07142f;z-index:5}
 .context{height:48px;display:none;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.08);background:#091a39;color:#f6f8ff}
-.context strong{font-size:13px}.context span{font-size:11px;color:#9eafd0;margin-left:8px}.context a{color:#9fcfff;text-decoration:none;font-size:12px;touch-action:manipulation}
+.context strong{font-size:13px}.context span{font-size:11px;color:#9eafd0;margin-left:8px}.context-actions{display:flex;align-items:center;gap:12px;white-space:nowrap}.context a{color:#9fcfff;text-decoration:none;font-size:12px;touch-action:manipulation}.context a:hover{text-decoration:underline}
 #appFrame{width:100%;height:100%;border:0;display:none;background:#07142f;pointer-events:auto;touch-action:auto}
 .ready #appFrame{height:calc(100% - 48px)}
-@media(max-width:650px){.context span{display:none}}
+@media(max-width:650px){.context span{display:none}.context{padding:0 12px}.context-actions{gap:9px}.context a{font-size:11px}}
 </style>
 </head>
 <body>
 <div id="gate">Apertura del tuo spazio Maviri…</div>
-<div id="context" class="context"><div><strong id="activityName">Maviri</strong><span id="activitySummary"></span></div><a href="/setup">Configura attività</a></div>
+<div id="context" class="context"><div><strong id="activityName">Maviri</strong><span id="activitySummary"></span></div><div class="context-actions"><a href="/account" aria-label="Gestisci account">Account</a><a href="/setup">Configura attività</a></div></div>
 <iframe id="appFrame" title="Maviri"></iframe>
 <script type="module">
 import { adaptiveDashboardPlan } from "/lib/adaptive-ui.js";
@@ -105,9 +105,7 @@ function setButtonLabel(button,label){
   const iconHtml=icon?icon.outerHTML:"";
   button.innerHTML=iconHtml+label;
 }
-
 function setDisplay(el,value){if(el&&el.style.display!==value)el.style.display=value}
-
 function reorderNavigation(doc){
   const nav=doc.querySelector("nav.nav");
   if(!nav||!plan)return;
@@ -118,7 +116,6 @@ function reorderNavigation(doc){
   if(desired.join("|")!==current.join("|"))desired.forEach(page=>{const btn=map.get(page);if(btn)nav.appendChild(btn)});
   map.forEach((btn,page)=>setDisplay(btn,plan.visible[page]===false?"none":""));
 }
-
 function adaptLabels(doc){
   if(!plan)return;
   setButtonLabel(doc.querySelector('button[data-page="calendar"]'),plan.labels.appointments);
@@ -142,7 +139,6 @@ function adaptLabels(doc){
     if(next&&next!==text)el.textContent=next;
   });
 }
-
 function adaptCapabilities(doc){
   if(!plan)return;
   const pageButton=page=>doc.querySelector(`button[data-page="${page}"]`);
@@ -157,7 +153,6 @@ function adaptCapabilities(doc){
     });
   }
 }
-
 function sanitizeLegacyUi(doc){
   try{
     const token=doc.getElementById("ownerSyncToken");
@@ -170,7 +165,6 @@ function sanitizeLegacyUi(doc){
     }
   }catch{}
 }
-
 function wireLogout(){
   try{
     const win=frame.contentWindow;
@@ -183,7 +177,6 @@ function wireLogout(){
     };
   }catch{}
 }
-
 function applyAdaptiveUi(){
   if(adaptiveRunning)return;
   const doc=frame.contentDocument;
@@ -201,7 +194,6 @@ function applyAdaptiveUi(){
     if(adaptiveObserver&&doc.body)adaptiveObserver.observe(doc.body,{subtree:true,childList:true});
   }
 }
-
 function scheduleAdaptiveUi(){
   if(adaptiveScheduled)return;
   adaptiveScheduled=true;
@@ -210,7 +202,6 @@ function scheduleAdaptiveUi(){
     applyAdaptiveUi();
   });
 }
-
 frame.addEventListener("load",()=>{
   installApiBridge();
   applyAdaptiveUi();
@@ -224,7 +215,6 @@ frame.addEventListener("load",()=>{
   document.body.classList.add("ready");
   gate.style.display="none";
 });
-
 (async()=>{
   if(!(await verify())){clearLocalAuth();location.replace("/");return}
   localStorage.setItem(AUTH_KEY,"true");
