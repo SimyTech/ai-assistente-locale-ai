@@ -115,6 +115,7 @@ Mavi = internal AI assistant.
 
 <script>
 "use strict";
+if(window.top===window.self){location.replace("/app")}
 const KEY="maviri_app_data_v7", OLD_KEYS=["maviri_app_data_v6","maviri_app_data_v5","maviri_app_data_v4","appData","appData_backup"];
 const DAYS=["Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato","Domenica"], MONTHS=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
 const titles={home:["Home","Il tuo manager digitale, sempre con te."],mavi:["Mavi AI","Il tuo assistente intelligente interno."],calendar:["Calendario","Appuntamenti e disponibilità."],clients:["Clienti","Schede cliente e storico."],content:["Contenuti","Crea contenuti per i tuoi canali."],settings:["Impostazioni","Configura attività, servizi e orari."]};
@@ -138,7 +139,7 @@ function save(){data.revision++;data.updatedAt=new Date().toISOString();const te
 function toast(s){const x=$("toast");x.textContent=s;x.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>x.classList.remove("show"),2400)}
 function go(p){page=p;document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===p));document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("title").textContent=titles[p][0];$("subtitle").textContent=titles[p][1];renderAll()}
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));
-async function api(action,extra={}){const body={action,tenantId,business:data.business,settings:{...data.settings,name:data.business.name},services:data.services,appointments:data.appointments,clients:data.clients,promotions:data.promotions,...extra};const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";const headers={"Content-Type":"application/json","x-maviri-tenant":tenantId};if(token)headers["x-maviri-owner-token"]=token;const r=await fetch("/api/chat",{method:"POST",headers,body:JSON.stringify(body)});let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.ok===false)throw new Error(j.error||"Errore del server Maviri.");return j}
+async function api(action,extra={}){const body={action,tenantId,business:data.business,settings:{...data.settings,name:data.business.name},services:data.services,appointments:data.appointments,clients:data.clients,promotions:data.promotions,...extra};const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";const headers={"Content-Type":"application/json","x-maviri-tenant":tenantId};if(token)headers["x-maviri-owner-token"]=token;const r=await fetch("/api/chat",{method:"POST",headers,credentials:"same-origin",body:JSON.stringify(body)});let j={};try{j=await r.json()}catch(e){}if(r.status===401&&/autenticazione proprietario|sessione non valida|token proprietario/i.test(j.error||"")){localStorage.removeItem(OWNER_AUTH_KEY);window.top.location.replace("/login?switch=1&reason=session-expired");throw new Error("Sessione scaduta. Accedi di nuovo per salvare.")}if(!r.ok||j.ok===false)throw new Error(j.error||"Errore del server Maviri.");return j}
 
 /* ============================================================
    OWNER PULL — sincronizzazione automatica Maviri ← server
