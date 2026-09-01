@@ -14,14 +14,15 @@ test("la root Maviri passa dalla schermata di accesso", async () => {
   assert.equal(routes.get("/register"), "/register.html");
   assert.equal(routes.get("/app"), "/app.html");
   assert.equal(routes.get("/setup"), "/setup.html");
+  assert.equal(routes.get("/account"), "/account.html");
   assert.equal(routes.get("/api/chat"), "/api/chat-entry");
   assert.equal(routes.get("/api/whatsapp"), "/api/whatsapp-proxy");
 });
 
-test("le pagine di accesso non vengono servite da cache", async () => {
+test("le pagine di accesso e account non vengono servite da cache", async () => {
   const config = JSON.parse(await text("vercel.json"));
   const headers = new Map(config.headers.map(item => [item.source, item.headers]));
-  for (const route of ["/", "/login", "/register", "/app", "/setup"]) {
+  for (const route of ["/", "/login", "/register", "/app", "/setup", "/account"]) {
     const values = headers.get(route) || [];
     assert.ok(values.some(item => item.key === "Cache-Control" && /no-store/.test(item.value)));
   }
@@ -75,6 +76,17 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /adaptiveDashboardPlan\(profile\)/);
   assert.match(html, /frame\.src="\/index\.html"/);
   assert.match(html, /ownerSyncToken/);
+});
+
+test("la gestione account è raggiungibile dalla dashboard", async () => {
+  const html = await text("app.html");
+  assert.match(html, /href="\/account"/);
+  assert.match(html, />Account<\/a>/);
+  const accountHtml = await text("account.html");
+  assert.match(accountHtml, /Cambia password/);
+  assert.match(accountHtml, /fetch\("\/api\/account"/);
+  assert.match(accountHtml, /currentPassword/);
+  assert.match(accountHtml, /newPassword/);
 });
 
 test("il browser non riusa la cache gestionale di un altro tenant", async () => {
