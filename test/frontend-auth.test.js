@@ -169,6 +169,19 @@ test("la scheda cliente calcola affidabilità e tasso di presenza", async () => 
   assert.match(html, /Affidabilità da calcolare/);
 });
 
+test("la dashboard propone il recupero dei clienti inattivi senza ricontattarli due volte", async () => {
+  const html = await text("index.html");
+  const chat = await text("api/chat.js");
+  assert.match(html, /id="recoveries"/);
+  assert.match(html, /function recoveryClients\(\)/);
+  assert.match(html, /60\*86400000/);
+  assert.match(html, /30\*86400000/);
+  assert.match(html, /function openRecovery\(id\)/);
+  assert.match(html, /function markRecoveryContacted\(id\)/);
+  assert.match(html, /recoveryContactedAt=new Date\(\)\.toISOString\(\)/);
+  assert.match(chat, /recoveryContactedAt:/);
+});
+
 test("la dashboard adatta navigazione e moduli al modo di lavorare", async () => {
   const html = await text("app.html");
   assert.match(html, /reorderNavigation/);
