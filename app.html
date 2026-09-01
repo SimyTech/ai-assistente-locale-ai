@@ -52,6 +52,39 @@ async function loadProfile(){
   return j.profile||null;
 }
 
+function installApiBridge(){
+  try{
+    const win=frame.contentWindow;
+    if(!win||win.__MAVIRI_API_BRIDGE__)return;
+    const originalFetch=win.fetch.bind(win);
+    win.__MAVIRI_API_BRIDGE__=true;
+    win.fetch=async function(input,init={}){
+      const rawUrl=typeof input==="string"?input:(input&&input.url)||"";
+      let pathname="";
+      try{pathname=new URL(rawUrl,win.location.href).pathname}catch{}
+      if(!pathname.startsWith("/api/"))return originalFetch(input,init);
+
+      const t=tenant();
+      const headers=new Headers(init.headers||(typeof input!=="string"&&input&&input.headers)||{});
+      if(t)headers.set("x-maviri-tenant",t);
+
+      let body=init.body;
+      if(pathname==="/api/chat"&&typeof body==="string"){
+        try{
+          const payload=JSON.parse(body);
+          if(payload&&typeof payload==="object"&&!Array.isArray(payload)){
+            if(t&&!payload.tenantId)payload.tenantId=t;
+            if(profile&&!payload.activityProfile)payload.activityProfile=profile;
+            body=JSON.stringify(payload);
+          }
+        }catch{}
+      }
+
+      return originalFetch(input,{...init,headers,body,credentials:init.credentials||"same-origin"});
+    };
+  }catch{}
+}
+
 function setButtonLabel(button,label){
   if(!button)return;
   const icon=button.querySelector(".ni");
@@ -149,6 +182,7 @@ function applyAdaptiveUi(){
 }
 
 frame.addEventListener("load",()=>{
+  installApiBridge();
   applyAdaptiveUi();
   const doc=frame.contentDocument;
   const observer=new MutationObserver(()=>applyAdaptiveUi());
