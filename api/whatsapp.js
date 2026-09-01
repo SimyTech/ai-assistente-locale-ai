@@ -50,6 +50,9 @@ const REDIS_URL =
 const REDIS_TOKEN =
   process.env.UPSTASH_REDIS_REST_TOKEN || "";
 
+const TENANT_ID =
+  process.env.MAVIRI_DEFAULT_TENANT || "default";
+
 const MAX_HISTORY = 20;
 
 const SESSION_TTL =
@@ -724,7 +727,10 @@ async function callMavi(
         headers: {
 
           "Content-Type":
-            "application/json"
+            "application/json",
+
+          "x-maviri-tenant":
+            TENANT_ID
         },
 
         body:
@@ -732,6 +738,9 @@ async function callMavi(
 
             action:
               "chat",
+
+            tenantId:
+              TENANT_ID,
 
             role:
               "client",

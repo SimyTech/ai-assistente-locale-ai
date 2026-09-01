@@ -131,11 +131,12 @@ function normalizeHours(h){
 function migrate(x){const d=defaults();if(!x||typeof x!=="object")return d;const src=x.appData||x;return {...d,...src,version:8,revision:Number(src.revision||0),business:{...d.business,...(src.business||{})},services:Array.isArray(src.services)?src.services:[],promotions:Array.isArray(src.promotions)?src.promotions:[],clients:Array.isArray(src.clients)?src.clients:[],appointments:Array.isArray(src.appointments)?src.appointments:[],settings:{...d.settings,...(src.settings||{}),hours:normalizeHours(src.settings?.hours)}}}
 function load(){try{let raw=localStorage.getItem(KEY);if(raw)return migrate(JSON.parse(raw));for(const k of OLD_KEYS){raw=localStorage.getItem(k);if(raw){const d=migrate(JSON.parse(raw));localStorage.setItem(KEY,JSON.stringify(d));return d}}}catch(e){}return defaults()}
 let data=load(),page="home",selectedDate=iso(new Date()),cursor=new Date(new Date().getFullYear(),new Date().getMonth(),1),selectedClient=null,social="Instagram",bookingBusy=false,sessionId=uid();
+const tenantId=(localStorage.getItem("MAVIRI_TENANT_ID")||"default").trim().toLowerCase();
 function save(){data.revision++;data.updatedAt=new Date().toISOString();const text=JSON.stringify(data);localStorage.setItem(KEY,text);localStorage.setItem("appData_backup",text);$("saveState").textContent="Salvato · "+new Date().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});renderAll();if(localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN"))syncOwnerData()}
 function toast(s){const x=$("toast");x.textContent=s;x.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>x.classList.remove("show"),2400)}
 function go(p){page=p;document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===p));document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("title").textContent=titles[p][0];$("subtitle").textContent=titles[p][1];renderAll()}
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));
-async function api(action,extra={}){const body={action,business:data.business,settings:{...data.settings,name:data.business.name},services:data.services,appointments:data.appointments,clients:data.clients,promotions:data.promotions,...extra};const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";const headers={"Content-Type":"application/json"};if(token)headers["x-maviri-owner-token"]=token;const r=await fetch("/api/chat",{method:"POST",headers,body:JSON.stringify(body)});let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.ok===false)throw new Error(j.error||"Errore del server Maviri.");return j}
+async function api(action,extra={}){const body={action,tenantId,business:data.business,settings:{...data.settings,name:data.business.name},services:data.services,appointments:data.appointments,clients:data.clients,promotions:data.promotions,...extra};const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";const headers={"Content-Type":"application/json","x-maviri-tenant":tenantId};if(token)headers["x-maviri-owner-token"]=token;const r=await fetch("/api/chat",{method:"POST",headers,body:JSON.stringify(body)});let j={};try{j=await r.json()}catch(e){}if(!r.ok||j.ok===false)throw new Error(j.error||"Errore del server Maviri.");return j}
 
 /* ============================================================
    OWNER PULL — sincronizzazione automatica Maviri ← server
@@ -255,9 +256,10 @@ async function pullOwnerData(silent=true){
       method:"POST",
       headers:{
         "Content-Type":"application/json",
-        "x-maviri-owner-token":token
+        "x-maviri-owner-token":token,
+        "x-maviri-tenant":tenantId
       },
-      body:JSON.stringify({action:"owner-pull"})
+      body:JSON.stringify({action:"owner-pull",tenantId})
     });
     let j={};
     try{j=await r.json()}catch{}

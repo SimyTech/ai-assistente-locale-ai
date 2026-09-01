@@ -20,6 +20,13 @@
  * - base pronta per collegamento WhatsApp
  */
 
+import {
+  resolveTenantId,
+  tenantDataKey,
+  tenantLockPrefix,
+  tenantPublicKey
+} from "../lib/tenant.js";
+
 const LOCK_TTL = 15000;
 
 const REDIS_URL =
@@ -30,16 +37,6 @@ const REDIS_TOKEN =
 
 const OWNER_TOKEN =
   process.env.MAVIRI_OWNER_SYNC_TOKEN || "";
-
-const DATA_KEY =
-  "maviri:owner-data";
-
-const PUBLIC_KEY =
-  "maviri:public-context";
-
-const REDIS_LOCK_PREFIX =
-  "maviri:booking-lock:";
-
 
 /* ============================================================
    UTILITY
@@ -300,22 +297,24 @@ async function redisDelete(
    ============================================================ */
 
 function redisLockKey(
-  key
+  key,
+  tenantId
 ) {
 
   return (
-    REDIS_LOCK_PREFIX +
+    tenantLockPrefix(tenantId) +
     norm(key)
       .replace(/\s+/g, "-")
   );
 }
 
 async function acquireDistributedLock(
-  key
+  key,
+  tenantId
 ) {
 
   const lockKey =
-    redisLockKey(key);
+    redisLockKey(key, tenantId);
 
   const token =
     `${Date.now()}-${crypto.randomUUID()}`;
@@ -1055,11 +1054,13 @@ function sanitizeOwnerData(
   };
 }
 
-async function getServerData() {
+async function getServerData(
+  dataKey
+) {
 
   const data =
     await redisGet(
-      DATA_KEY
+      dataKey
     );
 
   if (
@@ -2285,6 +2286,15 @@ export default async function handler(
         )
       );
 
+    const tenantId =
+      resolveTenantId(req, body);
+
+    const DATA_KEY =
+      tenantDataKey(tenantId);
+
+    const PUBLIC_KEY =
+      tenantPublicKey(tenantId);
+
 
     /* ========================================================
        OWNER SYNC
@@ -2327,7 +2337,7 @@ export default async function handler(
         );
 
       const server =
-        await getServerData();
+        await getServerData(DATA_KEY);
 
       /*
        * MERGE:
@@ -2419,7 +2429,7 @@ export default async function handler(
       }
 
       const data =
-        await getServerData();
+        await getServerData(DATA_KEY);
 
       if (
         !data
@@ -2491,7 +2501,7 @@ export default async function handler(
       ) {
 
         const data =
-          await getServerData();
+          await getServerData(DATA_KEY);
 
         if (
           data
@@ -2616,7 +2626,7 @@ export default async function handler(
       ) {
 
         data =
-          await getServerData();
+          await getServerData(DATA_KEY);
 
         if (
           !data
@@ -2714,7 +2724,7 @@ export default async function handler(
       ) {
 
         data =
-          await getServerData();
+          await getServerData(DATA_KEY);
 
         if (
           !data
@@ -2831,7 +2841,7 @@ export default async function handler(
       ) {
 
         data =
-          await getServerData();
+          await getServerData(DATA_KEY);
 
         if (
           !data
@@ -2981,7 +2991,8 @@ export default async function handler(
 
       const lock =
         await acquireDistributedLock(
-          key
+          key,
+          tenantId
         );
 
       if (
@@ -3018,7 +3029,7 @@ export default async function handler(
         ) {
 
           const fresh =
-            await getServerData();
+            await getServerData(DATA_KEY);
 
           if (
             fresh
@@ -3328,7 +3339,7 @@ export default async function handler(
       ) {
 
         data =
-          await getServerData();
+          await getServerData(DATA_KEY);
 
       } else {
 
@@ -3407,7 +3418,8 @@ export default async function handler(
 
       const lock =
         await acquireDistributedLock(
-          lockKey
+          lockKey,
+          tenantId
         );
 
       if (
@@ -3648,7 +3660,7 @@ export default async function handler(
       ) {
 
         const data =
-          await getServerData();
+          await getServerData(DATA_KEY);
 
         if (
           !data
@@ -3923,7 +3935,7 @@ export default async function handler(
 
 
       const data =
-        await getServerData();
+        await getServerData(DATA_KEY);
 
       if (
         !data
