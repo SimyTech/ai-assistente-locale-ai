@@ -1,5 +1,6 @@
 import { changeStoredOwnerEmail, changeStoredOwnerPassword, updateStoredOwnerProfile } from "../lib/account-store.js";
 import { ownerAuthorized } from "../lib/auth.js";
+import { emailVerificationConfigured, requestEmailVerification } from "../lib/email-verification.js";
 import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
 import { explicitTenantId, isValidTenantId, normalizeTenantId, resolveTenantId } from "../lib/tenant.js";
 
@@ -92,8 +93,26 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: "Compila email e password attuale." });
     }
     try {
-      const result = await changeStoredOwnerEmail({ login, currentPassword, newEmail, tenantId: normalizeTenantId(tenantId) });
-      if (result.changed) return res.status(200).json({ ok: true, changed: true, account: result.account });
+      const normalizedTenant = normalizeTenantId(tenantId);
+      const result = await changeStoredOwnerEmail({ login, currentPassword, newEmail, tenantId: normalizedTenant });
+      if (result.changed) {
+        let emailVerificationSent = false;
+        if (emailVerificationConfigured()) {
+          try {
+            const verification = await requestEmailVerification(result.account?.email || newEmail, process.env, normalizedTenant);
+            emailVerificationSent = verification.sent === true;
+          } catch (error) {
+            console.error("MAVIRI ACCOUNT EMAIL VERIFICATION ERROR:", error);
+          }
+        }
+        return res.status(200).json({
+          ok: true,
+          changed: true,
+          account: result.account,
+          needsEmailVerification: true,
+          emailVerificationSent
+        });
+      }
       if (result.reason === "tenant-mismatch") return res.status(403).json({ ok: false, error: "L'account non appartiene a questa attività." });
       if (result.reason === "invalid-email") return res.status(400).json({ ok: false, error: "Inserisci un indirizzo email valido." });
       if (result.reason === "same-email") return res.status(400).json({ ok: false, error: "La nuova email coincide con quella attuale." });
