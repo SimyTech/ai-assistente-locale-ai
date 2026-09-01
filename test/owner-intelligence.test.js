@@ -101,3 +101,9 @@ test("riassume le azioni operative pendenti", () => {
   assert.match(answer, /Azioni operative pendenti/);
   assert.match(answer, /Promemoria da inviare per domani: 1/);
 });
+
+test("classifica i clienti per rischio no-show e valore perso", () => {
+  const answer = ask("quali pazienti hanno più assenze e sono meno affidabili?");
+  assert.match(answer, /Pazienti con più assenze\/no-show/);
+  assert.match(answer, /Luca Bianchi — 1 assenza, valore stimato perso €50\.00/);
+});
