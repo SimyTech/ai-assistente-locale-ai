@@ -1,8 +1,9 @@
-import { changeStoredOwnerPassword, updateStoredOwnerProfile } from "../lib/account-store.js";
+import { changeStoredOwnerEmail, changeStoredOwnerPassword, updateStoredOwnerProfile } from "../lib/account-store.js";
 import { ownerAuthorized } from "../lib/auth.js";
 import { explicitTenantId, isValidTenantId, normalizeTenantId, resolveTenantId } from "../lib/tenant.js";
 
 const clean = value => String(value ?? "").trim();
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -42,6 +43,26 @@ export default async function handler(req, res) {
     } catch (error) {
       console.error("MAVIRI ACCOUNT PROFILE ERROR:", error);
       return res.status(503).json({ ok: false, error: "Profilo account temporaneamente non disponibile." });
+    }
+  }
+
+  if (action === "change-email") {
+    const currentPassword = String(body.currentPassword ?? "");
+    const newEmail = clean(body.newEmail).toLowerCase();
+    if (!login || !currentPassword || !EMAIL_RE.test(newEmail) || newEmail.length > 254) {
+      return res.status(400).json({ ok: false, error: "Inserisci una nuova email valida e conferma con la password attuale." });
+    }
+    try {
+      const result = await changeStoredOwnerEmail({ login, currentPassword, newEmail, tenantId: normalizeTenantId(tenantId) });
+      if (result.changed) return res.status(200).json({ ok: true, changed: true, account: result.account, verificationRequired: true });
+      if (result.reason === "same-email") return res.status(400).json({ ok: false, error: "La nuova email coincide con quella attuale." });
+      if (result.reason === "invalid-email") return res.status(400).json({ ok: false, error: "Indirizzo email non valido." });
+      if (result.reason === "login-exists") return res.status(409).json({ ok: false, error: "Questa email è già associata a un altro account." });
+      if (result.reason === "tenant-mismatch") return res.status(403).json({ ok: false, error: "L'account non appartiene a questa attività." });
+      return res.status(401).json({ ok: false, error: "Password attuale non corretta o account non modificabile." });
+    } catch (error) {
+      console.error("MAVIRI ACCOUNT EMAIL ERROR:", error);
+      return res.status(503).json({ ok: false, error: "Cambio email temporaneamente non disponibile." });
     }
   }
 
