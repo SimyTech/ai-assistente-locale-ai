@@ -71,11 +71,21 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /api\("\/api\/auth"\)/);
   assert.match(html, /api\("\/api\/activity-profile"\)/);
   assert.match(html, /x-maviri-tenant/);
-  assert.match(html, /if\(!\(await verify\(\)\)\)/);
+  assert.match(html, /const auth=await verify\(\)/);
+  assert.match(html, /auth\.authenticated!==true/);
   assert.match(html, /if\(!j\.configured\)\{location\.replace\("\/setup"\)/);
   assert.match(html, /adaptiveDashboardPlan\(profile\)/);
   assert.match(html, /frame\.src="\/index\.html"/);
   assert.match(html, /ownerSyncToken/);
+});
+
+test("la dashboard aggiorna l'account dalla sessione e segnala email non verificata", async () => {
+  const html = await text("app.html");
+  assert.match(html, /function syncAccountFromAuth/);
+  assert.match(html, /localStorage\.setItem\(ACCOUNT_KEY,JSON\.stringify\(account\)\)/);
+  assert.match(html, /verifyEmailLink/);
+  assert.match(html, /account\.emailVerified===true/);
+  assert.match(html, />Verifica email<\/a>/);
 });
 
 test("la gestione account è raggiungibile dalla dashboard", async () => {
