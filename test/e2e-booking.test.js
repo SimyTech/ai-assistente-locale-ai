@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import handler from "../api/chat.js";
+import handler from "../api/chat-proxy.js";
 
 function response() {
   return {
