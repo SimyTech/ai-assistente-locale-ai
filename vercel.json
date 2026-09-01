@@ -5,6 +5,10 @@
       "destination": "/login.html"
     },
     {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
       "source": "/register",
       "destination": "/register.html"
     },
@@ -23,6 +27,38 @@
     {
       "source": "/api/whatsapp",
       "destination": "/api/whatsapp-proxy"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/login",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/register",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/app",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/setup",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
     }
   ]
 }
