@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142f">
+<title>Maviri — Configura attività</title>
+<style>
+:root{--n:#07142f;--n2:#0b1d40;--t:#f6f8ff;--m:#9eafd0;--l:rgba(255,255,255,.1);--b:#38a7ff;--v:#875cff;--g:#39d98a;--d:#ff6679;--grad:linear-gradient(135deg,#38a7ff,#875cff 52%,#39d98a)}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--n);color:var(--t);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding:28px}.wrap{width:min(980px,100%);margin:auto}.head{margin-bottom:22px}.head h1{font-size:34px;margin:0 0 8px}.head p{margin:0;color:var(--m);line-height:1.6}.card{background:var(--n2);border:1px solid var(--l);border-radius:24px;padding:24px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{display:grid;gap:7px}.full{grid-column:1/-1}label{font-size:12px;color:var(--m)}input,select,textarea{width:100%;border:1px solid var(--l);border-radius:13px;background:#091a39;color:#fff;padding:13px;outline:none}textarea{min-height:100px;resize:vertical}.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}button,a.btn{border:0;border-radius:13px;padding:12px 16px;color:#fff;background:var(--grad);font-weight:800;text-decoration:none;cursor:pointer}.secondary{background:rgba(255,255,255,.07)!important;border:1px solid var(--l)!important}.hint{margin-top:14px;color:var(--m);font-size:12px;line-height:1.6}.msg{margin-top:14px;min-height:20px;font-size:13px}.ok{color:#83edb7}.err{color:#ff9aaa}@media(max-width:700px){body{padding:16px}.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="head"><h1>Configura la tua attività</h1><p>Maviri si adatta al modo in cui lavori. Il settore suggerisce una base, ma termini e modalità restano personalizzabili.</p></div>
+  <section class="card">
+    <form id="setupForm">
+      <div class="grid">
+        <div class="field full"><label>Nome attività</label><input id="name" required placeholder="Es. Studio Rossi, Officina Bianchi, Centro Forma"></div>
+        <div class="field"><label>Settore</label><select id="sector"><option value="generic">Altro / generico</option><option value="beauty">Benessere e bellezza</option><option value="professional">Studio professionale / consulenza</option><option value="health">Salute e prestazioni professionali</option><option value="fitness">Fitness, sport, corsi</option><option value="automotive">Auto, moto, officina</option><option value="retail">Negozio / vendita</option><option value="hospitality">Ospitalità / ristorazione</option></select></div>
+        <div class="field"><label>Come lavori?</label><select id="workflowMode"><option value="appointment">Principalmente su appuntamento</option><option value="walk-in">Principalmente senza appuntamento</option><option value="mixed">Entrambi</option><option value="none">Non uso un'agenda</option></select></div>
+        <div class="field"><label>Come chiami ciò che offri?</label><input id="serviceLabel" placeholder="Servizio, prestazione, intervento, lezione…"></div>
+        <div class="field"><label>Come chiami chi si rivolge a te?</label><input id="clientLabel" placeholder="Cliente, paziente, socio, ospite…"></div>
+        <div class="field"><label>Come chiami una prenotazione?</label><input id="appointmentLabel" placeholder="Appuntamento, prenotazione, visita…"></div>
+        <div class="field"><label>Telefono</label><input id="phone" inputmode="tel"></div>
+        <div class="field"><label>WhatsApp</label><input id="whatsapp" inputmode="tel"></div>
+        <div class="field"><label>Email attività</label><input id="email" type="email"></div>
+        <div class="field"><label>Sito web</label><input id="website" type="url"></div>
+        <div class="field full"><label>Indirizzo / sede</label><input id="address"></div>
+        <div class="field full"><label>Descrizione breve</label><textarea id="description" placeholder="Cosa fa la tua attività e come vuoi che Mavi la presenti ai clienti?"></textarea></div>
+      </div>
+      <div class="row"><button type="submit" id="saveBtn">Salva configurazione</button><a class="btn secondary" href="/app">Vai a Maviri</a></div>
+      <div id="message" class="msg"></div>
+      <div class="hint">Il settore non blocca funzioni: serve solo a proporre impostazioni iniziali. Potrai usare Maviri anche se la tua attività non rientra in una categoria precisa.</div>
+    </form>
+  </section>
+</main>
+<script>
+const TENANT_KEY="MAVIRI_TENANT_ID";const $=id=>document.getElementById(id);let configured=false;
+const PRESETS={beauty:{w:"appointment",s:"Servizio",c:"Cliente",a:"Appuntamento"},professional:{w:"appointment",s:"Prestazione",c:"Cliente",a:"Appuntamento"},health:{w:"appointment",s:"Prestazione",c:"Paziente",a:"Appuntamento"},fitness:{w:"mixed",s:"Lezione/servizio",c:"Cliente",a:"Prenotazione"},automotive:{w:"appointment",s:"Intervento",c:"Cliente",a:"Appuntamento"},retail:{w:"none",s:"Servizio/prodotto",c:"Cliente",a:"Prenotazione"},hospitality:{w:"mixed",s:"Servizio",c:"Ospite",a:"Prenotazione"},generic:{w:"mixed",s:"Servizio",c:"Cliente",a:"Prenotazione"}};
+function tenant(){return(localStorage.getItem(TENANT_KEY)||"").trim()}
+function applyPreset(force=false){const p=PRESETS[$("sector").value]||PRESETS.generic;if(force||!$("workflowMode").value)$("workflowMode").value=p.w;if(force||!$("serviceLabel").value)$("serviceLabel").value=p.s;if(force||!$("clientLabel").value)$("clientLabel").value=p.c;if(force||!$("appointmentLabel").value)$("appointmentLabel").value=p.a}
+$("sector").addEventListener("change",()=>{if(!configured)applyPreset(true)});
+async function request(method,body){const t=tenant();if(!t){location.replace("/");throw new Error("Sessione non disponibile.")}const r=await fetch("/api/activity-profile",{method,headers:{"Content-Type":"application/json","x-maviri-tenant":t},credentials:"same-origin",cache:"no-store",body:body?JSON.stringify(body):undefined});const j=await r.json().catch(()=>({}));if(r.status===401){location.replace("/");throw new Error("Sessione scaduta.")}if(!r.ok)throw new Error(j.error||"Operazione non riuscita.");return j}
+function fill(p){if(!p)return;configured=true;$("name").value=p.name||"";$("sector").value=p.sector||"generic";$("workflowMode").value=p.workflowMode||"mixed";$("serviceLabel").value=p.labels?.service||"";$("clientLabel").value=p.labels?.client||"";$("appointmentLabel").value=p.labels?.appointment||"";$("phone").value=p.phone||"";$("whatsapp").value=p.whatsapp||"";$("email").value=p.email||"";$("website").value=p.website||"";$("address").value=p.address||"";$("description").value=p.description||""}
+$("setupForm").addEventListener("submit",async e=>{e.preventDefault();const btn=$("saveBtn");btn.disabled=true;$("message").textContent="Salvataggio…";$("message").className="msg";try{const j=await request("PUT",{profile:{name:$("name").value,sector:$("sector").value,workflowMode:$("workflowMode").value,labels:{service:$("serviceLabel").value,client:$("clientLabel").value,appointment:$("appointmentLabel").value},phone:$("phone").value,whatsapp:$("whatsapp").value,email:$("email").value,website:$("website").value,address:$("address").value,description:$("description").value}});fill(j.profile);$("message").textContent="Configurazione salvata.";$("message").className="msg ok"}catch(err){$("message").textContent=err.message;$("message").className="msg err"}finally{btn.disabled=false}});
+(async()=>{try{const j=await request("GET");configured=j.configured;fill(j.profile);if(!j.configured){configured=false;applyPreset(true)}}catch(err){$("message").textContent=err.message;$("message").className="msg err"}})();
+</script>
+</body>
+</html>
