@@ -101,6 +101,16 @@ test("la pagina account modifica il nome titolare senza confonderlo con il nome 
   assert.match(html, /rememberAccount\(j\.account\)/);
 });
 
+test("la pagina account cambia email solo con password e richiede una nuova verifica", async () => {
+  const html = await text("account.html");
+  assert.match(html, /Cambia email di accesso/);
+  assert.match(html, /id="emailForm"/);
+  assert.match(html, /id="emailPassword"/);
+  assert.match(html, /action:"change-email"/);
+  assert.match(html, /newEmail,currentPassword/);
+  assert.match(html, /Verifica il nuovo indirizzo/);
+});
+
 test("il browser non riusa la cache gestionale di un altro tenant", async () => {
   const html = await text("app.html");
   assert.match(html, /MAVIRI_LOCAL_DATA_TENANT/);
