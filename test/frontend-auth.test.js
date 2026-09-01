@@ -149,6 +149,18 @@ test("il pull server applica anche eliminazioni complete di servizi e promozioni
   assert.doesNotMatch(html, /if\(hasServices\)\{\s*data\.services=mergeRemoteList/);
 });
 
+test("la dashboard include centro operativo, promemoria manuali e no-show persistenti", async () => {
+  const html = await text("index.html");
+  assert.match(html, /id="operations"/);
+  assert.match(html, /function renderOperations\(\)/);
+  assert.match(html, /function openReminder\(id\)/);
+  assert.match(html, /reminderSentAt/);
+  assert.match(html, /reminderChannel="whatsapp-manual"/);
+  assert.match(html, /function markNoShow\(id\)/);
+  assert.match(html, /a\.status="no_show"/);
+  assert.match(html, /Assenze: \$\{noShows\.length\}/);
+});
+
 test("la dashboard adatta navigazione e moduli al modo di lavorare", async () => {
   const html = await text("app.html");
   assert.match(html, /reorderNavigation/);
