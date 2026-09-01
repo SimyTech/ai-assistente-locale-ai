@@ -116,6 +116,11 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
     assert.equal(confirmed.payload.bookingConfirmed, true);
     assert.equal(confirmed.payload.persisted, true);
     assert.equal(confirmed.payload.appointment.name, "Mario Rossi");
+    const appointmentId = confirmed.payload.appointment.id;
+
+    const duplicate = await call({ ...booking, name: "Luigi Bianchi", phone: "3337654321", confirmed: true }, clientHeaders);
+    assert.equal(duplicate.statusCode, 409);
+    assert.equal(duplicate.payload.error, "Orario non disponibile.");
 
     const pull = await call({ action: "owner-pull", tenantId: "default" }, ownerHeaders);
     assert.equal(pull.statusCode, 200);
@@ -123,9 +128,59 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
     assert.equal(pull.payload.data.clients.length, 1);
     assert.equal(pull.payload.data.appointments[0].clientId, pull.payload.data.clients[0].id);
 
-    const duplicate = await call({ ...booking, name: "Luigi Bianchi", phone: "3337654321", confirmed: true }, clientHeaders);
-    assert.equal(duplicate.statusCode, 409);
-    assert.equal(duplicate.payload.error, "Orario non disponibile.");
+    const unauthorizedMove = await call({
+      action: "update",
+      mode: "client",
+      tenantId: "default",
+      id: appointmentId,
+      date: "2026-09-07",
+      time: "11:00",
+      service: "Taglio",
+      name: "Mario Rossi",
+      phone: "3330000000"
+    }, clientHeaders);
+    assert.equal(unauthorizedMove.statusCode, 403);
+
+    const moved = await call({
+      action: "update",
+      mode: "client",
+      tenantId: "default",
+      id: appointmentId,
+      date: "2026-09-07",
+      time: "11:00",
+      service: "Taglio",
+      name: "Mario Rossi",
+      phone: "3331234567"
+    }, clientHeaders);
+    assert.equal(moved.statusCode, 200);
+    assert.equal(moved.payload.persisted, true);
+    assert.equal(moved.payload.appointment.time, "11:00");
+
+    const unauthorizedCancel = await call({
+      action: "cancel",
+      mode: "client",
+      tenantId: "default",
+      id: appointmentId,
+      phone: "3330000000"
+    }, clientHeaders);
+    assert.equal(unauthorizedCancel.statusCode, 403);
+
+    const cancelled = await call({
+      action: "cancel",
+      mode: "client",
+      tenantId: "default",
+      id: appointmentId,
+      phone: "3331234567"
+    }, clientHeaders);
+    assert.equal(cancelled.statusCode, 200);
+    assert.equal(cancelled.payload.persisted, true);
+
+    const afterCancel = await call({ action: "owner-pull", tenantId: "default" }, ownerHeaders);
+    assert.equal(afterCancel.payload.data.appointments[0].status, "cancelled");
+
+    const releasedSlot = await call({ ...booking, time: "11:00" }, clientHeaders);
+    assert.equal(releasedSlot.statusCode, 200);
+    assert.equal(releasedSlot.payload.requiresConfirmation, true);
   } finally {
     globalThis.fetch = originalFetch;
     delete process.env.UPSTASH_REDIS_REST_URL;

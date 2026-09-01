@@ -3583,6 +3583,36 @@ export default async function handler(
           });
       }
 
+      const old =
+        appointments.find(
+          a =>
+            String(a.id) ===
+            String(id)
+        );
+
+      if (
+        !old
+      ) {
+        return res
+          .status(404)
+          .json({
+            ok: false,
+            error: "Appuntamento non trovato."
+          });
+      }
+
+      if (
+        mode === "client" &&
+        !clientOwnsAppointment(old, body)
+      ) {
+        return res
+          .status(403)
+          .json({
+            ok: false,
+            error: "Verifica cliente non riuscita."
+          });
+      }
+
       const lockKey =
         [
           date,
@@ -3659,42 +3689,6 @@ export default async function handler(
                 })
             });
         }
-
-
-        const old =
-          appointments.find(
-            a =>
-              String(a.id) ===
-              String(id)
-          );
-
-        if (
-          !old
-        ) {
-
-          return res
-            .status(404)
-            .json({
-
-              ok: false,
-
-              error:
-                "Appuntamento non trovato."
-            });
-        }
-
-        if (
-          mode === "client" &&
-          !clientOwnsAppointment(old, body)
-        ) {
-          return res
-            .status(403)
-            .json({
-              ok: false,
-              error: "Verifica cliente non riuscita."
-            });
-        }
-
 
         const updated = {
 
