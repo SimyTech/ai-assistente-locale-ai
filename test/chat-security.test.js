@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import handler from "../api/chat.js";
+import { createSession } from "../lib/session.js";
 
 function response() {
   return {
@@ -42,6 +43,28 @@ test("accetta il token owner corretto per il tenant default", async () => {
   assert.equal(res.statusCode, 200);
   assert.equal(res.payload.cancelled, true);
   assert.equal(res.payload.persisted, false);
+});
+
+test("accetta la sessione account per una mutazione owner senza token legacy", async () => {
+  const previousSessionSecret = process.env.MAVIRI_SESSION_SECRET;
+  const previousOwnerToken = process.env.MAVIRI_OWNER_SYNC_TOKEN;
+  process.env.MAVIRI_SESSION_SECRET = "account-session-secret";
+  delete process.env.MAVIRI_OWNER_SYNC_TOKEN;
+  const session = createSession({ tenantId: "default", secret: "account-session-secret" });
+
+  try {
+    const res = await request(
+      { action: "cancel", mode: "owner", tenantId: "default", id: "appointment-1" },
+      { cookie: `maviri_session=${encodeURIComponent(session)}`, "x-maviri-tenant": "default" }
+    );
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.payload.cancelled, true);
+  } finally {
+    if (previousSessionSecret === undefined) delete process.env.MAVIRI_SESSION_SECRET;
+    else process.env.MAVIRI_SESSION_SECRET = previousSessionSecret;
+    if (previousOwnerToken === undefined) delete process.env.MAVIRI_OWNER_SYNC_TOKEN;
+    else process.env.MAVIRI_OWNER_SYNC_TOKEN = previousOwnerToken;
+  }
 });
 
 test("non consente a un token di operare su un altro tenant", async () => {
