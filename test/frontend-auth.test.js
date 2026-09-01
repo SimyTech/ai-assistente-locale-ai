@@ -142,6 +142,13 @@ test("il bridge autenticato forza tenant e profilo su Mavi", async () => {
   assert.match(html, /credentials:init\.credentials\|\|"same-origin"/);
 });
 
+test("il pull server applica anche eliminazioni complete di servizi e promozioni", async () => {
+  const html = await text("index.html");
+  assert.match(html, /if\(hasServices\)data\.services=remote\.services\.map/);
+  assert.match(html, /if\(hasPromotions\)data\.promotions=remote\.promotions\.map/);
+  assert.doesNotMatch(html, /if\(hasServices\)\{\s*data\.services=mergeRemoteList/);
+});
+
 test("la dashboard adatta navigazione e moduli al modo di lavorare", async () => {
   const html = await text("app.html");
   assert.match(html, /reorderNavigation/);
