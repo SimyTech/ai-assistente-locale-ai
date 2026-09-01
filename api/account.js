@@ -1,9 +1,47 @@
 import { changeStoredOwnerEmail, changeStoredOwnerPassword, updateStoredOwnerProfile } from "../lib/account-store.js";
 import { ownerAuthorized } from "../lib/auth.js";
+import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
 import { explicitTenantId, isValidTenantId, normalizeTenantId, resolveTenantId } from "../lib/tenant.js";
 
 const clean = value => String(value ?? "").trim();
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const redisUrl = () => process.env.UPSTASH_REDIS_REST_URL || "";
+const redisToken = () => process.env.UPSTASH_REDIS_REST_TOKEN || "";
+
+async function redisCommand(command, ...args) {
+  if (!redisUrl() || !redisToken()) return null;
+  const response = await fetch(redisUrl(), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${redisToken()}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify([command, ...args])
+  });
+  if (!response.ok) throw new Error(`Redis HTTP ${response.status}`);
+  const data = await response.json();
+  if (data.error) throw new Error(String(data.error));
+  return data.result;
+}
+
+async function accountMutationLimited(req, res, tenantId, action, login = "") {
+  const policy = rateLimitPolicy("account");
+  if (!policy || !redisUrl() || !redisToken()) return false;
+  const identity = `${clientAddress(req)}|${clean(login).toLowerCase()}|${clean(action).toLowerCase()}`;
+  const key = rateLimitKey({ tenantId, action: "account", identity });
+  try {
+    const count = Number(await redisCommand("INCR", key));
+    if (count === 1) await redisCommand("EXPIRE", key, String(policy.windowSeconds));
+    res.setHeader("X-RateLimit-Limit", String(policy.limit));
+    res.setHeader("X-RateLimit-Remaining", String(Math.max(0, policy.limit - count)));
+    if (count <= policy.limit) return false;
+    res.setHeader("Retry-After", String(policy.windowSeconds));
+    res.status(429).json({ ok: false, error: "Troppe modifiche account. Riprova più tardi." });
+    return true;
+  } catch (error) {
+    console.error("MAVIRI ACCOUNT RATE LIMIT ERROR:", error);
+    return false;
+  }
+}
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -28,6 +66,7 @@ export default async function handler(req, res) {
 
   const action = clean(body.action).toLowerCase();
   const login = clean(body.login);
+  if (await accountMutationLimited(req, res, tenantId, action, login)) return;
 
   if (action === "update-profile") {
     const displayName = clean(body.displayName);
@@ -49,16 +88,16 @@ export default async function handler(req, res) {
   if (action === "change-email") {
     const currentPassword = String(body.currentPassword ?? "");
     const newEmail = clean(body.newEmail).toLowerCase();
-    if (!login || !currentPassword || !EMAIL_RE.test(newEmail) || newEmail.length > 254) {
-      return res.status(400).json({ ok: false, error: "Inserisci una nuova email valida e conferma con la password attuale." });
+    if (!login || !currentPassword || !newEmail) {
+      return res.status(400).json({ ok: false, error: "Compila email e password attuale." });
     }
     try {
       const result = await changeStoredOwnerEmail({ login, currentPassword, newEmail, tenantId: normalizeTenantId(tenantId) });
-      if (result.changed) return res.status(200).json({ ok: true, changed: true, account: result.account, verificationRequired: true });
-      if (result.reason === "same-email") return res.status(400).json({ ok: false, error: "La nuova email coincide con quella attuale." });
-      if (result.reason === "invalid-email") return res.status(400).json({ ok: false, error: "Indirizzo email non valido." });
-      if (result.reason === "login-exists") return res.status(409).json({ ok: false, error: "Questa email è già associata a un altro account." });
+      if (result.changed) return res.status(200).json({ ok: true, changed: true, account: result.account });
       if (result.reason === "tenant-mismatch") return res.status(403).json({ ok: false, error: "L'account non appartiene a questa attività." });
+      if (result.reason === "invalid-email") return res.status(400).json({ ok: false, error: "Inserisci un indirizzo email valido." });
+      if (result.reason === "same-email") return res.status(400).json({ ok: false, error: "La nuova email coincide con quella attuale." });
+      if (result.reason === "login-exists") return res.status(409).json({ ok: false, error: "Questa email è già utilizzata da un altro account." });
       return res.status(401).json({ ok: false, error: "Password attuale non corretta o account non modificabile." });
     } catch (error) {
       console.error("MAVIRI ACCOUNT EMAIL ERROR:", error);
