@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check api/chat.js && node --check api/whatsapp.js && node --check api/health.js && node --check mavi-engine.js",
+    "check": "node --check api/auth.js && node --check api/chat.js && node --check api/whatsapp.js && node --check api/health.js && node --check mavi-engine.js",
     "test": "node --test",
     "verify": "npm run check && npm test"
   },

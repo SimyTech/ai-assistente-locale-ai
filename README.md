@@ -14,6 +14,7 @@ Le richieste pubbliche sono limitate per tenant e indirizzo IP tramite contatori
 - `UPSTASH_REDIS_REST_TOKEN`
 - `MAVIRI_OWNER_SYNC_TOKEN`
 - `MAVIRI_OWNER_TOKENS` (JSON con un token distinto per tenant)
+- `MAVIRI_SESSION_SECRET` (consigliata per firmare le sessioni proprietario)
 - `MAVIRI_DEFAULT_TENANT` (facoltativa)
 - `WHATSAPP_VERIFY_TOKEN`
 - `WHATSAPP_ACCESS_TOKEN`

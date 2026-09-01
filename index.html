@@ -98,7 +98,7 @@ Mavi = internal AI assistant.
     <div class="between"><div><h3>Collegamento Mavi clienti</h3><div class="muted">Pubblica su server i dati necessari a Mavi cliente. Il token viene salvato solo in questo browser.</div></div><span id="syncBadge" class="badge blue">Non sincronizzato</span></div>
     <div class="form form2" style="margin-top:14px">
       <div class="field full"><label>Token proprietario di sincronizzazione</label><input id="ownerSyncToken" type="password" autocomplete="off" placeholder="Inserisci il MAVIRI_OWNER_SYNC_TOKEN configurato su Vercel"></div>
-      <div class="row"><button class="btn primary" onclick="saveSyncToken()">Salva token</button><button class="btn secondary" onclick="syncOwnerData()">Sincronizza dati con Mavi cliente</button></div>
+      <div class="row"><button class="btn primary" onclick="saveSyncToken()">Accedi</button><button class="btn secondary" onclick="syncOwnerData()">Sincronizza dati con Mavi cliente</button><button class="btn danger" onclick="logoutOwner()">Esci</button></div>
       <div class="meta">Il token non deve essere pubblicato nel codice. Configuralo anche nelle variabili d'ambiente Vercel.</div>
     </div>
   </div>
@@ -132,7 +132,9 @@ function migrate(x){const d=defaults();if(!x||typeof x!=="object")return d;const
 function load(){try{let raw=localStorage.getItem(KEY);if(raw)return migrate(JSON.parse(raw));for(const k of OLD_KEYS){raw=localStorage.getItem(k);if(raw){const d=migrate(JSON.parse(raw));localStorage.setItem(KEY,JSON.stringify(d));return d}}}catch(e){}return defaults()}
 let data=load(),page="home",selectedDate=iso(new Date()),cursor=new Date(new Date().getFullYear(),new Date().getMonth(),1),selectedClient=null,social="Instagram",bookingBusy=false,sessionId=uid();
 const tenantId=(localStorage.getItem("MAVIRI_TENANT_ID")||"default").trim().toLowerCase();
-function save(){data.revision++;data.updatedAt=new Date().toISOString();const text=JSON.stringify(data);localStorage.setItem(KEY,text);localStorage.setItem("appData_backup",text);$("saveState").textContent="Salvato · "+new Date().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});renderAll();if(localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN"))syncOwnerData()}
+const OWNER_AUTH_KEY="MAVIRI_OWNER_AUTHENTICATED";
+const ownerReady=()=>localStorage.getItem(OWNER_AUTH_KEY)==="true"||!!localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN");
+function save(){data.revision++;data.updatedAt=new Date().toISOString();const text=JSON.stringify(data);localStorage.setItem(KEY,text);localStorage.setItem("appData_backup",text);$("saveState").textContent="Salvato · "+new Date().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});renderAll();if(ownerReady())syncOwnerData()}
 function toast(s){const x=$("toast");x.textContent=s;x.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>x.classList.remove("show"),2400)}
 function go(p){page=p;document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===p));document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("title").textContent=titles[p][0];$("subtitle").textContent=titles[p][1];renderAll()}
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));
@@ -140,8 +142,8 @@ async function api(action,extra={}){const body={action,tenantId,business:data.bu
 
 /* ============================================================
    OWNER PULL — sincronizzazione automatica Maviri ← server
-   Il token resta esclusivamente in localStorage e viene inviato
-   nell'header x-maviri-owner-token. Nessun token nel sorgente.
+   Dopo il login l'autorizzazione usa un cookie HttpOnly.
+   Il vecchio token localStorage viene migrato e poi eliminato.
 ============================================================ */
 let ownerPullBusy=false, ownerPullTimer=null;
 
@@ -248,7 +250,7 @@ function applyOwnerPullPayload(j){
 async function pullOwnerData(silent=true){
   if(ownerPullBusy)return;
   const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";
-  if(!token)return;
+  if(!token&&localStorage.getItem(OWNER_AUTH_KEY)!=="true")return;
 
   ownerPullBusy=true;
   try{
@@ -284,26 +286,58 @@ async function pullOwnerData(silent=true){
 
 function startOwnerPull(){
   if(ownerPullTimer)clearInterval(ownerPullTimer);
-  if(localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")){
+  if(ownerReady()){
     pullOwnerData(true);
     ownerPullTimer=setInterval(()=>pullOwnerData(true),10000);
   }
 }
 
-function saveSyncToken(){
+async function saveSyncToken(){
   const t=$("ownerSyncToken").value.trim();
   if(!t)return toast("Inserisci il token proprietario.");
-  localStorage.setItem("MAVIRI_OWNER_SYNC_TOKEN",t);
-  toast("Token salvato.");
-  startOwnerPull();
-  syncOwnerData();
+  try{
+    const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json","x-maviri-tenant":tenantId},body:JSON.stringify({tenantId,token:t})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.authenticated)throw new Error(j.error||"Accesso non riuscito.");
+    localStorage.setItem(OWNER_AUTH_KEY,"true");
+    localStorage.removeItem("MAVIRI_OWNER_SYNC_TOKEN");
+    $("ownerSyncToken").value="";
+    toast("Accesso proprietario effettuato.");
+    startOwnerPull();
+    syncOwnerData();
+  }catch(e){toast(e.message||"Credenziali non valide.")}
+}
+
+async function logoutOwner(){
+  await fetch("/api/auth",{method:"DELETE",headers:{"Content-Type":"application/json","x-maviri-tenant":tenantId},body:JSON.stringify({tenantId})}).catch(()=>{});
+  localStorage.removeItem(OWNER_AUTH_KEY);
+  localStorage.removeItem("MAVIRI_OWNER_SYNC_TOKEN");
+  if(ownerPullTimer)clearInterval(ownerPullTimer);
+  $("syncBadge").textContent="Disconnesso";
+  $("syncBadge").className="badge blue";
+  toast("Sessione proprietario chiusa.");
+}
+
+async function initOwnerSession(){
+  const legacy=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";
+  if(legacy){
+    $("ownerSyncToken").value=legacy;
+    await saveSyncToken();
+    return;
+  }
+  try{
+    const r=await fetch("/api/auth",{headers:{"x-maviri-tenant":tenantId}});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok&&j.authenticated){localStorage.setItem(OWNER_AUTH_KEY,"true");startOwnerPull()}
+    else localStorage.removeItem(OWNER_AUTH_KEY);
+  }catch{}
 }
 
 async function syncOwnerData(){
   const badge=$("syncBadge");
   if(!badge)return;
   const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";
-  if(!token){badge.textContent="Token mancante";return}
+  if(!token&&localStorage.getItem(OWNER_AUTH_KEY)!=="true"){badge.textContent="Accesso richiesto";return}
   badge.textContent="Sincronizzazione…";
   try{
     await api("owner-sync");
@@ -365,7 +399,7 @@ function addPromo(){modal(`<h3>Nuova promozione</h3><div class="form"><div class
 function savePromo(){const t=$("pt").value.trim();if(!t)return toast("Inserisci un titolo.");data.promotions.push({id:uid(),title:t,description:$("pd").value.trim(),valid:$("pv").value.trim()});closeModal();save()}
 if("SpeechRecognition"in window||"webkitSpeechRecognition"in window){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;$("voice").onclick=()=>{const r=new SR();r.lang="it-IT";r.interimResults=false;r.onresult=e=>{$("maviInput").value=e.results[0][0].transcript;sendMavi()};r.onerror=()=>toast("Microfono non disponibile.");r.start()}}else $("voice").disabled=true;
 renderAll();
-startOwnerPull();
+initOwnerSession();
 </script>
 </body>
 </html>
