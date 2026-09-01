@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import registerHandler from "../api/register.js";
 import authHandler from "../api/auth.js";
+import { passwordHash } from "../lib/accounts.js";
 
 function response() {
   return {
@@ -49,11 +50,22 @@ async function call(handler, method, body = {}, headers = {}) {
   return res;
 }
 
-test("registra una nuova attività e permette subito il login", async () => {
-  const originalFetch = globalThis.fetch;
+function configureRuntime() {
   process.env.UPSTASH_REDIS_REST_URL = "https://redis.test";
   process.env.UPSTASH_REDIS_REST_TOKEN = "redis-token";
   process.env.MAVIRI_SESSION_SECRET = "registration-session-secret";
+}
+
+function cleanupRuntime() {
+  delete process.env.UPSTASH_REDIS_REST_URL;
+  delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  delete process.env.MAVIRI_SESSION_SECRET;
+  delete process.env.MAVIRI_OWNER_ACCOUNTS;
+}
+
+test("registra una nuova attività e permette subito il login", async () => {
+  const originalFetch = globalThis.fetch;
+  configureRuntime();
   globalThis.fetch = fakeRedis();
 
   try {
@@ -81,17 +93,13 @@ test("registra una nuova attività e permette subito il login", async () => {
     assert.equal(login.payload.account.email, "mario@example.test");
   } finally {
     globalThis.fetch = originalFetch;
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-    delete process.env.MAVIRI_SESSION_SECRET;
+    cleanupRuntime();
   }
 });
 
-test("non permette due account con la stessa email", async () => {
+test("non permette due account Redis con la stessa email", async () => {
   const originalFetch = globalThis.fetch;
-  process.env.UPSTASH_REDIS_REST_URL = "https://redis.test";
-  process.env.UPSTASH_REDIS_REST_TOKEN = "redis-token";
-  process.env.MAVIRI_SESSION_SECRET = "registration-session-secret";
+  configureRuntime();
   globalThis.fetch = fakeRedis();
 
   try {
@@ -107,17 +115,43 @@ test("non permette due account con la stessa email", async () => {
     assert.match(second.payload.error, /già un account/i);
   } finally {
     globalThis.fetch = originalFetch;
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-    delete process.env.MAVIRI_SESSION_SECRET;
+    cleanupRuntime();
+  }
+});
+
+test("non collide con account storici configurati via ambiente", async () => {
+  const originalFetch = globalThis.fetch;
+  configureRuntime();
+  globalThis.fetch = fakeRedis();
+  process.env.MAVIRI_OWNER_ACCOUNTS = JSON.stringify({
+    storico: {
+      tenantId: "studio-storico",
+      username: "storico",
+      email: "owner@example.test",
+      passwordHash: passwordHash("Password!999", {
+        salt: "abcdefabcdefabcdefabcdefabcdefab",
+        iterations: 100000
+      })
+    }
+  });
+
+  try {
+    const denied = await call(registerHandler, "POST", {
+      businessName: "Nuovo Studio",
+      email: "OWNER@example.test",
+      password: "Password!12345"
+    }, { "x-forwarded-for": "198.51.100.22" });
+    assert.equal(denied.statusCode, 409);
+    assert.match(denied.payload.error, /già un account/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+    cleanupRuntime();
   }
 });
 
 test("valida email e robustezza minima della password", async () => {
   const originalFetch = globalThis.fetch;
-  process.env.UPSTASH_REDIS_REST_URL = "https://redis.test";
-  process.env.UPSTASH_REDIS_REST_TOKEN = "redis-token";
-  process.env.MAVIRI_SESSION_SECRET = "registration-session-secret";
+  configureRuntime();
   globalThis.fetch = fakeRedis();
 
   try {
@@ -137,8 +171,6 @@ test("valida email e robustezza minima della password", async () => {
     assert.match(weakPassword.payload.error, /10 caratteri/);
   } finally {
     globalThis.fetch = originalFetch;
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-    delete process.env.MAVIRI_SESSION_SECRET;
+    cleanupRuntime();
   }
 });
