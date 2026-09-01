@@ -1,7 +1,8 @@
+import { authenticateOwnerAccount } from "../lib/accounts.js";
 import { ownerAuthorized, ownerTokenForTenant } from "../lib/auth.js";
 import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
 import { clearSessionCookie, createSession, sessionCookie, sessionSecretForTenant } from "../lib/session.js";
-import { explicitTenantId, isValidTenantId, resolveTenantId } from "../lib/tenant.js";
+import { explicitTenantId, isValidTenantId, normalizeTenantId, resolveTenantId } from "../lib/tenant.js";
 
 const redisUrl = () => process.env.UPSTASH_REDIS_REST_URL || "";
 const redisToken = () => process.env.UPSTASH_REDIS_REST_TOKEN || "";
@@ -22,14 +23,18 @@ async function redisCommand(command, ...args) {
   return data.result;
 }
 
-async function failedLoginLimited(req, res, tenantId) {
+function loginIdentity(req, login = "") {
+  return `${clientAddress(req)}|${String(login || "legacy").trim().toLowerCase()}`;
+}
+
+async function failedLoginLimited(req, res, tenantId, login = "") {
   const policy = rateLimitPolicy("auth");
   if (!policy || !redisUrl() || !redisToken()) return false;
 
   const key = rateLimitKey({
     tenantId,
     action: "auth",
-    identity: clientAddress(req)
+    identity: loginIdentity(req, login)
   });
 
   try {
@@ -56,12 +61,12 @@ async function failedLoginLimited(req, res, tenantId) {
   }
 }
 
-async function clearFailedLogins(req, tenantId) {
+async function clearFailedLogins(req, tenantId, login = "") {
   if (!redisUrl() || !redisToken()) return;
   const key = rateLimitKey({
     tenantId,
     action: "auth",
-    identity: clientAddress(req)
+    identity: loginIdentity(req, login)
   });
   try {
     await redisCommand("DEL", key);
@@ -80,14 +85,14 @@ export default async function handler(req, res) {
   if (requestedTenant && !isValidTenantId(requestedTenant)) {
     return res.status(400).json({ ok: false, error: "Identificativo attività non valido." });
   }
-  const tenantId = resolveTenantId(req, body);
+  const resolvedTenant = resolveTenantId(req, body);
 
   if (req.method === "GET") {
-    const authenticated = ownerAuthorized(req, tenantId);
+    const authenticated = ownerAuthorized(req, resolvedTenant);
     return res.status(authenticated ? 200 : 401).json({
       ok: authenticated,
       authenticated,
-      tenantId
+      tenantId: resolvedTenant
     });
   }
 
@@ -101,20 +106,65 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "Metodo non consentito." });
   }
 
-  const token = String(body.token || "").trim();
-  const syntheticRequest = { headers: { "x-maviri-owner-token": token } };
-  if (!ownerAuthorized(syntheticRequest, tenantId)) {
-    if (await failedLoginLimited(req, res, tenantId)) return;
-    return res.status(401).json({ ok: false, authenticated: false, error: "Credenziali non valide." });
+  const login = String(body.username || body.email || body.login || "").trim();
+  const password = String(body.password || "");
+  const usingAccountCredentials = Boolean(login || password);
+
+  let tenantId = resolvedTenant;
+  let account = null;
+
+  if (usingAccountCredentials) {
+    account = authenticateOwnerAccount({ login, password });
+
+    if (!account) {
+      if (await failedLoginLimited(req, res, tenantId, login)) return;
+      return res.status(401).json({ ok: false, authenticated: false, error: "Credenziali non valide." });
+    }
+
+    tenantId = account.tenantId;
+
+    if (requestedTenant && normalizeTenantId(requestedTenant, "") !== tenantId) {
+      if (await failedLoginLimited(req, res, tenantId, login)) return;
+      return res.status(403).json({
+        ok: false,
+        authenticated: false,
+        error: "L'account non appartiene all'attività richiesta."
+      });
+    }
+  } else {
+    const token = String(body.token || "").trim();
+    const syntheticRequest = { headers: { "x-maviri-owner-token": token } };
+    if (!ownerAuthorized(syntheticRequest, tenantId)) {
+      if (await failedLoginLimited(req, res, tenantId)) return;
+      return res.status(401).json({ ok: false, authenticated: false, error: "Credenziali non valide." });
+    }
   }
 
-  await clearFailedLogins(req, tenantId);
+  await clearFailedLogins(req, tenantId, login);
 
   const tenantToken = ownerTokenForTenant(tenantId);
-  const session = createSession({
-    tenantId,
-    secret: sessionSecretForTenant(tenantId, process.env, tenantToken)
-  });
+  const secret = sessionSecretForTenant(tenantId, process.env, tenantToken);
+  if (!secret) {
+    return res.status(503).json({
+      ok: false,
+      authenticated: false,
+      error: "Sessioni Maviri non configurate."
+    });
+  }
+
+  const session = createSession({ tenantId, secret });
   res.setHeader("Set-Cookie", sessionCookie(session));
-  return res.status(200).json({ ok: true, authenticated: true, tenantId });
+  return res.status(200).json({
+    ok: true,
+    authenticated: true,
+    tenantId,
+    account: account ? {
+      id: account.id,
+      username: account.username,
+      email: account.email,
+      displayName: account.displayName,
+      role: account.role
+    } : null,
+    legacyTokenLogin: !account
+  });
 }
