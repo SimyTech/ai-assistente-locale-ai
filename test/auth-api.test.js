@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import handler from "../api/auth.js";
+import { passwordHash } from "../lib/accounts.js";
 
 function response() {
   return {
@@ -58,6 +59,74 @@ test("login imposta un cookie HttpOnly e la sessione autorizza le richieste succ
   } finally {
     delete process.env.MAVIRI_OWNER_SYNC_TOKEN;
     delete process.env.MAVIRI_SESSION_SECRET;
+  }
+});
+
+test("account username/password seleziona automaticamente il tenant", async () => {
+  process.env.MAVIRI_SESSION_SECRET = "account-session-secret";
+  process.env.MAVIRI_OWNER_ACCOUNTS = JSON.stringify({
+    anna: {
+      tenantId: "salone-anna",
+      username: "anna",
+      email: "anna@example.test",
+      displayName: "Anna",
+      role: "owner",
+      passwordHash: passwordHash("Password!123", {
+        salt: "abcdefabcdefabcdefabcdefabcdefab",
+        iterations: 100000
+      })
+    }
+  });
+
+  try {
+    const login = await call("POST", {
+      email: "ANNA@example.test",
+      password: "Password!123"
+    });
+
+    assert.equal(login.statusCode, 200);
+    assert.equal(login.payload.authenticated, true);
+    assert.equal(login.payload.tenantId, "salone-anna");
+    assert.equal(login.payload.account.username, "anna");
+    assert.equal(login.payload.account.displayName, "Anna");
+    assert.equal(login.payload.legacyTokenLogin, false);
+    assert.match(login.headers["Set-Cookie"], /HttpOnly/);
+
+    const cookie = login.headers["Set-Cookie"].split(";")[0];
+    const correctTenant = await call("GET", { tenantId: "salone-anna" }, { cookie });
+    assert.equal(correctTenant.statusCode, 200);
+    const wrongTenant = await call("GET", { tenantId: "barber-luca" }, { cookie });
+    assert.equal(wrongTenant.statusCode, 401);
+  } finally {
+    delete process.env.MAVIRI_SESSION_SECRET;
+    delete process.env.MAVIRI_OWNER_ACCOUNTS;
+  }
+});
+
+test("account non può dichiarare il tenant di un'altra attività", async () => {
+  process.env.MAVIRI_SESSION_SECRET = "account-session-secret";
+  process.env.MAVIRI_OWNER_ACCOUNTS = JSON.stringify({
+    anna: {
+      tenantId: "salone-anna",
+      username: "anna",
+      passwordHash: passwordHash("Password!456", {
+        salt: "00110011001100110011001100110011",
+        iterations: 100000
+      })
+    }
+  });
+
+  try {
+    const denied = await call("POST", {
+      tenantId: "barber-luca",
+      username: "anna",
+      password: "Password!456"
+    });
+    assert.equal(denied.statusCode, 403);
+    assert.equal(denied.payload.authenticated, false);
+  } finally {
+    delete process.env.MAVIRI_SESSION_SECRET;
+    delete process.env.MAVIRI_OWNER_ACCOUNTS;
   }
 });
 
