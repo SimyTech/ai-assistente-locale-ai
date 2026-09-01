@@ -50,6 +50,7 @@ const AUTH_KEY="MAVIRI_OWNER_AUTHENTICATED";
 const TENANT_KEY="MAVIRI_TENANT_ID";
 const ACCOUNT_KEY="MAVIRI_OWNER_ACCOUNT";
 const LEGACY_TOKEN_KEY="MAVIRI_OWNER_SYNC_TOKEN";
+const FORCE_LOGIN=new URLSearchParams(location.search).get("switch")==="1";
 const $=id=>document.getElementById(id);
 function message(text,type=""){const el=$("message");el.textContent=text||"";el.className="msg"+(type?" "+type:"")}
 function rememberSession(payload){
@@ -97,6 +98,11 @@ $("legacyBtn").addEventListener("click",async()=>{
   try{await loginLegacy($("legacyTenant").value,$("legacyToken").value);message("Accesso riuscito.","ok");location.replace("/app")}catch(err){message(err.message||"Accesso non riuscito.","error");btn.disabled=false}
 });
 (async()=>{
+  if(FORCE_LOGIN){
+    localStorage.removeItem(AUTH_KEY);
+    message("Inserisci le credenziali dell’account che vuoi usare.");
+    return;
+  }
   if(await authStatus()){location.replace("/app");return}
   localStorage.removeItem(AUTH_KEY);
   if(await migrateLegacy()){location.replace("/app")}
