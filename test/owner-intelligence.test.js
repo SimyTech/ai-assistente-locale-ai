@@ -38,6 +38,8 @@ const dataset = {
     { id: "a3", clientId: "c2", name: "Luca Bianchi", service: "Controllo", date: addDays(today, -90), status: "completed" },
     { id: "a4", clientId: "c3", name: "Marco Verdi", service: "Controllo", date: today, time: "15:00", status: "confirmed" },
     { id: "a5", clientId: "c3", name: "Marco Verdi", service: "Controllo", date: addDays(today, 1), time: "10:00", status: "confirmed" }
+    ,{ id: "a6", clientId: "c2", name: "Luca Bianchi", service: "Controllo", date: addDays(today, -5), time: "09:00", status: "no_show", noShowAt: `${addDays(today, -5)}T09:30:00.000Z` }
+    ,{ id: "a7", clientId: "c1", name: "Anna Rossi", service: "Trattamento", date: addDays(today, 1), time: "11:00", status: "confirmed", reminderSentAt: `${today}T10:00:00.000Z` }
   ]
 };
 
@@ -77,4 +79,25 @@ test("produce un riepilogo operativo dell'attività", () => {
   assert.match(answer, /Riepilogo Studio Test/);
   assert.match(answer, /Visite oggi: 1/);
   assert.match(answer, /Pazienti da recuperare/i);
+  assert.match(answer, /Assenze\/no-show registrati: 1/);
+  assert.match(answer, /Promemoria da inviare per domani: 1/);
+});
+
+test("elenca no-show senza contarli come visite o valore cliente", () => {
+  const answer = ask("quali pazienti sono stati assenti o no-show?");
+  assert.match(answer, /Luca Bianchi/);
+  const best = ask("chi sono i miei migliori pazienti?");
+  assert.match(best, /Luca Bianchi — 1 visite, valore stimato €50\.00/);
+});
+
+test("indica solo i promemoria di domani non ancora inviati", () => {
+  const answer = ask("quali promemoria devo inviare domani?");
+  assert.match(answer, /Marco Verdi/);
+  assert.doesNotMatch(answer, /Anna Rossi/);
+});
+
+test("riassume le azioni operative pendenti", () => {
+  const answer = ask("cosa devo gestire oggi?");
+  assert.match(answer, /Azioni operative pendenti/);
+  assert.match(answer, /Promemoria da inviare per domani: 1/);
 });
