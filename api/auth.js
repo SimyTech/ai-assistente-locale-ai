@@ -1,4 +1,5 @@
 import { authenticateOwnerAccount } from "../lib/accounts.js";
+import { authenticateStoredOwnerAccount } from "../lib/account-store.js";
 import { ownerAuthorized, ownerTokenForTenant } from "../lib/auth.js";
 import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
 import { clearSessionCookie, createSession, sessionCookie, sessionSecretForTenant } from "../lib/session.js";
@@ -75,6 +76,18 @@ async function clearFailedLogins(req, tenantId, login = "") {
   }
 }
 
+async function authenticateAccount(login, password) {
+  const configured = authenticateOwnerAccount({ login, password });
+  if (configured) return configured;
+  if (!redisUrl() || !redisToken()) return null;
+  try {
+    return await authenticateStoredOwnerAccount({ login, password });
+  } catch (error) {
+    console.error("MAVIRI STORED ACCOUNT AUTH ERROR:", error);
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
@@ -114,7 +127,7 @@ export default async function handler(req, res) {
   let account = null;
 
   if (usingAccountCredentials) {
-    account = authenticateOwnerAccount({ login, password });
+    account = await authenticateAccount(login, password);
 
     if (!account) {
       if (await failedLoginLimited(req, res, tenantId, login)) return;
