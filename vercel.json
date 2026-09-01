@@ -15,6 +15,10 @@
     {
       "source": "/api/chat",
       "destination": "/api/chat-proxy"
+    },
+    {
+      "source": "/api/whatsapp",
+      "destination": "/api/whatsapp-proxy"
     }
   ]
 }
