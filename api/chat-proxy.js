@@ -52,9 +52,47 @@ export function normalizeLifecycleTimestamps(body = {}) {
   };
 }
 
+export function normalizeFrontendHours(body = {}) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return body;
+  if (!body.settings || typeof body.settings !== "object" || Array.isArray(body.settings)) return body;
+  if (!Array.isArray(body.settings.hours)) return body;
+
+  const keys = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday"
+  ];
+
+  const hours = Object.fromEntries(
+    keys.map((key, index) => {
+      const source = body.settings.hours[index];
+      return [
+        key,
+        source && typeof source === "object" && !Array.isArray(source)
+          ? source
+          : { closed: true }
+      ];
+    })
+  );
+
+  return {
+    ...body,
+    settings: {
+      ...body.settings,
+      hours
+    }
+  };
+}
+
 export default async function handler(req, res) {
   if (req?.method === "POST") {
-    req.body = normalizeLifecycleTimestamps(req.body);
+    req.body = normalizeFrontendHours(
+      normalizeLifecycleTimestamps(req.body)
+    );
   }
 
   return chatHandler(req, res);
