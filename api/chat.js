@@ -49,11 +49,14 @@ const OWNER_PROTECTED_ACTIONS = new Set([
   "whatsapp-message"
 ]);
 
-const REDIS_URL =
+const redisUrl = () =>
   process.env.UPSTASH_REDIS_REST_URL || "";
 
-const REDIS_TOKEN =
+const redisToken = () =>
   process.env.UPSTASH_REDIS_REST_TOKEN || "";
+
+const redisConfigured = () =>
+  Boolean(redisUrl() && redisToken());
 
 /* ============================================================
    UTILITY
@@ -198,8 +201,7 @@ async function redisCommand(
 ) {
 
   if (
-    !REDIS_URL ||
-    !REDIS_TOKEN
+    !redisConfigured()
   ) {
     throw new Error(
       "Upstash Redis non configurato."
@@ -208,12 +210,12 @@ async function redisCommand(
 
   const response =
     await fetch(
-      REDIS_URL,
+      redisUrl(),
       {
         method: "POST",
         headers: {
           Authorization:
-            `Bearer ${REDIS_TOKEN}`,
+            `Bearer ${redisToken()}`,
           "Content-Type":
             "application/json"
         },
@@ -295,16 +297,6 @@ async function redisSetNX(
     "NX",
     "PX",
     String(ttl)
-  );
-}
-
-async function redisDelete(
-  key
-) {
-
-  return redisCommand(
-    "DEL",
-    key
   );
 }
 
@@ -424,8 +416,12 @@ async function releaseDistributedLock(
   }
 
   try {
-    await redisDelete(
-      lock.lockKey
+    await redisCommand(
+      "EVAL",
+      "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
+      "1",
+      lock.lockKey,
+      lock.token
     );
   } catch {
     /* nessun errore bloccante */
@@ -2470,8 +2466,7 @@ export default async function handler(
       }
 
       if (
-        !REDIS_URL ||
-        !REDIS_TOKEN
+        !redisConfigured()
       ) {
 
         return res
@@ -2567,8 +2562,7 @@ export default async function handler(
       }
 
       if (
-        !REDIS_URL ||
-        !REDIS_TOKEN
+        !redisConfigured()
       ) {
 
         return res
@@ -2624,8 +2618,7 @@ export default async function handler(
     ) {
 
       if (
-        !REDIS_URL ||
-        !REDIS_TOKEN
+        !redisConfigured()
       ) {
 
         return res
