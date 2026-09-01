@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/app",
+      "destination": "/app.html"
+    },
+    {
       "source": "/api/chat",
       "destination": "/api/chat-proxy"
     }
