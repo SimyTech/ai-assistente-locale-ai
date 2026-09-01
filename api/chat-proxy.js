@@ -251,11 +251,12 @@ export function ownerManagerInsight(body = {}) {
   const asksTodayAppointments = asksAgendaList && /appuntament|prenotaz|visite|intervent/.test(message) && /oggi/.test(message);
   const asksTomorrowAppointments = asksAgendaList && /appuntament|prenotaz|visite|intervent/.test(message) && /domani/.test(message);
   const asksNoShows = /(?:chi|quali|mostra|elenca|client|pazient|soci|ospit).*(?:non si (?:e|sono) presentat|assenz|assent|no[ -]?show)|(?:assenz|assent|no[ -]?show).*(?:client|pazient|soci|ospit|appuntament|prenotaz|visit)/.test(message);
+  const asksNoShowRisk = /(?:chi|quali|client|pazient|soci|ospit).*(?:piu assenz|piu no[ -]?show|saltano piu|meno affidabil)|(?:classifica|graduatoria|ranking).*(?:assenz|no[ -]?show|affidabil)/.test(message);
   const asksReminders = /(?:promemori|ricord).*(?:invia|fare|prepar|manc|domani)|(?:chi|quali|mostra|elenca).*(?:promemori|ricord)/.test(message);
   const asksPendingActions = /(?:cosa|che).*(?:devo|c'e da|ce da).*(?:fare|gestire|chiudere)|azion[ei].*(?:pendent|operativ|oggi)|appuntament.*(?:da chiudere|rimast.*apert)/.test(message);
   const asksSummary = /riepilogo|come va(?: l)?(?: attivita|azienda|lavoro)|situazione(?: di oggi| attivita)?|panoramica/.test(message);
 
-  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksReminders && !asksPendingActions && !asksSummary) {
+  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary) {
     return null;
   }
 
@@ -266,6 +267,25 @@ export function ownerManagerInsight(body = {}) {
   const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
+
+  if (asksNoShowRisk) {
+    const priceByService = new Map((Array.isArray(body.services) ? body.services : []).map(service => [norm(service?.name), Number(service?.price || 0)]));
+    const ranked = new Map();
+    for (const appointment of appointments) {
+      if (!["no_show", "no-show", "assente"].includes(norm(appointment?.status))) continue;
+      const name = appointmentName(appointment, clientsById) || "Senza nome";
+      const key = norm(name);
+      const current = ranked.get(key) || { name, count: 0, lostValue: 0 };
+      current.count += 1;
+      current.lostValue += priceByService.get(norm(appointmentService(appointment))) || 0;
+      ranked.set(key, current);
+    }
+    const rows = [...ranked.values()].sort((a, b) => b.count - a.count || b.lostValue - a.lostValue).slice(0, 10);
+    if (!rows.length) return `Non risultano ${clientPlural.toLowerCase()} con assenze/no-show registrati.`;
+    return `${clientPlural} con più assenze/no-show:\n` + rows.map(item =>
+      `• ${item.name} — ${item.count} ${item.count === 1 ? "assenza" : "assenze"}${item.lostValue > 0 ? `, valore stimato perso €${item.lostValue.toFixed(2)}` : ""}`
+    ).join("\n");
+  }
 
   if (asksNoShows) {
     const rows = appointments
