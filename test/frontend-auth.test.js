@@ -10,6 +10,7 @@ test("la root Maviri passa dalla schermata di accesso", async () => {
   const config = JSON.parse(await text("vercel.json"));
   const routes = new Map(config.rewrites.map(item => [item.source, item.destination]));
   assert.equal(routes.get("/"), "/login.html");
+  assert.equal(routes.get("/register"), "/register.html");
   assert.equal(routes.get("/app"), "/app.html");
   assert.equal(routes.get("/setup"), "/setup.html");
   assert.equal(routes.get("/api/chat"), "/api/chat-proxy");
@@ -23,6 +24,24 @@ test("il login usa credenziali account e salva il tenant restituito dal server",
   assert.match(html, /JSON\.stringify\(\{login,password\}\)/);
   assert.match(html, /payload\.tenantId/);
   assert.match(html, /location\.replace\("\/app"\)/);
+  assert.match(html, /href="\/register"/);
+});
+
+test("una nuova attività può registrarsi senza configurazione tecnica", async () => {
+  const html = await text("register.html");
+  assert.match(html, /Nome attività/);
+  assert.match(html, /Email di accesso/);
+  assert.match(html, /autocomplete="new-password"/);
+  assert.match(html, /fetch\("\/api\/register"/);
+  assert.match(html, /localStorage\.setItem\(TENANT_KEY/);
+  assert.match(html, /location\.replace\("\/setup"\)/);
+});
+
+test("la configurazione iniziale riusa nome ed email inseriti in registrazione", async () => {
+  const html = await text("setup.html");
+  assert.match(html, /MAVIRI_REGISTRATION_DRAFT/);
+  assert.match(html, /function applyDraft/);
+  assert.match(html, /localStorage\.removeItem\(DRAFT_KEY\)/);
 });
 
 test("la dashboard verifica sessione e carica il profilo prima di mostrare index", async () => {
