@@ -57,3 +57,41 @@ test("Mavi riconosce domani ore 15 come slot libero nella chat titolare", async 
   assert.equal(res.payload.booking?.time, "15:00");
   assert.equal(res.payload.booking?.service, "Taglio uomo");
 });
+
+const customerDataset = {
+  action: "chat",
+  role: "owner",
+  clients: [
+    { id: "c1", name: "Anna Rossi" },
+    { id: "c2", name: "Luca Bianchi" },
+    { id: "c3", name: "Marco Verdi" }
+  ],
+  appointments: [
+    { id: "a1", clientId: "c1", name: "Anna Rossi", date: "2026-08-20", status: "completed" },
+    { id: "a2", clientId: "c1", name: "Anna Rossi", date: "2026-07-20", status: "completed" },
+    { id: "a3", clientId: "c1", name: "Anna Rossi", date: "2026-06-20", status: "completed" },
+    { id: "a4", clientId: "c2", name: "Luca Bianchi", date: "2026-05-01", status: "completed" },
+    { id: "a5", clientId: "c3", name: "Marco Verdi", date: "2026-09-10", status: "confirmed" }
+  ]
+};
+
+test("Mavi individua i clienti abituali dallo storico appuntamenti", async () => {
+  const res = response();
+  await handler({ method: "POST", headers: {}, body: { ...customerDataset, message: "quali clienti sono abituali?" } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.match(res.payload.answer, /Anna Rossi/);
+  assert.match(res.payload.answer, /3 visite/);
+  assert.doesNotMatch(res.payload.answer, /Posso aiutarti con servizi/);
+});
+
+test("Mavi individua i clienti che non vengono da un po", async () => {
+  const res = response();
+  await handler({ method: "POST", headers: {}, body: { ...customerDataset, message: "quali clienti non vengono da un po?" } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.match(res.payload.answer, /Luca Bianchi/);
+  assert.match(res.payload.answer, /2026-05-01/);
+  assert.doesNotMatch(res.payload.answer, /Marco Verdi/);
+  assert.doesNotMatch(res.payload.answer, /Posso aiutarti con servizi/);
+});
