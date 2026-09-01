@@ -858,7 +858,10 @@ function normalizeClient(
       clean(
         client.notes ||
         client.personalNotes
-      )
+      ),
+
+    recoveryContactedAt:
+      clean(client.recoveryContactedAt)
   };
 }
 
