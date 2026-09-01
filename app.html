@@ -6,40 +6,111 @@
 <meta name="theme-color" content="#07142f">
 <title>Maviri</title>
 <style>
-html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden}#gate{position:fixed;inset:0;display:grid;place-items:center;color:#dfe7ff;font:14px system-ui;background:#07142f;z-index:3}#appFrame{width:100%;height:100%;border:0;display:none;background:#07142f}
+html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}#gate{position:fixed;inset:0;display:grid;place-items:center;color:#dfe7ff;font-size:14px;background:#07142f;z-index:5}.context{height:48px;display:none;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.08);background:#091a39;color:#f6f8ff}.context strong{font-size:13px}.context span{font-size:11px;color:#9eafd0;margin-left:8px}.context a{color:#9fcfff;text-decoration:none;font-size:12px}#appFrame{width:100%;height:100%;border:0;display:none;background:#07142f}.ready #appFrame{height:calc(100% - 48px)}@media(max-width:650px){.context span{display:none}}
 </style>
 </head>
 <body>
 <div id="gate">Apertura del tuo spazio Maviri…</div>
-<iframe id="appFrame" src="/index.html" title="Maviri"></iframe>
-<script>
+<div id="context" class="context"><div><strong id="activityName">Maviri</strong><span id="activitySummary"></span></div><a href="/setup">Configura attività</a></div>
+<iframe id="appFrame" title="Maviri"></iframe>
+<script type="module">
+import { adaptiveDashboardPlan } from "/lib/adaptive-ui.js";
+
 const AUTH_KEY="MAVIRI_OWNER_AUTHENTICATED";
 const TENANT_KEY="MAVIRI_TENANT_ID";
 const ACCOUNT_KEY="MAVIRI_OWNER_ACCOUNT";
 const LEGACY_TOKEN_KEY="MAVIRI_OWNER_SYNC_TOKEN";
 const gate=document.getElementById("gate");
 const frame=document.getElementById("appFrame");
-function clearLocalAuth(){localStorage.removeItem(AUTH_KEY);localStorage.removeItem(ACCOUNT_KEY);localStorage.removeItem(LEGACY_TOKEN_KEY)}
+const context=document.getElementById("context");
+let profile=null;
+let plan=null;
+
 function tenant(){return(localStorage.getItem(TENANT_KEY)||"").trim()}
+function clearLocalAuth(){localStorage.removeItem(AUTH_KEY);localStorage.removeItem(ACCOUNT_KEY);localStorage.removeItem(LEGACY_TOKEN_KEY)}
+
+async function api(path){
+  const t=tenant();
+  if(!t)return null;
+  try{
+    const r=await fetch(path,{method:"GET",headers:{"x-maviri-tenant":t},credentials:"same-origin",cache:"no-store"});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok)return null;
+    return j;
+  }catch{return null}
+}
+
 async function verify(){
-  const currentTenant=tenant();
-  if(!currentTenant)return false;
-  try{
-    const r=await fetch("/api/auth",{method:"GET",headers:{"x-maviri-tenant":currentTenant},credentials:"same-origin",cache:"no-store"});
-    const j=await r.json().catch(()=>({}));
-    return r.ok&&j.authenticated===true;
-  }catch{return false}
+  const j=await api("/api/auth");
+  return Boolean(j&&j.authenticated===true);
 }
-async function activityConfigured(){
-  const currentTenant=tenant();
-  if(!currentTenant)return false;
-  try{
-    const r=await fetch("/api/activity-profile",{method:"GET",headers:{"x-maviri-tenant":currentTenant},credentials:"same-origin",cache:"no-store"});
-    if(r.status===401)return false;
-    const j=await r.json().catch(()=>({}));
-    return r.ok&&j.configured===true;
-  }catch{return false}
+
+async function loadProfile(){
+  const j=await api("/api/activity-profile");
+  if(!j)return null;
+  if(!j.configured){location.replace("/setup");return null}
+  return j.profile||null;
 }
+
+function setButtonLabel(button,label){
+  if(!button)return;
+  const icon=button.querySelector(".ni");
+  const iconHtml=icon?icon.outerHTML:"";
+  button.innerHTML=iconHtml+label;
+}
+
+function reorderNavigation(doc){
+  const nav=doc.querySelector("nav.nav");
+  if(!nav||!plan)return;
+  const buttons=new Map([...nav.querySelectorAll("button[data-page]")].map(btn=>[btn.dataset.page,btn]));
+  plan.order.forEach(page=>{const btn=buttons.get(page);if(btn)nav.appendChild(btn)});
+  buttons.forEach((btn,page)=>{btn.style.display=plan.visible[page]===false?"none":""});
+}
+
+function adaptLabels(doc){
+  if(!plan)return;
+  setButtonLabel(doc.querySelector('button[data-page="calendar"]'),plan.labels.appointments);
+  setButtonLabel(doc.querySelector('button[data-page="clients"]'),plan.labels.clients);
+
+  const calendar=doc.getElementById("calendar");
+  if(calendar)calendar.style.display=plan.visible.calendar?"":"none";
+
+  const newAppointment=doc.querySelector('#calendar button[onclick*="newAp"]');
+  if(newAppointment)newAppointment.textContent=`＋ ${plan.labels.appointment}`;
+  const dayTitle=doc.getElementById("dayTitle");
+  if(dayTitle&&/appuntament|prenotazion/i.test(dayTitle.textContent||""))dayTitle.textContent=plan.labels.appointments;
+
+  [...doc.querySelectorAll("h1,h2,h3,h4,label,strong")].forEach(el=>{
+    const text=(el.textContent||"").trim();
+    if(text==="Clienti")el.textContent=plan.labels.clients;
+    if(text==="Cliente")el.textContent=plan.labels.client;
+    if(text==="Servizi")el.textContent=plan.labels.services;
+    if(text==="Servizio")el.textContent=plan.labels.service;
+    if(text==="Appuntamenti")el.textContent=plan.labels.appointments;
+    if(text==="Appuntamento")el.textContent=plan.labels.appointment;
+  });
+}
+
+function adaptCapabilities(doc){
+  if(!plan)return;
+  const pageButton=page=>doc.querySelector(`button[data-page="${page}"]`);
+  if(pageButton("calendar"))pageButton("calendar").style.display=plan.visible.calendar?"":"none";
+  if(pageButton("clients"))pageButton("clients").style.display=plan.visible.clients?"":"none";
+  if(pageButton("content"))pageButton("content").style.display=plan.visible.content?"":"none";
+
+  if(!plan.visible.services||!plan.visible.promotions){
+    [...doc.querySelectorAll("h2,h3,h4")].forEach(heading=>{
+      const text=(heading.textContent||"").trim().toLowerCase();
+      if(!plan.visible.services&&text===plan.labels.services.toLowerCase()){
+        const card=heading.closest(".card");if(card)card.style.display="none";
+      }
+      if(!plan.visible.promotions&&text==="promozioni"){
+        const card=heading.closest(".card");if(card)card.style.display="none";
+      }
+    });
+  }
+}
+
 function sanitizeLegacyUi(doc){
   try{
     const token=doc.getElementById("ownerSyncToken");
@@ -54,14 +125,10 @@ function sanitizeLegacyUi(doc){
         });
       }
     }
-    [...doc.querySelectorAll("label")].forEach(label=>{
-      if((label.textContent||"").toLowerCase().includes("token proprietario")){
-        const field=label.closest(".field");if(field)field.style.display="none";
-      }
-    });
   }catch{}
 }
-function wireLogout(doc){
+
+function wireLogout(){
   try{
     const original=frame.contentWindow.logoutOwner;
     if(typeof original!=="function")return;
@@ -70,17 +137,37 @@ function wireLogout(doc){
     };
   }catch{}
 }
+
+function applyAdaptiveUi(){
+  const doc=frame.contentDocument;
+  if(!doc||!plan)return;
+  sanitizeLegacyUi(doc);
+  reorderNavigation(doc);
+  adaptLabels(doc);
+  adaptCapabilities(doc);
+  wireLogout();
+}
+
 frame.addEventListener("load",()=>{
-  sanitizeLegacyUi(frame.contentDocument);
-  wireLogout(frame.contentDocument);
-  const observer=new MutationObserver(()=>sanitizeLegacyUi(frame.contentDocument));
-  if(frame.contentDocument&&frame.contentDocument.body)observer.observe(frame.contentDocument.body,{subtree:true,childList:true});
-  frame.style.display="block";gate.style.display="none";
+  applyAdaptiveUi();
+  const doc=frame.contentDocument;
+  const observer=new MutationObserver(()=>applyAdaptiveUi());
+  if(doc&&doc.body)observer.observe(doc.body,{subtree:true,childList:true});
+  frame.style.display="block";
+  context.style.display="flex";
+  document.body.classList.add("ready");
+  gate.style.display="none";
 });
+
 (async()=>{
   if(!(await verify())){clearLocalAuth();location.replace("/");return}
   localStorage.setItem(AUTH_KEY,"true");
-  if(!(await activityConfigured())){location.replace("/setup");return}
+  profile=await loadProfile();
+  if(!profile)return;
+  plan=adaptiveDashboardPlan(profile);
+  document.getElementById("activityName").textContent=plan.name||"Maviri";
+  document.getElementById("activitySummary").textContent=plan.summary;
+  frame.src="/index.html";
 })();
 </script>
 </body>
