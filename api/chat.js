@@ -32,6 +32,7 @@ import {
 } from "../lib/auth.js";
 
 const LOCK_TTL = 15000;
+const MAX_BODY_BYTES = 1024 * 1024;
 
 const OWNER_PROTECTED_ACTIONS = new Set([
   "book",
@@ -2257,6 +2258,24 @@ export default async function handler(
       obj(req.body)
         ? req.body
         : {};
+
+    const declaredLength =
+      Number(req.headers["content-length"] || 0);
+
+    const actualLength =
+      Buffer.byteLength(JSON.stringify(body));
+
+    if (
+      declaredLength > MAX_BODY_BYTES ||
+      actualLength > MAX_BODY_BYTES
+    ) {
+      return res
+        .status(413)
+        .json({
+          ok: false,
+          error: "Richiesta troppo grande."
+        });
+    }
 
     const action =
       clean(body.action);
