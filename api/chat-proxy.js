@@ -240,8 +240,9 @@ export function ownerManagerInsight(body = {}) {
   const asksNew = new RegExp(`(?:nuov).*(?:${entityWords})|(?:${entityWords}).*(?:nuov)`).test(message) && /mese|questo mese|ultimi 30/.test(message);
   const asksCount = new RegExp(`quant[ioe].*(?:${entityWords})|numero.*(?:${entityWords})`).test(message);
   const asksNeverVisited = new RegExp(`(?:${entityWords}).*(?:mai venut|mai tornat|senza visit|senza appunt)|(?:mai venut|mai tornat).*(?:${entityWords})`).test(message);
-  const asksTodayAppointments = /appuntament|prenotaz|visite|intervent/.test(message) && /oggi/.test(message);
-  const asksTomorrowAppointments = /appuntament|prenotaz|visite|intervent/.test(message) && /domani/.test(message);
+  const asksAgendaList = /(?:^|\b)(?:che|quali|mostra(?:mi)?|elenca(?:mi)?|ho|ci sono|agenda|programma)(?:\b|$)/.test(message);
+  const asksTodayAppointments = asksAgendaList && /appuntament|prenotaz|visite|intervent/.test(message) && /oggi/.test(message);
+  const asksTomorrowAppointments = asksAgendaList && /appuntament|prenotaz|visite|intervent/.test(message) && /domani/.test(message);
   const asksSummary = /riepilogo|come va(?: l)?(?: attivita|azienda|lavoro)|situazione(?: di oggi| attivita)?|panoramica/.test(message);
 
   if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksSummary) {
