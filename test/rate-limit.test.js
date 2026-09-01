@@ -12,7 +12,9 @@ test("non inserisce l'indirizzo IP in chiaro nella chiave Redis", () => {
   assert.equal(key.includes("203.0.113.9"), false);
 });
 
-test("applica limiti più severi alle prenotazioni", () => {
+test("applica limiti più severi alle operazioni sensibili", () => {
   assert.ok(rateLimitPolicy("book").limit < rateLimitPolicy("availability").limit);
+  assert.equal(rateLimitPolicy("auth").limit, 8);
+  assert.equal(rateLimitPolicy("auth").windowSeconds, 900);
   assert.equal(rateLimitPolicy("unknown"), null);
 });
