@@ -21,6 +21,8 @@
  */
 
 import {
+  explicitTenantId,
+  isValidTenantId,
   resolveTenantId,
   tenantDataKey,
   tenantLockPrefix,
@@ -30,6 +32,11 @@ import {
   clientOwnsAppointment,
   ownerAuthorized
 } from "../lib/auth.js";
+import {
+  clientAddress,
+  rateLimitKey,
+  rateLimitPolicy
+} from "../lib/rate-limit.js";
 
 const LOCK_TTL = 15000;
 const MAX_BODY_BYTES = 1024 * 1024;
@@ -299,6 +306,66 @@ async function redisDelete(
     "DEL",
     key
   );
+}
+
+async function enforceRateLimit({
+  req,
+  res,
+  tenantId,
+  action
+}) {
+  const policy =
+    rateLimitPolicy(action);
+
+  if (!policy) {
+    return false;
+  }
+
+  const key =
+    rateLimitKey({
+      tenantId,
+      action,
+      identity: clientAddress(req)
+    });
+
+  const count =
+    Number(await redisCommand("INCR", key));
+
+  if (count === 1) {
+    await redisCommand(
+      "EXPIRE",
+      key,
+      String(policy.windowSeconds)
+    );
+  }
+
+  res.setHeader(
+    "X-RateLimit-Limit",
+    String(policy.limit)
+  );
+
+  res.setHeader(
+    "X-RateLimit-Remaining",
+    String(Math.max(0, policy.limit - count))
+  );
+
+  if (count <= policy.limit) {
+    return false;
+  }
+
+  res.setHeader(
+    "Retry-After",
+    String(policy.windowSeconds)
+  );
+
+  res
+    .status(429)
+    .json({
+      ok: false,
+      error: "Troppe richieste. Riprova tra poco."
+    });
+
+  return true;
 }
 
 
@@ -2290,6 +2357,21 @@ export default async function handler(
         )
       );
 
+    const requestedTenant =
+      explicitTenantId(req, body);
+
+    if (
+      requestedTenant &&
+      !isValidTenantId(requestedTenant)
+    ) {
+      return res
+        .status(400)
+        .json({
+          ok: false,
+          error: "Identificativo attività non valido."
+        });
+    }
+
     const tenantId =
       resolveTenantId(req, body);
 
@@ -2310,6 +2392,22 @@ export default async function handler(
           ok: false,
           error: "Autenticazione proprietario richiesta."
         });
+    }
+
+    const isPublicRequest =
+      mode === "client" ||
+      action === "public-context";
+
+    if (
+      isPublicRequest &&
+      await enforceRateLimit({
+        req,
+        res,
+        tenantId,
+        action
+      })
+    ) {
+      return;
     }
 
 

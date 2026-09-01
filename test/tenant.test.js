@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { LEGACY_TENANT_ID, normalizeTenantId, resolveTenantId, tenantDataKey, tenantLockPrefix, tenantPublicKey } from "../lib/tenant.js";
+import { LEGACY_TENANT_ID, isValidTenantId, normalizeTenantId, resolveTenantId, tenantDataKey, tenantLockPrefix, tenantPublicKey } from "../lib/tenant.js";
 
 test("mantiene compatibilità con il tenant storico", () => {
   assert.equal(normalizeTenantId(""), LEGACY_TENANT_ID);
@@ -19,6 +19,8 @@ test("normalizza gli identificativi e respinge valori pericolosi", () => {
   assert.equal(normalizeTenantId(" Salone_Aurora "), "salone-aurora");
   assert.equal(normalizeTenantId("../redis-admin"), LEGACY_TENANT_ID);
   assert.equal(normalizeTenantId("tenant con spazi"), LEGACY_TENANT_ID);
+  assert.equal(isValidTenantId("salone_aurora"), true);
+  assert.equal(isValidTenantId("../redis-admin"), false);
 });
 
 test("risolve prima l'header e poi il body", () => {

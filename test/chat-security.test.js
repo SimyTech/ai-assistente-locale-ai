@@ -58,3 +58,12 @@ test("blocca payload oltre un megabyte", async () => {
   const res = await request({ action: "chat", mode: "client", message: "x".repeat(1024 * 1024) });
   assert.equal(res.statusCode, 413);
 });
+
+test("rifiuta un tenant esplicito malformato senza usare quello default", async () => {
+  const res = await request(
+    { action: "cancel", mode: "owner", id: "appointment-1" },
+    { "x-maviri-tenant": "../default" }
+  );
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.payload.error, "Identificativo attività non valido.");
+});

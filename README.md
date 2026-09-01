@@ -6,6 +6,8 @@ Maviri è il manager digitale per attività locali. Mavi è l'assistente interno
 
 La piattaforma mantiene compatibilità con il tenant storico `default` e separa dati Redis, contesto pubblico e lock di prenotazione per ogni attività.
 
+Le richieste pubbliche sono limitate per tenant e indirizzo IP tramite contatori Redis; gli IP non vengono conservati in chiaro nelle chiavi.
+
 ## Variabili Vercel
 
 - `UPSTASH_REDIS_REST_URL`
