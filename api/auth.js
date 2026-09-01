@@ -1,8 +1,76 @@
 import { ownerAuthorized, ownerTokenForTenant } from "../lib/auth.js";
-import { explicitTenantId, isValidTenantId, resolveTenantId } from "../lib/tenant.js";
+import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
 import { clearSessionCookie, createSession, sessionCookie, sessionSecretForTenant } from "../lib/session.js";
+import { explicitTenantId, isValidTenantId, resolveTenantId } from "../lib/tenant.js";
 
-export default function handler(req, res) {
+const redisUrl = () => process.env.UPSTASH_REDIS_REST_URL || "";
+const redisToken = () => process.env.UPSTASH_REDIS_REST_TOKEN || "";
+
+async function redisCommand(command, ...args) {
+  if (!redisUrl() || !redisToken()) return null;
+  const response = await fetch(redisUrl(), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${redisToken()}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify([command, ...args])
+  });
+  if (!response.ok) throw new Error(`Redis HTTP ${response.status}`);
+  const data = await response.json();
+  if (data.error) throw new Error(String(data.error));
+  return data.result;
+}
+
+async function failedLoginLimited(req, res, tenantId) {
+  const policy = rateLimitPolicy("auth");
+  if (!policy || !redisUrl() || !redisToken()) return false;
+
+  const key = rateLimitKey({
+    tenantId,
+    action: "auth",
+    identity: clientAddress(req)
+  });
+
+  try {
+    const count = Number(await redisCommand("INCR", key));
+    if (count === 1) {
+      await redisCommand("EXPIRE", key, String(policy.windowSeconds));
+    }
+
+    res.setHeader("X-RateLimit-Limit", String(policy.limit));
+    res.setHeader("X-RateLimit-Remaining", String(Math.max(0, policy.limit - count)));
+
+    if (count <= policy.limit) return false;
+
+    res.setHeader("Retry-After", String(policy.windowSeconds));
+    res.status(429).json({
+      ok: false,
+      authenticated: false,
+      error: "Troppi tentativi di accesso. Riprova più tardi."
+    });
+    return true;
+  } catch (error) {
+    console.error("MAVIRI AUTH RATE LIMIT ERROR:", error);
+    return false;
+  }
+}
+
+async function clearFailedLogins(req, tenantId) {
+  if (!redisUrl() || !redisToken()) return;
+  const key = rateLimitKey({
+    tenantId,
+    action: "auth",
+    identity: clientAddress(req)
+  });
+  try {
+    await redisCommand("DEL", key);
+  } catch (error) {
+    console.error("MAVIRI AUTH RATE LIMIT RESET ERROR:", error);
+  }
+}
+
+export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
@@ -15,9 +83,10 @@ export default function handler(req, res) {
   const tenantId = resolveTenantId(req, body);
 
   if (req.method === "GET") {
-    return res.status(ownerAuthorized(req, tenantId) ? 200 : 401).json({
-      ok: ownerAuthorized(req, tenantId),
-      authenticated: ownerAuthorized(req, tenantId),
+    const authenticated = ownerAuthorized(req, tenantId);
+    return res.status(authenticated ? 200 : 401).json({
+      ok: authenticated,
+      authenticated,
       tenantId
     });
   }
@@ -35,8 +104,11 @@ export default function handler(req, res) {
   const token = String(body.token || "").trim();
   const syntheticRequest = { headers: { "x-maviri-owner-token": token } };
   if (!ownerAuthorized(syntheticRequest, tenantId)) {
-    return res.status(401).json({ ok: false, error: "Credenziali non valide." });
+    if (await failedLoginLimited(req, res, tenantId)) return;
+    return res.status(401).json({ ok: false, authenticated: false, error: "Credenziali non valide." });
   }
+
+  await clearFailedLogins(req, tenantId);
 
   const tenantToken = ownerTokenForTenant(tenantId);
   const session = createSession({
