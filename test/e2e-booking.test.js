@@ -156,6 +156,31 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
     assert.equal(moved.payload.persisted, true);
     assert.equal(moved.payload.appointment.time, "11:00");
 
+    const beforeComplete = await call({ action: "owner-pull", tenantId: "default" }, ownerHeaders);
+    const ownerData = beforeComplete.payload.data;
+    ownerData.appointments[0] = {
+      ...ownerData.appointments[0],
+      status: "completed",
+      completedAt: "2026-09-07T12:00:00.000Z"
+    };
+
+    const completionSync = await call({
+      action: "owner-sync",
+      tenantId: "default",
+      business: ownerData.business,
+      settings: ownerData.settings,
+      services: ownerData.services,
+      promotions: ownerData.promotions,
+      clients: ownerData.clients,
+      appointments: ownerData.appointments
+    }, ownerHeaders);
+    assert.equal(completionSync.statusCode, 200);
+    assert.equal(completionSync.payload.synced, true);
+
+    const afterComplete = await call({ action: "owner-pull", tenantId: "default" }, ownerHeaders);
+    assert.equal(afterComplete.payload.data.appointments[0].status, "completed");
+    assert.equal(afterComplete.payload.data.appointments[0].completedAt, "2026-09-07T12:00:00.000Z");
+
     const unauthorizedCancel = await call({
       action: "cancel",
       mode: "client",
