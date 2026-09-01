@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142f">
+<title>Maviri</title>
+<style>
+html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden}#gate{position:fixed;inset:0;display:grid;place-items:center;color:#dfe7ff;font:14px system-ui;background:#07142f;z-index:3}#appFrame{width:100%;height:100%;border:0;display:none;background:#07142f}
+</style>
+</head>
+<body>
+<div id="gate">Apertura del tuo spazio Maviri…</div>
+<iframe id="appFrame" src="/index.html" title="Maviri"></iframe>
+<script>
+const AUTH_KEY="MAVIRI_OWNER_AUTHENTICATED";
+const TENANT_KEY="MAVIRI_TENANT_ID";
+const ACCOUNT_KEY="MAVIRI_OWNER_ACCOUNT";
+const LEGACY_TOKEN_KEY="MAVIRI_OWNER_SYNC_TOKEN";
+const gate=document.getElementById("gate");
+const frame=document.getElementById("appFrame");
+function clearLocalAuth(){localStorage.removeItem(AUTH_KEY);localStorage.removeItem(ACCOUNT_KEY);localStorage.removeItem(LEGACY_TOKEN_KEY)}
+async function verify(){
+  const tenant=(localStorage.getItem(TENANT_KEY)||"").trim();
+  if(!tenant)return false;
+  try{
+    const r=await fetch("/api/auth",{method:"GET",headers:{"x-maviri-tenant":tenant},credentials:"same-origin",cache:"no-store"});
+    const j=await r.json().catch(()=>({}));
+    return r.ok&&j.authenticated===true;
+  }catch{return false}
+}
+function sanitizeLegacyUi(doc){
+  try{
+    const token=doc.getElementById("ownerSyncToken");
+    if(token){
+      const field=token.closest(".field");
+      if(field)field.style.display="none";
+      const row=field&&field.nextElementSibling;
+      if(row&&row.classList.contains("row")){
+        [...row.querySelectorAll("button")].forEach(btn=>{
+          const text=(btn.textContent||"").trim().toLowerCase();
+          if(text==="accedi")btn.style.display="none";
+        });
+      }
+    }
+    [...doc.querySelectorAll("label")].forEach(label=>{
+      if((label.textContent||"").toLowerCase().includes("token proprietario")){
+        const field=label.closest(".field");if(field)field.style.display="none";
+      }
+    });
+  }catch{}
+}
+function wireLogout(doc){
+  try{
+    const original=frame.contentWindow.logoutOwner;
+    if(typeof original!=="function")return;
+    frame.contentWindow.logoutOwner=async function(){
+      try{await original.apply(this,arguments)}finally{clearLocalAuth();location.replace("/")}
+    };
+  }catch{}
+}
+frame.addEventListener("load",()=>{
+  sanitizeLegacyUi(frame.contentDocument);
+  wireLogout(frame.contentDocument);
+  const observer=new MutationObserver(()=>sanitizeLegacyUi(frame.contentDocument));
+  if(frame.contentDocument&&frame.contentDocument.body)observer.observe(frame.contentDocument.body,{subtree:true,childList:true});
+  frame.style.display="block";gate.style.display="none";
+});
+(async()=>{
+  if(!(await verify())){clearLocalAuth();location.replace("/");return}
+  localStorage.setItem(AUTH_KEY,"true");
+})();
+</script>
+</body>
+</html>
