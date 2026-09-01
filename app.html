@@ -20,6 +20,8 @@ const AUTH_KEY="MAVIRI_OWNER_AUTHENTICATED";
 const TENANT_KEY="MAVIRI_TENANT_ID";
 const ACCOUNT_KEY="MAVIRI_OWNER_ACCOUNT";
 const LEGACY_TOKEN_KEY="MAVIRI_OWNER_SYNC_TOKEN";
+const DATA_TENANT_KEY="MAVIRI_LOCAL_DATA_TENANT";
+const LEGACY_DATA_KEYS=["maviri_app_data_v7","maviri_app_data_v6","maviri_app_data_v5","maviri_app_data_v4","appData","appData_backup"];
 const gate=document.getElementById("gate");
 const frame=document.getElementById("appFrame");
 const context=document.getElementById("context");
@@ -28,6 +30,18 @@ let plan=null;
 
 function tenant(){return(localStorage.getItem(TENANT_KEY)||"").trim()}
 function clearLocalAuth(){localStorage.removeItem(AUTH_KEY);localStorage.removeItem(ACCOUNT_KEY);localStorage.removeItem(LEGACY_TOKEN_KEY)}
+function guardTenantCache(){
+  const current=tenant();
+  if(!current)return;
+  const previous=(localStorage.getItem(DATA_TENANT_KEY)||"").trim();
+  const hasLegacyData=LEGACY_DATA_KEYS.some(key=>localStorage.getItem(key)!==null);
+  const tenantChanged=Boolean(previous&&previous!==current);
+  const unownedCache=Boolean(!previous&&current!=="default"&&hasLegacyData);
+  if(tenantChanged||unownedCache){
+    LEGACY_DATA_KEYS.forEach(key=>localStorage.removeItem(key));
+  }
+  localStorage.setItem(DATA_TENANT_KEY,current);
+}
 
 async function api(path){
   const t=tenant();
@@ -196,6 +210,7 @@ frame.addEventListener("load",()=>{
 (async()=>{
   if(!(await verify())){clearLocalAuth();location.replace("/");return}
   localStorage.setItem(AUTH_KEY,"true");
+  guardTenantCache();
   profile=await loadProfile();
   if(!profile)return;
   plan=adaptiveDashboardPlan(profile);
