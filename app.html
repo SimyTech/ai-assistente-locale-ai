@@ -6,7 +6,13 @@
 <meta name="theme-color" content="#07142f">
 <title>Maviri</title>
 <style>
-html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}#gate{position:fixed;inset:0;display:grid;place-items:center;color:#dfe7ff;font-size:14px;background:#07142f;z-index:5}.context{height:48px;display:none;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.08);background:#091a39;color:#f6f8ff}.context strong{font-size:13px}.context span{font-size:11px;color:#9eafd0;margin-left:8px}.context a{color:#9fcfff;text-decoration:none;font-size:12px}#appFrame{width:100%;height:100%;border:0;display:none;background:#07142f}.ready #appFrame{height:calc(100% - 48px)}@media(max-width:650px){.context span{display:none}}
+html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+#gate{position:fixed;inset:0;display:grid;place-items:center;color:#dfe7ff;font-size:14px;background:#07142f;z-index:5}
+.context{height:48px;display:none;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.08);background:#091a39;color:#f6f8ff}
+.context strong{font-size:13px}.context span{font-size:11px;color:#9eafd0;margin-left:8px}.context a{color:#9fcfff;text-decoration:none;font-size:12px;touch-action:manipulation}
+#appFrame{width:100%;height:100%;border:0;display:none;background:#07142f;pointer-events:auto;touch-action:auto}
+.ready #appFrame{height:calc(100% - 48px)}
+@media(max-width:650px){.context span{display:none}}
 </style>
 </head>
 <body>
@@ -27,6 +33,9 @@ const frame=document.getElementById("appFrame");
 const context=document.getElementById("context");
 let profile=null;
 let plan=null;
+let adaptiveObserver=null;
+let adaptiveScheduled=false;
+let adaptiveRunning=false;
 
 function tenant(){return(localStorage.getItem(TENANT_KEY)||"").trim()}
 function clearLocalAuth(){localStorage.removeItem(AUTH_KEY);localStorage.removeItem(ACCOUNT_KEY);localStorage.removeItem(LEGACY_TOKEN_KEY)}
@@ -37,9 +46,7 @@ function guardTenantCache(){
   const hasLegacyData=LEGACY_DATA_KEYS.some(key=>localStorage.getItem(key)!==null);
   const tenantChanged=Boolean(previous&&previous!==current);
   const unownedCache=Boolean(!previous&&current!=="default"&&hasLegacyData);
-  if(tenantChanged||unownedCache){
-    LEGACY_DATA_KEYS.forEach(key=>localStorage.removeItem(key));
-  }
+  if(tenantChanged||unownedCache)LEGACY_DATA_KEYS.forEach(key=>localStorage.removeItem(key));
   localStorage.setItem(DATA_TENANT_KEY,current);
 }
 
@@ -49,16 +56,10 @@ async function api(path){
   try{
     const r=await fetch(path,{method:"GET",headers:{"x-maviri-tenant":t},credentials:"same-origin",cache:"no-store"});
     const j=await r.json().catch(()=>({}));
-    if(!r.ok)return null;
-    return j;
+    return r.ok?j:null;
   }catch{return null}
 }
-
-async function verify(){
-  const j=await api("/api/auth");
-  return Boolean(j&&j.authenticated===true);
-}
-
+async function verify(){const j=await api("/api/auth");return Boolean(j&&j.authenticated===true)}
 async function loadProfile(){
   const j=await api("/api/activity-profile");
   if(!j)return null;
@@ -77,11 +78,9 @@ function installApiBridge(){
       let pathname="";
       try{pathname=new URL(rawUrl,win.location.href).pathname}catch{}
       if(!pathname.startsWith("/api/"))return originalFetch(input,init);
-
       const t=tenant();
       const headers=new Headers(init.headers||(typeof input!=="string"&&input&&input.headers)||{});
       if(t)headers.set("x-maviri-tenant",t);
-
       let body=init.body;
       if(pathname==="/api/chat"&&typeof body==="string"){
         try{
@@ -93,67 +92,68 @@ function installApiBridge(){
           }
         }catch{}
       }
-
       return originalFetch(input,{...init,headers,body,credentials:init.credentials||"same-origin"});
     };
   }catch{}
 }
 
 function setButtonLabel(button,label){
-  if(!button)return;
+  if(!button||!label)return;
   const icon=button.querySelector(".ni");
+  const currentText=(button.textContent||"").trim();
+  if(currentText===label)return;
   const iconHtml=icon?icon.outerHTML:"";
   button.innerHTML=iconHtml+label;
 }
 
+function setDisplay(el,value){if(el&&el.style.display!==value)el.style.display=value}
+
 function reorderNavigation(doc){
   const nav=doc.querySelector("nav.nav");
   if(!nav||!plan)return;
-  const buttons=new Map([...nav.querySelectorAll("button[data-page]")].map(btn=>[btn.dataset.page,btn]));
-  plan.order.forEach(page=>{const btn=buttons.get(page);if(btn)nav.appendChild(btn)});
-  buttons.forEach((btn,page)=>{btn.style.display=plan.visible[page]===false?"none":""});
+  const buttons=[...nav.querySelectorAll("button[data-page]")];
+  const map=new Map(buttons.map(btn=>[btn.dataset.page,btn]));
+  const desired=[...plan.order.filter(page=>map.has(page)),...buttons.map(b=>b.dataset.page).filter(page=>!plan.order.includes(page))];
+  const current=buttons.map(b=>b.dataset.page);
+  if(desired.join("|")!==current.join("|"))desired.forEach(page=>{const btn=map.get(page);if(btn)nav.appendChild(btn)});
+  map.forEach((btn,page)=>setDisplay(btn,plan.visible[page]===false?"none":""));
 }
 
 function adaptLabels(doc){
   if(!plan)return;
   setButtonLabel(doc.querySelector('button[data-page="calendar"]'),plan.labels.appointments);
   setButtonLabel(doc.querySelector('button[data-page="clients"]'),plan.labels.clients);
-
   const calendar=doc.getElementById("calendar");
-  if(calendar)calendar.style.display=plan.visible.calendar?"":"none";
-
+  setDisplay(calendar,plan.visible.calendar?"":"none");
   const newAppointment=doc.querySelector('#calendar button[onclick*="newAp"]');
-  if(newAppointment)newAppointment.textContent=`＋ ${plan.labels.appointment}`;
+  const appointmentLabel=`＋ ${plan.labels.appointment}`;
+  if(newAppointment&&(newAppointment.textContent||"").trim()!==appointmentLabel)newAppointment.textContent=appointmentLabel;
   const dayTitle=doc.getElementById("dayTitle");
-  if(dayTitle&&/appuntament|prenotazion/i.test(dayTitle.textContent||""))dayTitle.textContent=plan.labels.appointments;
-
+  if(dayTitle&&/appuntament|prenotazion/i.test(dayTitle.textContent||"")&&(dayTitle.textContent||"").trim()!==plan.labels.appointments)dayTitle.textContent=plan.labels.appointments;
   [...doc.querySelectorAll("h1,h2,h3,h4,label,strong")].forEach(el=>{
     const text=(el.textContent||"").trim();
-    if(text==="Clienti")el.textContent=plan.labels.clients;
-    if(text==="Cliente")el.textContent=plan.labels.client;
-    if(text==="Servizi")el.textContent=plan.labels.services;
-    if(text==="Servizio")el.textContent=plan.labels.service;
-    if(text==="Appuntamenti")el.textContent=plan.labels.appointments;
-    if(text==="Appuntamento")el.textContent=plan.labels.appointment;
+    let next=null;
+    if(text==="Clienti")next=plan.labels.clients;
+    else if(text==="Cliente")next=plan.labels.client;
+    else if(text==="Servizi")next=plan.labels.services;
+    else if(text==="Servizio")next=plan.labels.service;
+    else if(text==="Appuntamenti")next=plan.labels.appointments;
+    else if(text==="Appuntamento")next=plan.labels.appointment;
+    if(next&&next!==text)el.textContent=next;
   });
 }
 
 function adaptCapabilities(doc){
   if(!plan)return;
   const pageButton=page=>doc.querySelector(`button[data-page="${page}"]`);
-  if(pageButton("calendar"))pageButton("calendar").style.display=plan.visible.calendar?"":"none";
-  if(pageButton("clients"))pageButton("clients").style.display=plan.visible.clients?"":"none";
-  if(pageButton("content"))pageButton("content").style.display=plan.visible.content?"":"none";
-
+  setDisplay(pageButton("calendar"),plan.visible.calendar?"":"none");
+  setDisplay(pageButton("clients"),plan.visible.clients?"":"none");
+  setDisplay(pageButton("content"),plan.visible.content?"":"none");
   if(!plan.visible.services||!plan.visible.promotions){
     [...doc.querySelectorAll("h2,h3,h4")].forEach(heading=>{
       const text=(heading.textContent||"").trim().toLowerCase();
-      if(!plan.visible.services&&text===plan.labels.services.toLowerCase()){
-        const card=heading.closest(".card");if(card)card.style.display="none";
-      }
-      if(!plan.visible.promotions&&text==="promozioni"){
-        const card=heading.closest(".card");if(card)card.style.display="none";
-      }
+      if(!plan.visible.services&&text===plan.labels.services.toLowerCase())setDisplay(heading.closest(".card"),"none");
+      if(!plan.visible.promotions&&text==="promozioni")setDisplay(heading.closest(".card"),"none");
     });
   }
 }
@@ -161,46 +161,64 @@ function adaptCapabilities(doc){
 function sanitizeLegacyUi(doc){
   try{
     const token=doc.getElementById("ownerSyncToken");
-    if(token){
-      const field=token.closest(".field");
-      if(field)field.style.display="none";
-      const row=field&&field.nextElementSibling;
-      if(row&&row.classList.contains("row")){
-        [...row.querySelectorAll("button")].forEach(btn=>{
-          const text=(btn.textContent||"").trim().toLowerCase();
-          if(text==="accedi")btn.style.display="none";
-        });
-      }
+    if(!token)return;
+    const field=token.closest(".field");
+    setDisplay(field,"none");
+    const row=field&&field.nextElementSibling;
+    if(row&&row.classList.contains("row")){
+      [...row.querySelectorAll("button")].forEach(btn=>{if((btn.textContent||"").trim().toLowerCase()==="accedi")setDisplay(btn,"none")});
     }
   }catch{}
 }
 
 function wireLogout(){
   try{
-    const original=frame.contentWindow.logoutOwner;
+    const win=frame.contentWindow;
+    if(win.__MAVIRI_LOGOUT_WRAPPED__)return;
+    const original=win.logoutOwner;
     if(typeof original!=="function")return;
-    frame.contentWindow.logoutOwner=async function(){
+    win.__MAVIRI_LOGOUT_WRAPPED__=true;
+    win.logoutOwner=async function(){
       try{await original.apply(this,arguments)}finally{clearLocalAuth();location.replace("/")}
     };
   }catch{}
 }
 
 function applyAdaptiveUi(){
+  if(adaptiveRunning)return;
   const doc=frame.contentDocument;
   if(!doc||!plan)return;
-  sanitizeLegacyUi(doc);
-  reorderNavigation(doc);
-  adaptLabels(doc);
-  adaptCapabilities(doc);
-  wireLogout();
+  adaptiveRunning=true;
+  try{
+    if(adaptiveObserver)adaptiveObserver.disconnect();
+    sanitizeLegacyUi(doc);
+    reorderNavigation(doc);
+    adaptLabels(doc);
+    adaptCapabilities(doc);
+    wireLogout();
+  }finally{
+    adaptiveRunning=false;
+    if(adaptiveObserver&&doc.body)adaptiveObserver.observe(doc.body,{subtree:true,childList:true});
+  }
+}
+
+function scheduleAdaptiveUi(){
+  if(adaptiveScheduled)return;
+  adaptiveScheduled=true;
+  requestAnimationFrame(()=>{
+    adaptiveScheduled=false;
+    applyAdaptiveUi();
+  });
 }
 
 frame.addEventListener("load",()=>{
   installApiBridge();
   applyAdaptiveUi();
   const doc=frame.contentDocument;
-  const observer=new MutationObserver(()=>applyAdaptiveUi());
-  if(doc&&doc.body)observer.observe(doc.body,{subtree:true,childList:true});
+  adaptiveObserver=new MutationObserver(mutations=>{
+    if(mutations.some(m=>m.addedNodes&&m.addedNodes.length))scheduleAdaptiveUi();
+  });
+  if(doc&&doc.body)adaptiveObserver.observe(doc.body,{subtree:true,childList:true});
   frame.style.display="block";
   context.style.display="flex";
   document.body.classList.add("ready");
