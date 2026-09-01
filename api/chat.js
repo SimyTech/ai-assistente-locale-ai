@@ -1061,6 +1061,43 @@ function makePublicContext(
    DATASET
    ============================================================ */
 
+function normalizeSettings(
+  input
+) {
+  const settings =
+    obj(input)
+      ? { ...input }
+      : {};
+
+  if (
+    Array.isArray(settings.hours)
+  ) {
+    const keys = [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday"
+    ];
+
+    settings.hours =
+      Object.fromEntries(
+        keys.map(
+          (key, index) => [
+            key,
+            obj(settings.hours[index])
+              ? settings.hours[index]
+              : { closed: true }
+          ]
+        )
+      );
+  }
+
+  return settings;
+}
+
 function sanitizeOwnerData(
   body
 ) {
@@ -1089,9 +1126,9 @@ function sanitizeOwnerData(
         : {},
 
     settings:
-      obj(body.settings)
-        ? body.settings
-        : {},
+      normalizeSettings(
+        body.settings
+      ),
 
     services:
       arr(body.services),
@@ -2856,7 +2893,10 @@ export default async function handler(
 
       } else {
 
-        data = body;
+        data =
+          sanitizeOwnerData(
+            body
+          );
       }
 
       const date =
@@ -3039,6 +3079,32 @@ export default async function handler(
 
             error:
               "Dati della prenotazione incompleti."
+          });
+      }
+
+      if (
+        !freeSlot({
+          date,
+          time,
+          service,
+          appointments,
+          settings: data.settings,
+          services
+        })
+      ) {
+        return res
+          .status(409)
+          .json({
+            ok: false,
+            bookingConfirmed: false,
+            error: "Orario non disponibile.",
+            availableSlots: availableSlots({
+              date,
+              service,
+              appointments,
+              settings: data.settings,
+              services
+            })
           });
       }
 
