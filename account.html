@@ -17,7 +17,14 @@
     <div class="info"><div><small>Account</small><strong id="accountName">—</strong></div><div><small>Email</small><strong id="accountEmail">—</strong></div></div>
     <div id="emailStatus" class="status hidden"><div><small class="note">Stato email</small><strong id="emailStatusText">—</strong></div><button id="resendBtn" class="secondary" type="button">Invia di nuovo verifica</button></div>
     <div id="emailMessage" class="msg" aria-live="polite"></div>
-    <p id="legacyNotice" class="note hidden">Questo account usa ancora l'accesso tecnico precedente. Il cambio password sarà disponibile dopo la migrazione a un account Maviri.</p>
+    <p id="legacyNotice" class="note hidden">Questo account usa ancora l'accesso tecnico precedente. La gestione account completa sarà disponibile dopo la migrazione a un account Maviri.</p>
+  </section>
+  <section class="card" id="profileCard">
+    <h2>Nome del titolare</h2><p class="sub">È il nome mostrato nelle aree account di Maviri. Non modifica il nome dell’attività.</p>
+    <form id="profileForm">
+      <div class="field"><label for="displayName">Nome visualizzato</label><input id="displayName" autocomplete="name" minlength="2" maxlength="80" required></div>
+      <button id="profileBtn" type="submit">Salva nome</button><div id="profileMessage" class="msg" aria-live="polite"></div>
+    </form>
   </section>
   <section class="card" id="passwordCard">
     <h2>Cambia password</h2><p class="sub">La nuova password deve avere almeno 10 caratteri.</p>
@@ -37,30 +44,13 @@ function tenant(){return(localStorage.getItem(TENANT_KEY)||"").trim()}
 function account(){try{return JSON.parse(localStorage.getItem(ACCOUNT_KEY)||"null")}catch{return null}}
 function rememberAccount(a){if(a&&typeof a==="object")localStorage.setItem(ACCOUNT_KEY,JSON.stringify(a))}
 function msg(text,type=""){const el=$("message");el.textContent=text||"";el.className="msg"+(type?" "+type:"")}
+function profileMsg(text,type=""){const el=$("profileMessage");el.textContent=text||"";el.className="msg"+(type?" "+type:"")}
 function emailMsg(text,type=""){const el=$("emailMessage");el.textContent=text||"";el.className="msg"+(type?" "+type:"")}
 function renderEmailStatus(a){if(!a||!a.email)return;$("emailStatus").classList.remove("hidden");const verified=a.emailVerified===true;$("emailStatusText").textContent=verified?"Verificata":"Da verificare";$("emailStatusText").className=verified?"ok":"warn";$("resendBtn").classList.toggle("hidden",verified)}
-function renderAccount(a){if(!a)return false;$("accountName").textContent=a.displayName||a.username||"Titolare";$("accountEmail").textContent=a.email||a.username||"—";renderEmailStatus(a);return true}
-async function authenticatedAccount(){
-  const t=tenant();if(!t)return null;
-  try{
-    const r=await fetch("/api/auth",{headers:{"x-maviri-tenant":t},credentials:"same-origin",cache:"no-store"});
-    if(!r.ok)return null;
-    const j=await r.json();
-    if(!j.authenticated)return null;
-    localStorage.setItem(AUTH_KEY,"true");
-    if(j.account){rememberAccount(j.account);return j.account}
-    return account();
-  }catch{return null}
-}
-(async()=>{
-  const a=await authenticatedAccount();
-  if(!a){
-    const t=tenant();
-    if(!t){localStorage.removeItem(AUTH_KEY);location.replace("/");return}
-    $("passwordCard").classList.add("hidden");$("legacyNotice").classList.remove("hidden");return;
-  }
-  renderAccount(a);
-})();
+function renderAccount(a){if(!a)return false;$("accountName").textContent=a.displayName||a.username||"Titolare";$("accountEmail").textContent=a.email||a.username||"—";$("displayName").value=a.displayName||"";renderEmailStatus(a);return true}
+async function authenticatedAccount(){const t=tenant();if(!t)return null;try{const r=await fetch("/api/auth",{headers:{"x-maviri-tenant":t},credentials:"same-origin",cache:"no-store"});if(!r.ok)return null;const j=await r.json();if(!j.authenticated)return null;localStorage.setItem(AUTH_KEY,"true");if(j.account){rememberAccount(j.account);return j.account}return account()}catch{return null}}
+(async()=>{const a=await authenticatedAccount();if(!a){const t=tenant();if(!t){localStorage.removeItem(AUTH_KEY);location.replace("/");return}$("passwordCard").classList.add("hidden");$("profileCard").classList.add("hidden");$("legacyNotice").classList.remove("hidden");return}renderAccount(a)})();
+$("profileForm").addEventListener("submit",async e=>{e.preventDefault();const a=account();if(!a){profileMsg("Account non modificabile da questa schermata.","error");return}const displayName=$("displayName").value.trim();if(displayName.length<2||displayName.length>80){profileMsg("Inserisci un nome da 2 a 80 caratteri.","error");return}const btn=$("profileBtn");btn.disabled=true;profileMsg("Salvataggio nome…");try{const r=await fetch("/api/account",{method:"POST",headers:{"Content-Type":"application/json","x-maviri-tenant":tenant()},credentials:"same-origin",body:JSON.stringify({action:"update-profile",login:a.email||a.username,displayName})});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok||!j.account)throw new Error(j.error||"Aggiornamento non riuscito.");rememberAccount(j.account);renderAccount(j.account);profileMsg("Nome aggiornato correttamente.","ok")}catch(err){profileMsg(err.message||"Aggiornamento non riuscito.","error")}finally{btn.disabled=false}});
 $("resendBtn").addEventListener("click",async()=>{const a=account();if(!a?.email)return;const btn=$("resendBtn");btn.disabled=true;emailMsg("Invio email di verifica…");try{const r=await fetch("/api/email-verification",{method:"POST",headers:{"Content-Type":"application/json","x-maviri-tenant":tenant()},credentials:"same-origin",body:JSON.stringify({email:a.email})});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||"Invio non riuscito.");if(j.verified){a.emailVerified=true;rememberAccount(a);renderEmailStatus(a);emailMsg("Email già verificata.","ok")}else emailMsg("Email di verifica inviata. Controlla la posta.","ok")}catch(err){emailMsg(err.message||"Invio non riuscito.","error")}finally{btn.disabled=false}});
 $("passwordForm").addEventListener("submit",async e=>{e.preventDefault();const a=account();if(!a){msg("Account non modificabile da questa schermata.","error");return}const currentPassword=$("currentPassword").value,newPassword=$("newPassword").value,confirmPassword=$("confirmPassword").value;if(newPassword.length<10){msg("La nuova password deve contenere almeno 10 caratteri.","error");return}if(newPassword!==confirmPassword){msg("Le due nuove password non coincidono.","error");return}const btn=$("saveBtn");btn.disabled=true;msg("Aggiornamento password…");try{const r=await fetch("/api/account",{method:"POST",headers:{"Content-Type":"application/json","x-maviri-tenant":tenant()},credentials:"same-origin",body:JSON.stringify({action:"change-password",login:a.email||a.username,currentPassword,newPassword})});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.error||"Aggiornamento non riuscito.");$("passwordForm").reset();msg("Password aggiornata correttamente.","ok")}catch(err){msg(err.message||"Aggiornamento non riuscito.","error")}finally{btn.disabled=false}});
 </script>
