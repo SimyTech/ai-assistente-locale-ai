@@ -56,6 +56,15 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /ownerSyncToken/);
 });
 
+test("il browser non riusa la cache gestionale di un altro tenant", async () => {
+  const html = await text("app.html");
+  assert.match(html, /MAVIRI_LOCAL_DATA_TENANT/);
+  assert.match(html, /function guardTenantCache/);
+  assert.match(html, /previous!==current/);
+  assert.match(html, /LEGACY_DATA_KEYS\.forEach\(key=>localStorage\.removeItem\(key\)\)/);
+  assert.match(html, /guardTenantCache\(\)/);
+});
+
 test("il bridge autenticato forza tenant e profilo su Mavi", async () => {
   const html = await text("app.html");
   assert.match(html, /function installApiBridge/);
