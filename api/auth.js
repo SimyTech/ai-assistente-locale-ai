@@ -1,5 +1,5 @@
 import { authenticateOwnerAccount } from "../lib/accounts.js";
-import { authenticateStoredOwnerAccount } from "../lib/account-store.js";
+import { authenticateStoredOwnerAccount, getStoredOwnerAccountByTenant } from "../lib/account-store.js";
 import { ownerAuthorized, ownerTokenForTenant } from "../lib/auth.js";
 import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
 import { clearSessionCookie, createSession, sessionCookie, sessionSecretForTenant } from "../lib/session.js";
@@ -31,7 +31,6 @@ function loginIdentity(req, login = "") {
 async function failedLoginLimited(req, res, tenantId, login = "") {
   const policy = rateLimitPolicy("auth");
   if (!policy || !redisUrl() || !redisToken()) return false;
-
   const key = rateLimitKey({ tenantId, action: "auth", identity: loginIdentity(req, login) });
   try {
     const count = Number(await redisCommand("INCR", key));
@@ -51,7 +50,8 @@ async function failedLoginLimited(req, res, tenantId, login = "") {
 async function clearFailedLogins(req, tenantId, login = "") {
   if (!redisUrl() || !redisToken()) return;
   const key = rateLimitKey({ tenantId, action: "auth", identity: loginIdentity(req, login) });
-  try { await redisCommand("DEL", key); } catch (error) { console.error("MAVIRI AUTH RATE LIMIT RESET ERROR:", error); }
+  try { await redisCommand("DEL", key); }
+  catch (error) { console.error("MAVIRI AUTH RATE LIMIT RESET ERROR:", error); }
 }
 
 async function authenticateAccount(login, password) {
@@ -59,7 +59,19 @@ async function authenticateAccount(login, password) {
   if (configured) return configured;
   if (!redisUrl() || !redisToken()) return null;
   try { return await authenticateStoredOwnerAccount({ login, password }); }
-  catch (error) { console.error("MAVIRI STORED ACCOUNT AUTH ERROR:", error); return null; }
+  catch (error) {
+    console.error("MAVIRI STORED ACCOUNT AUTH ERROR:", error);
+    return null;
+  }
+}
+
+async function accountForTenant(tenantId) {
+  if (!redisUrl() || !redisToken()) return null;
+  try { return await getStoredOwnerAccountByTenant(tenantId); }
+  catch (error) {
+    console.error("MAVIRI STORED ACCOUNT LOOKUP ERROR:", error);
+    return null;
+  }
 }
 
 export default async function handler(req, res) {
@@ -69,17 +81,27 @@ export default async function handler(req, res) {
 
   const body = req.body && typeof req.body === "object" ? req.body : {};
   const requestedTenant = explicitTenantId(req, body);
-  if (requestedTenant && !isValidTenantId(requestedTenant)) return res.status(400).json({ ok: false, error: "Identificativo attività non valido." });
+  if (requestedTenant && !isValidTenantId(requestedTenant)) {
+    return res.status(400).json({ ok: false, error: "Identificativo attività non valido." });
+  }
   const resolvedTenant = resolveTenantId(req, body);
 
   if (req.method === "GET") {
     const authenticated = ownerAuthorized(req, resolvedTenant);
-    return res.status(authenticated ? 200 : 401).json({ ok: authenticated, authenticated, tenantId: resolvedTenant });
+    const account = authenticated ? await accountForTenant(resolvedTenant) : null;
+    return res.status(authenticated ? 200 : 401).json({
+      ok: authenticated,
+      authenticated,
+      tenantId: resolvedTenant,
+      account
+    });
   }
+
   if (req.method === "DELETE") {
     res.setHeader("Set-Cookie", clearSessionCookie());
     return res.status(200).json({ ok: true, authenticated: false });
   }
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "GET, POST, DELETE");
     return res.status(405).json({ ok: false, error: "Metodo non consentito." });
