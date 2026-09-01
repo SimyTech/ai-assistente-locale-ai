@@ -74,6 +74,8 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /x-maviri-tenant/);
   assert.match(html, /const auth=await verify\(\)/);
   assert.match(html, /if\(!auth\|\|auth\.authenticated!==true\)/);
+  assert.match(html, /location\.replace\("\/login\?switch=1&reason=session-required"\)/);
+  assert.doesNotMatch(html, /if\(!auth\|\|auth\.authenticated!==true\)\{clearLocalAuth\(\);location\.replace\("\/"\)/);
   assert.match(html, /syncAccountFromAuth\(auth\)/);
   assert.match(html, /if\(!j\.configured\)\{location\.replace\("\/setup"\)/);
   assert.match(html, /adaptiveDashboardPlan\(profile\)/);
