@@ -22,7 +22,7 @@
     },
     {
       "source": "/api/chat",
-      "destination": "/api/chat-proxy"
+      "destination": "/api/chat-entry"
     },
     {
       "source": "/api/whatsapp",
