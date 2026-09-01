@@ -224,7 +224,7 @@ frame.addEventListener("load",()=>{
 });
 (async()=>{
   const auth=await verify();
-  if(!auth||auth.authenticated!==true){clearLocalAuth();location.replace("/");return}
+  if(!auth||auth.authenticated!==true){clearLocalAuth();location.replace("/login?switch=1&reason=session-required");return}
   localStorage.setItem(AUTH_KEY,"true");
   syncAccountFromAuth(auth);
   guardTenantCache();
