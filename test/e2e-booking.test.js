@@ -213,3 +213,39 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
     delete process.env.MAVIRI_OWNER_SYNC_TOKEN;
   }
 });
+
+test("owner-sync può eliminare anche l'ultimo servizio e l'ultima promozione", async () => {
+  const redis = fakeRedis();
+  const originalFetch = globalThis.fetch;
+  process.env.UPSTASH_REDIS_REST_URL = "https://redis.test";
+  process.env.UPSTASH_REDIS_REST_TOKEN = "redis-token";
+  process.env.MAVIRI_OWNER_SYNC_TOKEN = "owner-secret";
+  globalThis.fetch = redis.fetch;
+  const headers = { "x-maviri-owner-token": "owner-secret", "x-maviri-tenant": "default" };
+
+  try {
+    const initial = dataset();
+    initial.promotions = [{ id: "p1", title: "Promo prova" }];
+    assert.equal((await call({ action: "owner-sync", tenantId: "default", ...initial }, headers)).statusCode, 200);
+
+    const cleared = await call({
+      action: "owner-sync",
+      tenantId: "default",
+      ...initial,
+      services: [],
+      promotions: []
+    }, headers);
+    assert.equal(cleared.statusCode, 200);
+    assert.deepEqual(cleared.payload.data.services, []);
+    assert.deepEqual(cleared.payload.data.promotions, []);
+
+    const pulled = await call({ action: "owner-pull", tenantId: "default" }, headers);
+    assert.deepEqual(pulled.payload.data.services, []);
+    assert.deepEqual(pulled.payload.data.promotions, []);
+  } finally {
+    globalThis.fetch = originalFetch;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.MAVIRI_OWNER_SYNC_TOKEN;
+  }
+});
