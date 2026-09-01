@@ -58,6 +58,22 @@ test("individua clienti a rischio di abbandono", () => {
   assert.doesNotMatch(answer, /Marco Verdi/);
 });
 
+test("non propone clienti già ricontattati o con un prossimo appuntamento", () => {
+  const contacted = ownerManagerInsight({
+    ...dataset,
+    clients: dataset.clients.map(client => client.id === "c2" ? { ...client, recoveryContactedAt: new Date().toISOString() } : client),
+    message: "quali pazienti devo ricontattare e recuperare?"
+  });
+  assert.doesNotMatch(contacted, /Luca Bianchi/);
+
+  const booked = ownerManagerInsight({
+    ...dataset,
+    appointments: [...dataset.appointments, { id: "a8", clientId: "c2", name: "Luca Bianchi", date: addDays(today, 5), time: "12:00", status: "confirmed" }],
+    message: "quali pazienti devo ricontattare e recuperare?"
+  });
+  assert.doesNotMatch(booked, /Luca Bianchi/);
+});
+
 test("classifica i migliori clienti usando valore e frequenza", () => {
   const answer = ask("chi sono i miei migliori pazienti?");
   assert.match(answer, /Anna Rossi/);
