@@ -68,6 +68,7 @@ test("la configurazione iniziale riusa nome ed email inseriti in registrazione",
 
 test("la dashboard verifica sessione e carica il profilo prima di mostrare index", async () => {
   const html = await text("app.html");
+  const index = await text("index.html");
   assert.match(html, /api\("\/api\/auth"\)/);
   assert.match(html, /api\("\/api\/activity-profile"\)/);
   assert.match(html, /x-maviri-tenant/);
@@ -78,6 +79,10 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /adaptiveDashboardPlan\(profile\)/);
   assert.match(html, /frame\.src="\/index\.html"/);
   assert.match(html, /ownerSyncToken/);
+  assert.match(index, /window\.top===window\.self/);
+  assert.match(index, /location\.replace\("\/app"\)/);
+  assert.match(index, /credentials:"same-origin"/);
+  assert.match(index, /reason=session-expired/);
 });
 
 test("la gestione account è raggiungibile dalla dashboard", async () => {
