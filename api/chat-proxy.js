@@ -50,6 +50,8 @@ export function normalizeLifecycleTimestamps(body = {}) {
       const lifecycleAt =
         status === "completed"
           ? clean(appointment.completedAt)
+          : status === "no_show" || status === "no-show" || status === "assente"
+            ? clean(appointment.noShowAt)
           : status === "cancelled" || status === "canceled"
             ? clean(appointment.cancelledAt)
             : "";
@@ -115,7 +117,12 @@ function appointmentService(appointment) {
 }
 
 function appointmentActive(appointment) {
-  return !["cancelled", "canceled", "annullato", "cancellato", "deleted"]
+  return !["cancelled", "canceled", "annullato", "cancellato", "deleted", "no_show", "no-show", "assente"]
+    .includes(norm(appointment?.status || "confirmed"));
+}
+
+function appointmentConfirmed(appointment) {
+  return ["", "confirmed", "confermato", "booked"]
     .includes(norm(appointment?.status || "confirmed"));
 }
 
@@ -243,15 +250,53 @@ export function ownerManagerInsight(body = {}) {
   const asksAgendaList = /(?:^|\b)(?:che|quali|mostra(?:mi)?|elenca(?:mi)?|ho|ci sono|agenda|programma)(?:\b|$)/.test(message);
   const asksTodayAppointments = asksAgendaList && /appuntament|prenotaz|visite|intervent/.test(message) && /oggi/.test(message);
   const asksTomorrowAppointments = asksAgendaList && /appuntament|prenotaz|visite|intervent/.test(message) && /domani/.test(message);
+  const asksNoShows = /(?:chi|quali|mostra|elenca|client|pazient|soci|ospit).*(?:non si (?:e|sono) presentat|assenz|assent|no[ -]?show)|(?:assenz|assent|no[ -]?show).*(?:client|pazient|soci|ospit|appuntament|prenotaz|visit)/.test(message);
+  const asksReminders = /(?:promemori|ricord).*(?:invia|fare|prepar|manc|domani)|(?:chi|quali|mostra|elenca).*(?:promemori|ricord)/.test(message);
+  const asksPendingActions = /(?:cosa|che).*(?:devo|c'e da|ce da).*(?:fare|gestire|chiudere)|azion[ei].*(?:pendent|operativ|oggi)|appuntament.*(?:da chiudere|rimast.*apert)/.test(message);
   const asksSummary = /riepilogo|come va(?: l)?(?: attivita|azienda|lavoro)|situazione(?: di oggi| attivita)?|panoramica/.test(message);
 
-  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksSummary) {
+  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksReminders && !asksPendingActions && !asksSummary) {
     return null;
   }
 
   const stats = buildCustomerStats(body);
   const today = todayRome();
   const todayTime = Date.parse(`${today}T12:00:00Z`);
+  const tomorrow = addDaysISO(today, 1);
+  const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
+  const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
+  const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
+
+  if (asksNoShows) {
+    const rows = appointments
+      .filter(appointment => ["no_show", "no-show", "assente"].includes(norm(appointment?.status)))
+      .sort((a, b) => `${appointmentDate(b)}${appointmentTime(b)}`.localeCompare(`${appointmentDate(a)}${appointmentTime(a)}`))
+      .slice(0, 10);
+    if (!rows.length) return `Non risultano assenze/no-show registrati.`;
+    return `Assenze/no-show registrati:\n` + rows.map(appointment =>
+      `• ${appointmentDate(appointment)} ${appointmentTime(appointment) || "--:--"} — ${appointmentName(appointment, clientsById) || "Senza nome"}${appointmentService(appointment) ? ` — ${appointmentService(appointment)}` : ""}`
+    ).join("\n");
+  }
+
+  if (asksReminders) {
+    const rows = appointments
+      .filter(appointment => appointmentConfirmed(appointment) && appointmentDate(appointment) === tomorrow && !appointment?.reminderSentAt)
+      .sort((a, b) => appointmentTime(a).localeCompare(appointmentTime(b)));
+    if (!rows.length) return `Non risultano promemoria da inviare per domani.`;
+    return `Promemoria da inviare per domani:\n` + rows.map(appointment =>
+      `• ${appointmentTime(appointment) || "--:--"} — ${appointmentName(appointment, clientsById) || "Senza nome"}${appointmentService(appointment) ? ` — ${appointmentService(appointment)}` : ""}`
+    ).join("\n");
+  }
+
+  if (asksPendingActions) {
+    const overdue = appointments.filter(appointment => appointmentConfirmed(appointment) && appointmentDate(appointment) < today);
+    const reminders = appointments.filter(appointment => appointmentConfirmed(appointment) && appointmentDate(appointment) === tomorrow && !appointment?.reminderSentAt);
+    return [
+      `Azioni operative pendenti:`,
+      `• ${appointmentPlural} passati da chiudere: ${overdue.length}`,
+      `• Promemoria da inviare per domani: ${reminders.length}`
+    ].join("\n");
+  }
 
   if (asksTodayAppointments || asksTomorrowAppointments) {
     const date = asksTomorrowAppointments ? addDaysISO(today, 1) : today;
@@ -341,13 +386,17 @@ export function ownerManagerInsight(body = {}) {
       const last = Date.parse(`${item.lastVisit}T12:00:00Z`);
       return Number.isFinite(last) && (todayTime - last) / 86400000 >= 60;
     }).length;
+    const noShows = appointments.filter(appointment => ["no_show", "no-show", "assente"].includes(norm(appointment?.status))).length;
+    const pendingReminders = appointments.filter(appointment => appointmentConfirmed(appointment) && appointmentDate(appointment) === tomorrow && !appointment?.reminderSentAt).length;
 
     return [
       `Riepilogo ${clean(body.business?.name) || "attività"}:`,
       `• ${appointmentPlural} oggi: ${todayAppointments.length}`,
       `• Visite/prestazioni registrate questo mese: ${monthVisits}`,
       `• Nuovi ${clientPlural.toLowerCase()} questo mese: ${newClients}`,
-      `• ${clientPlural} da recuperare (60+ giorni): ${inactive}`
+      `• ${clientPlural} da recuperare (60+ giorni): ${inactive}`,
+      `• Assenze/no-show registrati: ${noShows}`,
+      `• Promemoria da inviare per domani: ${pendingReminders}`
     ].join("\n");
   }
 
