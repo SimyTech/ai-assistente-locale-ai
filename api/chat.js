@@ -1433,15 +1433,14 @@ function mergeOwnerData(
         ? incoming.settings
         : server.settings,
 
+    /* Servizi e promozioni sono liste gestite dal titolare.
+     * Anche un array vuoto è una scelta valida (eliminazione
+     * dell'ultimo elemento) e deve quindi sostituire il server. */
     services:
-      incoming.services.length
-        ? incoming.services
-        : arr(server.services),
+      incoming.services,
 
     promotions:
-      incoming.promotions.length
-        ? incoming.promotions
-        : arr(server.promotions),
+      incoming.promotions,
 
     clients:
       mergeClients(
