@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142f">
+<title>Maviri — Verifica email</title>
+<style>
+:root{--n:#07142f;--t:#f6f8ff;--m:#9eafd0;--l:rgba(255,255,255,.1);--g:#39d98a;--grad:linear-gradient(135deg,#38a7ff,#875cff 52%,#39d98a)}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(circle at 15% 12%,rgba(56,167,255,.14),transparent 36%),radial-gradient(circle at 85% 15%,rgba(135,92,255,.14),transparent 35%),var(--n);color:var(--t)}body{display:grid;place-items:center;padding:22px}.card{width:min(560px,100%);background:rgba(8,25,55,.95);border:1px solid var(--l);border-radius:28px;padding:36px;box-shadow:0 30px 90px rgba(0,0,0,.35)}.brand{font-size:28px;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:22px}h1{margin:0 0 10px}.sub{color:var(--m);line-height:1.6}.state{margin:22px 0;padding:16px;border:1px solid var(--l);border-radius:16px;background:rgba(255,255,255,.035);line-height:1.55}.ok{color:#83edb7}.error{color:#ff9aaa}.actions{display:flex;gap:10px;flex-wrap:wrap}.actions a{flex:1;min-width:180px;text-align:center;text-decoration:none;color:#fff;padding:13px;border-radius:14px;background:var(--grad);font-weight:800}.actions a.alt{background:rgba(255,255,255,.07);border:1px solid var(--l)}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="brand">Maviri</div>
+  <h1>Verifica email</h1>
+  <p class="sub">Stiamo confermando l’indirizzo email associato al tuo account Maviri.</p>
+  <div id="state" class="state">Verifica in corso…</div>
+  <div class="actions"><a href="/login?switch=1">Vai all’accesso</a><a class="alt" href="/app">Apri Maviri</a></div>
+</main>
+<script>
+const state=document.getElementById("state");
+const token=(new URLSearchParams(location.search).get("token")||"").trim();
+(async()=>{
+  if(!token){state.textContent="Link di verifica non valido.";state.classList.add("error");return}
+  try{
+    const r=await fetch("/api/email-verification",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({token}),cache:"no-store"});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.verified)throw new Error(j.error||"Verifica non riuscita.");
+    try{
+      const raw=localStorage.getItem("MAVIRI_OWNER_ACCOUNT");
+      if(raw){const account=JSON.parse(raw);account.emailVerified=true;account.emailVerifiedAt=new Date().toISOString();localStorage.setItem("MAVIRI_OWNER_ACCOUNT",JSON.stringify(account))}
+    }catch{}
+    state.textContent="Email verificata correttamente. Il tuo account Maviri è confermato.";state.classList.add("ok");
+  }catch(err){state.textContent=err.message||"Il link è scaduto o non è più valido.";state.classList.add("error")}
+})();
+</script>
+</body>
+</html>

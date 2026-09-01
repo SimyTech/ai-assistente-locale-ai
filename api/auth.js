@@ -32,29 +32,15 @@ async function failedLoginLimited(req, res, tenantId, login = "") {
   const policy = rateLimitPolicy("auth");
   if (!policy || !redisUrl() || !redisToken()) return false;
 
-  const key = rateLimitKey({
-    tenantId,
-    action: "auth",
-    identity: loginIdentity(req, login)
-  });
-
+  const key = rateLimitKey({ tenantId, action: "auth", identity: loginIdentity(req, login) });
   try {
     const count = Number(await redisCommand("INCR", key));
-    if (count === 1) {
-      await redisCommand("EXPIRE", key, String(policy.windowSeconds));
-    }
-
+    if (count === 1) await redisCommand("EXPIRE", key, String(policy.windowSeconds));
     res.setHeader("X-RateLimit-Limit", String(policy.limit));
     res.setHeader("X-RateLimit-Remaining", String(Math.max(0, policy.limit - count)));
-
     if (count <= policy.limit) return false;
-
     res.setHeader("Retry-After", String(policy.windowSeconds));
-    res.status(429).json({
-      ok: false,
-      authenticated: false,
-      error: "Troppi tentativi di accesso. Riprova più tardi."
-    });
+    res.status(429).json({ ok: false, authenticated: false, error: "Troppi tentativi di accesso. Riprova più tardi." });
     return true;
   } catch (error) {
     console.error("MAVIRI AUTH RATE LIMIT ERROR:", error);
@@ -64,28 +50,16 @@ async function failedLoginLimited(req, res, tenantId, login = "") {
 
 async function clearFailedLogins(req, tenantId, login = "") {
   if (!redisUrl() || !redisToken()) return;
-  const key = rateLimitKey({
-    tenantId,
-    action: "auth",
-    identity: loginIdentity(req, login)
-  });
-  try {
-    await redisCommand("DEL", key);
-  } catch (error) {
-    console.error("MAVIRI AUTH RATE LIMIT RESET ERROR:", error);
-  }
+  const key = rateLimitKey({ tenantId, action: "auth", identity: loginIdentity(req, login) });
+  try { await redisCommand("DEL", key); } catch (error) { console.error("MAVIRI AUTH RATE LIMIT RESET ERROR:", error); }
 }
 
 async function authenticateAccount(login, password) {
   const configured = authenticateOwnerAccount({ login, password });
   if (configured) return configured;
   if (!redisUrl() || !redisToken()) return null;
-  try {
-    return await authenticateStoredOwnerAccount({ login, password });
-  } catch (error) {
-    console.error("MAVIRI STORED ACCOUNT AUTH ERROR:", error);
-    return null;
-  }
+  try { return await authenticateStoredOwnerAccount({ login, password }); }
+  catch (error) { console.error("MAVIRI STORED ACCOUNT AUTH ERROR:", error); return null; }
 }
 
 export default async function handler(req, res) {
@@ -95,25 +69,17 @@ export default async function handler(req, res) {
 
   const body = req.body && typeof req.body === "object" ? req.body : {};
   const requestedTenant = explicitTenantId(req, body);
-  if (requestedTenant && !isValidTenantId(requestedTenant)) {
-    return res.status(400).json({ ok: false, error: "Identificativo attività non valido." });
-  }
+  if (requestedTenant && !isValidTenantId(requestedTenant)) return res.status(400).json({ ok: false, error: "Identificativo attività non valido." });
   const resolvedTenant = resolveTenantId(req, body);
 
   if (req.method === "GET") {
     const authenticated = ownerAuthorized(req, resolvedTenant);
-    return res.status(authenticated ? 200 : 401).json({
-      ok: authenticated,
-      authenticated,
-      tenantId: resolvedTenant
-    });
+    return res.status(authenticated ? 200 : 401).json({ ok: authenticated, authenticated, tenantId: resolvedTenant });
   }
-
   if (req.method === "DELETE") {
     res.setHeader("Set-Cookie", clearSessionCookie());
     return res.status(200).json({ ok: true, authenticated: false });
   }
-
   if (req.method !== "POST") {
     res.setHeader("Allow", "GET, POST, DELETE");
     return res.status(405).json({ ok: false, error: "Metodo non consentito." });
@@ -122,27 +88,19 @@ export default async function handler(req, res) {
   const login = String(body.username || body.email || body.login || "").trim();
   const password = String(body.password || "");
   const usingAccountCredentials = Boolean(login || password);
-
   let tenantId = resolvedTenant;
   let account = null;
 
   if (usingAccountCredentials) {
     account = await authenticateAccount(login, password);
-
     if (!account) {
       if (await failedLoginLimited(req, res, tenantId, login)) return;
       return res.status(401).json({ ok: false, authenticated: false, error: "Credenziali non valide." });
     }
-
     tenantId = account.tenantId;
-
     if (requestedTenant && normalizeTenantId(requestedTenant, "") !== tenantId) {
       if (await failedLoginLimited(req, res, tenantId, login)) return;
-      return res.status(403).json({
-        ok: false,
-        authenticated: false,
-        error: "L'account non appartiene all'attività richiesta."
-      });
+      return res.status(403).json({ ok: false, authenticated: false, error: "L'account non appartiene all'attività richiesta." });
     }
   } else {
     const token = String(body.token || "").trim();
@@ -154,16 +112,9 @@ export default async function handler(req, res) {
   }
 
   await clearFailedLogins(req, tenantId, login);
-
   const tenantToken = ownerTokenForTenant(tenantId);
   const secret = sessionSecretForTenant(tenantId, process.env, tenantToken);
-  if (!secret) {
-    return res.status(503).json({
-      ok: false,
-      authenticated: false,
-      error: "Sessioni Maviri non configurate."
-    });
-  }
+  if (!secret) return res.status(503).json({ ok: false, authenticated: false, error: "Sessioni Maviri non configurate." });
 
   const session = createSession({ tenantId, secret });
   res.setHeader("Set-Cookie", sessionCookie(session));
@@ -176,7 +127,9 @@ export default async function handler(req, res) {
       username: account.username,
       email: account.email,
       displayName: account.displayName,
-      role: account.role
+      role: account.role,
+      emailVerified: account.emailVerified === true,
+      emailVerifiedAt: account.emailVerifiedAt || ""
     } : null,
     legacyTokenLogin: !account
   });

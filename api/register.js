@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { ownerAccounts } from "../lib/accounts.js";
 import { createStoredOwnerAccount } from "../lib/account-store.js";
+import { emailVerificationConfigured, requestEmailVerification } from "../lib/email-verification.js";
 import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
 import { createSession, sessionCookie, sessionSecretForTenant } from "../lib/session.js";
 import { normalizeTenantId } from "../lib/tenant.js";
@@ -120,6 +121,16 @@ export default async function handler(req, res) {
       return res.status(409).json({ ok: false, error: "Esiste già un account con questa email." });
     }
 
+    let verificationSent = false;
+    if (emailVerificationConfigured()) {
+      try {
+        const verification = await requestEmailVerification(email);
+        verificationSent = verification.sent === true;
+      } catch (error) {
+        console.error("MAVIRI REGISTER EMAIL VERIFY ERROR:", error);
+      }
+    }
+
     const secret = sessionSecretForTenant(tenantId);
     const session = createSession({ tenantId, secret });
     res.setHeader("Set-Cookie", sessionCookie(session));
@@ -129,6 +140,8 @@ export default async function handler(req, res) {
       authenticated: true,
       tenantId,
       needsSetup: true,
+      needsEmailVerification: true,
+      emailVerificationSent: verificationSent,
       account: result.account,
       businessName
     });

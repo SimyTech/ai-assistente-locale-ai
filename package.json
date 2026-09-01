@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check api/auth.js && node --check api/register.js && node --check api/activity-profile.js && node --check api/account.js && node --check api/password-reset.js && node --check api/chat.js && node --check api/chat-proxy.js && node --check api/chat-entry.js && node --check api/whatsapp.js && node --check api/whatsapp-proxy.js && node --check api/health.js && node --check lib/accounts.js && node --check lib/account-store.js && node --check lib/account-recovery.js && node --check lib/activity-profile.js && node --check lib/adaptive-ui.js && node --check lib/webhook-signature.js && node --check mavi-engine.js",
+    "check": "node --check api/auth.js && node --check api/register.js && node --check api/activity-profile.js && node --check api/account.js && node --check api/password-reset.js && node --check api/email-verification.js && node --check api/chat.js && node --check api/chat-proxy.js && node --check api/chat-entry.js && node --check api/whatsapp.js && node --check api/whatsapp-proxy.js && node --check api/health.js && node --check lib/accounts.js && node --check lib/account-store.js && node --check lib/account-recovery.js && node --check lib/email-verification.js && node --check lib/activity-profile.js && node --check lib/adaptive-ui.js && node --check lib/webhook-signature.js && node --check mavi-engine.js",
     "test": "node --test",
     "verify": "npm run check && npm test",
     "hash-password": "node scripts/hash-password.js"
