@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { ownerAccounts } from "../lib/accounts.js";
 import { createStoredOwnerAccount } from "../lib/account-store.js";
 import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
 import { createSession, sessionCookie, sessionSecretForTenant } from "../lib/session.js";
@@ -40,6 +41,13 @@ function tenantForBusiness(name) {
 
 function validEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean(value).toLowerCase());
+}
+
+function configuredLoginExists(login) {
+  const target = clean(login).toLowerCase();
+  return ownerAccounts().some(account =>
+    account.username === target || account.email === target
+  );
 }
 
 async function enforceRegistrationLimit(req, res) {
@@ -95,6 +103,9 @@ export default async function handler(req, res) {
     }
     if (password.length < 10 || password.length > 200) {
       return res.status(400).json({ ok: false, error: "La password deve contenere almeno 10 caratteri." });
+    }
+    if (configuredLoginExists(email)) {
+      return res.status(409).json({ ok: false, error: "Esiste già un account con questa email." });
     }
 
     const tenantId = tenantForBusiness(businessName);
