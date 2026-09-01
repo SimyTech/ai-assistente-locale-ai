@@ -9,7 +9,7 @@
 html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
 #gate{position:fixed;inset:0;display:grid;place-items:center;color:#dfe7ff;font-size:14px;background:#07142f;z-index:5}
 .context{height:48px;display:none;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.08);background:#091a39;color:#f6f8ff}
-.context strong{font-size:13px}.context span{font-size:11px;color:#9eafd0;margin-left:8px}.context-actions{display:flex;align-items:center;gap:12px;white-space:nowrap}.context a{color:#9fcfff;text-decoration:none;font-size:12px;touch-action:manipulation}.context a:hover{text-decoration:underline}
+.context strong{font-size:13px}.context span{font-size:11px;color:#9eafd0;margin-left:8px}.context-actions{display:flex;align-items:center;gap:12px;white-space:nowrap}.context a{color:#9fcfff;text-decoration:none;font-size:12px;touch-action:manipulation}.context a:hover{text-decoration:underline}.context a.verify{color:#ffd07c}.hidden{display:none!important}
 #appFrame{width:100%;height:100%;border:0;display:none;background:#07142f;pointer-events:auto;touch-action:auto}
 .ready #appFrame{height:calc(100% - 48px)}
 @media(max-width:650px){.context span{display:none}.context{padding:0 12px}.context-actions{gap:9px}.context a{font-size:11px}}
@@ -17,7 +17,7 @@ html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden;fon
 </head>
 <body>
 <div id="gate">Apertura del tuo spazio Maviri…</div>
-<div id="context" class="context"><div><strong id="activityName">Maviri</strong><span id="activitySummary"></span></div><div class="context-actions"><a href="/account" aria-label="Gestisci account">Account</a><a href="/setup">Configura attività</a></div></div>
+<div id="context" class="context"><div><strong id="activityName">Maviri</strong><span id="activitySummary"></span></div><div class="context-actions"><a id="verifyEmailLink" class="verify hidden" href="/account">Verifica email</a><a href="/account" aria-label="Gestisci account">Account</a><a href="/setup">Configura attività</a></div></div>
 <iframe id="appFrame" title="Maviri"></iframe>
 <script type="module">
 import { adaptiveDashboardPlan } from "/lib/adaptive-ui.js";
@@ -31,6 +31,7 @@ const LEGACY_DATA_KEYS=["maviri_app_data_v7","maviri_app_data_v6","maviri_app_da
 const gate=document.getElementById("gate");
 const frame=document.getElementById("appFrame");
 const context=document.getElementById("context");
+const verifyEmailLink=document.getElementById("verifyEmailLink");
 let profile=null;
 let plan=null;
 let adaptiveObserver=null;
@@ -59,12 +60,18 @@ async function api(path){
     return r.ok?j:null;
   }catch{return null}
 }
-async function verify(){const j=await api("/api/auth");return Boolean(j&&j.authenticated===true)}
+async function verify(){return await api("/api/auth")}
 async function loadProfile(){
   const j=await api("/api/activity-profile");
   if(!j)return null;
   if(!j.configured){location.replace("/setup");return null}
   return j.profile||null;
+}
+function syncAccountFromAuth(auth){
+  const account=auth&&auth.account&&typeof auth.account==="object"?auth.account:null;
+  if(!account)return;
+  localStorage.setItem(ACCOUNT_KEY,JSON.stringify(account));
+  verifyEmailLink.classList.toggle("hidden",account.emailVerified===true);
 }
 
 function installApiBridge(){
@@ -216,8 +223,10 @@ frame.addEventListener("load",()=>{
   gate.style.display="none";
 });
 (async()=>{
-  if(!(await verify())){clearLocalAuth();location.replace("/");return}
+  const auth=await verify();
+  if(!auth||auth.authenticated!==true){clearLocalAuth();location.replace("/");return}
   localStorage.setItem(AUTH_KEY,"true");
+  syncAccountFromAuth(auth);
   guardTenantCache();
   profile=await loadProfile();
   if(!profile)return;
