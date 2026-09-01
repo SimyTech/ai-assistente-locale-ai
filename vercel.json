@@ -21,6 +21,10 @@
       "destination": "/setup.html"
     },
     {
+      "source": "/account",
+      "destination": "/account.html"
+    },
+    {
       "source": "/api/chat",
       "destination": "/api/chat-entry"
     },
@@ -56,6 +60,12 @@
     },
     {
       "source": "/setup",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/account",
       "headers": [
         { "key": "Cache-Control", "value": "no-store, max-age=0" }
       ]
