@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142f">
+<title>Maviri — Account</title>
+<style>
+:root{--n:#07142f;--n2:#0b1d40;--t:#f6f8ff;--m:#9eafd0;--l:rgba(255,255,255,.1);--b:#38a7ff;--v:#875cff;--g:#39d98a;--d:#ff6679;--grad:linear-gradient(135deg,#38a7ff,#875cff 52%,#39d98a)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(circle at 12% 10%,rgba(56,167,255,.14),transparent 35%),radial-gradient(circle at 88% 14%,rgba(135,92,255,.14),transparent 35%),var(--n);color:var(--t)}
+body{padding:24px}.shell{width:min(760px,100%);margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}.brand{font-size:28px;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.back{color:#9fcfff;text-decoration:none;font-size:13px}.card{background:rgba(8,25,55,.95);border:1px solid var(--l);border-radius:24px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.3);margin-bottom:18px}.card h1,.card h2{margin:0 0 8px}.sub{color:var(--m);line-height:1.55;margin:0 0 22px}.info{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}.info div{background:rgba(255,255,255,.035);border:1px solid var(--l);border-radius:14px;padding:13px}.info small{display:block;color:var(--m);margin-bottom:5px}.field{display:grid;gap:7px;margin-bottom:14px}.field label{font-size:12px;color:var(--m)}input{width:100%;border:1px solid var(--l);border-radius:14px;background:#091a39;color:#fff;padding:14px 15px;outline:none;font-size:15px}input:focus{border-color:rgba(56,167,255,.75);box-shadow:0 0 0 3px rgba(56,167,255,.08)}button{width:100%;border:0;border-radius:14px;padding:14px 16px;color:#fff;background:var(--grad);font-weight:800;font-size:15px;cursor:pointer}button:disabled{opacity:.55;cursor:wait}.msg{min-height:22px;margin-top:14px;font-size:13px;color:var(--m)}.msg.error{color:#ff9aaa}.msg.ok{color:#83edb7}.note{font-size:12px;color:var(--m);line-height:1.55}.hidden{display:none!important}@media(max-width:620px){body{padding:16px}.card{padding:20px}.info{grid-template-columns:1fr}.top{align-items:flex-start}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="top"><div class="brand">Maviri</div><a class="back" href="/app">← Torna a Maviri</a></div>
+  <section class="card">
+    <h1>Il tuo account</h1>
+    <p class="sub">Gestisci in modo sicuro l'accesso alla tua attività.</p>
+    <div class="info">
+      <div><small>Account</small><strong id="accountName">—</strong></div>
+      <div><small>Email</small><strong id="accountEmail">—</strong></div>
+    </div>
+    <p id="legacyNotice" class="note hidden">Questo account usa ancora l'accesso tecnico precedente. Il cambio password sarà disponibile dopo la migrazione a un account Maviri.</p>
+  </section>
+
+  <section class="card" id="passwordCard">
+    <h2>Cambia password</h2>
+    <p class="sub">La nuova password deve avere almeno 10 caratteri.</p>
+    <form id="passwordForm">
+      <div class="field"><label for="currentPassword">Password attuale</label><input id="currentPassword" type="password" autocomplete="current-password" required></div>
+      <div class="field"><label for="newPassword">Nuova password</label><input id="newPassword" type="password" autocomplete="new-password" minlength="10" required></div>
+      <div class="field"><label for="confirmPassword">Ripeti nuova password</label><input id="confirmPassword" type="password" autocomplete="new-password" minlength="10" required></div>
+      <button id="saveBtn" type="submit">Aggiorna password</button>
+      <div id="message" class="msg" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Recupero password</h2>
+    <p class="note">Il recupero automatico via email verrà attivato quando sarà collegato il servizio email transazionale. Per sicurezza Maviri non usa domande segrete né password temporanee mostrate nell'app.</p>
+  </section>
+</main>
+<script>
+const AUTH_KEY="MAVIRI_OWNER_AUTHENTICATED";
+const TENANT_KEY="MAVIRI_TENANT_ID";
+const ACCOUNT_KEY="MAVIRI_OWNER_ACCOUNT";
+const $=id=>document.getElementById(id);
+function tenant(){return(localStorage.getItem(TENANT_KEY)||"").trim()}
+function account(){try{return JSON.parse(localStorage.getItem(ACCOUNT_KEY)||"null")}catch{return null}}
+function msg(text,type=""){const el=$("message");el.textContent=text||"";el.className="msg"+(type?" "+type:"")}
+async function verify(){
+  const t=tenant();if(!t)return false;
+  try{const r=await fetch("/api/auth",{headers:{"x-maviri-tenant":t},credentials:"same-origin",cache:"no-store"});return r.ok&&Boolean((await r.json()).authenticated)}catch{return false}
+}
+(async()=>{
+  if(!(await verify())){localStorage.removeItem(AUTH_KEY);location.replace("/");return}
+  const a=account();
+  if(!a){$("passwordCard").classList.add("hidden");$("legacyNotice").classList.remove("hidden");return}
+  $("accountName").textContent=a.displayName||a.username||"Titolare";
+  $("accountEmail").textContent=a.email||a.username||"—";
+})();
+$("passwordForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const a=account();if(!a){msg("Account non modificabile da questa schermata.","error");return}
+  const currentPassword=$("currentPassword").value;
+  const newPassword=$("newPassword").value;
+  const confirmPassword=$("confirmPassword").value;
+  if(newPassword.length<10){msg("La nuova password deve contenere almeno 10 caratteri.","error");return}
+  if(newPassword!==confirmPassword){msg("Le due nuove password non coincidono.","error");return}
+  const btn=$("saveBtn");btn.disabled=true;msg("Aggiornamento password…");
+  try{
+    const r=await fetch("/api/account",{method:"POST",headers:{"Content-Type":"application/json","x-maviri-tenant":tenant()},credentials:"same-origin",body:JSON.stringify({action:"change-password",login:a.email||a.username,currentPassword,newPassword})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.ok)throw new Error(j.error||"Aggiornamento non riuscito.");
+    $("passwordForm").reset();msg("Password aggiornata correttamente.","ok");
+  }catch(err){msg(err.message||"Aggiornamento non riuscito.","error")}
+  finally{btn.disabled=false}
+});
+</script>
+</body>
+</html>
