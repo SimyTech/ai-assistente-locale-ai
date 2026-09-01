@@ -14,7 +14,7 @@ test("la root Maviri passa dalla schermata di accesso", async () => {
   assert.equal(routes.get("/register"), "/register.html");
   assert.equal(routes.get("/app"), "/app.html");
   assert.equal(routes.get("/setup"), "/setup.html");
-  assert.equal(routes.get("/api/chat"), "/api/chat-proxy");
+  assert.equal(routes.get("/api/chat"), "/api/chat-entry");
   assert.equal(routes.get("/api/whatsapp"), "/api/whatsapp-proxy");
 });
 
