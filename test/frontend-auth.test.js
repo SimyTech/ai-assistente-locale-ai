@@ -13,6 +13,7 @@ test("la root Maviri passa dalla schermata di accesso", async () => {
   assert.equal(routes.get("/app"), "/app.html");
   assert.equal(routes.get("/setup"), "/setup.html");
   assert.equal(routes.get("/api/chat"), "/api/chat-proxy");
+  assert.equal(routes.get("/api/whatsapp"), "/api/whatsapp-proxy");
 });
 
 test("il login usa credenziali account e salva il tenant restituito dal server", async () => {
@@ -34,6 +35,15 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /adaptiveDashboardPlan\(profile\)/);
   assert.match(html, /frame\.src="\/index\.html"/);
   assert.match(html, /ownerSyncToken/);
+});
+
+test("il bridge autenticato forza tenant e profilo su Mavi", async () => {
+  const html = await text("app.html");
+  assert.match(html, /function installApiBridge/);
+  assert.match(html, /headers\.set\("x-maviri-tenant",t\)/);
+  assert.match(html, /payload\.tenantId=t/);
+  assert.match(html, /payload\.activityProfile=profile/);
+  assert.match(html, /credentials:init\.credentials\|\|"same-origin"/);
 });
 
 test("la dashboard adatta navigazione e moduli al modo di lavorare", async () => {
