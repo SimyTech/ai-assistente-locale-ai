@@ -5,6 +5,10 @@
       "destination": "/login.html"
     },
     {
+      "source": "/register",
+      "destination": "/register.html"
+    },
+    {
       "source": "/app",
       "destination": "/app.html"
     },
