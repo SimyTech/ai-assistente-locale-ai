@@ -24,16 +24,27 @@ test("il login usa credenziali account e salva il tenant restituito dal server",
   assert.match(html, /location\.replace\("\/app"\)/);
 });
 
-test("la dashboard autenticata verifica sessione e configurazione attività", async () => {
+test("la dashboard verifica sessione e carica il profilo prima di mostrare index", async () => {
   const html = await text("app.html");
-  assert.match(html, /fetch\("\/api\/auth"/);
-  assert.match(html, /fetch\("\/api\/activity-profile"/);
+  assert.match(html, /api\("\/api\/auth"\)/);
+  assert.match(html, /api\("\/api\/activity-profile"\)/);
   assert.match(html, /x-maviri-tenant/);
   assert.match(html, /if\(!\(await verify\(\)\)\)/);
-  assert.match(html, /if\(!\(await activityConfigured\(\)\)\)/);
-  assert.match(html, /location\.replace\("\/setup"\)/);
+  assert.match(html, /if\(!j\.configured\)\{location\.replace\("\/setup"\)/);
+  assert.match(html, /adaptiveDashboardPlan\(profile\)/);
+  assert.match(html, /frame\.src="\/index\.html"/);
   assert.match(html, /ownerSyncToken/);
-  assert.match(html, /field\.style\.display="none"/);
+});
+
+test("la dashboard adatta navigazione e moduli al modo di lavorare", async () => {
+  const html = await text("app.html");
+  assert.match(html, /reorderNavigation/);
+  assert.match(html, /adaptLabels/);
+  assert.match(html, /adaptCapabilities/);
+  assert.match(html, /plan\.visible\.calendar/);
+  assert.match(html, /plan\.labels\.clients/);
+  assert.match(html, /plan\.labels\.appointments/);
+  assert.match(html, /Configura attività/);
 });
 
 test("l'onboarding non impone un solo settore o l'uso dell'agenda", async () => {
