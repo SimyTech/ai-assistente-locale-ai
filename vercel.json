@@ -14,9 +14,6 @@
     { "source": "/api/readiness", "destination": "/api/health?mode=readiness" },
     { "source": "/api/reminders", "destination": "/api/health?mode=reminders" }
   ],
-  "crons": [
-    { "path": "/api/reminders", "schedule": "*/15 * * * *" }
-  ],
   "headers": [
     { "source": "/", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
     { "source": "/login", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
