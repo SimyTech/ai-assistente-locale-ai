@@ -38,20 +38,28 @@ test("readiness è completa quando tutte le dipendenze di lancio sono configurat
     WHATSAPP_ACCESS_TOKEN: "wa-token",
     WHATSAPP_PHONE_NUMBER_ID: "123",
     WHATSAPP_APP_SECRET: "app-secret",
-    EMAIL_PROVIDER: "resend",
     RESEND_API_KEY: "resend-key",
-    EMAIL_FROM: "Maviri <noreply@example.com>"
+    MAVIRI_EMAIL_FROM: "Maviri <noreply@example.com>",
+    MAVIRI_PUBLIC_URL: "https://maviri.example"
   });
   assert.equal(result.ready, true);
   assert.equal(result.integrationsReady, true);
   assert.deepEqual(result.blockers, []);
+  assert.equal(result.checks.email.provider, "resend");
 });
 
-test("provider email webhook è pronto con URL configurato", () => {
-  const checks = readinessChecks({
-    EMAIL_PROVIDER: "webhook",
-    EMAIL_WEBHOOK_URL: "https://example.com/mail"
+test("readiness email richiede la stessa configurazione usata dal recupero password", () => {
+  const incomplete = readinessChecks({
+    RESEND_API_KEY: "resend-key",
+    MAVIRI_EMAIL_FROM: "Maviri <noreply@example.com>"
   });
-  assert.equal(checks.email.ready, true);
-  assert.equal(checks.email.provider, "webhook");
+  assert.equal(incomplete.email.ready, false);
+
+  const complete = readinessChecks({
+    RESEND_API_KEY: "resend-key",
+    MAVIRI_EMAIL_FROM: "Maviri <noreply@example.com>",
+    MAVIRI_PUBLIC_URL: "https://maviri.example"
+  });
+  assert.equal(complete.email.ready, true);
+  assert.equal(complete.email.provider, "resend");
 });
