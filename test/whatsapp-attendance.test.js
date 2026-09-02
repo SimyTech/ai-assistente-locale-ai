@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-test("WhatsApp registra la conferma di presenza senza confonderla con una prenotazione", async () => {
+test("WhatsApp registra la conferma di presenza senza confonderla con prenotazioni o riprogrammazioni", async () => {
   const [chat, whatsapp] = await Promise.all([
     readFile(new URL("../api/chat.js", import.meta.url), "utf8"),
     readFile(new URL("../api/whatsapp.js", import.meta.url), "utf8")
@@ -10,5 +10,7 @@ test("WhatsApp registra la conferma di presenza senza confonderla con una prenot
   assert.match(chat, /action === "confirm-attendance"/);
   assert.match(chat, /clientConfirmedAt: confirmedAt/);
   assert.match(whatsapp, /function confirmRequestedAttendance/);
-  assert.match(whatsapp, /normalizeBooking\(session\.booking\)\.status \|\| !isConfirmation\(text\)/);
+  assert.match(whatsapp, /normalizeBooking\(session\.booking\)\.status/);
+  assert.match(whatsapp, /normalizeReschedule\(session\.reschedule\)\.status/);
+  assert.match(whatsapp, /!isConfirmation\(text\)/);
 });

@@ -10,7 +10,14 @@ import {
   whatsappSessionKey
 } from "../lib/whatsapp-tenant.js";
 import { tenantDataKey } from "../lib/tenant.js";
-import { resolveClientCancellation } from "../lib/whatsapp-cancellation.js";
+import { listClientAppointments, resolveClientCancellation } from "../lib/whatsapp-cancellation.js";
+import {
+  extractRescheduleDate,
+  extractRescheduleTime,
+  isRescheduleRequest,
+  normalizeReschedule,
+  selectCandidateByNumber
+} from "../lib/whatsapp-reschedule.js";
 import {
   awaitingField,
   bookingComplete,
@@ -77,7 +84,8 @@ async function loadSession(tenantId, phone) {
       tenantId,
       sessionId: sessionId(tenantId, phone),
       history: [],
-      booking: normalizeBooking()
+      booking: normalizeBooking(),
+      reschedule: normalizeReschedule()
     };
   }
 
@@ -86,7 +94,8 @@ async function loadSession(tenantId, phone) {
     tenantId,
     sessionId: clean(stored.sessionId) || sessionId(tenantId, phone),
     history: Array.isArray(stored.history) ? stored.history.slice(-MAX_HISTORY) : [],
-    booking: normalizeBooking(stored.booking)
+    booking: normalizeBooking(stored.booking),
+    reschedule: normalizeReschedule(stored.reschedule)
   };
 }
 
@@ -98,7 +107,8 @@ async function saveSession(tenantId, phone, session) {
       tenantId,
       sessionId: clean(session.sessionId) || sessionId(tenantId, phone),
       history: Array.isArray(session.history) ? session.history.slice(-MAX_HISTORY) : [],
-      booking: normalizeBooking(session.booking)
+      booking: normalizeBooking(session.booking),
+      reschedule: normalizeReschedule(session.reschedule)
     },
     SESSION_TTL
   );
@@ -174,7 +184,12 @@ async function businessApi(req, tenantId, payload) {
     body: JSON.stringify({ tenantId, role: "client", mode: "client", channel: "whatsapp", source: "whatsapp", ...payload })
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok || data?.ok === false) throw new Error(data?.error || `Mavi HTTP ${response.status}`);
+  if (!response.ok || data?.ok === false) {
+    const error = new Error(data?.error || `Mavi HTTP ${response.status}`);
+    error.status = response.status;
+    error.payload = data;
+    throw error;
+  }
   return data;
 }
 
@@ -304,8 +319,166 @@ function todayRome() {
   }).format(new Date());
 }
 
+function appointmentLabel(appointment, index = null) {
+  const prefix = index === null ? "" : `${index + 1}) `;
+  return `${prefix}${clean(appointment.date)} alle ${clean(appointment.time)} — ${clean(appointment.service)}`;
+}
+
+async function continueReschedule(req, { tenantId, phone, text, session }) {
+  let state = normalizeReschedule(session.reschedule);
+  const key = tenantDataKey(tenantId);
+  const data = await redisGet(key);
+  if (!data || typeof data !== "object") return null;
+
+  const matches = listClientAppointments(data.appointments, { phone, whatsapp: phone }, todayRome());
+  const byId = new Map(matches.map(item => [String(item.id), item]));
+
+  if (state.status) {
+    if (isCancellation(text)) {
+      session.reschedule = normalizeReschedule();
+      return { reply: "Va bene, non sposto l’appuntamento.", bookingHandled: true };
+    }
+
+    if (state.status === "selecting-appointment") {
+      const selectedId = selectCandidateByNumber(state.candidates, text);
+      const selected = byId.get(String(selectedId));
+      if (!selected) {
+        const options = state.candidates.map((id, index) => appointmentLabel(byId.get(String(id)) || {}, index)).join("; ");
+        return { reply: `Indicami il numero dell’appuntamento da spostare: ${options}.`, bookingHandled: true };
+      }
+      state = { ...state, status: "collecting-date", appointmentId: String(selected.id), candidates: [] };
+      session.reschedule = state;
+      return { reply: `Va bene. A quale giorno vuoi spostare ${appointmentLabel(selected)}?`, bookingHandled: true };
+    }
+
+    const current = byId.get(String(state.appointmentId));
+    if (!current) {
+      session.reschedule = normalizeReschedule();
+      return { reply: "Non trovo più l’appuntamento da spostare. Potrebbe essere già stato modificato o annullato.", bookingHandled: true };
+    }
+
+    const requestedDate = extractRescheduleDate(text, todayRome());
+    const requestedTime = extractRescheduleTime(text);
+    if (requestedDate) {
+      state.date = requestedDate;
+      if (!requestedTime) state.time = "";
+    }
+    if (requestedTime) state.time = requestedTime;
+
+    if (!state.date) {
+      state.status = "collecting-date";
+      session.reschedule = state;
+      return { reply: "A quale giorno vuoi spostare l’appuntamento?", bookingHandled: true };
+    }
+
+    if (!state.time) {
+      state.status = "collecting-time";
+      session.reschedule = state;
+      const availability = await businessApi(req, tenantId, {
+        action: "availability",
+        date: state.date,
+        service: current.service
+      });
+      const slots = Array.isArray(availability.slots) ? availability.slots : [];
+      return {
+        reply: slots.length
+          ? `Per il ${state.date} sono disponibili: ${slots.join(", ")}. Quale orario preferisci?`
+          : `Per il ${state.date} non risultano orari disponibili. Indicami un altro giorno.`,
+        bookingHandled: true
+      };
+    }
+
+    try {
+      const result = await businessApi(req, tenantId, {
+        action: "update",
+        id: current.id,
+        date: state.date,
+        time: state.time,
+        service: current.service,
+        name: current.name,
+        phone,
+        whatsapp: phone,
+        email: current.email,
+        notes: current.notes,
+        status: current.status || "confirmed"
+      });
+      session.reschedule = normalizeReschedule();
+      return {
+        reply: `Fatto. Ho spostato l’appuntamento di ${clean(current.service)} al ${clean(result.appointment?.date || state.date)} alle ${clean(result.appointment?.time || state.time)}.`,
+        bookingHandled: true,
+        appointment: result.appointment || null
+      };
+    } catch (error) {
+      if (Number(error.status) === 409) {
+        const slots = Array.isArray(error.payload?.availableSlots) ? error.payload.availableSlots : [];
+        state.time = "";
+        state.status = "collecting-time";
+        session.reschedule = state;
+        return {
+          reply: slots.length
+            ? `Quell’orario non è disponibile. Per il ${state.date} puoi scegliere: ${slots.join(", ")}.`
+            : `Quell’orario non è disponibile. Indicami un altro giorno o orario.`,
+          bookingHandled: true
+        };
+      }
+      throw error;
+    }
+  }
+
+  if (!isRescheduleRequest(text) || normalizeBooking(session.booking).status) return null;
+
+  if (!matches.length) {
+    return { reply: "Non risultano appuntamenti futuri da spostare per questo numero WhatsApp.", bookingHandled: true };
+  }
+
+  if (matches.length > 1) {
+    session.reschedule = {
+      status: "selecting-appointment",
+      appointmentId: "",
+      date: "",
+      time: "",
+      candidates: matches.slice(0, 5).map(item => String(item.id))
+    };
+    const options = matches.slice(0, 5).map((item, index) => appointmentLabel(item, index)).join("; ");
+    return { reply: `Quale appuntamento vuoi spostare? Rispondi con il numero: ${options}.`, bookingHandled: true };
+  }
+
+  const current = matches[0];
+  state = {
+    status: "collecting-date",
+    appointmentId: String(current.id),
+    date: extractRescheduleDate(text, todayRome()),
+    time: extractRescheduleTime(text),
+    candidates: []
+  };
+  session.reschedule = state;
+
+  if (!state.date) {
+    return { reply: `A quale giorno vuoi spostare ${appointmentLabel(current)}?`, bookingHandled: true };
+  }
+
+  if (!state.time) {
+    const availability = await businessApi(req, tenantId, {
+      action: "availability",
+      date: state.date,
+      service: current.service
+    });
+    const slots = Array.isArray(availability.slots) ? availability.slots : [];
+    state.status = "collecting-time";
+    session.reschedule = state;
+    return {
+      reply: slots.length
+        ? `Per il ${state.date} sono disponibili: ${slots.join(", ")}. Quale orario preferisci?`
+        : `Per il ${state.date} non risultano orari disponibili. Indicami un altro giorno.`,
+      bookingHandled: true
+    };
+  }
+
+  return continueReschedule(req, { tenantId, phone, text: `${state.date} alle ${state.time}`, session });
+}
+
 async function cancelRequestedAppointment({ tenantId, phone, text, session }) {
-  if (normalizeBooking(session.booking).status || !isCancellation(text)) return null;
+  if (normalizeBooking(session.booking).status || normalizeReschedule(session.reschedule).status || !isCancellation(text)) return null;
   const key = tenantDataKey(tenantId);
   const data = await redisGet(key);
   if (!data || typeof data !== "object") return null;
@@ -358,7 +531,7 @@ async function cancelRequestedAppointment({ tenantId, phone, text, session }) {
 }
 
 async function confirmRequestedAttendance(req, { tenantId, phone, text, session }) {
-  if (normalizeBooking(session.booking).status || !isConfirmation(text)) return null;
+  if (normalizeBooking(session.booking).status || normalizeReschedule(session.reschedule).status || !isConfirmation(text)) return null;
   try {
     const result = await businessApi(req, tenantId, {
       action: "confirm-attendance",
@@ -434,7 +607,8 @@ export default async function handler(req, res) {
 
     addHistory(session, "user", text);
 
-    let responsePayload = await cancelRequestedAppointment({ tenantId, phone, text, session });
+    let responsePayload = await continueReschedule(req, { tenantId, phone, text, session });
+    if (!responsePayload) responsePayload = await cancelRequestedAppointment({ tenantId, phone, text, session });
     if (!responsePayload) responsePayload = await confirmRequestedAttendance(req, { tenantId, phone, text, session });
     if (!responsePayload) responsePayload = await continueBooking(req, { tenantId, phone, text, profileName, session });
 
@@ -456,6 +630,7 @@ export default async function handler(req, res) {
       messageId,
       phone,
       booking: normalizeBooking(session.booking),
+      reschedule: normalizeReschedule(session.reschedule),
       appointment: responsePayload.appointment || null,
       reply: responsePayload.reply
     });
