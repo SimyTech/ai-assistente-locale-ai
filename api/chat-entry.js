@@ -1,7 +1,20 @@
+import chatHandler from "./chat.js";
 import chatProxy from "./chat-proxy.js";
 import { buildOperationalChatResponse } from "../lib/operational-chat.js";
 
 const clean = value => String(value ?? "").trim();
+
+const DIRECT_OPERATION_ACTIONS = new Set([
+  "availability",
+  "book",
+  "update",
+  "cancel",
+  "confirm-attendance",
+  "client",
+  "context",
+  "public-context",
+  "owner-pull"
+]);
 
 export function normalizeExplicitDateTimeMessage(body = {}) {
   if (!body || typeof body !== "object" || Array.isArray(body)) return body;
@@ -28,9 +41,18 @@ export function normalizeExplicitDateTimeMessage(body = {}) {
   };
 }
 
+export function isDirectOperationalAction(body = {}) {
+  return DIRECT_OPERATION_ACTIONS.has(clean(body?.action));
+}
+
 export default async function handler(req, res) {
   if (req?.method === "POST") {
     req.body = normalizeExplicitDateTimeMessage(req.body);
+
+    if (isDirectOperationalAction(req.body)) {
+      res.setHeader("X-Maviri-Path", "direct-operation");
+      return chatHandler(req, res);
+    }
 
     const operational = buildOperationalChatResponse(req.body);
     if (operational) {
