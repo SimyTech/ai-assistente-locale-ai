@@ -43,3 +43,10 @@ test("la bozza intelligente propone lo slot compatibile trovato da Mavi", () => 
   assert.match(app, /può andare bene\?/);
   assert.match(app, /formatOperationalDate\(gap\.date\)/);
 });
+
+test("il titolare può completare e rimuovere un richiamo operativo", () => {
+  assert.match(app, /data-operational-complete/);
+  assert.match(app, /Segna contattato/);
+  assert.match(app, /win\.markRecoveryContacted\(client\.id\)/);
+  assert.match(app, /setTimeout\(refreshOperationalDashboard,0\)/);
+});

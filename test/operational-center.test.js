@@ -71,6 +71,16 @@ test("non propone una cancellazione già recuperata con un nuovo appuntamento", 
   assert.equal(findCancellationRecovery(input, { now, lookbackDays: 30 }).length, 0);
 });
 
+test("non ripropone clienti segnati come contattati di recente", () => {
+  const contactedAt = "2026-09-01T10:00:00.000Z";
+  const input = {
+    ...base,
+    clients: base.clients.map(client => ({ ...client, recoveryContactedAt: contactedAt }))
+  };
+  assert.equal(findInactiveClients(input, { now: "2026-09-02T10:00:00Z", inactiveDays: 90 }).length, 0);
+  assert.equal(findCancellationRecovery(input, { now: "2026-09-02T10:00:00Z", lookbackDays: 30 }).length, 0);
+});
+
 test("costruisce il Centro Operativo con priorità e valore recuperabile", () => {
   const center = buildOperationalCenter(base, { now, horizonDays: 1, inactiveDays: 90, lookbackDays: 30 });
   assert.equal(center.summary.cancellationRecoveries, 1);
