@@ -25,6 +25,17 @@ export default function handler(req, res) {
   }
 
   const checks = readinessChecks(process.env);
+  if (mode === "channels") {
+    return res.status(200).json({
+      ok: true,
+      channels: {
+        whatsapp: { ready: Boolean(checks.whatsapp.ready) },
+        email: { ready: Boolean(checks.email.ready), provider: checks.email.provider }
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+
   const redis = checks.core.redis;
   const sessions = checks.core.sessions;
   const registration = redis && sessions;
