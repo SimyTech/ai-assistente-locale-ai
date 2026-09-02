@@ -357,8 +357,13 @@ async function continueReschedule(req, { tenantId, phone, text, session }) {
       return { reply: "Non trovo più l’appuntamento da spostare. Potrebbe essere già stato modificato o annullato.", bookingHandled: true };
     }
 
-    if (!state.date) state.date = extractRescheduleDate(text, todayRome());
-    if (!state.time) state.time = extractRescheduleTime(text);
+    const requestedDate = extractRescheduleDate(text, todayRome());
+    const requestedTime = extractRescheduleTime(text);
+    if (requestedDate) {
+      state.date = requestedDate;
+      if (!requestedTime) state.time = "";
+    }
+    if (requestedTime) state.time = requestedTime;
 
     if (!state.date) {
       state.status = "collecting-date";
