@@ -48,6 +48,27 @@ test("Mavi espone alla dashboard il valore economico totale senza perdere il det
   assert.match(result.answer, /prova Taglio/);
 });
 
+test("abbina clienti da recuperare a un buco agenda compatibile con il loro servizio", () => {
+  const result = buildOperationalChatResponse(body, { now: "2026-09-02T10:00:00Z", horizonDays: 1, inactiveDays: 90, lookbackDays: 30 });
+  const cancellation = result.center.actions.find(item => item.type === "cancellation-recovery");
+  const inactive = result.center.actions.find(item => item.type === "inactive-client");
+  assert.ok(cancellation?.suggestedGap);
+  assert.equal(cancellation.suggestedGap.service, "Taglio");
+  assert.equal(cancellation.suggestedGap.date, "2026-09-02");
+  assert.ok(inactive?.suggestedGap);
+  assert.match(cancellation.label, /proponi 2026-09-02 alle/);
+  assert.match(result.answer, /proponi 2026-09-02 alle .* per Taglio/);
+});
+
+test("non inventa uno slot se il servizio del cliente non entra nei buchi disponibili", () => {
+  const input = structuredClone(body);
+  input.services = [...input.services, { name: "Trattamento lungo", duration: 600, price: 200 }];
+  input.appointments[1].service = "Trattamento lungo";
+  const result = buildOperationalChatResponse(input, { now: "2026-09-02T10:00:00Z", horizonDays: 1, inactiveDays: 90, lookbackDays: 30 });
+  const cancellation = result.center.actions.find(item => item.type === "cancellation-recovery");
+  assert.equal(cancellation.suggestedGap, undefined);
+});
+
 test("riconosce domande naturali su buchi e valore recuperabile", () => {
   assert.equal(isOperationalCenterQuestion({ ...body, message: "dove posso recuperare fatturato?" }), true);
   assert.equal(isOperationalCenterQuestion({ ...body, message: "ci sono buchi in agenda?" }), true);
