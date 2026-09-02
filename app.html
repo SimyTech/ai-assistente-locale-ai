@@ -168,13 +168,13 @@ function whatsappDraft(item,client){
   if(item.type==="cancellation-recovery")return `Ciao ${client?.name||item.name||""}, ti contattiamo da ${businessName}. Vuoi riprogrammare ${item.service?`il tuo appuntamento per ${item.service}`:"il tuo appuntamento"}? Possiamo cercare insieme il momento più comodo.`;
   return `Ciao ${client?.name||item.name||""}, è da un po' che non ci vediamo da ${businessName}. Se vuoi, possiamo trovare un nuovo appuntamento${item.service?` per ${item.service}`:""}.`;
 }
-function openOperationalBooking(item){
+function openOperationalBooking(item,client=null,source="operational-gap"){
   const win=frame.contentWindow;
   const doc=frame.contentDocument;
   if(!win||!doc||typeof win.newAp!=="function")return;
   if(typeof win.go==="function")win.go("calendar");
   const service=item.recommendedService?.name||item.service||"";
-  win.newAp("",encodeURIComponent(service),"operational-gap");
+  win.newAp(client?.id||"",encodeURIComponent(service),source);
   const dateInput=doc.getElementById("ad");
   const timeInput=doc.getElementById("at");
   if(dateInput&&item.date)dateInput.value=item.date;
@@ -196,6 +196,11 @@ function markOperationalContacted(item){
   win.markRecoveryContacted(client.id);
   setTimeout(refreshOperationalDashboard,0);
 }
+function bookOperationalProposal(item){
+  const client=findOperationalClient(item);
+  if(!client||!item?.suggestedGap)return;
+  openOperationalBooking({...item.suggestedGap,service:item.suggestedGap.service||item.service},client,"operational-recovery");
+}
 function wireOperationalActions(list){
   if(list.dataset.actionsReady==="true")return;
   list.dataset.actionsReady="true";
@@ -204,6 +209,8 @@ function wireOperationalActions(list){
     if(button)executeOperationalAction(operationalActions.get(button.dataset.operationalAction));
     const completed=event.target.closest("[data-operational-complete]");
     if(completed)markOperationalContacted(operationalActions.get(completed.dataset.operationalComplete));
+    const booking=event.target.closest("[data-operational-booking]");
+    if(booking)bookOperationalProposal(operationalActions.get(booking.dataset.operationalBooking));
   });
 }
 function renderOperationalDashboard(center){
@@ -224,7 +231,8 @@ function renderOperationalDashboard(center){
     const key=`${center.generatedAt||"center"}-${index}`;
     operationalActions.set(key,item);
     const complete=item.type!=="agenda-gap"?`<button type="button" class="btn small" data-operational-complete="${escapeHtml(key)}">Segna contattato</button>`:"";
-    return `<div class="item"><div class="between"><div><strong>${escapeHtml(item.label||"Azione operativa")}</strong><div class="meta" style="margin-top:5px">${escapeHtml(operationalDetail(item))}</div></div><span class="badge ${item.priority==="high"?"":"blue"}">${item.priority==="high"?"Priorità alta":"Priorità media"}</span></div><div class="row" style="margin-top:10px"><button type="button" class="btn small primary" data-operational-action="${escapeHtml(key)}">${escapeHtml(operationalActionLabel(item))}</button>${complete}</div></div>`;
+    const booking=item.suggestedGap?`<button type="button" class="btn small primary" data-operational-booking="${escapeHtml(key)}">＋ Prenota proposta</button>`:"";
+    return `<div class="item"><div class="between"><div><strong>${escapeHtml(item.label||"Azione operativa")}</strong><div class="meta" style="margin-top:5px">${escapeHtml(operationalDetail(item))}</div></div><span class="badge ${item.priority==="high"?"":"blue"}">${item.priority==="high"?"Priorità alta":"Priorità media"}</span></div><div class="row" style="margin-top:10px"><button type="button" class="btn small primary" data-operational-action="${escapeHtml(key)}">${escapeHtml(operationalActionLabel(item))}</button>${booking}${complete}</div></div>`;
   }).join("");
   wireOperationalActions(list);
 }
