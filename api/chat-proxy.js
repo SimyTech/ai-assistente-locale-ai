@@ -292,6 +292,41 @@ export function buildCancellationStats(body = {}) {
   return { total, lostValue, reasons: [...reasons.values()].sort((a, b) => b.count - a.count || a.reason.localeCompare(b.reason)) };
 }
 
+export function buildRebookingCandidates(body = {}) {
+  const today = todayRome();
+  const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
+  const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
+  const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
+  const histories = new Map();
+  for (const appointment of appointments) {
+    if (norm(appointment?.status) !== "completed") continue;
+    const date = appointmentDate(appointment);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today) continue;
+    const clientId = clean(appointment?.clientId);
+    const name = appointmentName(appointment, clientsById);
+    const key = clientId || norm(name);
+    if (!key || !name) continue;
+    const current = histories.get(key) || { clientId, name, dates: [], services: new Map() };
+    current.dates.push(date);
+    const service = appointmentService(appointment);
+    if (service) current.services.set(service, (current.services.get(service) || 0) + 1);
+    histories.set(key, current);
+  }
+  return [...histories.values()].flatMap(history => {
+    const dates = [...new Set(history.dates)].sort();
+    if (dates.length < 2) return [];
+    const intervals = dates.slice(1).map((date, index) => Math.max(1, Math.round((Date.parse(`${date}T12:00:00Z`) - Date.parse(`${dates[index]}T12:00:00Z`)) / 86400000)));
+    const averageDays = Math.max(7, Math.round(intervals.reduce((sum, days) => sum + days, 0) / intervals.length));
+    const lastVisit = dates.at(-1);
+    const expectedDate = addDaysISO(lastVisit, averageDays);
+    if (expectedDate > today) return [];
+    const hasUpcoming = appointments.some(appointment => (clean(appointment?.clientId) === history.clientId || norm(appointmentName(appointment, clientsById)) === norm(history.name)) && appointmentConfirmed(appointment) && appointmentDate(appointment) >= today);
+    if (hasUpcoming) return [];
+    const favoriteService = [...history.services.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "";
+    return [{ ...history, averageDays, lastVisit, expectedDate, overdueDays: Math.max(0, Math.round((Date.parse(`${today}T12:00:00Z`) - Date.parse(`${expectedDate}T12:00:00Z`)) / 86400000)), favoriteService }];
+  }).sort((a, b) => b.overdueDays - a.overdueDays || a.expectedDate.localeCompare(b.expectedDate));
+}
+
 function listAppointments(body, date) {
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
@@ -333,8 +368,9 @@ export function ownerManagerInsight(body = {}) {
   const asksServicePerformance = /(?:serviz|prestaz|trattament|intervent|lezion).*(?:reddit|rende|incass|valore|richiest|miglior)|(?:quale|quali|classifica).*(?:serviz|prestaz|trattament|intervent|lezion)/.test(message);
   const asksLostValue = /(?:quanto|valore|soldi|incasso).*(?:pers[io]|perdo|mancat).*(?:assenz|no[ -]?show)|(?:assenz|no[ -]?show).*(?:cost|valore|pers[io]|perdo)/.test(message);
   const asksCancellations = /(?:perche|motivi?|cause?).*(?:annull|cancell)|(?:annull|cancell).*(?:motivi?|cause?|quanto|valore|pers[io])/.test(message);
+  const asksRebooking = /(?:chi|quali|client|pazient|soci|ospit).*(?:dovrebbe tornare|devono tornare|da richiamare|richiamo|richiama|scadut|in ritardo)|(?:richiamo|richiama).*(?:intelligent|client|pazient|soci|ospit)/.test(message);
 
-  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue && !asksServicePerformance && !asksLostValue && !asksCancellations) {
+  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue && !asksServicePerformance && !asksLostValue && !asksCancellations && !asksRebooking) {
     return null;
   }
 
@@ -345,6 +381,14 @@ export function ownerManagerInsight(body = {}) {
   const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
+
+  if (asksRebooking) {
+    const rows = buildRebookingCandidates(body).slice(0, 10);
+    if (!rows.length) return `Non risultano ${clientPlural.toLowerCase()} in ritardo rispetto alla loro frequenza abituale.`;
+    return `Richiami intelligenti — ${clientPlural.toLowerCase()} da ricontattare:\n` + rows.map(item =>
+      `• ${item.name} — atteso il ${item.expectedDate}, ${item.overdueDays} ${item.overdueDays === 1 ? "giorno" : "giorni"} di ritardo${item.favoriteService ? `, servizio abituale: ${item.favoriteService}` : ""}`
+    ).join("\n");
+  }
 
   if (asksCancellations) {
     const stats = buildCancellationStats(body);

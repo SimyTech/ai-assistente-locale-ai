@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildCancellationStats, buildRevenueStats, buildServicePerformance, ownerManagerInsight } from "../api/chat-proxy.js";
+import { buildCancellationStats, buildRebookingCandidates, buildRevenueStats, buildServicePerformance, ownerManagerInsight } from "../api/chat-proxy.js";
 
 const today = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Europe/Rome",
@@ -164,4 +164,26 @@ test("raggruppa i motivi di annullamento e il loro valore", () => {
   assert.equal(stats.lostValue, 140);
   assert.deepEqual(stats.reasons[0], { reason: "Cliente indisponibile", count: 2 });
   assert.match(ownerManagerInsight({ ...input, message: "perché vengono annullati gli appuntamenti?" }), /Valore potenziale annullato: €140\.00/);
+});
+
+
+test("individua richiami intelligenti dalla frequenza personale del cliente", () => {
+  const input = { ...dataset, appointments: [...dataset.appointments,
+    { id: "r1", clientId: "c4", name: "Sara Neri", service: "Controllo", date: addDays(today, -70), status: "completed" },
+    { id: "r2", clientId: "c4", name: "Sara Neri", service: "Controllo", date: addDays(today, -35), status: "completed" }
+  ] };
+  const rows = buildRebookingCandidates(input);
+  assert.equal(rows[0].name, "Sara Neri");
+  assert.equal(rows[0].averageDays, 35);
+  assert.equal(rows[0].favoriteService, "Controllo");
+  assert.match(ownerManagerInsight({ ...input, message: "quali pazienti devo richiamare perché sono in ritardo?" }), /Sara Neri.*servizio abituale: Controllo/);
+});
+
+test("non richiama chi ha già un prossimo appuntamento", () => {
+  const input = { ...dataset, appointments: [...dataset.appointments,
+    { id: "r1", clientId: "c4", name: "Sara Neri", service: "Controllo", date: addDays(today, -70), status: "completed" },
+    { id: "r2", clientId: "c4", name: "Sara Neri", service: "Controllo", date: addDays(today, -35), status: "completed" },
+    { id: "r3", clientId: "c4", name: "Sara Neri", service: "Controllo", date: addDays(today, 2), status: "confirmed" }
+  ] };
+  assert.doesNotMatch(ownerManagerInsight({ ...input, message: "quali pazienti devo richiamare perché sono in ritardo?" }), /Sara Neri/);
 });
