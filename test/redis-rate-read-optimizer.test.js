@@ -25,7 +25,7 @@ function response(result = 1) {
   });
 }
 
-for (const action of ["book", "update", "cancel", "availability", "context"]) {
+for (const action of ["book", "update", "cancel", "availability", "chat"]) {
   test(`${action}: rate limit e prima lettura owner-data condividono una pipeline`, async () => {
     const calls = [];
     const optimizedFetch = createRedisRateReadFetch(async (input, init) => {
@@ -84,24 +84,26 @@ test("tenant default usa la chiave owner-data legacy", async () => {
   assert.deepEqual(commands[1], ["GET", "maviri:owner-data"]);
 });
 
-test("public-context non viene trasformato nel fast path owner-data", async () => {
-  const calls = [];
-  const optimizedFetch = createRedisRateReadFetch(async (input, init) => {
-    calls.push({ input, init });
-    return response(1);
-  }, REDIS_URL);
+for (const action of ["context", "public-context"]) {
+  test(`${action} non viene trasformato nel fast path owner-data`, async () => {
+    const calls = [];
+    const optimizedFetch = createRedisRateReadFetch(async (input, init) => {
+      calls.push({ input, init });
+      return response(1);
+    }, REDIS_URL);
 
-  await runWithRedisRateReadContext(async () => {
-    const body = JSON.stringify([
-      "INCR",
-      "maviri:tenant:negozio:rate:public-context:0123456789abcdef01234567"
-    ]);
-    await optimizedFetch(REDIS_URL, { method: "POST", body });
+    await runWithRedisRateReadContext(async () => {
+      const body = JSON.stringify([
+        "INCR",
+        `maviri:tenant:negozio:rate:${action}:0123456789abcdef01234567`
+      ]);
+      await optimizedFetch(REDIS_URL, { method: "POST", body });
+    });
+
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].input, REDIS_URL);
   });
-
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].input, REDIS_URL);
-});
+}
 
 test("le letture prefetched restano isolate tra richieste concorrenti", async () => {
   const optimizedFetch = createRedisRateReadFetch(async (input, init) => {
