@@ -327,6 +327,27 @@ export function buildRebookingCandidates(body = {}) {
   }).sort((a, b) => b.overdueDays - a.overdueDays || a.expectedDate.localeCompare(b.expectedDate));
 }
 
+export function buildRebookingPerformance(body = {}) {
+  const month = todayRome().slice(0, 7);
+  const services = Array.isArray(body.services) ? body.services.filter(Boolean) : [];
+  const prices = new Map(services.map(service => [norm(service?.name), Number(service?.price || 0)]));
+  const rows = (Array.isArray(body.appointments) ? body.appointments : []).filter(appointment =>
+    clean(appointment?.source) === "smart-rebooking" && appointmentDate(appointment).startsWith(month)
+  );
+  const priceOf = appointment => {
+    const direct = Number(appointment?.price);
+    return Number.isFinite(direct) && direct >= 0 ? direct : Math.max(0, Number(prices.get(norm(appointmentService(appointment))) || 0));
+  };
+  const booked = rows.filter(appointmentActive);
+  const completed = rows.filter(appointment => norm(appointment?.status) === "completed");
+  return {
+    booked: booked.length,
+    scheduledValue: booked.reduce((sum, appointment) => sum + priceOf(appointment), 0),
+    completed: completed.length,
+    completedValue: completed.reduce((sum, appointment) => sum + priceOf(appointment), 0)
+  };
+}
+
 function listAppointments(body, date) {
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
@@ -369,8 +390,9 @@ export function ownerManagerInsight(body = {}) {
   const asksLostValue = /(?:quanto|valore|soldi|incasso).*(?:pers[io]|perdo|mancat).*(?:assenz|no[ -]?show)|(?:assenz|no[ -]?show).*(?:cost|valore|pers[io]|perdo)/.test(message);
   const asksCancellations = /(?:perche|motivi?|cause?).*(?:annull|cancell)|(?:annull|cancell).*(?:motivi?|cause?|quanto|valore|pers[io])/.test(message);
   const asksRebooking = /(?:chi|quali|client|pazient|soci|ospit).*(?:dovrebbe tornare|devono tornare|da richiamare|richiamo|richiama|scadut|in ritardo)|(?:richiamo|richiama).*(?:intelligent|client|pazient|soci|ospit)/.test(message);
+  const asksRebookingPerformance = /(?:quanto|valore|soldi|incass|rend|risultat|appuntament).*(?:recuperat|richiam)|(?:recuperat|richiam).*(?:quanto|valore|soldi|incass|rend|risultat|appuntament)/.test(message);
 
-  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue && !asksServicePerformance && !asksLostValue && !asksCancellations && !asksRebooking) {
+  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue && !asksServicePerformance && !asksLostValue && !asksCancellations && !asksRebooking && !asksRebookingPerformance) {
     return null;
   }
 
@@ -381,6 +403,17 @@ export function ownerManagerInsight(body = {}) {
   const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
+
+  if (asksRebookingPerformance) {
+    const result = buildRebookingPerformance(body);
+    return [
+      "Risultati dei richiami intelligenti questo mese:",
+      `• Appuntamenti ottenuti: ${result.booked}`,
+      `• Valore in agenda: €${result.scheduledValue.toFixed(2)}`,
+      `• Appuntamenti completati: ${result.completed}`,
+      `• Valore realmente completato: €${result.completedValue.toFixed(2)}`
+    ].join("\n");
+  }
 
   if (asksRebooking) {
     const rows = buildRebookingCandidates(body).slice(0, 10);

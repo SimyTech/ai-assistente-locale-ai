@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildCancellationStats, buildRebookingCandidates, buildRevenueStats, buildServicePerformance, ownerManagerInsight } from "../api/chat-proxy.js";
+import { buildCancellationStats, buildRebookingCandidates, buildRebookingPerformance, buildRevenueStats, buildServicePerformance, ownerManagerInsight } from "../api/chat-proxy.js";
 
 const today = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Europe/Rome",
@@ -186,4 +186,16 @@ test("non richiama chi ha già un prossimo appuntamento", () => {
     { id: "r3", clientId: "c4", name: "Sara Neri", service: "Controllo", date: addDays(today, 2), status: "confirmed" }
   ] };
   assert.doesNotMatch(ownerManagerInsight({ ...input, message: "quali pazienti devo richiamare perché sono in ritardo?" }), /Sara Neri/);
+});
+
+test("misura appuntamenti e valore ottenuti dai richiami intelligenti", () => {
+  const input = { ...dataset, appointments: [...dataset.appointments,
+    { id: "rb1", service: "Controllo", date: today, status: "completed", source: "smart-rebooking" },
+    { id: "rb2", service: "Trattamento", date: today, status: "confirmed", source: "smart-rebooking" },
+    { id: "rb3", service: "Controllo", date: today, status: "cancelled", source: "smart-rebooking" }
+  ] };
+  assert.deepEqual(buildRebookingPerformance(input), { booked: 2, scheduledValue: 140, completed: 1, completedValue: 50 });
+  const answer = ownerManagerInsight({ ...input, message: "quanto ho recuperato con i richiami intelligenti?" });
+  assert.match(answer, /Appuntamenti ottenuti: 2/);
+  assert.match(answer, /Valore realmente completato: €50\.00/);
 });
