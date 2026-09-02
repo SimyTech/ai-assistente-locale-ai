@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isDirectOperationalAction } from "../api/chat-entry.js";
+import {
+  isDirectOperationalAction,
+  normalizeOwnerSync
+} from "../api/chat-entry.js";
 
 test("direct operational actions bypass the conversational proxy", () => {
   for (const action of [
@@ -18,8 +21,33 @@ test("direct operational actions bypass the conversational proxy", () => {
   }
 });
 
-test("chat and owner-sync keep their existing normalization/proxy path", () => {
+test("chat remains on the conversational path", () => {
   assert.equal(isDirectOperationalAction({ action: "chat" }), false);
   assert.equal(isDirectOperationalAction({ action: "owner-sync" }), false);
   assert.equal(isDirectOperationalAction({}), false);
+});
+
+test("owner-sync is normalized before using the direct business engine", () => {
+  const completedAt = "2026-09-02T10:30:00.000Z";
+  const body = normalizeOwnerSync({
+    action: "owner-sync",
+    updatedAt: "2026-09-02T10:00:00.000Z",
+    appointments: [{
+      id: "a1",
+      status: "completed",
+      updatedAt: "2026-09-02T09:00:00.000Z",
+      completedAt
+    }],
+    settings: {
+      hours: [
+        { open: "09:00", close: "18:00" },
+        { closed: true }
+      ]
+    }
+  });
+
+  assert.equal(body.appointments[0].updatedAt, completedAt);
+  assert.deepEqual(body.settings.hours.monday, { open: "09:00", close: "18:00" });
+  assert.deepEqual(body.settings.hours.tuesday, { closed: true });
+  assert.deepEqual(body.settings.hours.sunday, { closed: true });
 });
