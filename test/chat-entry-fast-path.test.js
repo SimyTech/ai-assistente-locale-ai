@@ -53,11 +53,15 @@ test("owner-sync is normalized before using the direct business engine", () => {
   assert.deepEqual(body.settings.hours.sunday, { closed: true });
 });
 
-test("conversational modules are lazy-loaded after the direct path", () => {
-  const source = fs.readFileSync(new URL("../api/chat-entry.js", import.meta.url), "utf8");
+test("business and conversational modules are lazy-loaded through the loader module", () => {
+  const entrySource = fs.readFileSync(new URL("../api/chat-entry.js", import.meta.url), "utf8");
+  const loaderSource = fs.readFileSync(new URL("../lib/chat-entry-loader.js", import.meta.url), "utf8");
 
-  assert.equal(source.includes('import chatProxy from "./chat-proxy.js"'), false);
-  assert.equal(source.includes('import { buildOperationalChatResponse } from "../lib/operational-chat.js"'), false);
-  assert.equal(source.includes('await import("./chat-proxy.js")'), true);
-  assert.equal(source.includes('await import("../lib/operational-chat.js")'), true);
+  assert.equal(entrySource.includes('import chatHandler from "./chat.js"'), false);
+  assert.equal(entrySource.includes('import chatProxy from "./chat-proxy.js"'), false);
+  assert.equal(entrySource.includes('loadBusinessEngine'), true);
+  assert.equal(entrySource.includes('loadConversationalProxy'), true);
+  assert.equal(loaderSource.includes('await import("../api/chat.js")'), true);
+  assert.equal(loaderSource.includes('await import("../api/chat-proxy.js")'), true);
+  assert.equal(loaderSource.includes('await import("./operational-chat.js")'), true);
 });

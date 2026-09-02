@@ -1,4 +1,8 @@
-import chatHandler from "./chat.js";
+import {
+  loadBusinessEngine,
+  loadConversationalProxy,
+  loadOperationalChatBuilder
+} from "../lib/chat-entry-loader.js";
 
 const clean = value => String(value ?? "").trim();
 
@@ -136,15 +140,17 @@ export default async function handler(req, res) {
 
     if (isDirectOperationalAction(req.body)) {
       res.setHeader("X-Maviri-Path", "direct-operation");
+      const chatHandler = await loadBusinessEngine();
       return chatHandler(req, res);
     }
 
     if (clean(req.body?.action) === "owner-sync") {
       res.setHeader("X-Maviri-Path", "direct-owner-sync");
+      const chatHandler = await loadBusinessEngine();
       return chatHandler(req, res);
     }
 
-    const { buildOperationalChatResponse } = await import("../lib/operational-chat.js");
+    const buildOperationalChatResponse = await loadOperationalChatBuilder();
     const operational = buildOperationalChatResponse(req.body);
     if (operational) {
       return res.status(200).json({
@@ -159,6 +165,6 @@ export default async function handler(req, res) {
     }
   }
 
-  const { default: chatProxy } = await import("./chat-proxy.js");
+  const chatProxy = await loadConversationalProxy();
   return chatProxy(req, res);
 }
