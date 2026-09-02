@@ -42,6 +42,14 @@ test("riconosce conferma e annullamento", () => {
   assert.equal(isConfirmation("no, non ci sono"), false);
   assert.equal(isCancellation("annulla tutto"), true);
   assert.equal(isCancellation("lascia perdere"), true);
+  assert.equal(isCancellation("non posso venire"), true);
+  assert.equal(isCancellation("non riesco a esserci"), true);
+  assert.equal(isCancellation("non vengo domani"), true);
+  assert.equal(isCancellation("non ci sarò"), true);
+  assert.equal(isCancellation("devo annullare"), true);
+  assert.equal(isCancellation("vorrei annullare"), true);
+  assert.equal(isCancellation("ci sarò"), false);
+  assert.equal(isCancellation("posso venire"), false);
 });
 
 test("normalizza e riassume una prenotazione", () => {
