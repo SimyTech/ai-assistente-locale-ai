@@ -63,6 +63,113 @@ test("EXPIRE successivo non genera un secondo round-trip", async () => {
   assert.deepEqual(await result.json(), { result: 1 });
 });
 
+test("lock prenotazione e seconda lettura owner-data usano una sola pipeline Redis", async () => {
+  const calls = [];
+  const ownerJson = "{\"appointments\":[{\"id\":1}]}";
+  const optimizedFetch = createRedisRateLimitFetch(async (input, init) => {
+    calls.push({ input, init });
+    return pipelineResponse(["OK", ownerJson]);
+  }, REDIS_URL);
+
+  await runWithRedisOptimizationContext(async () => {
+    const lock = await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      headers: { Authorization: "Bearer test" },
+      body: JSON.stringify([
+        "SET",
+        "maviri:tenant:negozio:booking-lock:2026-09-03-10:00",
+        "lock-token",
+        "NX",
+        "PX",
+        "15000"
+      ])
+    });
+
+    assert.deepEqual(await lock.json(), { result: "OK" });
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].input, `${REDIS_URL}/pipeline`);
+
+    const commands = JSON.parse(calls[0].init.body);
+    assert.equal(commands.length, 2);
+    assert.equal(commands[0][0], "SET");
+    assert.deepEqual(commands[1], ["GET", "maviri:tenant:negozio:owner-data"]);
+
+    const freshData = await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify(["GET", "maviri:tenant:negozio:owner-data"])
+    });
+
+    assert.deepEqual(await freshData.json(), { result: ownerJson });
+    assert.equal(calls.length, 1);
+  });
+});
+
+test("il GET prefetch del lock legacy usa la chiave owner-data legacy", async () => {
+  const calls = [];
+  const optimizedFetch = createRedisRateLimitFetch(async (input, init) => {
+    calls.push({ input, init });
+    return pipelineResponse(["OK", "{\"legacy\":true}"]);
+  }, REDIS_URL);
+
+  await runWithRedisOptimizationContext(async () => {
+    await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify([
+        "SET",
+        "maviri:booking-lock:2026-09-03-11:00",
+        "legacy-token",
+        "NX",
+        "PX",
+        "15000"
+      ])
+    });
+
+    const commands = JSON.parse(calls[0].init.body);
+    assert.deepEqual(commands[1], ["GET", "maviri:owner-data"]);
+
+    await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify(["GET", "maviri:owner-data"])
+    });
+  });
+
+  assert.equal(calls.length, 1);
+});
+
+test("un lock non acquisito non lascia una lettura prefetched riutilizzabile", async () => {
+  const calls = [];
+  const optimizedFetch = createRedisRateLimitFetch(async (input, init) => {
+    calls.push({ input, init });
+    if (input === `${REDIS_URL}/pipeline`) {
+      return pipelineResponse([null, "{\"appointments\":[]}"]);
+    }
+    return response("fresh");
+  }, REDIS_URL);
+
+  await runWithRedisOptimizationContext(async () => {
+    const lock = await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify([
+        "SET",
+        "maviri:tenant:negozio:booking-lock:slot",
+        "lock-token",
+        "NX",
+        "PX",
+        "15000"
+      ])
+    });
+    assert.deepEqual(await lock.json(), { result: null });
+
+    const read = await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify(["GET", "maviri:tenant:negozio:owner-data"])
+    });
+    assert.deepEqual(await read.json(), { result: "fresh" });
+  });
+
+  assert.equal(calls.length, 2);
+});
+
 test("DATA_KEY e PUBLIC_KEY consecutivi usano una sola pipeline Redis", async () => {
   const calls = [];
   const optimizedFetch = createRedisRateLimitFetch(async (input, init) => {
