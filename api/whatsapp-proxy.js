@@ -89,7 +89,7 @@ export default async function handler(req, res) {
     return await processVerifiedWebhook(req, res);
   } finally {
     try {
-      await releaseWhatsAppWebhookLock(lock.key);
+      await releaseWhatsAppWebhookLock(lock);
     } catch (error) {
       console.error("MAVIRI WHATSAPP LOCK RELEASE ERROR:", error);
     }
