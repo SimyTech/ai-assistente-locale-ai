@@ -6,6 +6,7 @@ import { createMaviProactiveActions } from "./lib/mavi-proactive-actions.js";
 import { installProactiveActionUi } from "./lib/mavi-proactive-action-ui.js";
 import { channelReadyForProposal, fetchMaviChannelStatus } from "./lib/mavi-channel-status.js";
 import { createActionLifecycle } from "./lib/mavi-action-lifecycle.js";
+import { requestAuthorizedSend } from "./lib/mavi-authorized-send-client.js";
 
 const operationalMemory = createMaviOperationalMemory();
 const proactiveActions = createMaviProactiveActions();
@@ -29,9 +30,13 @@ function conversationId() {
   catch { return "owner-default"; }
 }
 
+function tenantId() {
+  try { return String(localStorage.getItem("MAVIRI_TENANT_ID") || "default"); }
+  catch { return "default"; }
+}
+
 function proactiveStorageKey() {
-  const tenant = localStorage.getItem("MAVIRI_TENANT_ID") || "default";
-  return `mavi_proactive_brief_seen_v1:${tenant}`;
+  return `mavi_proactive_brief_seen_v1:${tenantId()}`;
 }
 
 function currentProactiveBrief(options = {}) {
@@ -60,21 +65,39 @@ function installActionLifecycleBridge() {
     const proposal = event.detail?.proposal;
     if (proposal) actionLifecycle.edit(previous, proposal);
   });
-  window.addEventListener("mavi:authorized-send-request", event => {
+  window.addEventListener("mavi:authorized-send-request", async event => {
     const proposal = event.detail?.proposal;
     if (!proposal) return;
     const result = actionLifecycle.requestSend(proposal);
     window.dispatchEvent(new CustomEvent("mavi:action-lifecycle", {
       detail: { action: result.action, accepted: result.accepted, duplicate: result.duplicate }
     }));
+    if (!result.accepted) return;
+
+    const delivery = await requestAuthorizedSend(proposal, {
+      tenantId: tenantId(),
+      fetchImpl: window.fetch?.bind(window)
+    });
+
+    if (delivery.ok) {
+      actionLifecycle.complete(proposal);
+      window.dispatchEvent(new CustomEvent("mavi:authorized-send-complete", {
+        detail: { proposal, delivery }
+      }));
+    } else {
+      actionLifecycle.fail(proposal, delivery.error || "delivery-failed");
+      window.dispatchEvent(new CustomEvent("mavi:authorized-send-failed", {
+        detail: { proposal, error: delivery.error || "delivery-failed" }
+      }));
+    }
   });
   window.addEventListener("mavi:authorized-send-complete", event => {
     const proposal = event.detail?.proposal;
-    if (proposal) actionLifecycle.complete(proposal);
+    if (proposal && actionLifecycle.get(proposal)?.status === "send-requested") actionLifecycle.complete(proposal);
   });
   window.addEventListener("mavi:authorized-send-failed", event => {
     const proposal = event.detail?.proposal;
-    if (proposal) actionLifecycle.fail(proposal, event.detail?.error || "");
+    if (proposal && actionLifecycle.get(proposal)?.status === "send-requested") actionLifecycle.fail(proposal, event.detail?.error || "");
   });
 }
 
