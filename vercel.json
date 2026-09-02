@@ -10,7 +10,8 @@
     { "source": "/reset-password", "destination": "/reset-password.html" },
     { "source": "/verify-email", "destination": "/verify-email.html" },
     { "source": "/api/chat", "destination": "/api/chat-entry" },
-    { "source": "/api/whatsapp", "destination": "/api/whatsapp-proxy" }
+    { "source": "/api/whatsapp", "destination": "/api/whatsapp-proxy" },
+    { "source": "/api/readiness", "destination": "/api/health?mode=readiness" }
   ],
   "headers": [
     { "source": "/", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
