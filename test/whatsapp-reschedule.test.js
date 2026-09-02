@@ -23,6 +23,15 @@ test("estrae date naturali per la nuova prenotazione", () => {
   assert.equal(extractRescheduleDate("spostalo al 06/09/2026", "2026-09-02"), "2026-09-06");
 });
 
+test("rifiuta date impossibili invece di inoltrarle al Business Engine", () => {
+  assert.equal(extractRescheduleDate("spostalo al 31/02/2026", "2026-09-02"), "");
+  assert.equal(extractRescheduleDate("spostalo al 2026-04-31", "2026-09-02"), "");
+  assert.equal(extractRescheduleDate("spostalo al 29/02/2026", "2026-09-02"), "");
+  assert.equal(extractRescheduleDate("spostalo al 29/02/2028", "2026-09-02"), "2028-02-29");
+  assert.equal(extractRescheduleDate("spostalo al 00/12/2026", "2026-09-02"), "");
+  assert.equal(extractRescheduleDate("spostalo al 15/13/2026", "2026-09-02"), "");
+});
+
 test("estrae l'orario richiesto", () => {
   assert.equal(extractRescheduleTime("alle 15"), "15:00");
   assert.equal(extractRescheduleTime("ore 9:30"), "09:30");
