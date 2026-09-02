@@ -240,6 +240,36 @@ export function buildRevenueStats(body = {}) {
   };
 }
 
+export function buildServicePerformance(body = {}) {
+  const services = Array.isArray(body.services) ? body.services.filter(Boolean) : [];
+  const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
+  const prices = new Map(services.map(service => [norm(service?.name), Number(service?.price || 0)]));
+  const rows = new Map();
+
+  for (const appointment of appointments) {
+    const name = appointmentService(appointment) || "Servizio non indicato";
+    const key = norm(name);
+    const directPrice = Number(appointment?.price);
+    const price = Number.isFinite(directPrice) && directPrice >= 0
+      ? directPrice
+      : Math.max(0, Number(prices.get(key) || 0));
+    const current = rows.get(key) || { name, completed: 0, noShows: 0, completedValue: 0, lostValue: 0 };
+    const status = norm(appointment?.status);
+    if (status === "completed") {
+      current.completed += 1;
+      current.completedValue += price;
+    } else if (["no_show", "no-show", "assente"].includes(status)) {
+      current.noShows += 1;
+      current.lostValue += price;
+    }
+    rows.set(key, current);
+  }
+
+  return [...rows.values()]
+    .filter(row => row.completed > 0 || row.noShows > 0)
+    .sort((a, b) => b.completedValue - a.completedValue || b.completed - a.completed);
+}
+
 function listAppointments(body, date) {
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
@@ -278,8 +308,10 @@ export function ownerManagerInsight(body = {}) {
   const asksPendingActions = /(?:cosa|che).*(?:devo|c'e da|ce da).*(?:fare|gestire|chiudere)|azion[ei].*(?:pendent|operativ|oggi)|appuntament.*(?:da chiudere|rimast.*apert)/.test(message);
   const asksSummary = /riepilogo|come va(?: l)?(?: attivita|azienda|lavoro)|situazione(?: di oggi| attivita)?|panoramica/.test(message);
   const asksRevenue = /(?:quanto|valore|totale|stima).*(?:incass|fatturat|guadagn|agenda)|(?:incass|fatturat|guadagn).*(?:oggi|mese|questo mese|quanto|totale)/.test(message);
+  const asksServicePerformance = /(?:serviz|prestaz|trattament|intervent|lezion).*(?:reddit|rende|incass|valore|richiest|miglior)|(?:quale|quali|classifica).*(?:serviz|prestaz|trattament|intervent|lezion)/.test(message);
+  const asksLostValue = /(?:quanto|valore|soldi|incasso).*(?:pers[io]|perdo|mancat).*(?:assenz|no[ -]?show)|(?:assenz|no[ -]?show).*(?:cost|valore|pers[io]|perdo)/.test(message);
 
-  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue) {
+  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue && !asksServicePerformance && !asksLostValue) {
     return null;
   }
 
@@ -290,6 +322,24 @@ export function ownerManagerInsight(body = {}) {
   const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
+
+  if (asksLostValue) {
+    const rows = buildServicePerformance(body).filter(row => row.noShows > 0);
+    const total = rows.reduce((sum, row) => sum + row.lostValue, 0);
+    if (!rows.length) return "Non risultano valori persi per assenze/no-show.";
+    return `Valore stimato perso per assenze/no-show: €${total.toFixed(2)}\n` + rows
+      .sort((a, b) => b.lostValue - a.lostValue)
+      .map(row => `• ${row.name} — ${row.noShows} ${row.noShows === 1 ? "assenza" : "assenze"}, €${row.lostValue.toFixed(2)} persi`)
+      .join("\n");
+  }
+
+  if (asksServicePerformance) {
+    const rows = buildServicePerformance(body).filter(row => row.completed > 0).slice(0, 10);
+    if (!rows.length) return "Non ci sono ancora prestazioni completate sufficienti per confrontare i servizi.";
+    return "Servizi per valore generato:\n" + rows.map((row, index) =>
+      `${index + 1}. ${row.name} — ${row.completed} completati, €${row.completedValue.toFixed(2)}`
+    ).join("\n");
+  }
 
   if (asksRevenue) {
     const revenue = buildRevenueStats(body);
