@@ -1,4 +1,5 @@
 import whatsappHandler from "./whatsapp.js";
+import { handleSafeCancellation } from "../lib/whatsapp-cancellation-guard.js";
 import { parseJsonBody, readRawBody, verifyMetaSignature } from "../lib/webhook-signature.js";
 
 const clean = value => String(value ?? "").trim();
@@ -43,6 +44,14 @@ export default async function handler(req, res) {
 
   if (!clean(req.headers?.["content-type"])) {
     req.headers = { ...(req.headers || {}), "content-type": "application/json" };
+  }
+
+  try {
+    const safeCancellation = await handleSafeCancellation(req, res);
+    if (safeCancellation) return safeCancellation;
+  } catch (error) {
+    console.error("MAVIRI WHATSAPP CANCELLATION GUARD ERROR:", error);
+    return res.status(500).json({ ok: false, error: "Errore interno annullamento WhatsApp." });
   }
 
   return whatsappHandler(req, res);
