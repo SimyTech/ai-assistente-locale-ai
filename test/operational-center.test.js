@@ -16,12 +16,13 @@ const base = {
   clients: [
     { id: "c1", name: "Anna Rossi" },
     { id: "c2", name: "Luca Bianchi" },
-    { id: "c3", name: "Marta Verdi" }
+    { id: "c3", name: "Marta Verdi" },
+    { id: "c4", name: "Giulia Neri" }
   ],
   appointments: [
     { id: "a1", clientId: "c1", name: "Anna Rossi", service: "Taglio", date: "2026-09-02", time: "09:00", status: "confirmed" },
     { id: "a2", clientId: "c2", name: "Luca Bianchi", service: "Colore", date: "2026-09-02", time: "10:00", status: "confirmed" },
-    { id: "old1", clientId: "c1", name: "Anna Rossi", service: "Taglio", date: "2026-04-01", time: "09:00", status: "completed" },
+    { id: "old1", clientId: "c4", name: "Giulia Neri", service: "Taglio", date: "2026-04-01", time: "09:00", status: "completed" },
     { id: "old2", clientId: "c2", name: "Luca Bianchi", service: "Colore", date: "2026-08-10", time: "09:00", status: "completed" },
     { id: "cancel1", clientId: "c3", name: "Marta Verdi", service: "Colore", date: "2026-08-28", time: "15:00", status: "cancelled" }
   ]
@@ -38,12 +39,12 @@ test("individua i buchi reali dell'agenda rispettando appuntamenti e pausa", () 
 
 test("individua clienti inattivi ma esclude chi ha un appuntamento futuro", () => {
   const input = structuredClone(base);
-  input.appointments.push({ id: "future", clientId: "c1", name: "Anna Rossi", service: "Taglio", date: "2026-09-05", time: "11:00", status: "confirmed" });
-  assert.equal(findInactiveClients(input, { now, inactiveDays: 90 }).some(item => item.clientId === "c1"), false);
+  input.appointments.push({ id: "future", clientId: "c4", name: "Giulia Neri", service: "Taglio", date: "2026-09-05", time: "11:00", status: "confirmed" });
+  assert.equal(findInactiveClients(input, { now, inactiveDays: 90 }).some(item => item.clientId === "c4"), false);
 
   const withoutFuture = structuredClone(base);
   const inactive = findInactiveClients(withoutFuture, { now, inactiveDays: 90 });
-  assert.equal(inactive[0].clientId, "c1");
+  assert.equal(inactive[0].clientId, "c4");
   assert.ok(inactive[0].inactiveDays >= 150);
 });
 
