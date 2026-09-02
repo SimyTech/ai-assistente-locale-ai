@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createMaviOperationalMemory } from "../lib/mavi-operational-memory.js";
 
+const SEP3_2026 = Date.parse("2026-09-03T10:00:00Z");
+
 const data = {
   clients: [
     { id: "c1", name: "Mario Rossi" },
@@ -55,7 +57,6 @@ test("annulla un appuntamento solo dopo conferma esplicita", () => {
   assert.equal(first.handled, true);
   assert.match(first.answer, /Confermi l'annullamento/);
   assert.equal(memory.has("cancel", 1000), true);
-
   const confirmed = memory.prepare("confermo", data, "cancel", 2000);
   assert.equal(confirmed.completed, true);
   assert.match(confirmed.message, /Confermo: annulla l'appuntamento di Mario Rossi/);
@@ -67,13 +68,10 @@ test("sposta un appuntamento raccogliendo nuovo giorno e nuova ora", () => {
   const memory = createMaviOperationalMemory();
   const first = memory.prepare("Sposta l'appuntamento di Anna Bianchi", data, "move", 1000);
   assert.equal(first.answer, "A quale giorno devo spostarlo?");
-
   const date = memory.prepare("venerdi", data, "move", 2000);
   assert.equal(date.answer, "A che ora devo spostarlo?");
-
   const time = memory.prepare("alle 16", data, "move", 3000);
   assert.match(time.answer, /Confermi lo spostamento/);
-
   const confirmed = memory.prepare("ok", data, "move", 4000);
   assert.equal(confirmed.completed, true);
   assert.match(confirmed.message, /Confermo: sposta l'appuntamento di Anna Bianchi/);
@@ -112,4 +110,57 @@ test("una conferma senza operazione pendente resta al Business Engine", () => {
   const result = memory.prepare("confermo", data, "free", 1000);
   assert.equal(result.handled, false);
   assert.equal(result.message, "confermo");
+});
+
+test("risolve domani contro le date ISO dell'agenda", () => {
+  const memory = createMaviOperationalMemory();
+  const result = memory.prepare("Annulla Mario Rossi domani", data, "natural-tomorrow", SEP3_2026);
+  assert.match(result.answer, /Confermi l'annullamento/);
+  assert.match(result.answer, /2026-09-04/);
+});
+
+test("risolve il giorno della settimana contro le date ISO dell'agenda", () => {
+  const memory = createMaviOperationalMemory();
+  const result = memory.prepare("Annulla Mario Rossi venerdi", data, "natural-weekday", SEP3_2026);
+  assert.match(result.answer, /2026-09-04/);
+});
+
+test("mantiene i candidati tra follow-up e capisce quello delle 11", () => {
+  const memory = createMaviOperationalMemory();
+  const many = {
+    ...data,
+    appointments: [
+      data.appointments[0],
+      { id: "a3", name: "Mario Rossi", service: "Colore", date: "2026-09-06", time: "11:00", status: "confirmed" }
+    ]
+  };
+  const first = memory.prepare("Annulla Mario Rossi", many, "candidate-memory", SEP3_2026);
+  assert.match(first.answer, /Quale appuntamento intendi/);
+  const second = memory.prepare("quello delle 11", many, "candidate-memory", SEP3_2026 + 1000);
+  assert.match(second.answer, /Confermi l'annullamento/);
+  assert.match(second.answer, /2026-09-06/);
+  assert.match(second.answer, /11:00/);
+});
+
+test("un rifiuto esplicito chiude l'operazione pendente", () => {
+  const memory = createMaviOperationalMemory();
+  memory.prepare("Annulla Mario Rossi", data, "abort", SEP3_2026);
+  const stopped = memory.prepare("lascia stare", data, "abort", SEP3_2026 + 1000);
+  assert.equal(stopped.aborted, true);
+  assert.equal(stopped.answer, "Operazione annullata.");
+  assert.equal(memory.has("abort", SEP3_2026 + 1000), false);
+});
+
+test("una data numerica distingue appuntamenti dello stesso cliente", () => {
+  const memory = createMaviOperationalMemory();
+  const many = {
+    ...data,
+    appointments: [
+      data.appointments[0],
+      { id: "a3", name: "Mario Rossi", service: "Colore", date: "2026-09-06", time: "11:00", status: "confirmed" }
+    ]
+  };
+  const result = memory.prepare("Annulla Mario Rossi il 6/9", many, "numeric", SEP3_2026);
+  assert.match(result.answer, /2026-09-06/);
+  assert.match(result.answer, /11:00/);
 });
