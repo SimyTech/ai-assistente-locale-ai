@@ -118,6 +118,7 @@ Mavi = internal AI assistant.
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 
+<script type="module" src="/mavi-fast-runtime.js"></script>
 <script type="module" src="/mavi-adaptive-runtime.js"></script>
 <script>
 "use strict";
@@ -398,6 +399,8 @@ async function copyContent(){try{await navigator.clipboard.writeText($("preview"
 async function sendMavi(){const i=$("maviInput"),q=i.value.trim();if(!q)return;addBubble(q,"user");i.value="";addBubble("Sto controllando…","mavi");const m=$("messages");const pending=m.lastElementChild;try{const answer=await maviAnswer(q);pending.textContent=answer;if("speechSynthesis"in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(answer);u.lang="it-IT";speechSynthesis.speak(u)}}catch(e){pending.textContent="Non riesco a verificare i dati in questo momento."}m.scrollTop=m.scrollHeight}
 function addBubble(t,c){const x=document.createElement("div");x.className="bubble "+c;x.textContent=t;const m=$("messages");m.appendChild(x);m.scrollTop=m.scrollHeight}
 async function maviAnswer(q){
+  const fast=window.MaviFastData?.answer(q,data);
+  if(fast?.handled)return fast.answer;
   const r=await api("chat",{message:q,role:"owner",conversationId:sessionId});
   if(r.booking && r.booking.status==="confirmed" && r.appointment){
     const a=r.appointment;
@@ -408,7 +411,7 @@ async function maviAnswer(q){
   const serverAnswer=r.answer||"Non ho ricevuto una risposta valida da Mavi.";
   const genericAnswers=["Posso aiutarti con servizi, prezzi, promozioni, orari, disponibilità e prenotazioni. Dimmi cosa ti serve.","Non ho ricevuto una risposta valida da Mavi."];
   if(genericAnswers.includes(serverAnswer)&&window.MaviModels?.getCurrent().id!=="fast"){
-    const localAnswer=await window.MaviModels.ask(q,{businessName:data.business.name,businessType:data.business.type});
+    const localAnswer=await Promise.race([window.MaviModels.ask(q,{businessName:data.business.name,businessType:data.business.type}),new Promise(resolve=>setTimeout(()=>resolve(null),5000))]);
     if(localAnswer)return localAnswer;
   }
   return serverAnswer;
