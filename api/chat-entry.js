@@ -3,6 +3,7 @@ import {
   loadConversationalProxy,
   loadOperationalChatBuilder
 } from "../lib/chat-entry-loader.js";
+import authorizedSendHandler from "../lib/authorized-send-handler.js";
 
 const clean = value => String(value ?? "").trim();
 
@@ -137,6 +138,11 @@ export function isDirectOperationalAction(body = {}) {
 export default async function handler(req, res) {
   if (req?.method === "POST") {
     req.body = normalizeOwnerSync(normalizeExplicitDateTimeMessage(req.body));
+
+    if (clean(req.body?.action) === "authorized-send") {
+      res.setHeader("X-Maviri-Path", "authorized-send");
+      return authorizedSendHandler(req, res);
+    }
 
     if (isDirectOperationalAction(req.body)) {
       res.setHeader("X-Maviri-Path", "direct-operation");
