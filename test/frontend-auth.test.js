@@ -253,3 +253,13 @@ test("misura il valore prodotto dai richiami intelligenti", async () => {
   assert.match(html, /source:r\.appointment\.source\|\|source/);
   assert.match(html, /completedMonth\(a\)&&a\.source==="smart-rebooking"/);
 });
+
+test("segnala e gestisce gli appuntamenti a rischio no-show", async () => {
+  const html = await text("index.html");
+  assert.match(html, /id="sRiskCount"/);
+  assert.match(html, /function appointmentRisk\(a\)/);
+  assert.match(html, /Rischio no-show/);
+  assert.match(html, /Puoi confermarci la tua presenza\?/);
+  assert.match(html, /confirmationRequestedAt/);
+  assert.match(html, /Number\(appointmentRisk\(b\)\.high\)-Number\(appointmentRisk\(a\)\.high\)/);
+});
