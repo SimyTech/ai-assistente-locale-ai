@@ -1,4 +1,5 @@
 import { MAVI_MODEL_PREFERENCES, MAVI_MODEL_TIERS, maviFallbackChain, selectMaviModelTier } from "./lib/mavi-model-router.js";
+import { installOwnerPullAccelerator } from "./lib/owner-pull-accelerator.js";
 
 const STORAGE_KEY = "MAVIRI_MAVI_MODEL_TIER";
 const TRANSFORMERS_URL = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
@@ -125,3 +126,4 @@ window.MaviModels = Object.freeze({
 });
 
 emit();
+installOwnerPullAccelerator();
