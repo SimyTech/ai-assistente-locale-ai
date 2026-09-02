@@ -57,3 +57,10 @@ test("una proposta accettata apre la prenotazione cliente già compilata", () =>
   assert.match(app, /item\.suggestedGap\.service\|\|item\.service/);
   assert.match(app, /"operational-recovery"/);
 });
+
+test("la dashboard sostituisce il conteggio grezzo con conversioni attribuite", () => {
+  assert.match(app, /src="\/recovery-metrics\.js"/);
+  assert.match(app, /window\.maviriRecoveryMetrics\(source\.clients,source\.appointments\)/);
+  assert.match(app, /win\.renderAll=function\(\)/);
+  assert.match(app, /result\.conversions.*clienti hanno prenotato dopo il richiamo/);
+});
