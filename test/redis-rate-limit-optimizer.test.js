@@ -204,6 +204,61 @@ test("DATA_KEY e PUBLIC_KEY consecutivi usano una sola pipeline Redis", async ()
   assert.deepEqual(commands[1].slice(0, 2), ["SET", "maviri:tenant:negozio:public-context"]);
 });
 
+test("persistenza prenotazione e rilascio lock condividono lo stesso round-trip", async () => {
+  const calls = [];
+  const lockKey = "maviri:tenant:negozio:booking-lock:slot";
+  const token = "lock-token";
+  const optimizedFetch = createRedisRateLimitFetch(async (input, init) => {
+    calls.push({ input, init });
+    const commands = JSON.parse(init.body);
+    if (commands[0]?.[0] === "SET" && commands[1]?.[0] === "GET") {
+      return pipelineResponse(["OK", "{\"appointments\":[]}"]);
+    }
+    return pipelineResponse(["OK", "OK", 1]);
+  }, REDIS_URL);
+
+  await runWithRedisOptimizationContext(async () => {
+    await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify(["SET", lockKey, token, "NX", "PX", "15000"])
+    });
+    await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify(["GET", "maviri:tenant:negozio:owner-data"])
+    });
+    await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify(["SET", "maviri:tenant:negozio:owner-data", "{\"appointments\":[1]}"])
+    });
+    await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify(["SET", "maviri:tenant:negozio:public-context", "{\"ok\":true}"])
+    });
+
+    assert.equal(calls.length, 2);
+    const persistCommands = JSON.parse(calls[1].init.body);
+    assert.equal(persistCommands.length, 3);
+    assert.deepEqual(persistCommands[0].slice(0, 2), ["SET", "maviri:tenant:negozio:owner-data"]);
+    assert.deepEqual(persistCommands[1].slice(0, 2), ["SET", "maviri:tenant:negozio:public-context"]);
+    assert.equal(persistCommands[2][0], "EVAL");
+    assert.equal(persistCommands[2][3], lockKey);
+    assert.equal(persistCommands[2][4], token);
+
+    const release = await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify([
+        "EVAL",
+        "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
+        "1",
+        lockKey,
+        token
+      ])
+    });
+    assert.deepEqual(await release.json(), { result: 1 });
+    assert.equal(calls.length, 2);
+  });
+});
+
 test("la pipeline Redis resta isolata per singola richiesta", async () => {
   const calls = [];
   const optimizedFetch = createRedisRateLimitFetch(async (input, init) => {
