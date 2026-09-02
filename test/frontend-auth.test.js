@@ -207,3 +207,13 @@ test("il login migra il vecchio token ma non lo conserva dopo la sessione", asyn
   assert.match(html, /migrateLegacy/);
   assert.match(html, /localStorage\.removeItem\(LEGACY_TOKEN_KEY\)/);
 });
+
+
+test("la home mostra redditività servizi e valore perso per no-show", async () => {
+  const html = await text("index.html");
+  assert.match(html, /id="servicePerformance"/);
+  assert.match(html, /id="noShowLostValue"/);
+  assert.match(html, /function servicePerformanceRows\(\)/);
+  assert.match(html, /function renderPerformance\(\)/);
+  assert.match(html, /renderHome\(\);renderPerformance\(\);renderOperations\(\)/);
+});
