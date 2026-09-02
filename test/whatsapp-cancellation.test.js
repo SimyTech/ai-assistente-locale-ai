@@ -62,6 +62,62 @@ test("risolve un annullamento ambiguo tramite servizio", () => {
   assert.equal(resolution.appointment?.id, "second");
 });
 
+test("risolve un annullamento ambiguo con domani e dopodomani", () => {
+  const appointments = [
+    { id: "tomorrow", status: "confirmed", date: "2026-09-03", time: "11:00", phone: "3331234567", service: "Taglio" },
+    { id: "day-after", status: "confirmed", date: "2026-09-04", time: "10:00", phone: "3331234567", service: "Colore" }
+  ];
+
+  const tomorrow = resolveClientCancellation(
+    appointments,
+    { phone: "3331234567" },
+    "2026-09-02",
+    "annulla quello di domani"
+  );
+  const dayAfter = resolveClientCancellation(
+    appointments,
+    { phone: "3331234567" },
+    "2026-09-02",
+    "annulla quello di dopodomani"
+  );
+
+  assert.equal(tomorrow.appointment?.id, "tomorrow");
+  assert.equal(dayAfter.appointment?.id, "day-after");
+});
+
+test("risolve un annullamento ambiguo tramite giorno della settimana in italiano", () => {
+  const appointments = [
+    { id: "thursday", status: "confirmed", date: "2026-09-03", time: "11:00", phone: "3331234567", service: "Taglio" },
+    { id: "friday", status: "confirmed", date: "2026-09-04", time: "10:00", phone: "3331234567", service: "Colore" }
+  ];
+
+  const resolution = resolveClientCancellation(
+    appointments,
+    { phone: "3331234567" },
+    "2026-09-02",
+    "annulla l'appuntamento di venerdì"
+  );
+
+  assert.equal(resolution.appointment?.id, "friday");
+  assert.equal(resolution.ambiguous, false);
+});
+
+test("combina giorno naturale e orario quando ci sono più appuntamenti nello stesso giorno", () => {
+  const appointments = [
+    { id: "morning", status: "confirmed", date: "2026-09-04", time: "09:00", phone: "3331234567", service: "Taglio" },
+    { id: "afternoon", status: "confirmed", date: "2026-09-04", time: "15:00", phone: "3331234567", service: "Colore" }
+  ];
+
+  const resolution = resolveClientCancellation(
+    appointments,
+    { phone: "3331234567" },
+    "2026-09-02",
+    "annulla venerdì alle 15"
+  );
+
+  assert.equal(resolution.appointment?.id, "afternoon");
+});
+
 test("non seleziona appuntamenti appartenenti ad altri numeri", () => {
   const selected = pickNextClientAppointment([
     { id: "a", status: "confirmed", date: "2026-09-03", time: "10:00", phone: "3339999999" }
