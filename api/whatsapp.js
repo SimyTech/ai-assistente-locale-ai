@@ -208,9 +208,28 @@ async function callMavi(req, { tenantId, phone, text, profileName, session }) {
   return { reply, raw: data };
 }
 
-function collectBookingField(session, text, profileName) {
+export function bookingContinuationMessage(booking, text) {
+  const current = normalizeBooking(booking);
+  const field = awaitingField(current);
+  if (field === "service") return `Vorrei prenotare ${clean(text)}`;
+  if (field === "date") return `Vorrei prenotare ${current.service} ${clean(text)}`;
+  return clean(text);
+}
+
+async function collectBookingField(req, { tenantId, session, text, profileName }) {
   const booking = normalizeBooking(session.booking);
   const field = awaitingField(booking);
+
+  if (field === "service" || field === "date") {
+    const result = await businessApi(req, tenantId, {
+      action: "chat",
+      sessionId: session.sessionId,
+      message: bookingContinuationMessage(booking, text),
+      history: session.history
+    });
+    const discovered = normalizeBooking(result?.booking);
+    if (discovered.status) return mergeBooking(booking, discovered);
+  }
 
   if (field === "time") {
     const time = extractTime(text);
@@ -262,8 +281,16 @@ async function continueBooking(req, { tenantId, phone, text, profileName, sessio
   }
 
   if (booking.status) {
-    booking = collectBookingField(session, text, profileName);
+    booking = await collectBookingField(req, { tenantId, session, text, profileName });
     session.booking = booking;
+
+    if (awaitingField(booking) === "service") {
+      return { reply: "Quale servizio vuoi prenotare?", bookingHandled: true };
+    }
+
+    if (awaitingField(booking) === "date") {
+      return { reply: `Per ${booking.service}, quale giorno preferisci?`, bookingHandled: true };
+    }
 
     if (awaitingField(booking) === "time") {
       return { reply: `Per ${booking.service} il ${booking.date}, quale orario preferisci?`, bookingHandled: true };

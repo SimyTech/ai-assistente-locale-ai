@@ -25,6 +25,16 @@ test("mantiene i dati raccolti tra messaggi WhatsApp", () => {
   assert.equal(awaitingField(booking), "confirmation");
 });
 
+test("mantiene il contesto attraversando tutti gli stati della prenotazione", () => {
+  let booking = mergeBooking({}, { status: "collecting-service" });
+  booking = mergeBooking(booking, { status: "collecting-date", service: "Taglio uomo" });
+  booking = mergeBooking(booking, { status: "collecting-time", date: "2026-09-03" });
+  booking = mergeBooking(booking, { status: "collecting-name", time: "15:30" });
+  booking = mergeBooking(booking, { status: "awaiting-confirmation", name: "Mario Rossi" });
+  assert.equal(bookingSummary(booking), "Taglio uomo il 2026-09-03 alle 15:30 per Mario Rossi");
+  assert.equal(bookingComplete(booking), true);
+});
+
 test("riconosce orari WhatsApp espliciti", () => {
   assert.equal(extractTime("alle 9:30"), "09:30");
   assert.equal(extractTime("15.00 va bene"), "15:00");
