@@ -1,4 +1,4 @@
-import { launchReadiness } from "../lib/launch-readiness.js";
+import { launchReadiness, readinessChecks } from "../lib/launch-readiness.js";
 import reminderHandler from "../lib/reminders-handler.js";
 
 export default function handler(req, res) {
@@ -24,16 +24,13 @@ export default function handler(req, res) {
     });
   }
 
-  const redis = Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
-  const sessions = Boolean(process.env.MAVIRI_SESSION_SECRET);
+  const checks = readinessChecks(process.env);
+  const redis = checks.core.redis;
+  const sessions = checks.core.sessions;
   const registration = redis && sessions;
   const legacyOwnerSync = Boolean(process.env.MAVIRI_OWNER_SYNC_TOKEN || process.env.MAVIRI_OWNER_TOKENS);
-  const whatsappBridge = Boolean(
-    process.env.WHATSAPP_VERIFY_TOKEN &&
-    process.env.WHATSAPP_ACCESS_TOKEN &&
-    process.env.WHATSAPP_PHONE_NUMBER_ID
-  );
-  const whatsappSignature = Boolean(process.env.WHATSAPP_APP_SECRET);
+  const whatsappBridge = checks.whatsapp.verify && checks.whatsapp.send;
+  const whatsappSignature = checks.whatsapp.signature;
   const ready = redis && sessions;
 
   return res.status(ready ? 200 : 503).json({
@@ -47,7 +44,8 @@ export default function handler(req, res) {
       registration,
       legacyOwnerSync,
       whatsappBridge,
-      whatsappSignature
+      whatsappSignature,
+      whatsappRoutedTenants: checks.whatsapp.routedTenants
     },
     timestamp: new Date().toISOString()
   });

@@ -48,6 +48,33 @@ test("readiness è completa quando tutte le dipendenze di lancio sono configurat
   assert.equal(result.checks.email.provider, "resend");
 });
 
+test("readiness WhatsApp accetta una configurazione multi-tenant senza numero globale", () => {
+  const checks = readinessChecks({
+    WHATSAPP_VERIFY_TOKEN: "verify-token",
+    WHATSAPP_ACCESS_TOKEN: "wa-token",
+    WHATSAPP_APP_SECRET: "app-secret",
+    MAVIRI_WHATSAPP_TENANTS: JSON.stringify({
+      "111111": "salone-rosa",
+      "222222": "studio-verdi"
+    })
+  });
+  assert.equal(checks.whatsapp.send, true);
+  assert.equal(checks.whatsapp.ready, true);
+  assert.equal(checks.whatsapp.routedTenants, 2);
+});
+
+test("readiness WhatsApp rifiuta una mappa tenant non valida senza numero globale", () => {
+  const checks = readinessChecks({
+    WHATSAPP_VERIFY_TOKEN: "verify-token",
+    WHATSAPP_ACCESS_TOKEN: "wa-token",
+    WHATSAPP_APP_SECRET: "app-secret",
+    MAVIRI_WHATSAPP_TENANTS: "{not-json"
+  });
+  assert.equal(checks.whatsapp.send, false);
+  assert.equal(checks.whatsapp.ready, false);
+  assert.equal(checks.whatsapp.routedTenants, 0);
+});
+
 test("readiness email richiede la stessa configurazione usata dal recupero password", () => {
   const incomplete = readinessChecks({
     RESEND_API_KEY: "resend-key",
