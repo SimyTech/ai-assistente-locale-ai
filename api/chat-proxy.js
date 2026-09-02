@@ -379,6 +379,7 @@ export function ownerManagerInsight(body = {}) {
   const asksAgendaList = /(?:^|\b)(?:che|quali|mostra(?:mi)?|elenca(?:mi)?|ho|ci sono|agenda|programma)(?:\b|$)/.test(message);
   const asksTodayAppointments = asksAgendaList && /appuntament|prenotaz|visite|intervent/.test(message) && /oggi/.test(message);
   const asksTomorrowAppointments = asksAgendaList && /appuntament|prenotaz|visite|intervent/.test(message) && /domani/.test(message);
+  const asksTodayPlan = /(?:cosa|che).*(?:ho|devo|c'e|ce).*(?:oggi).*(?:fare|gestire|programma)|(?:cosa|che).*(?:oggi).*(?:ho|devo).*(?:fare|gestire|programma)|(?:dimmi|mostrami).*(?:cosa|impegni|programma).*(?:oggi)/.test(message);
   const asksNoShows = /(?:chi|quali|mostra|elenca|client|pazient|soci|ospit).*(?:non si (?:e|sono) presentat|assenz|assent|no[ -]?show)|(?:assenz|assent|no[ -]?show).*(?:client|pazient|soci|ospit|appuntament|prenotaz|visit)/.test(message);
   const asksNoShowRisk = /(?:chi|quali|client|pazient|soci|ospit).*(?:piu assenz|piu no[ -]?show|saltano piu|meno affidabil)|(?:classifica|graduatoria|ranking).*(?:assenz|no[ -]?show|affidabil)/.test(message);
   const asksReminders = /(?:promemori|ricord).*(?:invia|fare|prepar|manc|domani)|(?:chi|quali|mostra|elenca).*(?:promemori|ricord)/.test(message);
@@ -391,7 +392,7 @@ export function ownerManagerInsight(body = {}) {
   const asksRebooking = /(?:chi|quali|client|pazient|soci|ospit).*(?:dovrebbe tornare|devono tornare|da richiamare|richiamo|richiama|scadut|in ritardo)|(?:richiamo|richiama).*(?:intelligent|client|pazient|soci|ospit)/.test(message);
   const asksRebookingPerformance = /(?:quanto|valore|soldi|incass|rend|risultat|appuntament).*(?:recuperat|richiam)|(?:recuperat|richiam).*(?:quanto|valore|soldi|incass|rend|risultat|appuntament)/.test(message);
 
-  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue && !asksServicePerformance && !asksLostValue && !asksCancellations && !asksRebooking && !asksRebookingPerformance) {
+  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksTodayPlan && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue && !asksServicePerformance && !asksLostValue && !asksCancellations && !asksRebooking && !asksRebookingPerformance) {
     return null;
   }
 
@@ -500,6 +501,21 @@ export function ownerManagerInsight(body = {}) {
     return `Promemoria da inviare per domani:\n` + rows.map(appointment =>
       `• ${appointmentTime(appointment) || "--:--"} — ${appointmentName(appointment, clientsById) || "Senza nome"}${appointmentService(appointment) ? ` — ${appointmentService(appointment)}` : ""}`
     ).join("\n");
+  }
+
+  if (asksTodayPlan) {
+    const rows = listAppointments(body, today);
+    const overdue = appointments.filter(appointment => appointmentConfirmed(appointment) && appointmentDate(appointment) < today);
+    const reminders = appointments.filter(appointment => appointmentConfirmed(appointment) && appointmentDate(appointment) === tomorrow && !appointment?.reminderSentAt);
+    return [
+      `Programma di oggi (${today}):`,
+      rows.length
+        ? rows.map(row => `• ${row.time || "--:--"} — ${row.name}${row.service ? ` — ${row.service}` : ""}`).join("\n")
+        : `• Nessun ${appointmentPlural.toLowerCase()} previsto oggi.`,
+      `Azioni da gestire:`,
+      `• ${appointmentPlural} passati da chiudere: ${overdue.length}`,
+      `• Promemoria da inviare per domani: ${reminders.length}`
+    ].join("\n");
   }
 
   if (asksPendingActions) {
