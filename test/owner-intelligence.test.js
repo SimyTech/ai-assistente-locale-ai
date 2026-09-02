@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildRevenueStats, ownerManagerInsight } from "../api/chat-proxy.js";
+import { buildRevenueStats, buildServicePerformance, ownerManagerInsight } from "../api/chat-proxy.js";
 
 const today = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Europe/Rome",
@@ -136,4 +136,19 @@ test("Mavi risponde alle domande sugli incassi con una stima trasparente", () =>
   const answer = ask("quanto ho incassato questo mese?");
   assert.match(answer, /Prestazioni completate questo mese: €\d+\.\d{2}/);
   assert.match(answer, /non sostituisce la contabilità fiscale/);
+});
+
+
+test("classifica i servizi per valore completato e quantifica le perdite", () => {
+  const rows = buildServicePerformance(dataset);
+  assert.equal(rows[0].name, "Trattamento");
+  assert.ok(rows[0].completedValue > 0);
+  assert.equal(rows.find(row => row.noShows > 0)?.lostValue, 50);
+});
+
+test("Mavi confronta i servizi e calcola il valore perso per no-show", () => {
+  assert.match(ask("quali servizi rendono di più?"), /Servizi per valore generato/);
+  const lost = ask("quanto ho perso per i no-show?");
+  assert.match(lost, /Valore stimato perso.*€50\.00/);
+  assert.match(lost, /Controllo.*€50\.00 persi/);
 });
