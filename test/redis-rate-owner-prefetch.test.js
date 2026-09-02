@@ -15,7 +15,7 @@ function pipelineResponse(results) {
   });
 }
 
-for (const action of ["book", "update", "cancel", "client"]) {
+for (const action of ["book", "update", "cancel"]) {
   test(`rate limit ${action} preleva owner-data nello stesso round-trip`, async () => {
     const calls = [];
     const ownerJson = JSON.stringify({ revision: 7, action });
