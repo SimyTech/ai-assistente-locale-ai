@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import {
   isDirectOperationalAction,
   normalizeOwnerSync
@@ -50,4 +51,13 @@ test("owner-sync is normalized before using the direct business engine", () => {
   assert.deepEqual(body.settings.hours.monday, { open: "09:00", close: "18:00" });
   assert.deepEqual(body.settings.hours.tuesday, { closed: true });
   assert.deepEqual(body.settings.hours.sunday, { closed: true });
+});
+
+test("conversational modules are lazy-loaded after the direct path", () => {
+  const source = fs.readFileSync(new URL("../api/chat-entry.js", import.meta.url), "utf8");
+
+  assert.equal(source.includes('import chatProxy from "./chat-proxy.js"'), false);
+  assert.equal(source.includes('import { buildOperationalChatResponse } from "../lib/operational-chat.js"'), false);
+  assert.equal(source.includes('await import("./chat-proxy.js")'), true);
+  assert.equal(source.includes('await import("../lib/operational-chat.js")'), true);
 });

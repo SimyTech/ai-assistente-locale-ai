@@ -1,6 +1,4 @@
 import chatHandler from "./chat.js";
-import chatProxy from "./chat-proxy.js";
-import { buildOperationalChatResponse } from "../lib/operational-chat.js";
 
 const clean = value => String(value ?? "").trim();
 
@@ -146,6 +144,7 @@ export default async function handler(req, res) {
       return chatHandler(req, res);
     }
 
+    const { buildOperationalChatResponse } = await import("../lib/operational-chat.js");
     const operational = buildOperationalChatResponse(req.body);
     if (operational) {
       return res.status(200).json({
@@ -159,5 +158,7 @@ export default async function handler(req, res) {
       });
     }
   }
+
+  const { default: chatProxy } = await import("./chat-proxy.js");
   return chatProxy(req, res);
 }
