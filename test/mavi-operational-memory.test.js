@@ -10,6 +10,10 @@ const data = {
   services: [
     { id: "s1", name: "Taglio" },
     { id: "s2", name: "Colore" }
+  ],
+  appointments: [
+    { id: "a1", name: "Mario Rossi", service: "Taglio", date: "2026-09-04", time: "15:00", status: "confirmed" },
+    { id: "a2", name: "Anna Bianchi", service: "Colore", date: "2026-09-05", time: "10:00", status: "confirmed" }
   ]
 };
 
@@ -45,21 +49,67 @@ test("scade lo stato operativo dopo il TTL", () => {
   assert.equal(memory.prepare("Taglio", data, "conv", 2600).handled, false);
 });
 
-test("annullamento e spostamento azzerano una prenotazione incompleta", () => {
-  for (const message of ["annulla", "sposta a venerdì"]) {
-    const memory = createMaviOperationalMemory();
-    memory.prepare("Prenota Mario Rossi domani", data, "conv", 1000);
-    const result = memory.prepare(message, data, "conv", 2000);
-    assert.equal(result.handled, false);
-    assert.equal(result.message, message);
-    assert.equal(memory.has("conv", 2000), false);
-  }
+test("annulla un appuntamento solo dopo conferma esplicita", () => {
+  const memory = createMaviOperationalMemory();
+  const first = memory.prepare("Annulla l'appuntamento di Mario Rossi", data, "cancel", 1000);
+  assert.equal(first.handled, true);
+  assert.match(first.answer, /Confermi l'annullamento/);
+  assert.equal(memory.has("cancel", 1000), true);
+
+  const confirmed = memory.prepare("confermo", data, "cancel", 2000);
+  assert.equal(confirmed.completed, true);
+  assert.match(confirmed.message, /Confermo: annulla l'appuntamento di Mario Rossi/);
+  assert.match(confirmed.message, /2026-09-04/);
+  assert.equal(memory.has("cancel", 2000), false);
 });
 
-test("una conferma resta al Business Engine senza essere riscritta", () => {
+test("sposta un appuntamento raccogliendo nuovo giorno e nuova ora", () => {
   const memory = createMaviOperationalMemory();
-  memory.prepare("Prenota Mario Rossi domani", data, "conv", 1000);
-  const result = memory.prepare("confermo", data, "conv", 2000);
+  const first = memory.prepare("Sposta l'appuntamento di Anna Bianchi", data, "move", 1000);
+  assert.equal(first.answer, "A quale giorno devo spostarlo?");
+
+  const date = memory.prepare("venerdi", data, "move", 2000);
+  assert.equal(date.answer, "A che ora devo spostarlo?");
+
+  const time = memory.prepare("alle 16", data, "move", 3000);
+  assert.match(time.answer, /Confermi lo spostamento/);
+
+  const confirmed = memory.prepare("ok", data, "move", 4000);
+  assert.equal(confirmed.completed, true);
+  assert.match(confirmed.message, /Confermo: sposta l'appuntamento di Anna Bianchi/);
+  assert.match(confirmed.message, /a venerdi alle 16:00/);
+});
+
+test("chiede di distinguere quando più appuntamenti corrispondono", () => {
+  const memory = createMaviOperationalMemory();
+  const many = {
+    ...data,
+    appointments: data.appointments.concat({ id: "a3", name: "Mario Rossi", service: "Colore", date: "2026-09-06", time: "11:00", status: "confirmed" })
+  };
+  const result = memory.prepare("Annulla l'appuntamento di Mario Rossi", many, "amb", 1000);
+  assert.equal(result.handled, true);
+  assert.match(result.answer, /Quale appuntamento intendi/);
+  assert.match(result.answer, /Taglio/);
+  assert.match(result.answer, /Colore/);
+});
+
+test("ignora appuntamenti già annullati nella selezione", () => {
+  const memory = createMaviOperationalMemory();
+  const dataset = {
+    ...data,
+    appointments: [
+      { id: "x", name: "Mario Rossi", service: "Colore", date: "2026-09-03", time: "09:00", status: "cancelled" },
+      data.appointments[0]
+    ]
+  };
+  const result = memory.prepare("Annulla l'appuntamento di Mario Rossi", dataset, "active", 1000);
+  assert.match(result.answer, /2026-09-04/);
+  assert.doesNotMatch(result.answer, /2026-09-03/);
+});
+
+test("una conferma senza operazione pendente resta al Business Engine", () => {
+  const memory = createMaviOperationalMemory();
+  const result = memory.prepare("confermo", data, "free", 1000);
   assert.equal(result.handled, false);
   assert.equal(result.message, "confermo");
 });
