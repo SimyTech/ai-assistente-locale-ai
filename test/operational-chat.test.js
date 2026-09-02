@@ -31,17 +31,19 @@ test("riconosce le richieste al Centro Operativo solo nella chat titolare", () =
   assert.equal(isOperationalCenterQuestion({ ...body, message: "che appuntamenti ho domani?" }), false);
 });
 
-test("Mavi restituisce priorità operative e valore recuperabile strutturato", () => {
+test("Mavi espone alla dashboard il valore economico totale senza perdere il dettaglio cancellazioni", () => {
   const result = buildOperationalChatResponse(body, { now: "2026-09-02T10:00:00Z", horizonDays: 1, inactiveDays: 90, lookbackDays: 30 });
   assert.ok(result);
   assert.equal(result.center.summary.inactiveClients, 1);
   assert.equal(result.center.summary.cancellationRecoveries, 1);
-  assert.equal(result.center.summary.recoverableValue, 25);
+  assert.equal(result.center.summary.cancellationRecoverableValue, 25);
   assert.equal(result.center.summary.agendaPotentialValue, 50);
   assert.equal(result.center.summary.totalValueOpportunity, 75);
+  assert.equal(result.center.summary.recoverableValue, 75);
   assert.match(result.answer, /Centro Operativo Mavi/);
   assert.match(result.answer, /Anna Rossi/);
   assert.match(result.answer, /Marta Verdi/);
+  assert.match(result.answer, /Valore cancellazioni recuperabili: €25\.00/);
   assert.match(result.answer, /Opportunità economica complessiva: €75\.00/);
   assert.match(result.answer, /prova Taglio/);
 });
