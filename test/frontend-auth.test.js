@@ -249,9 +249,10 @@ test("misura il valore prodotto dai richiami intelligenti", async () => {
   const html = await text("index.html");
   assert.match(html, /id="sRebookingValue"/);
   assert.match(html, /data-booking-source="\$\{esc\(source\)\}"/);
-  assert.match(html, /source==="smart-rebooking"/);
+  assert.match(html, /\["smart-rebooking","operational-recovery"\]\.includes\(source\)/);
   assert.match(html, /source:r\.appointment\.source\|\|source/);
-  assert.match(html, /completedMonth\(a\)&&a\.source==="smart-rebooking"/);
+  assert.match(html, /\["smart-rebooking","operational-recovery"\]\.includes\(a\.source\)/);
+  assert.match(html, /completedMonth\(a\)&&recovered\(a\)/);
 });
 
 test("segnala e gestisce gli appuntamenti a rischio no-show", async () => {

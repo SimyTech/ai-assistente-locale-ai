@@ -27,7 +27,7 @@ test("le opportunità operative diventano azioni controllate dal titolare", () =
   assert.match(app, /Apri prenotazione/);
   assert.match(app, /Recupera cliente/);
   assert.match(app, /Ricontatta cliente/);
-  assert.match(app, /win\.newAp\("",encodeURIComponent\(service\),"operational-gap"\)/);
+  assert.match(app, /win\.newAp\(client\?\.id\|\|"",encodeURIComponent\(service\),source\)/);
   assert.match(app, /https:\/\/wa\.me\//);
 });
 
@@ -49,4 +49,11 @@ test("il titolare può completare e rimuovere un richiamo operativo", () => {
   assert.match(app, /Segna contattato/);
   assert.match(app, /win\.markRecoveryContacted\(client\.id\)/);
   assert.match(app, /setTimeout\(refreshOperationalDashboard,0\)/);
+});
+
+test("una proposta accettata apre la prenotazione cliente già compilata", () => {
+  assert.match(app, /data-operational-booking/);
+  assert.match(app, /Prenota proposta/);
+  assert.match(app, /item\.suggestedGap\.service\|\|item\.service/);
+  assert.match(app, /"operational-recovery"/);
 });
