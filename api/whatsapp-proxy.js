@@ -1,5 +1,6 @@
 import whatsappHandler from "./whatsapp.js";
 import { handleSafeCancellation } from "../lib/whatsapp-cancellation-guard.js";
+import { handleSafeReschedule } from "../lib/whatsapp-reschedule-guard.js";
 import { whatsappTenantRoute } from "../lib/whatsapp-tenant.js";
 import { parseJsonBody, readRawBody, verifyMetaSignature } from "../lib/webhook-signature.js";
 
@@ -60,6 +61,14 @@ export default async function handler(req, res) {
       ignored: true,
       reason: "unmapped-whatsapp-number"
     });
+  }
+
+  try {
+    const safeReschedule = await handleSafeReschedule(req, res);
+    if (safeReschedule) return safeReschedule;
+  } catch (error) {
+    console.error("MAVIRI WHATSAPP RESCHEDULE GUARD ERROR:", error);
+    return res.status(500).json({ ok: false, error: "Errore interno spostamento WhatsApp." });
   }
 
   try {
