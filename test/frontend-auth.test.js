@@ -235,3 +235,12 @@ test("la home rende azionabili i richiami intelligenti", async () => {
   assert.match(html, /rebookingContactedAt/);
   assert.match(html, /renderOperations\(\);renderRebooking\(\);renderRecoveries\(\)/);
 });
+
+test("il richiamo e la scheda cliente aprono una prenotazione precompilata", async () => {
+  const html = await text("index.html");
+  assert.match(html, /function newAp\(clientId="",serviceEncoded=""\)/);
+  assert.match(html, /value="\$\{esc\(c\?\.name\|\|""\)\}"/);
+  assert.match(html, /preferred&&norm\(s\.name\)===norm\(preferred\)/);
+  assert.match(html, /newApForClient\('\$\{c\.id\}','\$\{encodeURIComponent\(service\)\}'\)/);
+  assert.match(html, /function newApForClient\(id,serviceEncoded=""\).*newAp\(id,serviceEncoded\)/);
+});
