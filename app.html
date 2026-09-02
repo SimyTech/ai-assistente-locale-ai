@@ -39,6 +39,7 @@ let adaptiveScheduled=false;
 let adaptiveRunning=false;
 let operationalTimer=null;
 let operationalRunning=false;
+const operationalActions=new Map();
 
 function tenant(){return(localStorage.getItem(TENANT_KEY)||"").trim()}
 function clearLocalAuth(){localStorage.removeItem(AUTH_KEY);localStorage.removeItem(ACCOUNT_KEY);localStorage.removeItem(LEGACY_TOKEN_KEY)}
@@ -144,6 +145,49 @@ function operationalDetail(item){
   if(item.type==="cancellation-recovery")return `${item.cancelledDate?`Cancellazione ${item.cancelledDate}`:"Cancellazione da recuperare"}${item.service?` · ${item.service}`:""}${Number(item.value||0)>0?` · €${Number(item.value).toFixed(2)}`:""}`;
   return "Azione suggerita da Mavi";
 }
+function operationalActionLabel(item){
+  if(item.type==="agenda-gap")return "Apri prenotazione";
+  if(item.type==="cancellation-recovery")return "Recupera cliente";
+  return "Ricontatta cliente";
+}
+function findOperationalClient(item){
+  const clients=Array.isArray(readLocalData().clients)?readLocalData().clients:[];
+  return clients.find(client=>item.clientId&&client.id===item.clientId)||clients.find(client=>(client.name||"").trim().toLowerCase()===(item.name||"").trim().toLowerCase())||null;
+}
+function whatsappDraft(item,client){
+  const businessName=(profile?.name||readLocalData()?.business?.name||"la nostra attività").trim();
+  if(item.type==="cancellation-recovery")return `Ciao ${client?.name||item.name||""}, ti contattiamo da ${businessName}. Vuoi riprogrammare ${item.service?`il tuo appuntamento per ${item.service}`:"il tuo appuntamento"}? Possiamo cercare insieme il momento più comodo.`;
+  return `Ciao ${client?.name||item.name||""}, è da un po' che non ci vediamo da ${businessName}. Se vuoi, possiamo trovare un nuovo appuntamento${item.service?` per ${item.service}`:""}.`;
+}
+function openOperationalBooking(item){
+  const win=frame.contentWindow;
+  const doc=frame.contentDocument;
+  if(!win||!doc||typeof win.newAp!=="function")return;
+  if(typeof win.go==="function")win.go("calendar");
+  const service=item.recommendedService?.name||item.service||"";
+  win.newAp("",encodeURIComponent(service),"operational-gap");
+  const dateInput=doc.getElementById("ad");
+  const timeInput=doc.getElementById("at");
+  if(dateInput&&item.date)dateInput.value=item.date;
+  if(timeInput&&item.start)timeInput.value=item.start;
+}
+function executeOperationalAction(item){
+  if(!item)return;
+  if(item.type==="agenda-gap"){openOperationalBooking(item);return}
+  const client=findOperationalClient(item);
+  const phone=String(client?.whatsapp||client?.phone||"").replace(/\D/g,"");
+  if(phone){window.open(`https://wa.me/${phone}?text=${encodeURIComponent(whatsappDraft(item,client))}`,"_blank","noopener,noreferrer");return}
+  const win=frame.contentWindow;
+  if(client&&win&&typeof win.openClientFromHome==="function")win.openClientFromHome(client.id);
+}
+function wireOperationalActions(list){
+  if(list.dataset.actionsReady==="true")return;
+  list.dataset.actionsReady="true";
+  list.addEventListener("click",event=>{
+    const button=event.target.closest("[data-operational-action]");
+    if(button)executeOperationalAction(operationalActions.get(button.dataset.operationalAction));
+  });
+}
 function renderOperationalDashboard(center){
   const doc=frame.contentDocument;
   if(!doc||!center)return;
@@ -157,7 +201,13 @@ function renderOperationalDashboard(center){
   if(subtitle)subtitle.textContent=`${Number(summary.agendaGaps||0)} buchi agenda · ${Number(summary.inactiveClients||0)} clienti inattivi · ${Number(summary.cancellationRecoveries||0)} cancellazioni recuperabili`;
   const actions=Array.isArray(center.actions)?center.actions.slice(0,8):[];
   if(!actions.length){list.innerHTML='<div class="empty">Nessuna opportunità urgente rilevata da Mavi.</div>';return}
-  list.innerHTML=actions.map(item=>`<div class="item"><div class="between"><div><strong>${escapeHtml(item.label||"Azione operativa")}</strong><div class="meta" style="margin-top:5px">${escapeHtml(operationalDetail(item))}</div></div><span class="badge ${item.priority==="high"?"":"blue"}">${item.priority==="high"?"Priorità alta":"Priorità media"}</span></div></div>`).join("");
+  operationalActions.clear();
+  list.innerHTML=actions.map((item,index)=>{
+    const key=`${center.generatedAt||"center"}-${index}`;
+    operationalActions.set(key,item);
+    return `<div class="item"><div class="between"><div><strong>${escapeHtml(item.label||"Azione operativa")}</strong><div class="meta" style="margin-top:5px">${escapeHtml(operationalDetail(item))}</div></div><span class="badge ${item.priority==="high"?"":"blue"}">${item.priority==="high"?"Priorità alta":"Priorità media"}</span></div><div class="row" style="margin-top:10px"><button type="button" class="btn small primary" data-operational-action="${escapeHtml(key)}">${escapeHtml(operationalActionLabel(item))}</button></div></div>`;
+  }).join("");
+  wireOperationalActions(list);
 }
 function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]))}
 async function refreshOperationalDashboard(){
