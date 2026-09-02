@@ -11,7 +11,8 @@
     { "source": "/verify-email", "destination": "/verify-email.html" },
     { "source": "/api/chat", "destination": "/api/chat-entry" },
     { "source": "/api/whatsapp", "destination": "/api/whatsapp-proxy" },
-    { "source": "/api/readiness", "destination": "/api/health?mode=readiness" }
+    { "source": "/api/readiness", "destination": "/api/health?mode=readiness" },
+    { "source": "/api/reminders", "destination": "/api/health?mode=reminders" }
   ],
   "headers": [
     { "source": "/", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
