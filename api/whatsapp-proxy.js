@@ -2,6 +2,11 @@ import whatsappHandler from "./whatsapp.js";
 import { handleSafeCancellation } from "../lib/whatsapp-cancellation-guard.js";
 import { handleSafeReschedule } from "../lib/whatsapp-reschedule-guard.js";
 import { whatsappTenantRoute } from "../lib/whatsapp-tenant.js";
+import {
+  acquireWhatsAppWebhookLock,
+  extractWhatsAppMessageId,
+  releaseWhatsAppWebhookLock
+} from "../lib/whatsapp-webhook-lock.js";
 import { parseJsonBody, readRawBody, verifyMetaSignature } from "../lib/webhook-signature.js";
 
 const clean = value => String(value ?? "").trim();
@@ -11,6 +16,26 @@ export const config = {
     bodyParser: false
   }
 };
+
+async function processVerifiedWebhook(req, res) {
+  try {
+    const safeReschedule = await handleSafeReschedule(req, res);
+    if (safeReschedule) return safeReschedule;
+  } catch (error) {
+    console.error("MAVIRI WHATSAPP RESCHEDULE GUARD ERROR:", error);
+    return res.status(500).json({ ok: false, error: "Errore interno spostamento WhatsApp." });
+  }
+
+  try {
+    const safeCancellation = await handleSafeCancellation(req, res);
+    if (safeCancellation) return safeCancellation;
+  } catch (error) {
+    console.error("MAVIRI WHATSAPP CANCELLATION GUARD ERROR:", error);
+    return res.status(500).json({ ok: false, error: "Errore interno annullamento WhatsApp." });
+  }
+
+  return whatsappHandler(req, res);
+}
 
 export default async function handler(req, res) {
   if (req?.method !== "POST") {
@@ -63,21 +88,32 @@ export default async function handler(req, res) {
     });
   }
 
+  const messageId = extractWhatsAppMessageId(req.body);
+  let lock = { acquired: true, key: "" };
   try {
-    const safeReschedule = await handleSafeReschedule(req, res);
-    if (safeReschedule) return safeReschedule;
+    lock = await acquireWhatsAppWebhookLock({ tenantId: route.tenantId, messageId });
   } catch (error) {
-    console.error("MAVIRI WHATSAPP RESCHEDULE GUARD ERROR:", error);
-    return res.status(500).json({ ok: false, error: "Errore interno spostamento WhatsApp." });
+    console.error("MAVIRI WHATSAPP LOCK ERROR:", error);
+    return res.status(500).json({ ok: false, error: "Errore interno sincronizzazione WhatsApp." });
+  }
+
+  if (!lock.acquired) {
+    return res.status(200).json({
+      ok: true,
+      duplicate: true,
+      inProgress: true,
+      tenantId: route.tenantId,
+      messageId: messageId || null
+    });
   }
 
   try {
-    const safeCancellation = await handleSafeCancellation(req, res);
-    if (safeCancellation) return safeCancellation;
-  } catch (error) {
-    console.error("MAVIRI WHATSAPP CANCELLATION GUARD ERROR:", error);
-    return res.status(500).json({ ok: false, error: "Errore interno annullamento WhatsApp." });
+    return await processVerifiedWebhook(req, res);
+  } finally {
+    try {
+      await releaseWhatsAppWebhookLock(lock.key);
+    } catch (error) {
+      console.error("MAVIRI WHATSAPP LOCK RELEASE ERROR:", error);
+    }
   }
-
-  return whatsappHandler(req, res);
 }
