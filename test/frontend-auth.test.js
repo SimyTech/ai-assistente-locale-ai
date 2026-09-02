@@ -238,9 +238,18 @@ test("la home rende azionabili i richiami intelligenti", async () => {
 
 test("il richiamo e la scheda cliente aprono una prenotazione precompilata", async () => {
   const html = await text("index.html");
-  assert.match(html, /function newAp\(clientId="",serviceEncoded=""\)/);
+  assert.match(html, /function newAp\(clientId="",serviceEncoded="",source=""\)/);
   assert.match(html, /value="\$\{esc\(c\?\.name\|\|""\)\}"/);
   assert.match(html, /preferred&&norm\(s\.name\)===norm\(preferred\)/);
-  assert.match(html, /newApForClient\('\$\{c\.id\}','\$\{encodeURIComponent\(service\)\}'\)/);
-  assert.match(html, /function newApForClient\(id,serviceEncoded=""\).*newAp\(id,serviceEncoded\)/);
+  assert.match(html, /newApForClient\('\$\{c\.id\}','\$\{encodeURIComponent\(service\)\}','smart-rebooking'\)/);
+  assert.match(html, /function newApForClient\(id,serviceEncoded="",source=""\).*newAp\(id,serviceEncoded,source\)/);
+});
+
+test("misura il valore prodotto dai richiami intelligenti", async () => {
+  const html = await text("index.html");
+  assert.match(html, /id="sRebookingValue"/);
+  assert.match(html, /data-booking-source="\$\{esc\(source\)\}"/);
+  assert.match(html, /source==="smart-rebooking"/);
+  assert.match(html, /source:r\.appointment\.source\|\|source/);
+  assert.match(html, /completedMonth\(a\)&&a\.source==="smart-rebooking"/);
 });
