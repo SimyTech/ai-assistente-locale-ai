@@ -37,6 +37,16 @@ test("individua i buchi reali dell'agenda rispettando appuntamenti e pausa", () 
   ]);
 });
 
+test("associa a ogni buco i servizi compatibili e il valore migliore", () => {
+  const gaps = findAgendaGaps(base, { now, horizonDays: 1, minGapMinutes: 30 });
+  assert.equal(gaps[0].recommendedService.name, "Taglio");
+  assert.equal(gaps[0].potentialValue, 25);
+  assert.deepEqual(gaps[0].compatibleServices.map(item => item.name), ["Taglio"]);
+  assert.equal(gaps[1].recommendedService.name, "Colore");
+  assert.equal(gaps[1].potentialValue, 55);
+  assert.deepEqual(gaps[1].compatibleServices.map(item => item.name), ["Colore", "Taglio"]);
+});
+
 test("individua clienti inattivi ma esclude chi ha un appuntamento futuro", () => {
   const input = structuredClone(base);
   input.appointments.push({ id: "future", clientId: "c4", name: "Giulia Neri", service: "Taglio", date: "2026-09-05", time: "11:00", status: "confirmed" });
@@ -67,7 +77,9 @@ test("costruisce il Centro Operativo con priorità e valore recuperabile", () =>
   assert.equal(center.summary.inactiveClients, 1);
   assert.equal(center.summary.agendaGaps, 3);
   assert.equal(center.summary.recoverableValue, 55);
+  assert.equal(center.summary.agendaPotentialValue, 135);
+  assert.equal(center.summary.totalValueOpportunity, 190);
   assert.equal(center.summary.totalActions, 5);
   assert.equal(center.actions[0].priority, "high");
-  assert.match(center.actions[0].label, /Marta Verdi|buco/);
+  assert.ok(center.actions.some(item => item.type === "agenda-gap" && item.label.includes("Colore")));
 });
