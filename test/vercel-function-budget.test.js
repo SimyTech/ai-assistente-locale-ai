@@ -28,6 +28,14 @@ test("readiness e reminders restano raggiungibili tramite rewrite verso health",
   assert.ok(vercel.rewrites.some(item => item.source === "/api/reminders" && item.destination === "/api/health?mode=reminders"));
 });
 
+test("Vercel esegue automaticamente i promemoria ogni 15 minuti", async () => {
+  const vercel = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
+  assert.ok(Array.isArray(vercel.crons));
+  assert.deepEqual(vercel.crons, [
+    { path: "/api/reminders", schedule: "*/15 * * * *" }
+  ]);
+});
+
 test("health serve la readiness completa nello stesso processo", () => {
   const old = { ...process.env };
   process.env.UPSTASH_REDIS_REST_URL = "https://redis.test";
