@@ -217,3 +217,12 @@ test("la home mostra redditività servizi e valore perso per no-show", async () 
   assert.match(html, /function renderPerformance\(\)/);
   assert.match(html, /renderHome\(\);renderPerformance\(\);renderOperations\(\)/);
 });
+
+
+test("l\'annullamento registra il motivo e lo mostra nello storico", async () => {
+  const html = await text("index.html");
+  assert.match(html, /Motivo dell\'annullamento/);
+  assert.match(html, /api\("cancel",\{id,reason\}\)/);
+  assert.match(html, /a\.cancellationReason=String\(reason/);
+  assert.match(html, /Motivo: \$\{esc\(a\.cancellationReason\)\}/);
+});

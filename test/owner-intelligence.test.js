@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildRevenueStats, buildServicePerformance, ownerManagerInsight } from "../api/chat-proxy.js";
+import { buildCancellationStats, buildRevenueStats, buildServicePerformance, ownerManagerInsight } from "../api/chat-proxy.js";
 
 const today = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Europe/Rome",
@@ -151,4 +151,17 @@ test("Mavi confronta i servizi e calcola il valore perso per no-show", () => {
   const lost = ask("quanto ho perso per i no-show?");
   assert.match(lost, /Valore stimato perso.*€50\.00/);
   assert.match(lost, /Controllo.*€50\.00 persi/);
+});
+
+
+test("raggruppa i motivi di annullamento e il loro valore", () => {
+  const input = { ...dataset, appointments: [...dataset.appointments,
+    { service: "Controllo", status: "cancelled", cancellationReason: "Cliente indisponibile" },
+    { service: "Trattamento", status: "cancelled", cancellationReason: "Cliente indisponibile" }
+  ] };
+  const stats = buildCancellationStats(input);
+  assert.equal(stats.total, 2);
+  assert.equal(stats.lostValue, 140);
+  assert.deepEqual(stats.reasons[0], { reason: "Cliente indisponibile", count: 2 });
+  assert.match(ownerManagerInsight({ ...input, message: "perché vengono annullati gli appuntamenti?" }), /Valore potenziale annullato: €140\.00/);
 });

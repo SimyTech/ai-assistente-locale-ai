@@ -3910,6 +3910,9 @@ export default async function handler(
                     cancelledAt:
                       new Date().toISOString(),
 
+                    cancellationReason:
+                      clean(body.reason || body.cancellationReason),
+
                     updatedAt:
                       new Date().toISOString()
                   }
@@ -3961,6 +3964,9 @@ export default async function handler(
 
           status:
             "cancelled",
+
+          cancellationReason:
+            clean(body.reason || body.cancellationReason),
 
           message:
             "Appuntamento annullato."
