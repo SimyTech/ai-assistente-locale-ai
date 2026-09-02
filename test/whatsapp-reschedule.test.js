@@ -45,11 +45,14 @@ test("normalizza lo stato di riprogrammazione persistito in sessione", () => {
   });
 });
 
-test("il webhook conserva lo stato e usa update client-side", async () => {
+test("il webhook conserva lo stato, usa update e accetta un nuovo giorno durante il flusso", async () => {
   const whatsapp = await readFile(new URL("../api/whatsapp.js", import.meta.url), "utf8");
   assert.match(whatsapp, /reschedule: normalizeReschedule\(stored\.reschedule\)/);
   assert.match(whatsapp, /reschedule: normalizeReschedule\(session\.reschedule\)/);
   assert.match(whatsapp, /function continueReschedule/);
+  assert.match(whatsapp, /const requestedDate = extractRescheduleDate\(text, todayRome\(\)\)/);
+  assert.match(whatsapp, /if \(requestedDate\) \{\s*state\.date = requestedDate;/);
+  assert.match(whatsapp, /if \(!requestedTime\) state\.time = ""/);
   assert.match(whatsapp, /action: "update"/);
   assert.match(whatsapp, /selecting-appointment/);
   assert.match(whatsapp, /Quell.orario non è disponibile/);
