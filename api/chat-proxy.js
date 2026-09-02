@@ -270,6 +270,28 @@ export function buildServicePerformance(body = {}) {
     .sort((a, b) => b.completedValue - a.completedValue || b.completed - a.completed);
 }
 
+export function buildCancellationStats(body = {}) {
+  const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
+  const services = Array.isArray(body.services) ? body.services.filter(Boolean) : [];
+  const prices = new Map(services.map(service => [norm(service?.name), Number(service?.price || 0)]));
+  const reasons = new Map();
+  let total = 0;
+  let lostValue = 0;
+
+  for (const appointment of appointments) {
+    if (!["cancelled", "canceled", "annullato", "cancellato"].includes(norm(appointment?.status))) continue;
+    total += 1;
+    const reason = clean(appointment?.cancellationReason || appointment?.cancelReason || "Motivo non indicato");
+    const key = norm(reason);
+    reasons.set(key, { reason, count: (reasons.get(key)?.count || 0) + 1 });
+    const direct = Number(appointment?.price);
+    const price = Number.isFinite(direct) && direct >= 0 ? direct : Number(prices.get(norm(appointmentService(appointment))) || 0);
+    lostValue += Math.max(0, price);
+  }
+
+  return { total, lostValue, reasons: [...reasons.values()].sort((a, b) => b.count - a.count || a.reason.localeCompare(b.reason)) };
+}
+
 function listAppointments(body, date) {
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
@@ -310,8 +332,9 @@ export function ownerManagerInsight(body = {}) {
   const asksRevenue = /(?:quanto|valore|totale|stima).*(?:incass|fatturat|guadagn|agenda)|(?:incass|fatturat|guadagn).*(?:oggi|mese|questo mese|quanto|totale)/.test(message);
   const asksServicePerformance = /(?:serviz|prestaz|trattament|intervent|lezion).*(?:reddit|rende|incass|valore|richiest|miglior)|(?:quale|quali|classifica).*(?:serviz|prestaz|trattament|intervent|lezion)/.test(message);
   const asksLostValue = /(?:quanto|valore|soldi|incasso).*(?:pers[io]|perdo|mancat).*(?:assenz|no[ -]?show)|(?:assenz|no[ -]?show).*(?:cost|valore|pers[io]|perdo)/.test(message);
+  const asksCancellations = /(?:perche|motivi?|cause?).*(?:annull|cancell)|(?:annull|cancell).*(?:motivi?|cause?|quanto|valore|pers[io])/.test(message);
 
-  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue && !asksServicePerformance && !asksLostValue) {
+  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue && !asksServicePerformance && !asksLostValue && !asksCancellations) {
     return null;
   }
 
@@ -322,6 +345,17 @@ export function ownerManagerInsight(body = {}) {
   const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
+
+  if (asksCancellations) {
+    const stats = buildCancellationStats(body);
+    if (!stats.total) return "Non risultano appuntamenti annullati.";
+    return [
+      `Appuntamenti annullati: ${stats.total}`,
+      `Valore potenziale annullato: €${stats.lostValue.toFixed(2)}`,
+      "Motivi più frequenti:",
+      ...stats.reasons.slice(0, 10).map(item => `• ${item.reason} — ${item.count}`)
+    ].join("\n");
+  }
 
   if (asksLostValue) {
     const rows = buildServicePerformance(body).filter(row => row.noShows > 0);
