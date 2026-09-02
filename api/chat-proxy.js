@@ -379,7 +379,9 @@ export function ownerManagerInsight(body = {}) {
   const asksAgendaList = /(?:^|\b)(?:che|quali|mostra(?:mi)?|elenca(?:mi)?|ho|ci sono|agenda|programma)(?:\b|$)/.test(message);
   const asksTodayAppointments = asksAgendaList && /appuntament|prenotaz|visite|intervent/.test(message) && /oggi/.test(message);
   const asksTomorrowAppointments = asksAgendaList && /appuntament|prenotaz|visite|intervent/.test(message) && /domani/.test(message);
-  const asksTodayPlan = /(?:cosa|che).*(?:ho|devo|c'e|ce).*(?:oggi).*(?:fare|gestire|programma)|(?:cosa|che).*(?:oggi).*(?:ho|devo).*(?:fare|gestire|programma)|(?:dimmi|mostrami).*(?:cosa|impegni|programma).*(?:oggi)/.test(message);
+  const asksTodayPlan = /oggi/.test(message)
+    && /(?:cosa|che|dimmi|mostrami|impegni|programma)/.test(message)
+    && /(?:fare|impegni|programma)/.test(message);
   const asksNoShows = /(?:chi|quali|mostra|elenca|client|pazient|soci|ospit).*(?:non si (?:e|sono) presentat|assenz|assent|no[ -]?show)|(?:assenz|assent|no[ -]?show).*(?:client|pazient|soci|ospit|appuntament|prenotaz|visit)/.test(message);
   const asksNoShowRisk = /(?:chi|quali|client|pazient|soci|ospit).*(?:piu assenz|piu no[ -]?show|saltano piu|meno affidabil)|(?:classifica|graduatoria|ranking).*(?:assenz|no[ -]?show|affidabil)/.test(message);
   const asksReminders = /(?:promemori|ricord).*(?:invia|fare|prepar|manc|domani)|(?:chi|quali|mostra|elenca).*(?:promemori|ricord)/.test(message);
