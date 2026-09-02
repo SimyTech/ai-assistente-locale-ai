@@ -37,10 +37,13 @@ test("Mavi restituisce priorità operative e valore recuperabile strutturato", (
   assert.equal(result.center.summary.inactiveClients, 1);
   assert.equal(result.center.summary.cancellationRecoveries, 1);
   assert.equal(result.center.summary.recoverableValue, 25);
+  assert.equal(result.center.summary.agendaPotentialValue, 50);
+  assert.equal(result.center.summary.totalValueOpportunity, 75);
   assert.match(result.answer, /Centro Operativo Mavi/);
   assert.match(result.answer, /Anna Rossi/);
   assert.match(result.answer, /Marta Verdi/);
-  assert.match(result.answer, /€25\.00/);
+  assert.match(result.answer, /Opportunità economica complessiva: €75\.00/);
+  assert.match(result.answer, /prova Taglio/);
 });
 
 test("riconosce domande naturali su buchi e valore recuperabile", () => {
