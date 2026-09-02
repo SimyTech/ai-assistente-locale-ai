@@ -34,6 +34,12 @@ test("riconosce orari WhatsApp espliciti", () => {
 test("riconosce conferma e annullamento", () => {
   assert.equal(isConfirmation("Sì confermo"), true);
   assert.equal(isConfirmation("ok"), true);
+  assert.equal(isConfirmation("Presente"), true);
+  assert.equal(isConfirmation("Ci sono"), true);
+  assert.equal(isConfirmation("Ci sarò"), true);
+  assert.equal(isConfirmation("confermato"), true);
+  assert.equal(isConfirmation("non confermo"), false);
+  assert.equal(isConfirmation("no, non ci sono"), false);
   assert.equal(isCancellation("annulla tutto"), true);
   assert.equal(isCancellation("lascia perdere"), true);
 });
