@@ -226,3 +226,12 @@ test("l\'annullamento registra il motivo e lo mostra nello storico", async () =>
   assert.match(html, /a\.cancellationReason=String\(reason/);
   assert.match(html, /Motivo: \$\{esc\(a\.cancellationReason\)\}/);
 });
+
+test("la home rende azionabili i richiami intelligenti", async () => {
+  const html = await text("index.html");
+  assert.match(html, /id="rebookingCandidates"/);
+  assert.match(html, /function smartRebookingClients\(\)/);
+  assert.match(html, /function openSmartRebooking\(id,serviceEncoded\)/);
+  assert.match(html, /rebookingContactedAt/);
+  assert.match(html, /renderOperations\(\);renderRebooking\(\);renderRecoveries\(\)/);
+});
