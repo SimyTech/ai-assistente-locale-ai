@@ -1,4 +1,5 @@
 import chatProxy from "./chat-proxy.js";
+import { buildOperationalChatResponse } from "../lib/operational-chat.js";
 
 const clean = value => String(value ?? "").trim();
 
@@ -30,6 +31,19 @@ export function normalizeExplicitDateTimeMessage(body = {}) {
 export default async function handler(req, res) {
   if (req?.method === "POST") {
     req.body = normalizeExplicitDateTimeMessage(req.body);
+
+    const operational = buildOperationalChatResponse(req.body);
+    if (operational) {
+      return res.status(200).json({
+        ok: true,
+        mode: "owner",
+        local: true,
+        engine: "maviri-operational-center-v1",
+        answer: operational.answer,
+        operationalCenter: operational.center,
+        booking: null
+      });
+    }
   }
   return chatProxy(req, res);
 }
