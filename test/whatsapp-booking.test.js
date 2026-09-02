@@ -40,6 +40,11 @@ test("riconosce conferma e annullamento", () => {
   assert.equal(isConfirmation("confermato"), true);
   assert.equal(isConfirmation("non confermo"), false);
   assert.equal(isConfirmation("no, non ci sono"), false);
+  assert.equal(isConfirmation("sì, ma non confermo"), false);
+  assert.equal(isConfirmation("ok, annulla"), false);
+  assert.equal(isConfirmation("va bene, lascia perdere"), false);
+  assert.equal(isConfirmation("perfetto, non prenotare"), false);
+  assert.equal(isConfirmation("confermo l'annullamento"), true);
   assert.equal(isCancellation("annulla tutto"), true);
   assert.equal(isCancellation("lascia perdere"), true);
   assert.equal(isCancellation("non posso venire"), true);

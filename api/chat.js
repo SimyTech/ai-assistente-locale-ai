@@ -37,6 +37,10 @@ import {
   rateLimitKey,
   rateLimitPolicy
 } from "../lib/rate-limit.js";
+import {
+  isCancellation as isExplicitCancellation,
+  isConfirmation as isExplicitConfirmation
+} from "../lib/whatsapp-booking.js";
 
 const LOCK_TTL = 15000;
 const MAX_BODY_BYTES = 1024 * 1024;
@@ -1750,24 +1754,16 @@ function detectTime(
   );
 }
 
-function detectExplicitConfirmation(
+export function detectExplicitConfirmation(
   text
 ) {
-
-  return /^(si|sì|yes|confermo|confermata|confermato|va bene|ok|okay|perfetto|procedi|prenota|prenotala|prenotalo)\b/i
-    .test(
-      clean(text)
-    );
+  return isExplicitConfirmation(text);
 }
 
-function detectCancellation(
+export function detectCancellation(
   text
 ) {
-
-  return /annulla|cancella|disdici|disdire/i
-    .test(
-      clean(text)
-    );
+  return isExplicitCancellation(text) || /disdici|disdire/i.test(clean(text));
 }
 
 
