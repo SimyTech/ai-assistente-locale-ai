@@ -35,3 +35,11 @@ test("il contatto WhatsApp prepara il messaggio senza inviarlo automaticamente",
   assert.match(app, /encodeURIComponent\(whatsappDraft\(item,client\)\)/);
   assert.doesNotMatch(app, /action:"send-operational-message"/);
 });
+
+test("la bozza intelligente propone lo slot compatibile trovato da Mavi", () => {
+  assert.match(app, /item\.suggestedGap/);
+  assert.match(app, /Proponi questo orario/);
+  assert.match(app, /Abbiamo uno spazio disponibile il/);
+  assert.match(app, /può andare bene\?/);
+  assert.match(app, /formatOperationalDate\(gap\.date\)/);
+});
