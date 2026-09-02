@@ -27,6 +27,7 @@ function cleanup() {
   delete process.env.WHATSAPP_ACCESS_TOKEN;
   delete process.env.WHATSAPP_PHONE_NUMBER_ID;
   delete process.env.WHATSAPP_APP_SECRET;
+  delete process.env.MAVIRI_WHATSAPP_TENANTS;
 }
 
 test("health richiede Redis e sessioni per dichiarare il SaaS pronto", () => {
@@ -55,5 +56,25 @@ test("WhatsApp è una capability separata dalla disponibilità core", () => {
   assert.equal(res.statusCode, 200);
   assert.equal(res.payload.checks.whatsappBridge, false);
   assert.equal(res.payload.checks.whatsappSignature, false);
+  cleanup();
+});
+
+test("health riconosce il bridge WhatsApp configurato solo tramite mappa multi-tenant", () => {
+  cleanup();
+  process.env.UPSTASH_REDIS_REST_URL = "https://redis.test";
+  process.env.UPSTASH_REDIS_REST_TOKEN = "token";
+  process.env.MAVIRI_SESSION_SECRET = "session-secret";
+  process.env.WHATSAPP_VERIFY_TOKEN = "verify";
+  process.env.WHATSAPP_ACCESS_TOKEN = "access";
+  process.env.WHATSAPP_APP_SECRET = "secret";
+  process.env.MAVIRI_WHATSAPP_TENANTS = JSON.stringify({
+    "111111": "salone-rosa",
+    "222222": "studio-verdi"
+  });
+  const res = call();
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.payload.checks.whatsappBridge, true);
+  assert.equal(res.payload.checks.whatsappSignature, true);
+  assert.equal(res.payload.checks.whatsappRoutedTenants, 2);
   cleanup();
 });
