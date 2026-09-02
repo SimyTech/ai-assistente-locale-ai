@@ -85,7 +85,7 @@ Mavi = internal AI assistant.
   <div class="card" style="margin-top:18px"><div class="between"><div><h3 style="margin-bottom:5px">Clienti da recuperare</h3><div class="muted">Clienti senza una visita da almeno 60 giorni e senza un prossimo appuntamento.</div></div><span class="badge blue" id="recoveryCount">0 clienti</span></div><div class="list" id="recoveries" style="margin-top:14px"></div></div>
 </section>
 
-<section class="page" id="mavi"><div class="card chat"><div class="between"><div><h3 style="margin:0">Mavi</h3><div class="muted">Assistente interno di Maviri</div></div><span class="badge">ONLINE LOCALE</span></div><div class="messages" id="messages"><div class="bubble mavi">Sono Mavi. Posso consultare i dati presenti in Maviri: appuntamenti, clienti, servizi, orari e contenuti.</div></div><div class="chatbar"><button class="btn secondary" id="voice">🎙</button><input id="maviInput" placeholder="Scrivi a Mavi..." onkeydown="if(event.key==='Enter')sendMavi()"><button class="btn primary" onclick="sendMavi()">Invia</button></div></div></section>
+<section class="page" id="mavi"><div class="card chat"><div class="between"><div><h3 style="margin:0">Mavi</h3><div class="muted">Assistente interno di Maviri</div></div><span class="badge" id="maviModelBadge">MAVI FAST CORE</span></div><div class="messages" id="messages"><div class="bubble mavi">Sono Mavi. Posso consultare i dati presenti in Maviri: appuntamenti, clienti, servizi, orari e contenuti.</div></div><div class="chatbar"><button class="btn secondary" id="voice">🎙</button><input id="maviInput" placeholder="Scrivi a Mavi..." onkeydown="if(event.key==='Enter')sendMavi()"><button class="btn primary" onclick="sendMavi()">Invia</button></div></div></section>
 
 <section class="page" id="calendar"><div class="grid two"><div class="card"><div class="calendar-head"><div class="row"><button class="btn small" onclick="month(-1)">‹</button><strong id="monthTitle"></strong><button class="btn small" onclick="month(1)">›</button></div><button class="btn primary small" onclick="newAp()">＋ Appuntamento</button></div><div class="calendar" id="cal"></div></div><div class="card"><div class="between"><h3 id="dayTitle">Appuntamenti</h3><span class="badge blue" id="dayCount">0</span></div><div class="list" id="dayList"></div></div></div></section>
 
@@ -106,6 +106,7 @@ Mavi = internal AI assistant.
       <div class="meta">Il token non deve essere pubblicato nel codice. Configuralo anche nelle variabili d'ambiente Vercel.</div>
     </div>
   </div>
+  <div class="card" style="margin-top:18px"><div class="between"><div><h3>Potenza AI di Mavi</h3><div class="muted">Automatico protegge i dispositivi meno potenti. Ultra va attivato solo su hardware dedicato.</div></div><span id="maviModelSettingsBadge" class="badge blue">Mavi Fast Core</span></div><div class="field" style="margin-top:14px"><label>Modello locale preferito</label><select id="maviModelPreference" onchange="setMaviModelPreference(this.value)"><option value="auto">Automatico (consigliato)</option><option value="fast">Fast Core — compatibilità massima</option><option value="light">Qwen 1.7B — dispositivi meno potenti</option><option value="power">Qwen 4B — dispositivi potenti</option><option value="ultra">Qwen 8B Ultra — hardware estremo</option></select></div></div>
   <div class="card" style="margin-top:18px"><div class="between"><div><h3>Orari, chiusure e pause</h3><div class="muted">Imposta apertura, chiusura e una o più pause per ogni giorno. Le modifiche diventano attive solo dopo <strong>Salva orari</strong>.</div></div><button class="btn primary small" onclick="saveHours()">Salva orari</button></div><div class="hours" id="hours" style="margin-top:15px"></div></div>
   <div class="card" style="margin-top:18px"><div class="between"><h3>Promozioni</h3><button class="btn primary small" onclick="addPromo()">＋ Promozione</button></div><div class="list" id="promos" style="margin-top:14px"></div></div>
   <div class="card" style="margin-top:18px"><h3>Licenza, copyright e proprietà</h3><div class="legal"><strong>Copyright © 2026 Maviri / SimyTech. Tutti i diritti riservati.</strong><br><br>Maviri, il logo Maviri, l'interfaccia, il design originale, i testi originali e gli elementi distintivi sono proprietà del titolare dei diritti nei limiti previsti dalla legge.<br><br>Questo prodotto è software proprietario e non è rilasciato con una licenza open source. La copia, redistribuzione, sublicenza, rivendita non autorizzata, pubblicazione del codice, reverse engineering, decompilazione e creazione di opere derivate dagli elementi proprietari sono vietati salvo autorizzazione scritta.<br><br><strong>Marchio:</strong> Maviri e il logo Maviri sono elementi distintivi del prodotto e non sono concessi per uso indipendente da parte di terzi.<br><br><strong>Dipendenze:</strong> questa versione non richiede librerie runtime di terze parti. Eventuali componenti aggiunti in futuro devono mantenere i propri avvisi e licenze.</div></div>
@@ -117,6 +118,7 @@ Mavi = internal AI assistant.
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 
+<script type="module" src="/mavi-adaptive-runtime.js"></script>
 <script>
 "use strict";
 if(window.top===window.self){location.replace("/app")}
@@ -403,9 +405,19 @@ async function maviAnswer(q){
     if(!data.clients.some(x=>x.id===c.id))data.clients.push(c);
     data.appointments.push({...a,clientId:c.id});save();
   }
-  return r.answer||"Non ho ricevuto una risposta valida da Mavi.";
+  const serverAnswer=r.answer||"Non ho ricevuto una risposta valida da Mavi.";
+  const genericAnswers=["Posso aiutarti con servizi, prezzi, promozioni, orari, disponibilità e prenotazioni. Dimmi cosa ti serve.","Non ho ricevuto una risposta valida da Mavi."];
+  if(genericAnswers.includes(serverAnswer)&&window.MaviModels?.getCurrent().id!=="fast"){
+    const localAnswer=await window.MaviModels.ask(q,{businessName:data.business.name,businessType:data.business.type});
+    if(localAnswer)return localAnswer;
+  }
+  return serverAnswer;
 }
 function renderSettings(){const b=data.business;if($("ownerSyncToken"))$("ownerSyncToken").value=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";$("bName").value=b.name;$("bType").value=b.type;$("bDesc").value=b.description;$("bPhone").value=b.phone;$("bWhats").value=b.whatsapp;$("bAddress").value=b.address;$("services").innerHTML=data.services.length?data.services.map((s,i)=>`<div class="item"><div class="between"><strong>${esc(s.name)}</strong><span class="badge blue">€${Number(s.price||0).toFixed(2)} · ${s.duration} min</span></div><button class="btn danger small" onclick="removeService(${i})" style="margin-top:8px">Elimina</button></div>`).join(""):"<div class=\"empty\">Nessun servizio.</div>"}
+function renderMaviModel(){if(!window.MaviModels)return;const tier=window.MaviModels.getCurrent(),pref=window.MaviModels.getPreference();if($("maviModelPreference"))$("maviModelPreference").value=pref;if($("maviModelBadge"))$("maviModelBadge").textContent=tier.label.toUpperCase();if($("maviModelSettingsBadge"))$("maviModelSettingsBadge").textContent=tier.label}
+function setMaviModelPreference(value){if(!window.MaviModels)return toast("Il selettore AI si sta avviando.");const tier=window.MaviModels.setPreference(value);renderMaviModel();toast(`${tier.label} selezionato. La catena di fallback protegge Mavi in caso di memoria insufficiente.`)}
+window.addEventListener("mavi-model-change",renderMaviModel);
+window.addEventListener("mavi-model-status",event=>{const detail=event.detail||{},badge=$("maviModelBadge");if(badge)badge.textContent=detail.state==="loading"?"CARICAMENTO AI…":detail.state==="thinking"?"MAVI ELABORA…":(detail.tier?.label||"MAVI FAST CORE").toUpperCase()});
 function saveBusiness(){data.business={name:$("bName").value.trim(),type:$("bType").value.trim(),description:$("bDesc").value.trim(),phone:$("bPhone").value.trim(),whatsapp:$("bWhats").value.trim(),address:$("bAddress").value.trim()};save();toast("Dati attività salvati.")}
 function addService(){const n=$("svName").value.trim(),p=Number($("svPrice").value||0),d=Number($("svDur").value||0);if(!n||!d)return toast("Inserisci nome e durata.");data.services.push({id:uid(),name:n,price:p,duration:d});$("svName").value=$("svPrice").value=$("svDur").value="";save()}
 function removeService(i){data.services.splice(i,1);save()}
@@ -417,6 +429,7 @@ function savePromo(){const t=$("pt").value.trim();if(!t)return toast("Inserisci 
 if("SpeechRecognition"in window||"webkitSpeechRecognition"in window){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;$("voice").onclick=()=>{const r=new SR();r.lang="it-IT";r.interimResults=false;r.onresult=e=>{$("maviInput").value=e.results[0][0].transcript;sendMavi()};r.onerror=()=>toast("Microfono non disponibile.");r.start()}}else $("voice").disabled=true;
 renderAll();
 initOwnerSession();
+renderMaviModel();
 </script>
 </body>
 </html>
