@@ -21,10 +21,23 @@ test("un JSON token non valido non degrada su un segreto globale", () => {
   assert.equal(ownerTokenForTenant("default", env), "");
 });
 
-test("verifica la proprietà cliente tramite telefono normalizzato", () => {
+test("verifica la proprietà cliente tramite telefono italiano normalizzato", () => {
   const appointment = { phone: "+39 333 123 4567" };
   assert.equal(normalizePhone("0039-333-123-4567"), "3331234567");
   assert.equal(clientOwnsAppointment(appointment, { clientPhone: "3331234567" }), true);
+  assert.equal(clientOwnsAppointment(appointment, { clientPhone: "0039 333 123 4567" }), true);
   assert.equal(clientOwnsAppointment(appointment, { phone: "3330000000" }), false);
   assert.equal(clientOwnsAppointment({ id: "a1" }, { phone: "3331234567" }), false);
+});
+
+test("non considera proprietari numeri internazionali diversi con lo stesso suffisso", () => {
+  const appointment = { phone: "+39 333 123 4567" };
+  assert.equal(clientOwnsAppointment(appointment, { phone: "+44 333 123 4567" }), false);
+  assert.equal(clientOwnsAppointment({ phone: "+44 7700 900123" }, { phone: "+39 7700 900123" }), false);
+});
+
+test("mantiene il confronto esatto per numeri internazionali non italiani", () => {
+  const appointment = { phone: "+44 7700 900123" };
+  assert.equal(clientOwnsAppointment(appointment, { phone: "0044 7700 900123" }), true);
+  assert.equal(clientOwnsAppointment(appointment, { phone: "7700900123" }), false);
 });
