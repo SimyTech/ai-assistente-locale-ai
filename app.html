@@ -19,6 +19,7 @@ html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden;fon
 <div id="gate">Apertura del tuo spazio Maviri…</div>
 <div id="context" class="context"><div><strong id="activityName">Maviri</strong><span id="activitySummary"></span></div><div class="context-actions"><a id="verifyEmailLink" class="verify hidden" href="/account">Verifica email</a><a href="/account" aria-label="Gestisci account">Account</a><a href="/setup">Configura attività</a></div></div>
 <iframe id="appFrame" title="Maviri"></iframe>
+<script src="/recovery-metrics.js"></script>
 <script type="module">
 import { adaptiveDashboardPlan } from "/lib/adaptive-ui.js";
 
@@ -114,6 +115,32 @@ function readLocalData(){
     try{const value=JSON.parse(raw);if(value&&typeof value==="object")return value}catch{}
   }
   return {};
+}
+function renderAttributedRecoveryMetrics(){
+  const doc=frame.contentDocument;
+  const source=readLocalData();
+  if(!doc||!source||typeof window.maviriRecoveryMetrics!=="function")return;
+  const result=window.maviriRecoveryMetrics(source.clients,source.appointments);
+  const contacts=doc.getElementById("sRecoveryContacts");
+  const conversion=doc.getElementById("sRecoveryConversion");
+  if(contacts)contacts.textContent=String(result.contacts);
+  if(conversion){
+    conversion.textContent=`${result.conversionRate}%`;
+    conversion.title=`${result.conversions} clienti hanno prenotato dopo il richiamo`;
+  }
+}
+function wireAttributedRecoveryMetrics(){
+  const win=frame.contentWindow;
+  if(!win||win.__MAVIRI_RECOVERY_METRICS_WRAPPED__)return;
+  const original=win.renderAll;
+  if(typeof original!=="function")return;
+  win.__MAVIRI_RECOVERY_METRICS_WRAPPED__=true;
+  win.renderAll=function(){
+    const result=original.apply(this,arguments);
+    renderAttributedRecoveryMetrics();
+    return result;
+  };
+  renderAttributedRecoveryMetrics();
 }
 function normalizeOperationalHours(data){
   const source=data?.settings?.hours;
@@ -356,6 +383,7 @@ function scheduleAdaptiveUi(){
 }
 frame.addEventListener("load",()=>{
   installApiBridge();
+  wireAttributedRecoveryMetrics();
   applyAdaptiveUi();
   refreshOperationalDashboard();
   clearInterval(operationalTimer);
