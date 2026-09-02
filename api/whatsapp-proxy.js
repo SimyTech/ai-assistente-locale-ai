@@ -17,26 +17,6 @@ export const config = {
   }
 };
 
-async function processVerifiedWebhook(req, res) {
-  try {
-    const safeReschedule = await handleSafeReschedule(req, res);
-    if (safeReschedule) return safeReschedule;
-  } catch (error) {
-    console.error("MAVIRI WHATSAPP RESCHEDULE GUARD ERROR:", error);
-    return res.status(500).json({ ok: false, error: "Errore interno spostamento WhatsApp." });
-  }
-
-  try {
-    const safeCancellation = await handleSafeCancellation(req, res);
-    if (safeCancellation) return safeCancellation;
-  } catch (error) {
-    console.error("MAVIRI WHATSAPP CANCELLATION GUARD ERROR:", error);
-    return res.status(500).json({ ok: false, error: "Errore interno annullamento WhatsApp." });
-  }
-
-  return whatsappHandler(req, res);
-}
-
 export default async function handler(req, res) {
   if (req?.method !== "POST") {
     return whatsappHandler(req, res);
@@ -79,8 +59,6 @@ export default async function handler(req, res) {
       phoneNumberId: route.phoneNumberId || null,
       routeCount: route.routeCount
     });
-    // Meta retries failed webhooks. Acknowledge safely while discarding the
-    // event so an unknown business number can never enter another tenant.
     return res.status(200).json({
       ok: true,
       ignored: true,
@@ -116,4 +94,24 @@ export default async function handler(req, res) {
       console.error("MAVIRI WHATSAPP LOCK RELEASE ERROR:", error);
     }
   }
+}
+
+async function processVerifiedWebhook(req, res) {
+  try {
+    const safeReschedule = await handleSafeReschedule(req, res);
+    if (safeReschedule) return safeReschedule;
+  } catch (error) {
+    console.error("MAVIRI WHATSAPP RESCHEDULE GUARD ERROR:", error);
+    return res.status(500).json({ ok: false, error: "Errore interno spostamento WhatsApp." });
+  }
+
+  try {
+    const safeCancellation = await handleSafeCancellation(req, res);
+    if (safeCancellation) return safeCancellation;
+  } catch (error) {
+    console.error("MAVIRI WHATSAPP CANCELLATION GUARD ERROR:", error);
+    return res.status(500).json({ ok: false, error: "Errore interno annullamento WhatsApp." });
+  }
+
+  return whatsappHandler(req, res);
 }
