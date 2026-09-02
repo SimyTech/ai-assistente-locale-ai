@@ -1,5 +1,6 @@
 import whatsappHandler from "./whatsapp.js";
 import { handleSafeCancellation } from "../lib/whatsapp-cancellation-guard.js";
+import { whatsappTenantRoute } from "../lib/whatsapp-tenant.js";
 import { parseJsonBody, readRawBody, verifyMetaSignature } from "../lib/webhook-signature.js";
 
 const clean = value => String(value ?? "").trim();
@@ -44,6 +45,21 @@ export default async function handler(req, res) {
 
   if (!clean(req.headers?.["content-type"])) {
     req.headers = { ...(req.headers || {}), "content-type": "application/json" };
+  }
+
+  const route = whatsappTenantRoute(req.body, process.env);
+  if (!route.accepted) {
+    console.warn("MAVIRI WHATSAPP UNMAPPED ROUTE:", {
+      phoneNumberId: route.phoneNumberId || null,
+      routeCount: route.routeCount
+    });
+    // Meta retries failed webhooks. Acknowledge safely while discarding the
+    // event so an unknown business number can never enter another tenant.
+    return res.status(200).json({
+      ok: true,
+      ignored: true,
+      reason: "unmapped-whatsapp-number"
+    });
   }
 
   try {
