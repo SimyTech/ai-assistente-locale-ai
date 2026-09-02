@@ -218,6 +218,28 @@ export function buildCustomerStats(body = {}) {
   return [...stats.values()];
 }
 
+export function buildRevenueStats(body = {}) {
+  const today = todayRome();
+  const month = today.slice(0, 7);
+  const services = Array.isArray(body.services) ? body.services.filter(Boolean) : [];
+  const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
+  const priceByService = new Map(services.map(service => [norm(service?.name), Number(service?.price || 0)]));
+  const priceOf = appointment => {
+    const direct = Number(appointment?.price);
+    if (Number.isFinite(direct) && direct >= 0) return direct;
+    const configured = priceByService.get(norm(appointmentService(appointment)));
+    return Number.isFinite(configured) && configured >= 0 ? configured : 0;
+  };
+  const sum = rows => rows.reduce((total, appointment) => total + priceOf(appointment), 0);
+
+  return {
+    todayScheduled: sum(appointments.filter(appointment => appointmentActive(appointment) && appointmentDate(appointment) === today)),
+    monthCompleted: sum(appointments.filter(appointment => norm(appointment?.status) === "completed" && appointmentDate(appointment).startsWith(month))),
+    monthScheduled: sum(appointments.filter(appointment => appointmentActive(appointment) && appointmentDate(appointment).startsWith(month))),
+    currency: "EUR"
+  };
+}
+
 function listAppointments(body, date) {
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
@@ -255,8 +277,9 @@ export function ownerManagerInsight(body = {}) {
   const asksReminders = /(?:promemori|ricord).*(?:invia|fare|prepar|manc|domani)|(?:chi|quali|mostra|elenca).*(?:promemori|ricord)/.test(message);
   const asksPendingActions = /(?:cosa|che).*(?:devo|c'e da|ce da).*(?:fare|gestire|chiudere)|azion[ei].*(?:pendent|operativ|oggi)|appuntament.*(?:da chiudere|rimast.*apert)/.test(message);
   const asksSummary = /riepilogo|come va(?: l)?(?: attivita|azienda|lavoro)|situazione(?: di oggi| attivita)?|panoramica/.test(message);
+  const asksRevenue = /(?:quanto|valore|totale|stima).*(?:incass|fatturat|guadagn|agenda)|(?:incass|fatturat|guadagn).*(?:oggi|mese|questo mese|quanto|totale)/.test(message);
 
-  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary) {
+  if (!asksRegular && !asksInactive && !asksBest && !asksNew && !asksCount && !asksNeverVisited && !asksTodayAppointments && !asksTomorrowAppointments && !asksNoShows && !asksNoShowRisk && !asksReminders && !asksPendingActions && !asksSummary && !asksRevenue) {
     return null;
   }
 
@@ -267,6 +290,17 @@ export function ownerManagerInsight(body = {}) {
   const appointments = Array.isArray(body.appointments) ? body.appointments.filter(Boolean) : [];
   const clients = Array.isArray(body.clients) ? body.clients.filter(Boolean) : [];
   const clientsById = new Map(clients.map(client => [clean(client?.id), client]));
+
+  if (asksRevenue) {
+    const revenue = buildRevenueStats(body);
+    return [
+      "Valore economico stimato:",
+      `• Agenda di oggi: €${revenue.todayScheduled.toFixed(2)}`,
+      `• Prestazioni completate questo mese: €${revenue.monthCompleted.toFixed(2)}`,
+      `• Agenda complessiva del mese: €${revenue.monthScheduled.toFixed(2)}`,
+      "La stima usa i prezzi dei servizi configurati e non sostituisce la contabilità fiscale."
+    ].join("\n");
+  }
 
   if (asksNoShowRisk) {
     const priceByService = new Map((Array.isArray(body.services) ? body.services : []).map(service => [norm(service?.name), Number(service?.price || 0)]));
@@ -399,6 +433,7 @@ export function ownerManagerInsight(body = {}) {
   }
 
   if (asksSummary) {
+    const revenue = buildRevenueStats(body);
     const todayAppointments = listAppointments(body, today);
     const month = today.slice(0, 7);
     const monthVisits = (Array.isArray(body.appointments) ? body.appointments : [])
@@ -419,7 +454,8 @@ export function ownerManagerInsight(body = {}) {
       `• Nuovi ${clientPlural.toLowerCase()} questo mese: ${newClients}`,
       `• ${clientPlural} da recuperare (60+ giorni): ${inactive}`,
       `• Assenze/no-show registrati: ${noShows}`,
-      `• Promemoria da inviare per domani: ${pendingReminders}`
+      `• Promemoria da inviare per domani: ${pendingReminders}`,
+      `• Valore completato questo mese: €${revenue.monthCompleted.toFixed(2)}`
     ].join("\n");
   }
 
