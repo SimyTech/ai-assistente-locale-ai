@@ -2,8 +2,10 @@ import { answerFastLocalData } from "./lib/mavi-fast-data.js";
 import { classifyMaviIntent, MAVI_ROUTE } from "./lib/mavi-semantic-router.js";
 import { createMaviOperationalMemory } from "./lib/mavi-operational-memory.js";
 import { buildProactiveBrief } from "./lib/mavi-proactive-manager.js";
+import { createMaviProactiveActions } from "./lib/mavi-proactive-actions.js";
 
 const operationalMemory = createMaviOperationalMemory();
+const proactiveActions = createMaviProactiveActions();
 
 function localData() {
   for (const key of ["maviri_app_data_v7", "maviri_app_data_v6", "maviri_app_data_v5", "maviri_app_data_v4", "appData", "appData_backup"]) {
@@ -67,6 +69,21 @@ function installSemanticRouter() {
 
   const routed = async function(message) {
     const data = window.data || localData();
+    const proactive = proactiveActions.handle(message, currentProactiveBrief({ maxItems: 6 }), data, conversationId());
+
+    if (proactive.handled) {
+      if (proactive.proposal) {
+        window.dispatchEvent(new CustomEvent("mavi:proactive-action-proposal", {
+          detail: {
+            proposal: proactive.proposal,
+            approvalRequired: proactive.approvalRequired,
+            execute: false
+          }
+        }));
+      }
+      return proactive.answer;
+    }
+
     const prepared = operationalMemory.prepare(message, data, conversationId());
 
     if (prepared.handled) return prepared.answer;
@@ -115,6 +132,7 @@ window.MaviProactiveManager = Object.freeze({
   showOnce: showProactiveBriefOnce,
   resetSession() {
     try { sessionStorage.removeItem(proactiveStorageKey()); } catch {}
+    proactiveActions.clear(conversationId());
   }
 });
 
