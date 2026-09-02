@@ -4,7 +4,8 @@ import { readFile } from "node:fs/promises";
 
 import {
   listClientAppointments,
-  pickNextClientAppointment
+  pickNextClientAppointment,
+  resolveClientCancellation
 } from "../lib/whatsapp-cancellation.js";
 
 test("seleziona l'appuntamento del cliente WhatsApp quando è l'unico futuro", () => {
@@ -20,13 +21,45 @@ test("seleziona l'appuntamento del cliente WhatsApp quando è l'unico futuro", (
 
 test("non annulla automaticamente quando il cliente ha più appuntamenti futuri", () => {
   const appointments = [
-    { id: "first", status: "confirmed", date: "2026-09-03", time: "11:00", phone: "3331234567" },
-    { id: "second", status: "confirmed", date: "2026-09-05", time: "10:00", phone: "3331234567" }
+    { id: "first", status: "confirmed", date: "2026-09-03", time: "11:00", phone: "3331234567", service: "Taglio" },
+    { id: "second", status: "confirmed", date: "2026-09-05", time: "10:00", phone: "3331234567", service: "Colore" }
   ];
   const matches = listClientAppointments(appointments, { phone: "3331234567" }, "2026-09-02");
   const selected = pickNextClientAppointment(appointments, { phone: "3331234567" }, "2026-09-02");
+  const resolution = resolveClientCancellation(appointments, { phone: "3331234567" }, "2026-09-02", "annulla");
   assert.deepEqual(matches.map(item => item.id), ["first", "second"]);
   assert.equal(selected, null);
+  assert.equal(resolution.appointment, null);
+  assert.equal(resolution.ambiguous, true);
+});
+
+test("risolve un annullamento ambiguo tramite orario", () => {
+  const appointments = [
+    { id: "first", status: "confirmed", date: "2026-09-03", time: "11:00", phone: "3331234567", service: "Taglio" },
+    { id: "second", status: "confirmed", date: "2026-09-05", time: "10:00", phone: "3331234567", service: "Colore" }
+  ];
+  const resolution = resolveClientCancellation(
+    appointments,
+    { phone: "3331234567" },
+    "2026-09-02",
+    "annulla quello delle 10:00"
+  );
+  assert.equal(resolution.appointment?.id, "second");
+  assert.equal(resolution.ambiguous, false);
+});
+
+test("risolve un annullamento ambiguo tramite servizio", () => {
+  const appointments = [
+    { id: "first", status: "confirmed", date: "2026-09-03", time: "11:00", phone: "3331234567", service: "Taglio" },
+    { id: "second", status: "confirmed", date: "2026-09-05", time: "10:00", phone: "3331234567", service: "Colore" }
+  ];
+  const resolution = resolveClientCancellation(
+    appointments,
+    { phone: "3331234567" },
+    "2026-09-02",
+    "annulla il colore"
+  );
+  assert.equal(resolution.appointment?.id, "second");
 });
 
 test("non seleziona appuntamenti appartenenti ad altri numeri", () => {
@@ -40,8 +73,10 @@ test("WhatsApp persiste l'annullamento sul database condiviso", async () => {
   const whatsapp = await readFile(new URL("../api/whatsapp.js", import.meta.url), "utf8");
   assert.match(whatsapp, /function cancelRequestedAppointment/);
   assert.match(whatsapp, /tenantDataKey\(tenantId\)/);
+  assert.match(whatsapp, /resolveClientCancellation/);
   assert.match(whatsapp, /status: "cancelled"/);
   assert.match(whatsapp, /Annullato dal cliente via WhatsApp/);
+  assert.match(whatsapp, /Quale vuoi annullare\?/);
   assert.match(whatsapp, /await redisSet\(key, nextData\)/);
   assert.match(whatsapp, /cancelRequestedAppointment\(\{ tenantId, phone, text, session \}\)/);
 });

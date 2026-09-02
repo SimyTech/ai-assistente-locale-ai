@@ -10,7 +10,7 @@ import {
   whatsappSessionKey
 } from "../lib/whatsapp-tenant.js";
 import { tenantDataKey } from "../lib/tenant.js";
-import { pickNextClientAppointment } from "../lib/whatsapp-cancellation.js";
+import { resolveClientCancellation } from "../lib/whatsapp-cancellation.js";
 import {
   awaitingField,
   bookingComplete,
@@ -310,13 +310,27 @@ async function cancelRequestedAppointment({ tenantId, phone, text, session }) {
   const data = await redisGet(key);
   if (!data || typeof data !== "object") return null;
 
-  const appointment = pickNextClientAppointment(
+  const resolution = resolveClientCancellation(
     data.appointments,
     { phone, whatsapp: phone },
-    todayRome()
+    todayRome(),
+    text
   );
-  if (!appointment) return null;
 
+  if (!resolution.matches.length) return null;
+  if (!resolution.appointment) {
+    const options = resolution.matches
+      .slice(0, 5)
+      .map(item => `${clean(item.date)} alle ${clean(item.time)} — ${clean(item.service)}`)
+      .join("; ");
+    return {
+      reply: `Hai più appuntamenti futuri: ${options}. Quale vuoi annullare? Scrivi ad esempio “annulla quello delle 10:00” oppure indica il servizio.`,
+      bookingHandled: true,
+      appointment: null
+    };
+  }
+
+  const appointment = resolution.appointment;
   const cancelledAt = new Date().toISOString();
   const nextAppointment = {
     ...appointment,
