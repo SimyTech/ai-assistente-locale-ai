@@ -19,8 +19,13 @@ test("rifiuta firma Meta alterata", () => {
   assert.equal(verifyMetaSignature({ secret, signature: `${signature.slice(0, -1)}0`, rawBody }), false);
 });
 
-test("senza secret configurato la verifica resta opzionale", () => {
-  assert.equal(verifyMetaSignature({ secret: "", signature: "", rawBody }), true);
+test("senza App Secret il webhook POST fallisce chiuso", () => {
+  assert.equal(verifyMetaSignature({ secret: "", signature: "", rawBody }), false);
+  assert.equal(verifyMetaSignature({ secret: "   ", signature, rawBody }), false);
+});
+
+test("rifiuta firma mancante anche con App Secret configurato", () => {
+  assert.equal(verifyMetaSignature({ secret, signature: "", rawBody }), false);
 });
 
 test("legge rawBody senza modificarne i byte", async () => {
