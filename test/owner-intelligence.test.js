@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ownerManagerInsight } from "../api/chat-proxy.js";
+import { buildRevenueStats, ownerManagerInsight } from "../api/chat-proxy.js";
 
 const today = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Europe/Rome",
@@ -122,4 +122,18 @@ test("classifica i clienti per rischio no-show e valore perso", () => {
   const answer = ask("quali pazienti hanno più assenze e sono meno affidabili?");
   assert.match(answer, /Pazienti con più assenze\/no-show/);
   assert.match(answer, /Luca Bianchi — 1 assenza, valore stimato perso €50\.00/);
+});
+
+
+test("calcola il valore economico senza contare annullati e no-show", () => {
+  const stats = buildRevenueStats(dataset);
+  assert.equal(typeof stats.todayScheduled, "number");
+  assert.ok(stats.monthCompleted >= 0);
+  assert.ok(stats.monthScheduled >= stats.monthCompleted);
+});
+
+test("Mavi risponde alle domande sugli incassi con una stima trasparente", () => {
+  const answer = ask("quanto ho incassato questo mese?");
+  assert.match(answer, /Prestazioni completate questo mese: €\d+\.\d{2}/);
+  assert.match(answer, /non sostituisce la contabilità fiscale/);
 });
