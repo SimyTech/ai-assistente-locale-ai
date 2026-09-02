@@ -9,6 +9,8 @@ import {
   whatsappProcessedKey,
   whatsappSessionKey
 } from "../lib/whatsapp-tenant.js";
+import { tenantDataKey } from "../lib/tenant.js";
+import { pickNextClientAppointment } from "../lib/whatsapp-cancellation.js";
 import {
   awaitingField,
   bookingComplete,
@@ -293,6 +295,54 @@ async function continueBooking(req, { tenantId, phone, text, profileName, sessio
   return { bookingHandled: false };
 }
 
+function todayRome() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Rome",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(new Date());
+}
+
+async function cancelRequestedAppointment({ tenantId, phone, text, session }) {
+  if (normalizeBooking(session.booking).status || !isCancellation(text)) return null;
+  const key = tenantDataKey(tenantId);
+  const data = await redisGet(key);
+  if (!data || typeof data !== "object") return null;
+
+  const appointment = pickNextClientAppointment(
+    data.appointments,
+    { phone, whatsapp: phone },
+    todayRome()
+  );
+  if (!appointment) return null;
+
+  const cancelledAt = new Date().toISOString();
+  const nextAppointment = {
+    ...appointment,
+    status: "cancelled",
+    cancelledAt,
+    cancellationReason: "Annullato dal cliente via WhatsApp",
+    updatedAt: cancelledAt
+  };
+  const nextAppointments = (Array.isArray(data.appointments) ? data.appointments : []).map(item =>
+    String(item?.id) === String(appointment.id) ? nextAppointment : item
+  );
+  const nextData = {
+    ...data,
+    appointments: nextAppointments,
+    revision: Number(data.revision || 0) + 1,
+    updatedAt: cancelledAt
+  };
+  await redisSet(key, nextData);
+
+  return {
+    reply: `Va bene, ho annullato il tuo appuntamento del ${clean(appointment.date)} alle ${clean(appointment.time)} per ${clean(appointment.service)}.`,
+    bookingHandled: true,
+    appointment: nextAppointment
+  };
+}
+
 async function confirmRequestedAttendance(req, { tenantId, phone, text, session }) {
   if (normalizeBooking(session.booking).status || !isConfirmation(text)) return null;
   try {
@@ -370,7 +420,8 @@ export default async function handler(req, res) {
 
     addHistory(session, "user", text);
 
-    let responsePayload = await confirmRequestedAttendance(req, { tenantId, phone, text, session });
+    let responsePayload = await cancelRequestedAppointment({ tenantId, phone, text, session });
+    if (!responsePayload) responsePayload = await confirmRequestedAttendance(req, { tenantId, phone, text, session });
     if (!responsePayload) responsePayload = await continueBooking(req, { tenantId, phone, text, profileName, session });
 
     if (!responsePayload.bookingHandled) {
