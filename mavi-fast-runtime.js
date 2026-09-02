@@ -5,9 +5,11 @@ import { buildProactiveBrief } from "./lib/mavi-proactive-manager.js";
 import { createMaviProactiveActions } from "./lib/mavi-proactive-actions.js";
 import { installProactiveActionUi } from "./lib/mavi-proactive-action-ui.js";
 import { channelReadyForProposal, fetchMaviChannelStatus } from "./lib/mavi-channel-status.js";
+import { createActionLifecycle } from "./lib/mavi-action-lifecycle.js";
 
 const operationalMemory = createMaviOperationalMemory();
 const proactiveActions = createMaviProactiveActions();
+const actionLifecycle = createActionLifecycle();
 let channelStatus = { ok: false, channels: {} };
 
 function localData() {
@@ -44,6 +46,36 @@ async function refreshChannelStatus(proposal = null) {
     }));
   }
   return channelStatus;
+}
+
+function installActionLifecycleBridge() {
+  window.addEventListener("mavi:proactive-action-proposal", event => {
+    if (event.detail?.proposal) actionLifecycle.propose(event.detail.proposal);
+  });
+  window.addEventListener("mavi:proactive-action-approved", event => {
+    if (event.detail?.proposal) actionLifecycle.approve(event.detail.proposal);
+  });
+  window.addEventListener("mavi:proactive-action-edited", event => {
+    const previous = event.detail?.previousProposal || {};
+    const proposal = event.detail?.proposal;
+    if (proposal) actionLifecycle.edit(previous, proposal);
+  });
+  window.addEventListener("mavi:authorized-send-request", event => {
+    const proposal = event.detail?.proposal;
+    if (!proposal) return;
+    const result = actionLifecycle.requestSend(proposal);
+    window.dispatchEvent(new CustomEvent("mavi:action-lifecycle", {
+      detail: { action: result.action, accepted: result.accepted, duplicate: result.duplicate }
+    }));
+  });
+  window.addEventListener("mavi:authorized-send-complete", event => {
+    const proposal = event.detail?.proposal;
+    if (proposal) actionLifecycle.complete(proposal);
+  });
+  window.addEventListener("mavi:authorized-send-failed", event => {
+    const proposal = event.detail?.proposal;
+    if (proposal) actionLifecycle.fail(proposal, event.detail?.error || "");
+  });
 }
 
 function showProactiveBriefOnce() {
@@ -121,13 +153,17 @@ window.MaviProactiveManager = Object.freeze({
   resetSession() {
     try { sessionStorage.removeItem(proactiveStorageKey()); } catch {}
     proactiveActions.clear(conversationId());
+    actionLifecycle.clear();
   }
 });
 window.MaviAuthorizedSend = Object.freeze({
   canSend(proposal) { return channelReadyForProposal(proposal, channelStatus); },
-  async refresh(proposal) { await refreshChannelStatus(proposal); return channelReadyForProposal(proposal, channelStatus); }
+  async refresh(proposal) { await refreshChannelStatus(proposal); return channelReadyForProposal(proposal, channelStatus); },
+  state(proposal) { return actionLifecycle.get(proposal); },
+  retry(proposal) { return actionLifecycle.retry(proposal); }
 });
 
+installActionLifecycleBridge();
 installProactiveActionUi();
 refreshChannelStatus();
 
