@@ -255,6 +255,15 @@ test("misura il valore prodotto dai richiami intelligenti", async () => {
   assert.match(html, /completedMonth\(a\)&&recovered\(a\)/);
 });
 
+test("misura contatti e conversione dei richiami negli ultimi trenta giorni", async () => {
+  const html = await text("index.html");
+  assert.match(html, /id="sRecoveryContacts"/);
+  assert.match(html, /id="sRecoveryConversion"/);
+  assert.match(html, /Date\.parse\(c\.recoveryContactedAt\|\|c\.rebookingContactedAt\|\|""\)>=cutoff/);
+  assert.match(html, /recovered\(a\)&&active\(a\)/);
+  assert.match(html, /Math\.round\(recoveryBookings\/contacts\*100\)/);
+});
+
 test("segnala e gestisce gli appuntamenti a rischio no-show", async () => {
   const html = await text("index.html");
   assert.match(html, /id="sRiskCount"/);
