@@ -20,7 +20,7 @@ test("normalizza lo stato di annullamento pendente", () => {
 });
 
 test("riconosce risposte che mantengono l'appuntamento", () => {
-  for (const text of ["no", "No grazie", "mantieni", "non annullare", "lascia stare", "conserva"]) {
+  for (const text of ["no", "No grazie", "mantieni", "non annullare", "lascia stare", "conserva", "ok, non annullare", "va bene, mantieni grazie"]) {
     assert.equal(isCancellationDecline(text), true, text);
   }
   assert.equal(isCancellationDecline("confermo"), false);
