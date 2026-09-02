@@ -28,6 +28,10 @@ const body = {
 test("riconosce le richieste al Centro Operativo solo nella chat titolare", () => {
   assert.equal(isOperationalCenterQuestion(body), true);
   assert.equal(isOperationalCenterQuestion({ ...body, role: "client" }), false);
+  assert.equal(isOperationalCenterQuestion({ ...body, role: "customer" }), false);
+  assert.equal(isOperationalCenterQuestion({ ...body, role: "public" }), false);
+  assert.equal(isOperationalCenterQuestion({ ...body, role: "admin" }), false);
+  assert.equal(isOperationalCenterQuestion({ ...body, role: undefined }), false);
   assert.equal(isOperationalCenterQuestion({ ...body, message: "che appuntamenti ho domani?" }), false);
 });
 

@@ -47,6 +47,14 @@ function ask(message) {
   return ownerManagerInsight({ ...dataset, message });
 }
 
+test("non espone analisi riservate senza un ruolo owner esplicito", () => {
+  const question = "quali pazienti sono abituali?";
+  for (const role of [undefined, "client", "customer", "public", "admin", "proprietario"]) {
+    assert.equal(ownerManagerInsight({ ...dataset, role, message: question }), null);
+  }
+  assert.match(ownerManagerInsight({ ...dataset, role: "owner", message: question }), /Anna Rossi/);
+});
+
 test("usa anche il linguaggio del profilo attività", () => {
   assert.match(ask("quali pazienti sono abituali?"), /pazienti/i);
   assert.match(ask("quali pazienti sono abituali?"), /Anna Rossi/);

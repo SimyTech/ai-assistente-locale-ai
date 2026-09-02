@@ -1,4 +1,5 @@
 import chatHandler from "./chat.js";
+import { isExplicitOwnerChat } from "../lib/assistant-role.js";
 
 const clean = value => String(value ?? "").trim();
 const norm = value => clean(value).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ");
@@ -362,9 +363,7 @@ function listAppointments(body, date) {
 }
 
 export function ownerManagerInsight(body = {}) {
-  if (clean(body.action) !== "chat") return null;
-  const role = norm(body.role || body.mode || "owner");
-  if (role === "client") return null;
+  if (!isExplicitOwnerChat(body)) return null;
 
   const message = norm(body.message);
   const labels = labelsFor(body);
