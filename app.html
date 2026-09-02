@@ -141,12 +141,18 @@ function operationalPayload(){
 }
 function operationalDetail(item){
   if(item.type==="agenda-gap")return `${item.date||""} · ${item.start||""}–${item.end||""} · ${Number(item.minutes||0)} min liberi`;
-  if(item.type==="inactive-client")return `${item.lastVisit?`Ultima visita ${item.lastVisit}`:"Cliente inattivo"}${item.service?` · ${item.service}`:""}`;
-  if(item.type==="cancellation-recovery")return `${item.cancelledDate?`Cancellazione ${item.cancelledDate}`:"Cancellazione da recuperare"}${item.service?` · ${item.service}`:""}${Number(item.value||0)>0?` · €${Number(item.value).toFixed(2)}`:""}`;
+  const proposal=item.suggestedGap?` · Proponi ${formatOperationalDate(item.suggestedGap.date)} alle ${item.suggestedGap.start}`:"";
+  if(item.type==="inactive-client")return `${item.lastVisit?`Ultima visita ${formatOperationalDate(item.lastVisit)}`:"Cliente inattivo"}${item.service?` · ${item.service}`:""}${proposal}`;
+  if(item.type==="cancellation-recovery")return `${item.cancelledDate?`Cancellazione ${formatOperationalDate(item.cancelledDate)}`:"Cancellazione da recuperare"}${item.service?` · ${item.service}`:""}${Number(item.value||0)>0?` · €${Number(item.value).toFixed(2)}`:""}${proposal}`;
   return "Azione suggerita da Mavi";
+}
+function formatOperationalDate(value){
+  const parts=String(value||"").split("-");
+  return parts.length===3?`${parts[2]}/${parts[1]}/${parts[0]}`:String(value||"");
 }
 function operationalActionLabel(item){
   if(item.type==="agenda-gap")return "Apri prenotazione";
+  if(item.suggestedGap)return "Proponi questo orario";
   if(item.type==="cancellation-recovery")return "Recupera cliente";
   return "Ricontatta cliente";
 }
@@ -156,6 +162,9 @@ function findOperationalClient(item){
 }
 function whatsappDraft(item,client){
   const businessName=(profile?.name||readLocalData()?.business?.name||"la nostra attività").trim();
+  const gap=item.suggestedGap;
+  const exactProposal=gap?` Abbiamo uno spazio disponibile il ${formatOperationalDate(gap.date)} alle ${gap.start}${gap.service?` per ${gap.service}`:""}: può andare bene?`:"";
+  if(exactProposal)return `Ciao ${client?.name||item.name||""}, ti contattiamo da ${businessName}.${exactProposal}`;
   if(item.type==="cancellation-recovery")return `Ciao ${client?.name||item.name||""}, ti contattiamo da ${businessName}. Vuoi riprogrammare ${item.service?`il tuo appuntamento per ${item.service}`:"il tuo appuntamento"}? Possiamo cercare insieme il momento più comodo.`;
   return `Ciao ${client?.name||item.name||""}, è da un po' che non ci vediamo da ${businessName}. Se vuoi, possiamo trovare un nuovo appuntamento${item.service?` per ${item.service}`:""}.`;
 }
