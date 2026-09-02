@@ -18,13 +18,6 @@ function pipelineResponse(rate = 1, data = "{\"ok\":true}") {
   });
 }
 
-function response(result = 1) {
-  return new Response(JSON.stringify({ result }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" }
-  });
-}
-
 for (const action of ["book", "update", "cancel", "availability", "chat"]) {
   test(`${action}: rate limit e prima lettura owner-data condividono una pipeline`, async () => {
     const calls = [];
@@ -63,7 +56,38 @@ for (const action of ["book", "update", "cancel", "availability", "chat"]) {
   });
 }
 
-test("tenant default usa la chiave owner-data legacy", async () => {
+for (const action of ["context", "public-context"]) {
+  test(`${action}: rate limit e public-context condividono una pipeline`, async () => {
+    const calls = [];
+    const publicJson = JSON.stringify({ action, public: true });
+    const optimizedFetch = createRedisRateReadFetch(async (input, init) => {
+      calls.push({ input, init });
+      return pipelineResponse(1, publicJson);
+    }, REDIS_URL);
+
+    await runWithRedisRateReadContext(async () => {
+      const rateKey = `maviri:tenant:negozio:rate:${action}:0123456789abcdef01234567`;
+      const rate = await optimizedFetch(REDIS_URL, {
+        method: "POST",
+        body: JSON.stringify(["INCR", rateKey])
+      });
+      assert.deepEqual(await rate.json(), { result: 1 });
+
+      const data = await optimizedFetch(REDIS_URL, {
+        method: "POST",
+        body: JSON.stringify(["GET", "maviri:tenant:negozio:public-context"])
+      });
+      assert.deepEqual(await data.json(), { result: publicJson });
+      assert.equal(calls.length, 1);
+    });
+
+    assert.equal(calls[0].input, `${REDIS_URL}/pipeline`);
+    const commands = JSON.parse(calls[0].init.body);
+    assert.deepEqual(commands[1], ["GET", "maviri:tenant:negozio:public-context"]);
+  });
+}
+
+test("tenant default usa le chiavi legacy corrette", async () => {
   const calls = [];
   const optimizedFetch = createRedisRateReadFetch(async (input, init) => {
     calls.push({ input, init });
@@ -79,31 +103,20 @@ test("tenant default usa la chiave owner-data legacy", async () => {
       ])
     });
   });
+  assert.deepEqual(JSON.parse(calls[0].init.body)[1], ["GET", "maviri:owner-data"]);
 
-  const commands = JSON.parse(calls[0].init.body);
-  assert.deepEqual(commands[1], ["GET", "maviri:owner-data"]);
-});
-
-for (const action of ["context", "public-context"]) {
-  test(`${action} non viene trasformato nel fast path owner-data`, async () => {
-    const calls = [];
-    const optimizedFetch = createRedisRateReadFetch(async (input, init) => {
-      calls.push({ input, init });
-      return response(1);
-    }, REDIS_URL);
-
-    await runWithRedisRateReadContext(async () => {
-      const body = JSON.stringify([
+  calls.length = 0;
+  await runWithRedisRateReadContext(async () => {
+    await optimizedFetch(REDIS_URL, {
+      method: "POST",
+      body: JSON.stringify([
         "INCR",
-        `maviri:tenant:negozio:rate:${action}:0123456789abcdef01234567`
-      ]);
-      await optimizedFetch(REDIS_URL, { method: "POST", body });
+        "maviri:tenant:default:rate:context:0123456789abcdef01234567"
+      ])
     });
-
-    assert.equal(calls.length, 1);
-    assert.equal(calls[0].input, REDIS_URL);
   });
-}
+  assert.deepEqual(JSON.parse(calls[0].init.body)[1], ["GET", "maviri:public-context"]);
+});
 
 test("le letture prefetched restano isolate tra richieste concorrenti", async () => {
   const optimizedFetch = createRedisRateReadFetch(async (input, init) => {
@@ -118,13 +131,13 @@ test("le letture prefetched restano isolate tra richieste concorrenti", async ()
         method: "POST",
         body: JSON.stringify([
           "INCR",
-          `maviri:tenant:${tenant}:rate:cancel:0123456789abcdef01234567`
+          `maviri:tenant:${tenant}:rate:context:0123456789abcdef01234567`
         ])
       });
       await Promise.resolve();
       const data = await optimizedFetch(REDIS_URL, {
         method: "POST",
-        body: JSON.stringify(["GET", `maviri:tenant:${tenant}:owner-data`])
+        body: JSON.stringify(["GET", `maviri:tenant:${tenant}:public-context`])
       });
       return (await data.json()).result;
     })
