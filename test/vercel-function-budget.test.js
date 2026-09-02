@@ -28,6 +28,19 @@ test("readiness e reminders restano raggiungibili tramite rewrite verso health",
   assert.ok(vercel.rewrites.some(item => item.source === "/api/reminders" && item.destination === "/api/health?mode=reminders"));
 });
 
+test("non configura cron Vercel incompatibili con il piano Hobby", async () => {
+  const vercel = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
+  assert.equal(Array.isArray(vercel.crons) && vercel.crons.length > 0, false);
+});
+
+test("GitHub Actions richiama i promemoria ogni 15 minuti con secret", async () => {
+  const workflow = await readFile(new URL("../.github/workflows/reminders.yml", import.meta.url), "utf8");
+  assert.match(workflow, /cron:\s*["']\*\/15 \* \* \* \*["']/);
+  assert.match(workflow, /MAVIRI_REMINDER_SECRET/);
+  assert.match(workflow, /\/api\/reminders/);
+  assert.match(workflow, /Authorization: Bearer \$MAVIRI_REMINDER_SECRET/);
+});
+
 test("health serve la readiness completa nello stesso processo", () => {
   const old = { ...process.env };
   process.env.UPSTASH_REDIS_REST_URL = "https://redis.test";
