@@ -3,6 +3,7 @@ import { classifyMaviIntent, MAVI_ROUTE } from "./lib/mavi-semantic-router.js";
 import { createMaviOperationalMemory } from "./lib/mavi-operational-memory.js";
 import { buildProactiveBrief } from "./lib/mavi-proactive-manager.js";
 import { createMaviProactiveActions } from "./lib/mavi-proactive-actions.js";
+import { installProactiveActionUi } from "./lib/mavi-proactive-action-ui.js";
 
 const operationalMemory = createMaviOperationalMemory();
 const proactiveActions = createMaviProactiveActions();
@@ -135,6 +136,8 @@ window.MaviProactiveManager = Object.freeze({
     proactiveActions.clear(conversationId());
   }
 });
+
+installProactiveActionUi();
 
 if (!installSemanticRouter()) {
   queueMicrotask(() => {
