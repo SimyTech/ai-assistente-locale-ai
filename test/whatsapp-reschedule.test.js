@@ -32,6 +32,14 @@ test("rifiuta date impossibili invece di inoltrarle al Business Engine", () => {
   assert.equal(extractRescheduleDate("spostalo al 15/13/2026", "2026-09-02"), "");
 });
 
+test("rifiuta date già passate ma consente oggi e date future", () => {
+  assert.equal(extractRescheduleDate("spostalo al 01/09/2026", "2026-09-02"), "");
+  assert.equal(extractRescheduleDate("spostalo al 2026-08-31", "2026-09-02"), "");
+  assert.equal(extractRescheduleDate("spostalo al 02/09/2026", "2026-09-02"), "2026-09-02");
+  assert.equal(extractRescheduleDate("spostalo al 03/09/2026", "2026-09-02"), "2026-09-03");
+  assert.equal(extractRescheduleDate("spostalo al 01/09", "2026-09-02"), "");
+});
+
 test("estrae l'orario richiesto", () => {
   assert.equal(extractRescheduleTime("alle 15"), "15:00");
   assert.equal(extractRescheduleTime("ore 9:30"), "09:30");
