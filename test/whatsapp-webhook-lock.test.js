@@ -28,11 +28,11 @@ test("il lock è isolato per tenant e message id", () => {
 
 test("il proxy acquisisce il lock dopo firma e routing ma prima dei guard", async () => {
   const proxy = await readFile(new URL("../api/whatsapp-proxy.js", import.meta.url), "utf8");
-  const signature = proxy.indexOf("verifyMetaSignature");
-  const routing = proxy.indexOf("whatsappTenantRoute(req.body");
-  const lock = proxy.indexOf("acquireWhatsAppWebhookLock");
-  const reschedule = proxy.indexOf("handleSafeReschedule(req, res)");
-  const cancellation = proxy.indexOf("handleSafeCancellation(req, res)");
+  const signature = proxy.indexOf("const valid = verifyMetaSignature");
+  const routing = proxy.indexOf("const route = whatsappTenantRoute");
+  const lock = proxy.indexOf("lock = await acquireWhatsAppWebhookLock");
+  const reschedule = proxy.indexOf("handleSafeReschedule(req, res)", lock);
+  const cancellation = proxy.indexOf("handleSafeCancellation(req, res)", lock);
   assert.ok(signature >= 0);
   assert.ok(routing > signature);
   assert.ok(lock > routing);
