@@ -1,6 +1,7 @@
 import { answerFastLocalData } from "./lib/mavi-fast-data.js";
 import { classifyMaviIntent, MAVI_ROUTE } from "./lib/mavi-semantic-router.js";
 import { createMaviOperationalMemory } from "./lib/mavi-operational-memory.js";
+import { buildProactiveBrief } from "./lib/mavi-proactive-manager.js";
 
 const operationalMemory = createMaviOperationalMemory();
 
@@ -21,6 +22,29 @@ function conversationId() {
     return String(window.sessionId || "owner-default");
   } catch {
     return "owner-default";
+  }
+}
+
+function proactiveStorageKey() {
+  const tenant = localStorage.getItem("MAVIRI_TENANT_ID") || "default";
+  return `mavi_proactive_brief_seen_v1:${tenant}`;
+}
+
+function currentProactiveBrief(options = {}) {
+  return buildProactiveBrief(window.data || localData(), options);
+}
+
+function showProactiveBriefOnce() {
+  try {
+    if (sessionStorage.getItem(proactiveStorageKey())) return false;
+    const brief = currentProactiveBrief({ maxItems: 3 });
+    sessionStorage.setItem(proactiveStorageKey(), "1");
+    if (!brief.hasAttention || typeof window.addBubble !== "function") return false;
+    window.addBubble(brief.text, "mavi");
+    window.dispatchEvent(new CustomEvent("mavi:proactive-brief", { detail: brief }));
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -84,8 +108,20 @@ window.MaviSemanticRouter = Object.freeze({
   }
 });
 
+window.MaviProactiveManager = Object.freeze({
+  getBrief(options) {
+    return currentProactiveBrief(options);
+  },
+  showOnce: showProactiveBriefOnce,
+  resetSession() {
+    try { sessionStorage.removeItem(proactiveStorageKey()); } catch {}
+  }
+});
+
 if (!installSemanticRouter()) {
   queueMicrotask(() => {
     if (!installSemanticRouter()) setTimeout(installSemanticRouter, 0);
   });
 }
+
+setTimeout(showProactiveBriefOnce, 2500);
