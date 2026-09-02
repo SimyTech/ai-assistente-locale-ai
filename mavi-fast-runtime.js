@@ -4,9 +4,11 @@ import { createMaviOperationalMemory } from "./lib/mavi-operational-memory.js";
 import { buildProactiveBrief } from "./lib/mavi-proactive-manager.js";
 import { createMaviProactiveActions } from "./lib/mavi-proactive-actions.js";
 import { installProactiveActionUi } from "./lib/mavi-proactive-action-ui.js";
+import { channelReadyForProposal, fetchMaviChannelStatus } from "./lib/mavi-channel-status.js";
 
 const operationalMemory = createMaviOperationalMemory();
 const proactiveActions = createMaviProactiveActions();
+let channelStatus = { ok: false, channels: {} };
 
 function localData() {
   for (const key of ["maviri_app_data_v7", "maviri_app_data_v6", "maviri_app_data_v5", "maviri_app_data_v4", "appData", "appData_backup"]) {
@@ -21,11 +23,8 @@ function localData() {
 }
 
 function conversationId() {
-  try {
-    return String(window.sessionId || "owner-default");
-  } catch {
-    return "owner-default";
-  }
+  try { return String(window.sessionId || "owner-default"); }
+  catch { return "owner-default"; }
 }
 
 function proactiveStorageKey() {
@@ -37,6 +36,16 @@ function currentProactiveBrief(options = {}) {
   return buildProactiveBrief(window.data || localData(), options);
 }
 
+async function refreshChannelStatus(proposal = null) {
+  channelStatus = await fetchMaviChannelStatus(window.fetch?.bind(window));
+  if (proposal) {
+    window.dispatchEvent(new CustomEvent("mavi:channel-status", {
+      detail: { ready: channelReadyForProposal(proposal, channelStatus), channel: proposal.channel || "" }
+    }));
+  }
+  return channelStatus;
+}
+
 function showProactiveBriefOnce() {
   try {
     if (sessionStorage.getItem(proactiveStorageKey())) return false;
@@ -46,18 +55,13 @@ function showProactiveBriefOnce() {
     window.addBubble(brief.text, "mavi");
     window.dispatchEvent(new CustomEvent("mavi:proactive-brief", { detail: brief }));
     return true;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
 async function qwenFirst(message) {
   if (!window.MaviModels || window.MaviModels.getCurrent?.().id === "fast") return null;
   const data = localData();
-  const context = {
-    businessName: data?.business?.name || "",
-    businessType: data?.business?.type || ""
-  };
+  const context = { businessName: data?.business?.name || "", businessType: data?.business?.type || "" };
   return Promise.race([
     window.MaviModels.ask(message, context),
     new Promise(resolve => setTimeout(() => resolve(null), 4500))
@@ -75,35 +79,28 @@ function installSemanticRouter() {
     if (proactive.handled) {
       if (proactive.proposal) {
         window.dispatchEvent(new CustomEvent("mavi:proactive-action-proposal", {
-          detail: {
-            proposal: proactive.proposal,
-            approvalRequired: proactive.approvalRequired,
-            execute: false
-          }
+          detail: { proposal: proactive.proposal, approvalRequired: proactive.approvalRequired, execute: false }
         }));
+        refreshChannelStatus(proactive.proposal);
       }
       return proactive.answer;
     }
 
     const prepared = operationalMemory.prepare(message, data, conversationId());
-
     if (prepared.handled) return prepared.answer;
 
     const effectiveMessage = prepared.completed ? prepared.message : message;
     const decision = classifyMaviIntent(effectiveMessage);
-
     if (decision.route === MAVI_ROUTE.LOCAL_DATA) {
       const fast = answerFastLocalData(effectiveMessage, data);
       if (fast?.handled) return fast.answer;
       return original.call(this, effectiveMessage);
     }
-
     if (decision.route === MAVI_ROUTE.QWEN) {
       const local = await qwenFirst(effectiveMessage);
       if (local) return local;
       return original.call(this, effectiveMessage);
     }
-
     return original.call(this, effectiveMessage);
   };
 
@@ -112,37 +109,30 @@ function installSemanticRouter() {
   return true;
 }
 
-window.MaviFastData = Object.freeze({
-  answer(message, data) {
-    return answerFastLocalData(message, data);
-  }
-});
-
+window.MaviFastData = Object.freeze({ answer(message, data) { return answerFastLocalData(message, data); } });
 window.MaviSemanticRouter = Object.freeze({
   classify: classifyMaviIntent,
   install: installSemanticRouter,
-  resetOperationalMemory() {
-    operationalMemory.clear(conversationId());
-  }
+  resetOperationalMemory() { operationalMemory.clear(conversationId()); }
 });
-
 window.MaviProactiveManager = Object.freeze({
-  getBrief(options) {
-    return currentProactiveBrief(options);
-  },
+  getBrief(options) { return currentProactiveBrief(options); },
   showOnce: showProactiveBriefOnce,
   resetSession() {
     try { sessionStorage.removeItem(proactiveStorageKey()); } catch {}
     proactiveActions.clear(conversationId());
   }
 });
+window.MaviAuthorizedSend = Object.freeze({
+  canSend(proposal) { return channelReadyForProposal(proposal, channelStatus); },
+  async refresh(proposal) { await refreshChannelStatus(proposal); return channelReadyForProposal(proposal, channelStatus); }
+});
 
 installProactiveActionUi();
+refreshChannelStatus();
 
 if (!installSemanticRouter()) {
-  queueMicrotask(() => {
-    if (!installSemanticRouter()) setTimeout(installSemanticRouter, 0);
-  });
+  queueMicrotask(() => { if (!installSemanticRouter()) setTimeout(installSemanticRouter, 0); });
 }
 
 setTimeout(showProactiveBriefOnce, 2500);
