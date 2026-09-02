@@ -5,6 +5,7 @@ import {
   reminderStateKey,
   tenantIdFromOwnerDataKey,
   tenantOwnerDataKeys,
+  whatsappOutboundTenantMap,
   whatsappPhoneNumberIdForTenant
 } from "../lib/reminder-dispatch.js";
 
@@ -34,6 +35,18 @@ test("instrada ogni tenant sul proprio phone_number_id WhatsApp", () => {
     WHATSAPP_PHONE_NUMBER_ID: "999999"
   };
   assert.equal(whatsappPhoneNumberIdForTenant("salone-rosa", env), "111111");
+  assert.equal(whatsappPhoneNumberIdForTenant("studio-verdi", env), "222222");
+});
+
+test("non usa il numero visualizzato come phone_number_id per l'uscita", () => {
+  const env = {
+    MAVIRI_WHATSAPP_TENANTS: JSON.stringify({
+      "+39 333 123 4567": "salone-rosa",
+      "222222": "studio-verdi"
+    })
+  };
+  assert.deepEqual(whatsappOutboundTenantMap(env), { "222222": "studio-verdi" });
+  assert.equal(whatsappPhoneNumberIdForTenant("salone-rosa", env), "");
   assert.equal(whatsappPhoneNumberIdForTenant("studio-verdi", env), "222222");
 });
 

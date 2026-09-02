@@ -61,6 +61,22 @@ test("readiness WhatsApp accetta una configurazione multi-tenant senza numero gl
   assert.equal(checks.whatsapp.send, true);
   assert.equal(checks.whatsapp.ready, true);
   assert.equal(checks.whatsapp.routedTenants, 2);
+  assert.equal(checks.whatsapp.outboundRoutes, 2);
+});
+
+test("readiness WhatsApp non considera inviabile una route basata solo sul numero visualizzato", () => {
+  const checks = readinessChecks({
+    WHATSAPP_VERIFY_TOKEN: "verify-token",
+    WHATSAPP_ACCESS_TOKEN: "wa-token",
+    WHATSAPP_APP_SECRET: "app-secret",
+    MAVIRI_WHATSAPP_TENANTS: JSON.stringify({
+      "+39 333 123 4567": "salone-rosa"
+    })
+  });
+  assert.equal(checks.whatsapp.routedTenants, 1);
+  assert.equal(checks.whatsapp.outboundRoutes, 0);
+  assert.equal(checks.whatsapp.send, false);
+  assert.equal(checks.whatsapp.ready, false);
 });
 
 test("readiness WhatsApp rifiuta una mappa tenant non valida senza numero globale", () => {
@@ -73,6 +89,7 @@ test("readiness WhatsApp rifiuta una mappa tenant non valida senza numero global
   assert.equal(checks.whatsapp.send, false);
   assert.equal(checks.whatsapp.ready, false);
   assert.equal(checks.whatsapp.routedTenants, 0);
+  assert.equal(checks.whatsapp.outboundRoutes, 0);
 });
 
 test("readiness email richiede la stessa configurazione usata dal recupero password", () => {
