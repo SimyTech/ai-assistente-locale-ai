@@ -293,6 +293,24 @@ async function continueBooking(req, { tenantId, phone, text, profileName, sessio
   return { bookingHandled: false };
 }
 
+async function confirmRequestedAttendance(req, { tenantId, phone, text, session }) {
+  if (normalizeBooking(session.booking).status || !isConfirmation(text)) return null;
+  try {
+    const result = await businessApi(req, tenantId, {
+      action: "confirm-attendance",
+      phone,
+      whatsapp: phone
+    });
+    return {
+      reply: clean(result.message) || "Presenza confermata. Grazie!",
+      bookingHandled: true,
+      appointments: Array.isArray(result.appointments) ? result.appointments : []
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function sendWhatsAppMessage(to, message, phoneNumberId) {
   const token = clean(process.env.WHATSAPP_ACCESS_TOKEN);
   const senderId = clean(phoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID);
@@ -352,7 +370,8 @@ export default async function handler(req, res) {
 
     addHistory(session, "user", text);
 
-    let responsePayload = await continueBooking(req, { tenantId, phone, text, profileName, session });
+    let responsePayload = await confirmRequestedAttendance(req, { tenantId, phone, text, session });
+    if (!responsePayload) responsePayload = await continueBooking(req, { tenantId, phone, text, profileName, session });
 
     if (!responsePayload.bookingHandled) {
       const result = await callMavi(req, { tenantId, phone, text, profileName, session });

@@ -3501,6 +3501,45 @@ export default async function handler(
 
 
     /* ========================================================
+       CONFIRM ATTENDANCE
+       ======================================================== */
+
+    if (action === "confirm-attendance") {
+      const data = await getServerData(DATA_KEY);
+      if (!data) return res.status(503).json({ ok: false, error: "Dati attività non disponibili." });
+
+      const today = todayRome();
+      const tomorrow = addDaysISO(today, 1);
+      const appointments = arr(data.appointments);
+      const eligible = appointments.filter(appointment =>
+        (clean(appointment?.status) || "confirmed") === "confirmed" &&
+        clean(appointment?.date) >= today &&
+        clientOwnsAppointment(appointment, body) &&
+        (appointment?.confirmationRequestedAt || clean(appointment?.date) === tomorrow)
+      );
+
+      if (!eligible.length) return res.status(404).json({ ok: false, error: "Nessun appuntamento da confermare." });
+
+      const confirmedAt = new Date().toISOString();
+      const ids = new Set(eligible.map(appointment => String(appointment.id)));
+      const nextAppointments = appointments.map(appointment => ids.has(String(appointment.id))
+        ? { ...appointment, clientConfirmedAt: confirmedAt, updatedAt: confirmedAt }
+        : appointment);
+      const nextData = { ...data, appointments: nextAppointments, revision: Number(data.revision || 0) + 1, updatedAt: confirmedAt };
+      await redisSet(DATA_KEY, nextData);
+      await redisSet(PUBLIC_KEY, makePublicContext(nextData));
+
+      return res.status(200).json({
+        ok: true,
+        confirmed: true,
+        count: eligible.length,
+        appointments: nextAppointments.filter(appointment => ids.has(String(appointment.id))),
+        message: eligible.length === 1 ? "Presenza confermata. Grazie!" : `${eligible.length} appuntamenti confermati. Grazie!`
+      });
+    }
+
+
+    /* ========================================================
        UPDATE
        ======================================================== */
 
