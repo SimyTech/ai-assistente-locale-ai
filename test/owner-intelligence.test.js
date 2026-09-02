@@ -126,6 +126,14 @@ test("riassume le azioni operative pendenti", () => {
   assert.match(answer, /Promemoria da inviare per domani: 1/);
 });
 
+test("risponde a 'Dimmi cosa ho oggi da fare' con programma e azioni del titolare", () => {
+  const answer = ask("Dimmi cosa ho oggi da fare");
+  assert.match(answer, /Programma di oggi/);
+  assert.match(answer, /15:00 — Marco Verdi — Controllo/);
+  assert.match(answer, /Azioni da gestire/);
+  assert.match(answer, /Promemoria da inviare per domani: 1/);
+});
+
 test("classifica i clienti per rischio no-show e valore perso", () => {
   const answer = ask("quali pazienti hanno più assenze e sono meno affidabili?");
   assert.match(answer, /Pazienti con più assenze\/no-show/);
