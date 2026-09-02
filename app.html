@@ -189,12 +189,21 @@ function executeOperationalAction(item){
   const win=frame.contentWindow;
   if(client&&win&&typeof win.openClientFromHome==="function")win.openClientFromHome(client.id);
 }
+function markOperationalContacted(item){
+  const client=findOperationalClient(item);
+  const win=frame.contentWindow;
+  if(!client||!win||typeof win.markRecoveryContacted!=="function")return;
+  win.markRecoveryContacted(client.id);
+  setTimeout(refreshOperationalDashboard,0);
+}
 function wireOperationalActions(list){
   if(list.dataset.actionsReady==="true")return;
   list.dataset.actionsReady="true";
   list.addEventListener("click",event=>{
     const button=event.target.closest("[data-operational-action]");
     if(button)executeOperationalAction(operationalActions.get(button.dataset.operationalAction));
+    const completed=event.target.closest("[data-operational-complete]");
+    if(completed)markOperationalContacted(operationalActions.get(completed.dataset.operationalComplete));
   });
 }
 function renderOperationalDashboard(center){
@@ -214,7 +223,8 @@ function renderOperationalDashboard(center){
   list.innerHTML=actions.map((item,index)=>{
     const key=`${center.generatedAt||"center"}-${index}`;
     operationalActions.set(key,item);
-    return `<div class="item"><div class="between"><div><strong>${escapeHtml(item.label||"Azione operativa")}</strong><div class="meta" style="margin-top:5px">${escapeHtml(operationalDetail(item))}</div></div><span class="badge ${item.priority==="high"?"":"blue"}">${item.priority==="high"?"Priorità alta":"Priorità media"}</span></div><div class="row" style="margin-top:10px"><button type="button" class="btn small primary" data-operational-action="${escapeHtml(key)}">${escapeHtml(operationalActionLabel(item))}</button></div></div>`;
+    const complete=item.type!=="agenda-gap"?`<button type="button" class="btn small" data-operational-complete="${escapeHtml(key)}">Segna contattato</button>`:"";
+    return `<div class="item"><div class="between"><div><strong>${escapeHtml(item.label||"Azione operativa")}</strong><div class="meta" style="margin-top:5px">${escapeHtml(operationalDetail(item))}</div></div><span class="badge ${item.priority==="high"?"":"blue"}">${item.priority==="high"?"Priorità alta":"Priorità media"}</span></div><div class="row" style="margin-top:10px"><button type="button" class="btn small primary" data-operational-action="${escapeHtml(key)}">${escapeHtml(operationalActionLabel(item))}</button>${complete}</div></div>`;
   }).join("");
   wireOperationalActions(list);
 }
