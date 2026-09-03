@@ -87,6 +87,18 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(index, /reason=session-expired/);
 });
 
+test("l'interfaccia resta intuitiva e operativa anche su smartphone", async () => {
+  const html = await text("index.html");
+  assert.match(html, /position:fixed;inset:auto 0 0/);
+  assert.match(html, /grid-template-columns:repeat\(6,1fr\)/);
+  assert.match(html, /Situazione in breve/);
+  assert.match(html, /class="quick-prompts"/);
+  assert.match(html, /askMavi\('Oggi che si fa\?'\)/);
+  assert.match(html, /askMavi\('In questo mese\?'\)/);
+  assert.match(html, /aria-label="Parla con Mavi"/);
+  assert.match(html, /function askMavi\(message\)/);
+});
+
 test("la gestione account è raggiungibile dalla dashboard", async () => {
   const html = await text("app.html");
   assert.match(html, /href="\/account"/);
