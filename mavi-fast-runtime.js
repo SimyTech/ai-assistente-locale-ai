@@ -15,6 +15,16 @@ const proactiveActions = createMaviProactiveActions();
 const actionLifecycle = createActionLifecycle();
 let channelStatus = { ok: false, channels: {} };
 
+function installResponsiveNavigationGuard() {
+  try {
+    if (document.getElementById("maviri-responsive-nav-guard")) return;
+    const style = document.createElement("style");
+    style.id = "maviri-responsive-nav-guard";
+    style.textContent = ".nav .mobile-more{display:none}@media(max-width:1000px){.nav .mobile-more{display:flex!important}}";
+    document.head.appendChild(style);
+  } catch {}
+}
+
 function localData() {
   for (const key of ["maviri_app_data_v7", "maviri_app_data_v6", "maviri_app_data_v5", "maviri_app_data_v4", "appData", "appData_backup"]) {
     const raw = localStorage.getItem(key);
@@ -123,6 +133,7 @@ window.MaviSemanticRouter = Object.freeze({ classify: classifyMaviIntent, instal
 window.MaviProactiveManager = Object.freeze({ getBrief(options) { return currentProactiveBrief(options); }, showOnce: showProactiveBriefOnce, resetSession() { try { sessionStorage.removeItem(proactiveStorageKey()); } catch {} proactiveActions.clear(conversationId()); actionLifecycle.clear(); } });
 window.MaviAuthorizedSend = Object.freeze({ canSend(proposal) { return channelReadyForProposal(proposal, channelStatus); }, async refresh(proposal) { await refreshChannelStatus(proposal); return channelReadyForProposal(proposal, channelStatus); }, state(proposal) { return actionLifecycle.get(proposal); }, retry(proposal) { return actionLifecycle.retry(proposal); } });
 
+installResponsiveNavigationGuard();
 installActionLifecycleBridge();
 installProactiveActionUi();
 refreshChannelStatus();
