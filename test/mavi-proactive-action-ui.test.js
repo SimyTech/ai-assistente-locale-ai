@@ -59,3 +59,30 @@ test("se il canale diventa indisponibile dopo approvazione blocca di nuovo invio
   const attempted = reduceProposalUi(state, { type: "request-send" });
   assert.equal(attempted.sentRequested, false);
 });
+
+test("mostra il completamento reale solo dopo una richiesta in corso", () => {
+  let state = reduceProposalUi(createProposalUiState(proposal, { channelReady: true }), { type: "send-complete" });
+  assert.equal(state.deliveryStatus, "idle");
+  state = reduceProposalUi(state, { type: "approve" });
+  state = reduceProposalUi(state, { type: "request-send" });
+  assert.equal(state.deliveryStatus, "sending");
+  state = reduceProposalUi(state, { type: "send-complete" });
+  assert.equal(state.deliveryStatus, "completed");
+  assert.equal(state.sendEnabled, false);
+});
+
+test("dopo un errore permette un nuovo invio esplicito", () => {
+  let state = reduceProposalUi(createProposalUiState(proposal, { channelReady: true }), { type: "approve" });
+  state = reduceProposalUi(state, { type: "request-send" });
+  state = reduceProposalUi(state, { type: "send-failed", error: "Canale temporaneamente non disponibile" });
+  assert.equal(state.deliveryStatus, "failed");
+  assert.equal(state.deliveryError, "Canale temporaneamente non disponibile");
+  assert.equal(state.sendEnabled, false);
+
+  state = reduceProposalUi(state, { type: "retry-send" });
+  assert.equal(state.deliveryStatus, "idle");
+  assert.equal(state.sentRequested, false);
+  assert.equal(state.sendEnabled, true);
+  state = reduceProposalUi(state, { type: "request-send" });
+  assert.equal(state.deliveryStatus, "sending");
+});
