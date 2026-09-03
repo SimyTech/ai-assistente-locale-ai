@@ -11,7 +11,7 @@ const data = {
     { date: "2026-09-04", time: "11:00", name: "Paola", service: "Taglio", status: "confirmed" },
     { date: "2026-10-15", time: "14:00", name: "Giulia", service: "Taglio", status: "confirmed" }
   ],
-  services: [{ name: "Taglio", price: 25, duration: 30 }],
+  services: [{ name: "Taglio", price: 25, duration: 30 }, { name: "Barba", price: 15, duration: 20 }],
   clients: [{ name: "Anna" }, { name: "Luca" }],
   promotions: [{ title: "Settembre", valid: "fino al 30/09" }],
   settings: { hours: [
@@ -40,6 +40,22 @@ test("può mostrare esplicitamente gli appuntamenti cancellati", () => {
   assert.equal(result.handled, true);
   assert.match(result.answer, /09:00 — Mario — annullato/);
   assert.doesNotMatch(result.answer, /Anna|Luca/);
+});
+
+test("filtra l'agenda per cliente anche se il nome esiste solo negli appuntamenti", () => {
+  const result = answerFastLocalData("Che appuntamenti ho venerdì con Paola?", data, now);
+  assert.equal(result.handled, true);
+  assert.match(result.answer, /11:00 — Paola — Taglio/);
+  assert.doesNotMatch(result.answer, /Anna|Luca/);
+});
+
+test("filtra l'agenda per servizio e combina più filtri", () => {
+  const taglio = answerFastLocalData("Che appuntamenti di Taglio ho questo mese?", data, now);
+  assert.match(taglio.answer, /Anna — Taglio[\s\S]*Paola — Taglio/);
+  assert.doesNotMatch(taglio.answer, /Luca — Barba/);
+  const combined = answerFastLocalData("Che appuntamenti di Taglio ho oggi nel pomeriggio con Anna?", data, now);
+  assert.match(combined.answer, /15:00 — Anna — Taglio/);
+  assert.doesNotMatch(combined.answer, /Luca/);
 });
 
 test("risponde subito su clienti, servizi e promozioni", () => {
