@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import {
   buildMaviLocalContext,
   appendMaviConversation,
-  resolveMaviOperationalContext
+  resolveMaviOperationalContext,
+  shouldUseResolvedOperationalContext
 } from "../lib/mavi-local-context.js";
 
 test("costruisce un contesto locale utile senza dati personali dei clienti", () => {
@@ -115,4 +116,24 @@ test("non inventa dettagli assenti dalla conversazione", () => {
   assert.equal(resolved.time, "");
   assert.equal(resolved.service, "");
   assert.equal(resolved.client, "");
+});
+
+test("usa il contesto ricostruito solo per veri follow-up operativi", () => {
+  const localData = {
+    services: [{ name: "Taglio" }, { name: "Colore" }],
+    clients: [{ name: "Mario Rossi" }]
+  };
+  const history = [
+    { role: "user", content: "domani alle 15" },
+    { role: "assistant", content: "Quale servizio?" }
+  ];
+
+  const serviceFollowUp = resolveMaviOperationalContext(history, "Taglio", localData);
+  assert.equal(shouldUseResolvedOperationalContext("Taglio", serviceFollowUp, localData), true);
+
+  const correction = resolveMaviOperationalContext(history, "anzi dopodomani", localData);
+  assert.equal(shouldUseResolvedOperationalContext("anzi dopodomani", correction, localData), true);
+
+  const courtesy = resolveMaviOperationalContext(history, "grazie", localData);
+  assert.equal(shouldUseResolvedOperationalContext("grazie", courtesy, localData), false);
 });
