@@ -114,12 +114,19 @@ function showProactiveBriefOnce() {
 }
 
 async function qwenFirst(message) {
-  if (!window.MaviModels || window.MaviModels.getCurrent?.().id === "fast") return null;
+  const models = window.MaviModels;
+  if (!models || models.getCurrent?.().id === "fast") return null;
+
+  if (!models.isCurrentReady?.()) {
+    models.warmup?.();
+    return null;
+  }
+
   const data = localData();
   const context = { businessName: data?.business?.name || "", businessType: data?.business?.type || "" };
   return Promise.race([
-    window.MaviModels.ask(message, context),
-    new Promise(resolve => setTimeout(() => resolve(null), 4500))
+    models.ask(message, context),
+    new Promise(resolve => setTimeout(() => resolve(null), 3000))
   ]);
 }
 
