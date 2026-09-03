@@ -21,7 +21,13 @@ test("risolve i fatti locali senza rete quando possibile", () => {
     "Quanti clienti ho?",
     "Che appuntamenti ho oggi?",
     "Cosa ho da fare oggi?",
-    "Dimmi cosa ho oggi da fare"
+    "Dimmi cosa ho oggi da fare",
+    "Dimmi il programma di oggi",
+    "Come sono messo oggi?",
+    "Chi vedo oggi?",
+    "Fammi vedere il listino",
+    "Quante persone ho in rubrica?",
+    "Dove siamo?"
   ]) {
     assert.equal(classifyMaviIntent(message).route, MAVI_ROUTE.LOCAL_DATA);
   }
