@@ -4,7 +4,8 @@ import {
   buildMaviLocalContext,
   appendMaviConversation,
   resolveMaviOperationalContext,
-  shouldUseResolvedOperationalContext
+  shouldUseResolvedOperationalContext,
+  resolveMaviManagerialFollowUp
 } from "../lib/mavi-local-context.js";
 
 test("costruisce un contesto locale utile senza dati personali dei clienti", () => {
@@ -12,17 +13,13 @@ test("costruisce un contesto locale utile senza dati personali dei clienti", () 
     { businessName: "Salone Mavi", businessType: "Parrucchiere" },
     {
       business: { description: "Taglio e colore" },
-      services: [
-        { name: "Taglio", price: 25, duration: 30 },
-        { name: "Colore", price: "45", duration: 60 }
-      ],
+      services: [{ name: "Taglio", price: 25, duration: 30 }, { name: "Colore", price: "45", duration: 60 }],
       promotions: [{ title: "Taglio + piega", price: 35, expires: "2026-09-30" }],
       settings: { hours: { monday: { open: "09:00", close: "18:00" } } },
       clients: [{ name: "Mario Rossi", phone: "+39 333 1234567", notes: "dato privato" }],
       appointments: [{ clientName: "Mario Rossi", phone: "+39 333 1234567" }]
     }
   );
-
   assert.equal(context.activity.name, "Salone Mavi");
   assert.equal(context.services[0].price, 25);
   assert.equal(context.promotions[0].title, "Taglio + piega");
@@ -36,11 +33,7 @@ test("costruisce un contesto locale utile senza dati personali dei clienti", () 
 });
 
 test("limita servizi e promozioni per mantenere piccolo il prompt locale", () => {
-  const context = buildMaviLocalContext({}, {
-    services: Array.from({ length: 18 }, (_, i) => ({ name: `Servizio ${i + 1}` })),
-    promotions: Array.from({ length: 12 }, (_, i) => ({ title: `Promo ${i + 1}` }))
-  });
-
+  const context = buildMaviLocalContext({}, { services: Array.from({ length: 18 }, (_, i) => ({ name: `Servizio ${i + 1}` })), promotions: Array.from({ length: 12 }, (_, i) => ({ title: `Promo ${i + 1}` })) });
   assert.equal(context.services.length, 10);
   assert.equal(context.promotions.length, 6);
   assert.equal(context.counts.services, 18);
@@ -49,33 +42,18 @@ test("limita servizi e promozioni per mantenere piccolo il prompt locale", () =>
 
 test("mantiene solo una memoria conversazionale breve", () => {
   let history = [];
-  for (let i = 1; i <= 6; i += 1) {
-    history = appendMaviConversation(history, `domanda ${i}`, `risposta ${i}`, 8);
-  }
-
+  for (let i = 1; i <= 6; i += 1) history = appendMaviConversation(history, `domanda ${i}`, `risposta ${i}`, 8);
   assert.equal(history.length, 8);
-  assert.deepEqual(history.map(item => item.content), [
-    "domanda 3", "risposta 3",
-    "domanda 4", "risposta 4",
-    "domanda 5", "risposta 5",
-    "domanda 6", "risposta 6"
-  ]);
+  assert.deepEqual(history.map(item => item.content), ["domanda 3","risposta 3","domanda 4","risposta 4","domanda 5","risposta 5","domanda 6","risposta 6"]);
 });
 
 test("ricompone giorno orario servizio e cliente da messaggi consecutivi", () => {
-  const localData = {
-    services: [{ name: "Taglio" }, { name: "Colore" }],
-    clients: [{ name: "Mario Rossi" }, { name: "Anna Bianchi" }]
-  };
+  const localData = { services: [{ name: "Taglio" }, { name: "Colore" }], clients: [{ name: "Mario Rossi" }, { name: "Anna Bianchi" }] };
   const history = [
-    { role: "user", content: "Vorrei prenotare domani" },
-    { role: "assistant", content: "A che ora?" },
-    { role: "user", content: "Alle 15" },
-    { role: "assistant", content: "Quale servizio?" },
-    { role: "user", content: "Taglio" },
-    { role: "assistant", content: "Per chi?" }
+    { role: "user", content: "Vorrei prenotare domani" }, { role: "assistant", content: "A che ora?" },
+    { role: "user", content: "Alle 15" }, { role: "assistant", content: "Quale servizio?" },
+    { role: "user", content: "Taglio" }, { role: "assistant", content: "Per chi?" }
   ];
-
   const resolved = resolveMaviOperationalContext(history, "Mario Rossi", localData);
   assert.equal(resolved.date, "domani");
   assert.equal(resolved.time, "15:00");
@@ -88,17 +66,8 @@ test("ricompone giorno orario servizio e cliente da messaggi consecutivi", () =>
 });
 
 test("il dettaglio più recente sostituisce quello precedente", () => {
-  const localData = {
-    services: [{ name: "Taglio" }, { name: "Colore" }],
-    clients: []
-  };
-  const history = [
-    { role: "user", content: "domani alle 15 per Taglio" },
-    { role: "assistant", content: "Va bene" },
-    { role: "user", content: "anzi dopodomani" },
-    { role: "assistant", content: "Ricevuto" }
-  ];
-
+  const localData = { services: [{ name: "Taglio" }, { name: "Colore" }], clients: [] };
+  const history = [{ role: "user", content: "domani alle 15 per Taglio" }, { role: "assistant", content: "Va bene" }, { role: "user", content: "anzi dopodomani" }, { role: "assistant", content: "Ricevuto" }];
   const resolved = resolveMaviOperationalContext(history, "alle 16 per Colore", localData);
   assert.equal(resolved.date, "dopodomani");
   assert.equal(resolved.time, "16:00");
@@ -106,12 +75,7 @@ test("il dettaglio più recente sostituisce quello precedente", () => {
 });
 
 test("non inventa dettagli assenti dalla conversazione", () => {
-  const resolved = resolveMaviOperationalContext(
-    [{ role: "user", content: "Vorrei prenotare" }],
-    "va bene",
-    { services: [{ name: "Taglio" }], clients: [{ name: "Mario Rossi" }] }
-  );
-
+  const resolved = resolveMaviOperationalContext([{ role: "user", content: "Vorrei prenotare" }], "va bene", { services: [{ name: "Taglio" }], clients: [{ name: "Mario Rossi" }] });
   assert.equal(resolved.date, "");
   assert.equal(resolved.time, "");
   assert.equal(resolved.service, "");
@@ -119,21 +83,30 @@ test("non inventa dettagli assenti dalla conversazione", () => {
 });
 
 test("usa il contesto ricostruito solo per veri follow-up operativi", () => {
-  const localData = {
-    services: [{ name: "Taglio" }, { name: "Colore" }],
-    clients: [{ name: "Mario Rossi" }]
-  };
-  const history = [
-    { role: "user", content: "domani alle 15" },
-    { role: "assistant", content: "Quale servizio?" }
-  ];
+  const localData = { services: [{ name: "Taglio" }, { name: "Colore" }], clients: [{ name: "Mario Rossi" }] };
+  const history = [{ role: "user", content: "domani alle 15" }, { role: "assistant", content: "Quale servizio?" }];
+  assert.equal(shouldUseResolvedOperationalContext("Taglio", resolveMaviOperationalContext(history, "Taglio", localData), localData), true);
+  assert.equal(shouldUseResolvedOperationalContext("anzi dopodomani", resolveMaviOperationalContext(history, "anzi dopodomani", localData), localData), true);
+  assert.equal(shouldUseResolvedOperationalContext("grazie", resolveMaviOperationalContext(history, "grazie", localData), localData), false);
+});
 
-  const serviceFollowUp = resolveMaviOperationalContext(history, "Taglio", localData);
-  assert.equal(shouldUseResolvedOperationalContext("Taglio", serviceFollowUp, localData), true);
+test("eredita la domanda precedente nei follow-up gestionali", () => {
+  const history = [{ role: "user", content: "Chi ho domani?" }, { role: "assistant", content: "Hai tre appuntamenti." }];
+  const filtered = resolveMaviManagerialFollowUp(history, "solo nel pomeriggio");
+  assert.equal(filtered.used, true);
+  assert.match(filtered.enrichedMessage, /Chi ho domani\?/);
+  assert.match(filtered.enrichedMessage, /solo nel pomeriggio/);
 
-  const correction = resolveMaviOperationalContext(history, "anzi dopodomani", localData);
-  assert.equal(shouldUseResolvedOperationalContext("anzi dopodomani", correction, localData), true);
+  const cancelled = resolveMaviManagerialFollowUp(history, "e quelli cancellati?");
+  assert.equal(cancelled.used, true);
+  assert.match(cancelled.enrichedMessage, /cancellati/);
+});
 
-  const courtesy = resolveMaviOperationalContext(history, "grazie", localData);
-  assert.equal(shouldUseResolvedOperationalContext("grazie", courtesy, localData), false);
+test("eredita anche il tema nelle richieste comparative ma non nelle cortesie", () => {
+  const history = [{ role: "user", content: "Quanto ho incassato questo mese?" }, { role: "assistant", content: "Stima disponibile." }];
+  const comparison = resolveMaviManagerialFollowUp(history, "rispetto al mese scorso?");
+  assert.equal(comparison.used, true);
+  assert.match(comparison.enrichedMessage, /Quanto ho incassato questo mese\?/);
+  assert.match(comparison.enrichedMessage, /mese scorso/);
+  assert.equal(resolveMaviManagerialFollowUp(history, "grazie").used, false);
 });
