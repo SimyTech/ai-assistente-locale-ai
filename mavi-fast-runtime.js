@@ -1,4 +1,5 @@
 import { answerFastLocalData } from "./lib/mavi-fast-data.js";
+import { answerFastConversation } from "./lib/mavi-fast-conversation.js";
 import { classifyMaviIntent, MAVI_ROUTE } from "./lib/mavi-semantic-router.js";
 import { createMaviOperationalMemory } from "./lib/mavi-operational-memory.js";
 import { buildProactiveBrief } from "./lib/mavi-proactive-manager.js";
@@ -161,6 +162,8 @@ function installSemanticRouter() {
     if (decision.route === MAVI_ROUTE.QWEN) {
       const local = await qwenFirst(effectiveMessage);
       if (local) return local;
+      const fastConversation = answerFastConversation(effectiveMessage, data);
+      if (fastConversation.handled) return fastConversation.answer;
       return original.call(this, effectiveMessage);
     }
     return original.call(this, effectiveMessage);
@@ -172,6 +175,7 @@ function installSemanticRouter() {
 }
 
 window.MaviFastData = Object.freeze({ answer(message, data) { return answerFastLocalData(message, data); } });
+window.MaviFastConversation = Object.freeze({ answer(message, data) { return answerFastConversation(message, data); } });
 window.MaviSemanticRouter = Object.freeze({
   classify: classifyMaviIntent,
   install: installSemanticRouter,
