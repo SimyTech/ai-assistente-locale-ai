@@ -18,8 +18,14 @@ test("la memoria resta limitata agli ultimi messaggi", () => {
 
 test("anche le risposte rapide vengono passate alla memoria del modello", () => {
   assert.match(fast, /window\.MaviModels\?\.remember\?\.\(message, answer\)/);
-  assert.match(fast, /rememberTurn\(effectiveMessage, fastConversation\.answer\)/);
-  assert.match(fast, /rememberTurn\(effectiveMessage, fast\.answer\)/);
+  assert.match(fast, /rememberTurn\(message, fastConversation\.answer\)/);
+  assert.match(fast, /rememberTurn\(message, fast\.answer\)/);
+});
+
+test("la memoria conserva il messaggio originale quando il runtime usa un contesto arricchito", () => {
+  assert.match(fast, /effectiveMessage = resolvedContext\.enrichedMessage/);
+  assert.match(fast, /rememberTurn\(message, fastConversation\.answer\)/);
+  assert.doesNotMatch(fast, /rememberTurn\(effectiveMessage, fastConversation\.answer\)/);
 });
 
 test("il reset cancella anche la memoria persistita", () => {
