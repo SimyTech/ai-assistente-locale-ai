@@ -41,7 +41,15 @@ test("risponde subito al piano di oggi senza passare dalla rete", () => {
     "Come sono messo oggi?",
     "Chi vedo oggi?",
     "Che faccio oggi?",
-    "Com'è la mia agenda oggi?"
+    "Com'è la mia agenda oggi?",
+    "Oggi che si fa?",
+    "Che facciamo oggi?",
+    "Cosa c'è da fare oggi?",
+    "Oggi cosa mi aspetta?",
+    "Che abbiamo oggi?",
+    "Oggi com'è la situazione?",
+    "Cos'ho oggi?",
+    "Oggi?"
   ]) {
     const result = answerFastLocalData(question, data, now);
     assert.equal(result.handled, true, question);
