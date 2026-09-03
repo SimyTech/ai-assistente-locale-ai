@@ -91,6 +91,16 @@ async function loadWithFallback() {
   return loading;
 }
 
+function currentTierLoaded() {
+  const tier = current();
+  return Boolean(tier?.model && pipelines.has(tier.id));
+}
+
+function warmup() {
+  if (current().id === "fast" || currentTierLoaded()) return Promise.resolve(null);
+  return loadWithFallback().catch(() => null);
+}
+
 function generatedText(result) {
   const value = result?.[0]?.generated_text;
   if (typeof value === "string") return value.trim();
@@ -133,6 +143,8 @@ window.MaviModels = Object.freeze({
   getPreference: preference,
   getCurrent: current,
   getFallbackChain: () => maviFallbackChain(current().id),
+  isCurrentReady: currentTierLoaded,
+  warmup,
   load: loadWithFallback,
   ask,
   resetConversation() {
