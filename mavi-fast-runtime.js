@@ -2,6 +2,7 @@ import { answerFastLocalData } from "./lib/mavi-fast-data.js";
 import { answerFastConversation } from "./lib/mavi-fast-conversation.js";
 import { classifyMaviIntent, MAVI_ROUTE } from "./lib/mavi-semantic-router.js";
 import { createMaviOperationalMemory } from "./lib/mavi-operational-memory.js";
+import { resolveMaviOperationalContext, shouldUseResolvedOperationalContext } from "./lib/mavi-local-context.js";
 import { buildProactiveBrief } from "./lib/mavi-proactive-manager.js";
 import { createMaviProactiveActions } from "./lib/mavi-proactive-actions.js";
 import { installProactiveActionUi } from "./lib/mavi-proactive-action-ui.js";
@@ -42,6 +43,15 @@ function proactiveStorageKey() {
 
 function currentProactiveBrief(options = {}) {
   return buildProactiveBrief(window.data || localData(), options);
+}
+
+function conversationHistory() {
+  try {
+    const history = window.MaviModels?.getConversation?.();
+    return Array.isArray(history) ? history : [];
+  } catch {
+    return [];
+  }
 }
 
 function rememberTurn(message, answer) {
@@ -157,16 +167,24 @@ function installSemanticRouter() {
     const prepared = operationalMemory.prepare(message, data, conversationId());
     if (prepared.handled) return prepared.answer;
 
-    const effectiveMessage = prepared.completed ? prepared.message : message;
+    let effectiveMessage = prepared.completed ? prepared.message : message;
+
+    if (!prepared.completed) {
+      const resolvedContext = resolveMaviOperationalContext(conversationHistory(), message, data);
+      if (shouldUseResolvedOperationalContext(message, resolvedContext, data)) {
+        effectiveMessage = resolvedContext.enrichedMessage;
+      }
+    }
+
     const decision = classifyMaviIntent(effectiveMessage);
     if (decision.route === MAVI_ROUTE.LOCAL_DATA) {
       const fast = answerFastLocalData(effectiveMessage, data);
       if (fast?.handled) {
-        rememberTurn(effectiveMessage, fast.answer);
+        rememberTurn(message, fast.answer);
         return fast.answer;
       }
       const answer = await original.call(this, effectiveMessage);
-      rememberTurn(effectiveMessage, answer);
+      rememberTurn(message, answer);
       return answer;
     }
     if (decision.route === MAVI_ROUTE.QWEN) {
@@ -174,11 +192,11 @@ function installSemanticRouter() {
       if (local) return local;
       const fastConversation = answerFastConversation(effectiveMessage, data);
       if (fastConversation.handled) {
-        rememberTurn(effectiveMessage, fastConversation.answer);
+        rememberTurn(message, fastConversation.answer);
         return fastConversation.answer;
       }
       const answer = await original.call(this, effectiveMessage);
-      rememberTurn(effectiveMessage, answer);
+      rememberTurn(message, answer);
       return answer;
     }
     return original.call(this, effectiveMessage);
