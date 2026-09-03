@@ -12,6 +12,11 @@ const data = {
   services: [{ name: "Taglio", price: 25, duration: 30 }],
   clients: [{ name: "Anna" }, { name: "Luca" }],
   promotions: [{ title: "Settembre", valid: "fino al 30/09" }]
+  ,settings: { hours: [
+    { name: "Lunedì", open: "09:00", close: "18:00", closed: false },
+    { name: "Martedì", closed: true }
+  ] }
+  ,business: { address: "Via Roma 10", phone: "0523123456" }
 };
 
 test("risponde subito con i dati locali ordinati di oggi", () => {
@@ -28,13 +33,38 @@ test("risponde subito su clienti, servizi e promozioni", () => {
 });
 
 test("risponde subito al piano di oggi senza passare dalla rete", () => {
-  for (const question of ["Cosa ho da fare oggi?", "Dimmi cosa ho oggi da fare", "Che devo gestire oggi?"]) {
+  for (const question of [
+    "Cosa ho da fare oggi?",
+    "Dimmi cosa ho oggi da fare",
+    "Che devo gestire oggi?",
+    "Dimmi il programma di oggi",
+    "Come sono messo oggi?",
+    "Chi vedo oggi?",
+    "Che faccio oggi?",
+    "Com'è la mia agenda oggi?"
+  ]) {
     const result = answerFastLocalData(question, data, now);
     assert.equal(result.handled, true, question);
     assert.match(result.answer, /Programma di oggi/);
     assert.match(result.answer, /10:00 — Luca — Barba[\s\S]*15:00 — Anna — Taglio/);
     assert.match(result.answer, /Azioni da gestire/);
   }
+});
+
+test("capisce formulazioni diverse per gli altri dati locali", () => {
+  assert.match(answerFastLocalData("Fammi vedere il listino", data, now).answer, /Taglio — €25\.00/);
+  assert.match(answerFastLocalData("Cosa offro ai clienti?", data, now).answer, /Servizi configurati/);
+  assert.match(answerFastLocalData("Quante persone ho in rubrica?", data, now).answer, /2 clienti/);
+  assert.match(answerFastLocalData("Ci sono sconti attivi?", data, now).answer, /Settembre/);
+  assert.match(answerFastLocalData("Quando apriamo?", data, now).answer, /Lunedì — 09:00–18:00/);
+  assert.match(answerFastLocalData("Dove siamo?", data, now).answer, /Via Roma 10/);
+  assert.match(answerFastLocalData("Qual è il numero di telefono dell'attività?", data, now).answer, /0523123456/);
+});
+
+test("non scambia una richiesta di modifica per una lettura locale", () => {
+  assert.equal(answerFastLocalData("Sposta il programma di oggi", data, now).handled, false);
+  assert.equal(answerFastLocalData("Modifica gli orari", data, now).handled, false);
+  assert.equal(answerFastLocalData("Aggiungi una promozione", data, now).handled, false);
 });
 
 test("non intercetta azioni operative", () => {
