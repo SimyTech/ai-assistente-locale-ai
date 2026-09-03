@@ -12,6 +12,7 @@ test("interpreta giorni relativi e giorni della settimana", () => {
 
 test("interpreta date numeriche e mesi futuri", () => {
   assert.equal(parseLocalAgendaPeriod("il 15/09", now).start, "2026-09-15");
+  assert.equal(parseLocalAgendaPeriod("il 15", now).start, "2026-09-15");
   assert.equal(parseLocalAgendaPeriod("15 ottobre", now).start, "2026-10-15");
   assert.deepEqual(parseLocalAgendaPeriod("mese prossimo", now), { start: "2026-10-01", end: "2026-10-31", label: "il mese prossimo", kind: "month" });
 });
