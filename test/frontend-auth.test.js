@@ -94,6 +94,7 @@ test("l'interfaccia resta intuitiva e operativa anche su smartphone", async () =
   assert.match(html, />Altro<\/button>/);
   assert.match(html, /id="moreMenu"/);
   assert.match(html, /function toggleMore\(event\)/);
+  assert.match(html, /\.mobile-more\{order:-1\}/);
   assert.match(html, /Situazione in breve/);
   assert.match(html, /class="quick-prompts"/);
   assert.match(html, /askMavi\('Oggi che si fa\?'\)/);
