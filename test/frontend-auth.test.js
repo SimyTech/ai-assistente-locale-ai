@@ -90,7 +90,10 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
 test("l'interfaccia resta intuitiva e operativa anche su smartphone", async () => {
   const html = await text("index.html");
   assert.match(html, /position:fixed;inset:auto 0 0/);
-  assert.match(html, /grid-template-columns:repeat\(6,1fr\)/);
+  assert.match(html, /grid-template-columns:repeat\(5,1fr\)/);
+  assert.match(html, />Altro<\/button>/);
+  assert.match(html, /id="moreMenu"/);
+  assert.match(html, /function toggleMore\(event\)/);
   assert.match(html, /Situazione in breve/);
   assert.match(html, /class="quick-prompts"/);
   assert.match(html, /askMavi\('Oggi che si fa\?'\)/);
