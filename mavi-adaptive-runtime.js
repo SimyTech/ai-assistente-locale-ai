@@ -3,11 +3,31 @@ import { buildMaviLocalContext, appendMaviConversation } from "./lib/mavi-local-
 import { installOwnerPullAccelerator } from "./lib/owner-pull-accelerator.js";
 
 const STORAGE_KEY = "MAVIRI_MAVI_MODEL_TIER";
+const CONVERSATION_STORAGE_KEY = "MAVIRI_MAVI_CONVERSATION_V1";
 const TRANSFORMERS_URL = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
 const LOCAL_DATA_KEYS = ["maviri_app_data_v7", "maviri_app_data_v6", "maviri_app_data_v5", "maviri_app_data_v4", "appData", "appData_backup"];
 const pipelines = new Map();
 let loading = null;
-let conversation = [];
+
+function restoreConversation() {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(CONVERSATION_STORAGE_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed.slice(-8) : [];
+  } catch { return []; }
+}
+
+let conversation = restoreConversation();
+
+function persistConversation() {
+  try { sessionStorage.setItem(CONVERSATION_STORAGE_KEY, JSON.stringify(conversation)); }
+  catch {}
+}
+
+function rememberConversation(user, assistant) {
+  conversation = appendMaviConversation(conversation, user, assistant);
+  persistConversation();
+  return conversation;
+}
 
 function preference() {
   const saved = localStorage.getItem(STORAGE_KEY) || "auto";
@@ -117,7 +137,7 @@ async function ask(message, context = {}) {
   const messages = [
     {
       role: "system",
-      content: `Sei Mavi, assistente italiano di Maviri. Rispondi in modo chiaro, breve e naturale. Usa il contesto locale solo come fonte di fatti sull'attività e non inventare dati mancanti. Non esporre dati personali dei clienti. Non dichiarare mai di avere prenotato, cancellato, spostato o salvato dati: ogni azione operativa deve essere verificata dal Business Engine di Maviri. Se l'utente chiede un'azione operativa, aiutalo a formulare i dettagli necessari senza fingere che sia già stata eseguita. Contesto locale: ${safeContext}. /no_think`
+      content: `Sei Mavi, assistente italiano di Maviri. Rispondi in modo chiaro, breve e naturale. Mantieni continuità con i messaggi precedenti: interpreta riferimenti come "quello", "prima", "e domani?", "e invece?" usando la conversazione disponibile, senza inventare dettagli assenti. Usa il contesto locale solo come fonte di fatti sull'attività e non inventare dati mancanti. Non esporre dati personali dei clienti. Non dichiarare mai di avere prenotato, cancellato, spostato o salvato dati: ogni azione operativa deve essere verificata dal Business Engine di Maviri. Se l'utente chiede un'azione operativa, aiutalo a formulare i dettagli necessari senza fingere che sia già stata eseguita. Contesto locale: ${safeContext}. /no_think`
     },
     ...conversation,
     { role: "user", content: userMessage }
@@ -130,7 +150,7 @@ async function ask(message, context = {}) {
     }), 120000, "Generazione locale: tempo esaurito");
     const answer = generatedText(result);
     status("ready", `${loaded.tier.label} pronto`, loaded.tier);
-    if (answer) conversation = appendMaviConversation(conversation, userMessage, answer);
+    if (answer) rememberConversation(userMessage, answer);
     return answer || null;
   } catch (error) {
     status("error", "Risposta locale non disponibile", loaded.tier);
@@ -147,8 +167,11 @@ window.MaviModels = Object.freeze({
   warmup,
   load: loadWithFallback,
   ask,
+  remember: rememberConversation,
+  getConversation: () => conversation.slice(),
   resetConversation() {
     conversation = [];
+    try { sessionStorage.removeItem(CONVERSATION_STORAGE_KEY); } catch {}
   },
   setPreference(value) {
     const next = MAVI_MODEL_PREFERENCES.includes(value) ? value : "auto";
