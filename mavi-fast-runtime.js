@@ -1,5 +1,6 @@
 import { answerFastLocalData } from "./lib/mavi-fast-data.js";
 import { answerFastConversation } from "./lib/mavi-fast-conversation.js";
+import { answerFastAnalytics } from "./lib/mavi-fast-analytics.js";
 import { classifyMaviIntent, MAVI_ROUTE } from "./lib/mavi-semantic-router.js";
 import { createMaviOperationalMemory } from "./lib/mavi-operational-memory.js";
 import { resolveMaviOperationalContext, shouldUseResolvedOperationalContext, resolveMaviManagerialFollowUp } from "./lib/mavi-local-context.js";
@@ -107,6 +108,9 @@ function installSemanticRouter() {
         if (managerial.used) effectiveMessage = managerial.enrichedMessage;
       }
     }
+
+    const analytics = answerFastAnalytics(effectiveMessage, data);
+    if (analytics) { rememberTurn(message, analytics); return analytics; }
 
     const decision = classifyMaviIntent(effectiveMessage);
     if (decision.route === MAVI_ROUTE.LOCAL_DATA) {
