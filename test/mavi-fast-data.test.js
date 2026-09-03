@@ -82,6 +82,7 @@ test("legge giorni, date e mesi diversi senza rete", () => {
   assert.match(answerFastLocalData("Mostrami l'agenda del 15 ottobre", data, now).answer, /14:00 — Giulia/);
   assert.match(answerFastLocalData("Qual è il programma del mese prossimo?", data, now).answer, /2026-10-15.*Giulia/);
   assert.match(answerFastLocalData("Fammi un recap degli ultimi 10 giorni", data, now).answer, /Luca/);
+  assert.match(answerFastLocalData("In questo mese?", data, now).answer, /2026-09-02.*Luca/);
 });
 
 test("non intercetta azioni operative", () => {
