@@ -13,12 +13,12 @@ const data = {
   ],
   services: [{ name: "Taglio", price: 25, duration: 30 }],
   clients: [{ name: "Anna" }, { name: "Luca" }],
-  promotions: [{ title: "Settembre", valid: "fino al 30/09" }]
-  ,settings: { hours: [
+  promotions: [{ title: "Settembre", valid: "fino al 30/09" }],
+  settings: { hours: [
     { name: "Lunedì", open: "09:00", close: "18:00", closed: false },
     { name: "Martedì", closed: true }
-  ] }
-  ,business: { address: "Via Roma 10", phone: "0523123456" }
+  ] },
+  business: { address: "Via Roma 10", phone: "0523123456" }
 };
 
 test("risponde subito con i dati locali ordinati di oggi", () => {
@@ -28,6 +28,20 @@ test("risponde subito con i dati locali ordinati di oggi", () => {
   assert.doesNotMatch(result.answer, /Mario/);
 });
 
+test("filtra l'agenda per fascia oraria", () => {
+  const result = answerFastLocalData("Che appuntamenti ho oggi solo nel pomeriggio?", data, now);
+  assert.equal(result.handled, true);
+  assert.match(result.answer, /15:00 — Anna — Taglio/);
+  assert.doesNotMatch(result.answer, /10:00 — Luca/);
+});
+
+test("può mostrare esplicitamente gli appuntamenti cancellati", () => {
+  const result = answerFastLocalData("Che appuntamenti ho oggi tra quelli cancellati?", data, now);
+  assert.equal(result.handled, true);
+  assert.match(result.answer, /09:00 — Mario — annullato/);
+  assert.doesNotMatch(result.answer, /Anna|Luca/);
+});
+
 test("risponde subito su clienti, servizi e promozioni", () => {
   assert.match(answerFastLocalData("Quanti clienti ho?", data, now).answer, /2 clienti/);
   assert.match(answerFastLocalData("Quali servizi e prezzi ho?", data, now).answer, /Taglio — €25.00 — 30 min/);
@@ -35,24 +49,7 @@ test("risponde subito su clienti, servizi e promozioni", () => {
 });
 
 test("risponde subito al piano di oggi senza passare dalla rete", () => {
-  for (const question of [
-    "Cosa ho da fare oggi?",
-    "Dimmi cosa ho oggi da fare",
-    "Che devo gestire oggi?",
-    "Dimmi il programma di oggi",
-    "Come sono messo oggi?",
-    "Chi vedo oggi?",
-    "Che faccio oggi?",
-    "Com'è la mia agenda oggi?",
-    "Oggi che si fa?",
-    "Che facciamo oggi?",
-    "Cosa c'è da fare oggi?",
-    "Oggi cosa mi aspetta?",
-    "Che abbiamo oggi?",
-    "Oggi com'è la situazione?",
-    "Cos'ho oggi?",
-    "Oggi?"
-  ]) {
+  for (const question of ["Cosa ho da fare oggi?","Dimmi cosa ho oggi da fare","Che devo gestire oggi?","Dimmi il programma di oggi","Come sono messo oggi?","Chi vedo oggi?","Che faccio oggi?","Com'è la mia agenda oggi?","Oggi che si fa?","Che facciamo oggi?","Cosa c'è da fare oggi?","Oggi cosa mi aspetta?","Che abbiamo oggi?","Oggi com'è la situazione?","Cos'ho oggi?","Oggi?"]) {
     const result = answerFastLocalData(question, data, now);
     assert.equal(result.handled, true, question);
     assert.match(result.answer, /Programma di oggi/);
