@@ -10,6 +10,8 @@ test("interpreta giorni relativi e giorni della settimana", () => {
   assert.equal(parseLocalAgendaPeriod("martedì scorso", now).start, "2026-09-01");
   assert.equal(parseLocalAgendaPeriod("3 giorni fa", now).start, "2026-08-31");
   assert.equal(parseLocalAgendaPeriod("tra 12 giorni", now).start, "2026-09-15");
+  assert.equal(parseLocalAgendaPeriod("2 settimane fa", now).start, "2026-08-20");
+  assert.equal(parseLocalAgendaPeriod("tra 3 settimane", now).start, "2026-09-24");
 });
 
 test("interpreta date numeriche e mesi futuri", () => {
@@ -33,4 +35,6 @@ test("interpreta periodi correnti e anni relativi", () => {
   assert.deepEqual(parseLocalAgendaPeriod("questa settimana", now), { start: "2026-08-31", end: "2026-09-06", label: "questa settimana", kind: "week" });
   assert.deepEqual(parseLocalAgendaPeriod("quest'anno", now), { start: "2026-01-01", end: "2026-12-31", label: "quest'anno", kind: "year" });
   assert.deepEqual(parseLocalAgendaPeriod("anno scorso", now), { start: "2025-01-01", end: "2025-12-31", label: "l'anno scorso", kind: "year" });
+  assert.deepEqual(parseLocalAgendaPeriod("2 anni fa", now), { start: "2024-01-01", end: "2024-12-31", label: "2 anni fa", kind: "year" });
+  assert.deepEqual(parseLocalAgendaPeriod("tra 2 anni", now), { start: "2028-01-01", end: "2028-12-31", label: "tra 2 anni", kind: "year" });
 });
