@@ -27,9 +27,18 @@ test("risponde subito su clienti, servizi e promozioni", () => {
   assert.match(answerFastLocalData("Quali promozioni ci sono?", data, now).answer, /Settembre/);
 });
 
+test("risponde subito al piano di oggi senza passare dalla rete", () => {
+  for (const question of ["Cosa ho da fare oggi?", "Dimmi cosa ho oggi da fare", "Che devo gestire oggi?"]) {
+    const result = answerFastLocalData(question, data, now);
+    assert.equal(result.handled, true, question);
+    assert.match(result.answer, /Programma di oggi/);
+    assert.match(result.answer, /10:00 — Luca — Barba[\s\S]*15:00 — Anna — Taglio/);
+    assert.match(result.answer, /Azioni da gestire/);
+  }
+});
+
 test("non intercetta azioni operative", () => {
   for (const message of ["Prenota un appuntamento oggi", "Sposta l'appuntamento di oggi", "Annulla l'appuntamento"]) {
     assert.equal(answerFastLocalData(message, data, now).handled, false, message);
   }
 });
-
