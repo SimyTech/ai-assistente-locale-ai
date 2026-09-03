@@ -7,7 +7,9 @@ const data = {
   appointments: [
     { date: "2026-09-02", time: "15:00", name: "Anna", service: "Taglio", status: "confirmed" },
     { date: "2026-09-02", time: "10:00", name: "Luca", service: "Barba", status: "confirmed" },
-    { date: "2026-09-02", time: "09:00", name: "Mario", status: "cancelled" }
+    { date: "2026-09-02", time: "09:00", name: "Mario", status: "cancelled" },
+    { date: "2026-09-04", time: "11:00", name: "Paola", service: "Taglio", status: "confirmed" },
+    { date: "2026-10-15", time: "14:00", name: "Giulia", service: "Taglio", status: "confirmed" }
   ],
   services: [{ name: "Taglio", price: 25, duration: 30 }],
   clients: [{ name: "Anna" }, { name: "Luca" }],
@@ -73,6 +75,13 @@ test("non scambia una richiesta di modifica per una lettura locale", () => {
   assert.equal(answerFastLocalData("Sposta il programma di oggi", data, now).handled, false);
   assert.equal(answerFastLocalData("Modifica gli orari", data, now).handled, false);
   assert.equal(answerFastLocalData("Aggiungi una promozione", data, now).handled, false);
+});
+
+test("legge giorni, date e mesi diversi senza rete", () => {
+  assert.match(answerFastLocalData("Che appuntamenti ho dopodomani?", data, now).answer, /11:00 — Paola/);
+  assert.match(answerFastLocalData("Mostrami l'agenda del 15 ottobre", data, now).answer, /14:00 — Giulia/);
+  assert.match(answerFastLocalData("Qual è il programma del mese prossimo?", data, now).answer, /2026-10-15.*Giulia/);
+  assert.match(answerFastLocalData("Fammi un recap degli ultimi 10 giorni", data, now).answer, /Luca/);
 });
 
 test("non intercetta azioni operative", () => {
