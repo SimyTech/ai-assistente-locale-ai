@@ -4,7 +4,7 @@ import { analyzeLocalIntent } from "../lib/mavi-local-intent.js";
 
 test("classifica sinonimi e parole fuori ordine", () => {
   const cases = {
-    agenda: ["Per lunedì cosa risulta in calendario?", "Il 15 chi devo vedere?", "Riepilogami il mese scorso", "Oggi che si fa?", "In questo mese?", "Questa settimana?", "Quest'anno?"],
+    agenda: ["Per lunedì cosa risulta in calendario?", "Il 15 chi devo vedere?", "Riepilogami il mese scorso", "Oggi che si fa?", "In questo mese?", "Questa settimana?", "Quest'anno?", "Tra 2 mesi?", "3 giorni fa?", "Ultimi 3 mesi?"],
     services: ["Cosa proponete?", "Vorrei conoscere il tariffario", "Quanto viene un trattamento?"],
     clients: ["Quanti nominativi risultano?", "Chi ho in rubrica?", "Elenca i pazienti"],
     promotions: ["Avete qualche sconto?", "Quali campagne sono attive?"],
