@@ -44,6 +44,11 @@ function currentProactiveBrief(options = {}) {
   return buildProactiveBrief(window.data || localData(), options);
 }
 
+function rememberTurn(message, answer) {
+  if (!message || !answer) return;
+  try { window.MaviModels?.remember?.(message, answer); } catch {}
+}
+
 async function refreshChannelStatus(proposal = null) {
   channelStatus = await fetchMaviChannelStatus(window.fetch?.bind(window));
   if (proposal) {
@@ -156,15 +161,25 @@ function installSemanticRouter() {
     const decision = classifyMaviIntent(effectiveMessage);
     if (decision.route === MAVI_ROUTE.LOCAL_DATA) {
       const fast = answerFastLocalData(effectiveMessage, data);
-      if (fast?.handled) return fast.answer;
-      return original.call(this, effectiveMessage);
+      if (fast?.handled) {
+        rememberTurn(effectiveMessage, fast.answer);
+        return fast.answer;
+      }
+      const answer = await original.call(this, effectiveMessage);
+      rememberTurn(effectiveMessage, answer);
+      return answer;
     }
     if (decision.route === MAVI_ROUTE.QWEN) {
       const local = await qwenFirst(effectiveMessage);
       if (local) return local;
       const fastConversation = answerFastConversation(effectiveMessage, data);
-      if (fastConversation.handled) return fastConversation.answer;
-      return original.call(this, effectiveMessage);
+      if (fastConversation.handled) {
+        rememberTurn(effectiveMessage, fastConversation.answer);
+        return fastConversation.answer;
+      }
+      const answer = await original.call(this, effectiveMessage);
+      rememberTurn(effectiveMessage, answer);
+      return answer;
     }
     return original.call(this, effectiveMessage);
   };
