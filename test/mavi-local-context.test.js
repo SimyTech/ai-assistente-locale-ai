@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildMaviLocalContext, appendMaviConversation } from "../lib/mavi-local-context.js";
+import {
+  buildMaviLocalContext,
+  appendMaviConversation,
+  resolveMaviOperationalContext
+} from "../lib/mavi-local-context.js";
 
 test("costruisce un contesto locale utile senza dati personali dei clienti", () => {
   const context = buildMaviLocalContext(
@@ -55,4 +59,60 @@ test("mantiene solo una memoria conversazionale breve", () => {
     "domanda 5", "risposta 5",
     "domanda 6", "risposta 6"
   ]);
+});
+
+test("ricompone giorno orario servizio e cliente da messaggi consecutivi", () => {
+  const localData = {
+    services: [{ name: "Taglio" }, { name: "Colore" }],
+    clients: [{ name: "Mario Rossi" }, { name: "Anna Bianchi" }]
+  };
+  const history = [
+    { role: "user", content: "Vorrei prenotare domani" },
+    { role: "assistant", content: "A che ora?" },
+    { role: "user", content: "Alle 15" },
+    { role: "assistant", content: "Quale servizio?" },
+    { role: "user", content: "Taglio" },
+    { role: "assistant", content: "Per chi?" }
+  ];
+
+  const resolved = resolveMaviOperationalContext(history, "Mario Rossi", localData);
+  assert.equal(resolved.date, "domani");
+  assert.equal(resolved.time, "15:00");
+  assert.equal(resolved.service, "Taglio");
+  assert.equal(resolved.client, "Mario Rossi");
+  assert.match(resolved.enrichedMessage, /Mario Rossi/);
+  assert.match(resolved.enrichedMessage, /domani/);
+  assert.match(resolved.enrichedMessage, /15:00/);
+  assert.match(resolved.enrichedMessage, /Taglio/);
+});
+
+test("il dettaglio più recente sostituisce quello precedente", () => {
+  const localData = {
+    services: [{ name: "Taglio" }, { name: "Colore" }],
+    clients: []
+  };
+  const history = [
+    { role: "user", content: "domani alle 15 per Taglio" },
+    { role: "assistant", content: "Va bene" },
+    { role: "user", content: "anzi dopodomani" },
+    { role: "assistant", content: "Ricevuto" }
+  ];
+
+  const resolved = resolveMaviOperationalContext(history, "alle 16 per Colore", localData);
+  assert.equal(resolved.date, "dopodomani");
+  assert.equal(resolved.time, "16:00");
+  assert.equal(resolved.service, "Colore");
+});
+
+test("non inventa dettagli assenti dalla conversazione", () => {
+  const resolved = resolveMaviOperationalContext(
+    [{ role: "user", content: "Vorrei prenotare" }],
+    "va bene",
+    { services: [{ name: "Taglio" }], clients: [{ name: "Mario Rossi" }] }
+  );
+
+  assert.equal(resolved.date, "");
+  assert.equal(resolved.time, "");
+  assert.equal(resolved.service, "");
+  assert.equal(resolved.client, "");
 });
