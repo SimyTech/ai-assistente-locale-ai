@@ -22,3 +22,10 @@ test("interpreta intervalli e mesi precedenti", () => {
   assert.deepEqual(parseLocalAgendaPeriod("settimana scorsa", now), { start: "2026-08-24", end: "2026-08-30", label: "la settimana scorsa", kind: "week" });
   assert.deepEqual(parseLocalAgendaPeriod("ultimi 10 giorni", now), { start: "2026-08-25", end: "2026-09-03", label: "ultimi 10 giorni", kind: "range" });
 });
+
+test("interpreta periodi correnti e anni relativi", () => {
+  assert.deepEqual(parseLocalAgendaPeriod("in questo mese?", now), { start: "2026-09-01", end: "2026-09-30", label: "questo mese", kind: "month" });
+  assert.deepEqual(parseLocalAgendaPeriod("questa settimana", now), { start: "2026-08-31", end: "2026-09-06", label: "questa settimana", kind: "week" });
+  assert.deepEqual(parseLocalAgendaPeriod("quest'anno", now), { start: "2026-01-01", end: "2026-12-31", label: "quest'anno", kind: "year" });
+  assert.deepEqual(parseLocalAgendaPeriod("anno scorso", now), { start: "2025-01-01", end: "2025-12-31", label: "l'anno scorso", kind: "year" });
+});
