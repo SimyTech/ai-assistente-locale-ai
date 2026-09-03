@@ -25,6 +25,10 @@ test("risolve i fatti locali senza rete quando possibile", () => {
     "Dimmi il programma di oggi",
     "Come sono messo oggi?",
     "Chi vedo oggi?",
+    "Oggi che si fa?",
+    "Cosa c'è da fare oggi?",
+    "Oggi cosa mi aspetta?",
+    "Che abbiamo oggi?",
     "Fammi vedere il listino",
     "Quante persone ho in rubrica?",
     "Dove siamo?"
