@@ -28,6 +28,11 @@ test("la memoria conserva il messaggio originale quando il runtime usa un contes
   assert.doesNotMatch(fast, /rememberTurn\(effectiveMessage, fastConversation\.answer\)/);
 });
 
+test("Altro resta nascosto fuori dalla navigazione mobile", () => {
+  assert.match(fast, /\.nav \.mobile-more\{display:none\}/);
+  assert.match(fast, /@media\(max-width:1000px\)\{\.nav \.mobile-more\{display:flex!important\}\}/);
+});
+
 test("il reset cancella anche la memoria persistita", () => {
   assert.match(adaptive, /sessionStorage\.removeItem\(CONVERSATION_STORAGE_KEY\)/);
 });
