@@ -13,6 +13,7 @@ const brief = {
   items: [
     { type: "inactive-client", name: "Mario Rossi", inactiveDays: 90, service: "Taglio" },
     { type: "promotion-expiry", name: "Promo Estate", expiry: "2026-09-05" },
+    { type: "weak-time-band", label: "pranzo", band: "midday", appointments: 1, lookbackDays: 60, requiresApproval: true, autoExecute: false },
     { type: "agenda-gap", date: "2026-09-04", start: "15:00", end: "16:00", recommendedService: { name: "Taglio" }, potentialValue: 25 }
   ]
 };
@@ -34,6 +35,19 @@ test("prepara un contenuto per una promozione in scadenza", () => {
   assert.equal(result.proposal.kind, "content-draft");
   assert.match(result.proposal.text, /Promo Estate/);
   assert.equal(result.proposal.executable, false);
+});
+
+test("trasforma la fascia debole in una bozza promozionale modificabile", () => {
+  const actions = createMaviProactiveActions();
+  const result = actions.handle("Preparami qualcosa per la fascia pranzo", brief, data, "conv");
+  assert.equal(result.handled, true);
+  assert.equal(result.proposal.kind, "content-draft");
+  assert.equal(result.proposal.sourceType, "weak-time-band");
+  assert.equal(result.proposal.targetBand, "pranzo");
+  assert.equal(result.proposal.requiresApproval, true);
+  assert.equal(result.proposal.executable, false);
+  assert.match(result.proposal.text, /pranzo/);
+  assert.match(result.answer, /Puoi modificarla/);
 });
 
 test("collega una richiesta al buco in agenda", () => {
