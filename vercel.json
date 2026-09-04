@@ -9,6 +9,7 @@
     { "source": "/forgot-password", "destination": "/forgot-password.html" },
     { "source": "/reset-password", "destination": "/reset-password.html" },
     { "source": "/verify-email", "destination": "/verify-email.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/api/chat", "destination": "/api/chat-entry" },
     { "source": "/api/whatsapp", "destination": "/api/whatsapp-proxy" },
     { "source": "/api/readiness", "destination": "/api/health?mode=readiness" },
