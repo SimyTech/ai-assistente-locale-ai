@@ -4,8 +4,21 @@ import { createMaviProactiveActions } from "../lib/mavi-proactive-actions.js";
 
 const data = {
   business: { name: "Studio Mavi" },
+  services: [
+    { name: "Taglio", price: 30 },
+    { name: "Colore", price: 70 }
+  ],
   clients: [
-    { id: "c1", name: "Mario Rossi", phone: "3331234567", whatsapp: "3331234567" }
+    { id: "c1", name: "Mario Rossi", phone: "3331234567", whatsapp: "3331234567" },
+    { id: "c2", name: "Anna Bianchi", phone: "3337654321", whatsapp: "3337654321" }
+  ],
+  appointments: [
+    { clientId: "c1", client: "Mario Rossi", service: "Taglio", status: "completed", price: 30 },
+    { clientId: "c1", client: "Mario Rossi", service: "Taglio", status: "completed", price: 30 },
+    { clientId: "c2", client: "Anna Bianchi", service: "Colore", status: "completed", price: 70 },
+    { clientId: "c2", client: "Anna Bianchi", service: "Colore", status: "completed", price: 70 },
+    { clientId: "c2", client: "Anna Bianchi", service: "Colore", status: "completed", price: 70 },
+    { clientId: "c1", client: "Mario Rossi", service: "Colore", status: "cancelled", price: 70 }
   ]
 };
 
@@ -48,6 +61,31 @@ test("trasforma la fascia debole in una bozza promozionale modificabile", () => 
   assert.equal(result.proposal.executable, false);
   assert.match(result.proposal.text, /pranzo/);
   assert.match(result.answer, /Puoi modificarla/);
+});
+
+test("sceglie il servizio con più valore completato e propone un pubblico coerente", () => {
+  const actions = createMaviProactiveActions();
+  const result = actions.handle("Preparami qualcosa per la fascia pranzo", brief, data, "strategy");
+  assert.equal(result.proposal.recommendedService, "Colore");
+  assert.equal(result.proposal.recommendedServiceCompleted, 3);
+  assert.equal(result.proposal.recommendedServiceValue, 210);
+  assert.deepEqual(result.proposal.suggestedAudience, ["Anna Bianchi"]);
+  assert.equal(result.proposal.audienceRequiresApproval, true);
+  assert.match(result.answer, /Strategia suggerita: Colore/);
+  assert.match(result.answer, /qualsiasi ricontatto/);
+});
+
+test("non usa appuntamenti cancellati per scegliere la strategia", () => {
+  const actions = createMaviProactiveActions();
+  const altered = {
+    ...data,
+    appointments: [
+      ...data.appointments,
+      { clientId: "c1", client: "Mario Rossi", service: "Taglio", status: "cancelled", price: 1000 }
+    ]
+  };
+  const result = actions.handle("Preparami qualcosa per la fascia pranzo", brief, altered, "cancelled");
+  assert.equal(result.proposal.recommendedService, "Colore");
 });
 
 test("collega una richiesta al buco in agenda", () => {
