@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
+import { Readable } from "node:stream";
 import {
   parseJsonBody,
   readRawBody,
@@ -32,6 +33,22 @@ test("legge rawBody senza modificarne i byte", async () => {
   const req = { rawBody };
   const result = await readRawBody(req);
   assert.deepEqual(result, rawBody);
+});
+
+test("preferisce lo stream grezzo a req.body gia parsato", async () => {
+  const exact = Buffer.from('{"object":"whatsapp_business_account", "entry":[{"id":"1"}]}');
+  const req = Readable.from([exact]);
+  req.body = { object: "whatsapp_business_account", entry: [{ id: "1" }] };
+
+  const result = await readRawBody(req);
+  assert.deepEqual(result, exact);
+  assert.notEqual(result.toString("utf8"), JSON.stringify(req.body));
+});
+
+test("usa req.body solo come fallback quando lo stream non esiste", async () => {
+  const req = { body: { object: "whatsapp_business_account", entry: [{ id: "1" }] } };
+  const result = await readRawBody(req);
+  assert.equal(result.toString("utf8"), JSON.stringify(req.body));
 });
 
 test("parsa il JSON solo dopo la verifica", () => {
