@@ -77,7 +77,7 @@ test("sceglie il servizio con più valore completato e propone un pubblico coere
   assert.match(result.answer, /qualsiasi ricontatto/);
 });
 
-test("prepara bozze WhatsApp solo per clienti con recapito e non le rende eseguibili", () => {
+test("prepara bozze WhatsApp tramite la policy centrale e non le rende eseguibili", () => {
   const actions = createMaviProactiveActions();
   const result = actions.handle("Prepara WhatsApp per il pubblico della fascia pranzo", brief, data, "whatsapp");
   assert.equal(result.handled, true);
@@ -87,23 +87,21 @@ test("prepara bozze WhatsApp solo per clienti con recapito e non le rende esegui
   assert.equal(draft.recipientName, "Anna Bianchi");
   assert.equal(draft.recipient, "3337654321");
   assert.equal(draft.channel, "whatsapp");
+  assert.equal(draft.messageMode, "mavi_generated");
+  assert.equal(draft.approved, false);
   assert.equal(draft.requiresApproval, true);
   assert.equal(draft.executable, false);
   assert.equal(draft.sourceType, "weak-time-band");
-  assert.match(draft.text, /fascia pranzo/);
+  assert.match(draft.text, /Ciao Anna/);
   assert.match(draft.text, /Colore/);
+  assert.match(draft.text, /fascia pranzo/);
+  assert.doesNotMatch(draft.text, /stiamo cercando di valorizzare|devi|dovresti/i);
   assert.match(result.answer, /bozze WhatsApp pronte: 1/);
 });
 
 test("non usa appuntamenti cancellati per scegliere la strategia", () => {
   const actions = createMaviProactiveActions();
-  const altered = {
-    ...data,
-    appointments: [
-      ...data.appointments,
-      { clientId: "c1", client: "Mario Rossi", service: "Taglio", status: "cancelled", price: 1000 }
-    ]
-  };
+  const altered = { ...data, appointments: [...data.appointments, { clientId: "c1", client: "Mario Rossi", service: "Taglio", status: "cancelled", price: 1000 }] };
   const result = actions.handle("Preparami qualcosa per la fascia pranzo", brief, altered, "cancelled");
   assert.equal(result.proposal.recommendedService, "Colore");
 });
