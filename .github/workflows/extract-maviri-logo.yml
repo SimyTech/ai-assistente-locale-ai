@@ -1,0 +1,59 @@
+name: Extract Maviri logo
+
+on:
+  push:
+    branches:
+      - codex/account-management
+    paths:
+      - .github/workflows/extract-maviri-logo.yml
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract exact embedded Maviri logo
+        shell: python
+        run: |
+          import base64
+          import pathlib
+          import re
+
+          source = pathlib.Path("index.html").read_text(encoding="utf-8")
+          match = re.search(r'<img class="logo" src="data:image/[^;]+;base64,([^"]+)"', source)
+          if not match:
+              raise SystemExit("Maviri logo data URI not found in index.html")
+
+          raw = base64.b64decode(match.group(1), validate=True)
+          if not raw.startswith(b"\xff\xd8\xff"):
+              raise SystemExit("Embedded Maviri logo is not the expected JPEG payload")
+
+          out = pathlib.Path("assets/maviri-logo-original.jpg")
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_bytes(raw)
+          print(f"Extracted {len(raw)} bytes to {out}")
+
+      - name: Upload exact logo artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: maviri-logo-original
+          path: assets/maviri-logo-original.jpg
+          if-no-files-found: error
+
+      - name: Commit official logo asset to this branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/maviri-logo-original.jpg
+          if git diff --cached --quiet; then
+            echo "Logo asset already up to date"
+            exit 0
+          fi
+          git commit -m "Extract official Maviri logo asset"
+          git push
