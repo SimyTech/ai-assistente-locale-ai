@@ -90,7 +90,7 @@ test("consegna una sola volta lo stesso actionId e persiste il lifecycle complet
   assert.equal(first.payload.duplicate, false);
   assert.equal(transport.deliveryCount(), 1);
 
-  const historyRaw = transport.store.get("maviri:tenant:default:action-history");
+  const historyRaw = transport.store.get("maviri:action-history");
   assert.ok(historyRaw);
   const history = JSON.parse(historyRaw);
   const persisted = history.actions.find(row => row.id === actionId);
