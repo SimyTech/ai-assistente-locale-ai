@@ -7,7 +7,7 @@ import {
   extractWhatsAppMessageId,
   releaseWhatsAppWebhookLock
 } from "../lib/whatsapp-webhook-lock.js";
-import { parseJsonBody, readRawBody, verifyMetaSignature } from "../lib/webhook-signature.js";
+import { metaSignatureState, parseJsonBody, readRawBody } from "../lib/webhook-signature.js";
 
 const clean = value => String(value ?? "").trim();
 
@@ -30,13 +30,24 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: "Corpo webhook non leggibile." });
   }
 
-  const valid = verifyMetaSignature({
+  const signatureState = metaSignatureState({
     secret: process.env.WHATSAPP_APP_SECRET,
     signature: req.headers?.["x-hub-signature-256"],
     rawBody
   });
 
-  if (!valid) {
+  // Meta's dashboard can emit webhook test payloads without the production
+  // X-Hub-Signature-256 header. Acknowledge those probes but never process
+  // them, so unsigned traffic cannot reach booking/chat logic.
+  if (signatureState === "missing") {
+    return res.status(200).json({
+      ok: true,
+      ignored: true,
+      reason: "unsigned-webhook-probe"
+    });
+  }
+
+  if (signatureState !== "valid") {
     return res.status(401).json({ ok: false, error: "Firma WhatsApp non valida." });
   }
 
