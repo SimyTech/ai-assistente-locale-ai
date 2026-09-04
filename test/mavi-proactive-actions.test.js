@@ -10,7 +10,8 @@ const data = {
   ],
   clients: [
     { id: "c1", name: "Mario Rossi", phone: "3331234567", whatsapp: "3331234567" },
-    { id: "c2", name: "Anna Bianchi", phone: "3337654321", whatsapp: "3337654321" }
+    { id: "c2", name: "Anna Bianchi", phone: "3337654321", whatsapp: "3337654321" },
+    { id: "c3", name: "Luca Verdi" }
   ],
   appointments: [
     { clientId: "c1", client: "Mario Rossi", service: "Taglio", status: "completed", price: 30 },
@@ -18,6 +19,7 @@ const data = {
     { clientId: "c2", client: "Anna Bianchi", service: "Colore", status: "completed", price: 70 },
     { clientId: "c2", client: "Anna Bianchi", service: "Colore", status: "completed", price: 70 },
     { clientId: "c2", client: "Anna Bianchi", service: "Colore", status: "completed", price: 70 },
+    { clientId: "c3", client: "Luca Verdi", service: "Colore", status: "completed", price: 70 },
     { clientId: "c1", client: "Mario Rossi", service: "Colore", status: "cancelled", price: 70 }
   ]
 };
@@ -67,12 +69,30 @@ test("sceglie il servizio con più valore completato e propone un pubblico coere
   const actions = createMaviProactiveActions();
   const result = actions.handle("Preparami qualcosa per la fascia pranzo", brief, data, "strategy");
   assert.equal(result.proposal.recommendedService, "Colore");
-  assert.equal(result.proposal.recommendedServiceCompleted, 3);
-  assert.equal(result.proposal.recommendedServiceValue, 210);
-  assert.deepEqual(result.proposal.suggestedAudience, ["Anna Bianchi"]);
+  assert.equal(result.proposal.recommendedServiceCompleted, 4);
+  assert.equal(result.proposal.recommendedServiceValue, 280);
+  assert.deepEqual(result.proposal.suggestedAudience, ["Anna Bianchi", "Luca Verdi"]);
   assert.equal(result.proposal.audienceRequiresApproval, true);
   assert.match(result.answer, /Strategia suggerita: Colore/);
   assert.match(result.answer, /qualsiasi ricontatto/);
+});
+
+test("prepara bozze WhatsApp solo per clienti con recapito e non le rende eseguibili", () => {
+  const actions = createMaviProactiveActions();
+  const result = actions.handle("Prepara WhatsApp per il pubblico della fascia pranzo", brief, data, "whatsapp");
+  assert.equal(result.handled, true);
+  assert.equal(result.proposal.whatsappRequiresApproval, true);
+  assert.equal(result.proposal.whatsappDrafts.length, 1);
+  const draft = result.proposal.whatsappDrafts[0];
+  assert.equal(draft.recipientName, "Anna Bianchi");
+  assert.equal(draft.recipient, "3337654321");
+  assert.equal(draft.channel, "whatsapp");
+  assert.equal(draft.requiresApproval, true);
+  assert.equal(draft.executable, false);
+  assert.equal(draft.sourceType, "weak-time-band");
+  assert.match(draft.text, /fascia pranzo/);
+  assert.match(draft.text, /Colore/);
+  assert.match(result.answer, /bozze WhatsApp pronte: 1/);
 });
 
 test("non usa appuntamenti cancellati per scegliere la strategia", () => {
@@ -100,7 +120,7 @@ test("collega una richiesta al buco in agenda", () => {
 
 test("un comando di invio non esegue automaticamente", () => {
   const actions = createMaviProactiveActions();
-  actions.handle("Ricontatta Mario Rossi", brief, data, "conv");
+  actions.handle("Prepara WhatsApp per il pubblico della fascia pranzo", brief, data, "conv");
   const result = actions.handle("invia", brief, data, "conv");
   assert.equal(result.handled, true);
   assert.equal(result.execute, false);
