@@ -20,6 +20,13 @@ test("Mavi propone richiami positivi cordiali ed empatici senza colpevolizzare",
   assert.doesNotMatch(message, /non vieni|non hai prenotato|devi|dovresti|mancato/i);
 });
 
+test("può suggerire una fascia senza inventare una disponibilità", () => {
+  const message = buildMaviCustomerMessage("smart_recall", { name:"Anna Rossi" }, { service:"Colore", preferredBand:"pranzo" });
+  assert.match(message, /fascia pranzo/);
+  assert.match(message, /possiamo cercare insieme una disponibilità adatta/i);
+  assert.doesNotMatch(message, /abbiamo disponibilità/i);
+});
+
 test("il titolare può modificare il testo proposto", () => {
   const proposal = prepareOwnerApprovedCustomerMessage({ kind:"inactive_recovery", client:{ name:"Luca" }, mode:"owner_edited", text:"Ciao Luca, come stai? Quando vuoi siamo qui." });
   assert.equal(proposal.messageMode, "owner_edited");
