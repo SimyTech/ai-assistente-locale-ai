@@ -111,3 +111,47 @@ test("un errore può tornare in stato approvato solo con retry esplicito", () =>
   assert.equal(lifecycle.retry(proposal).accepted, true);
   assert.equal(lifecycle.get(proposal).status, "approved");
 });
+
+test("serializza e ripristina azioni completate con esito osservato", () => {
+  const lifecycle = createActionLifecycle();
+  lifecycle.approve(proposal, 1000);
+  lifecycle.requestSend(proposal, 2000);
+  lifecycle.complete(proposal, 3000);
+  lifecycle.recordOutcome(proposal, { type: "booked", value: 85, appointmentId: "apt-persistita" }, 4000);
+
+  const snapshot = lifecycle.snapshot();
+  snapshot.actions[0].proposal.text = proposal.text;
+
+  const restored = createActionLifecycle();
+  const result = restored.restore(snapshot);
+  assert.deepEqual(result, { restored: 1, skipped: 0, accepted: true });
+  assert.equal(restored.get(proposal).outcome, "booked");
+  assert.equal(restored.get(proposal).outcomeValue, 85);
+  assert.equal(restored.get(proposal).appointmentId, "apt-persistita");
+});
+
+test("il ripristino scarta record alterati o con stato non valido", () => {
+  const lifecycle = createActionLifecycle();
+  const valid = lifecycle.propose(proposal);
+  const snapshot = {
+    version: 1,
+    actions: [
+      valid,
+      { ...valid, id: "mavi-action-manomessa" },
+      { ...valid, status: "executed" },
+      { ...valid, status: "approved", outcome: "booked", outcomeValue: 999 }
+    ]
+  };
+  const restored = createActionLifecycle();
+  const result = restored.restore(snapshot);
+  assert.deepEqual(result, { restored: 1, skipped: 3, accepted: true });
+  assert.equal(restored.list().length, 1);
+});
+
+test("uno snapshot non valido non cancella lo stato già presente", () => {
+  const lifecycle = createActionLifecycle();
+  lifecycle.propose(proposal);
+  const result = lifecycle.restore({ version: 99, actions: [] });
+  assert.equal(result.accepted, false);
+  assert.equal(lifecycle.list().length, 1);
+});
