@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import authorizedSendHandler, { validateAuthorizedSendBody } from "../lib/authorized-send-handler.js";
+import { proposalActionId } from "../lib/mavi-action-lifecycle.js";
 
 function responseRecorder() {
   return {
@@ -38,7 +39,7 @@ function fakeTransport() {
     }
     throw new Error(`URL inatteso: ${url}`);
   };
-  return { fetchImpl, deliveryCount: () => deliveries };
+  return { fetchImpl, deliveryCount: () => deliveries, store };
 }
 
 const env = {
@@ -57,27 +58,30 @@ const proposal = {
   approved: true
 };
 
+const actionId = proposalActionId(proposal);
+
 function request(body, token = "owner-secret") {
   return { method: "POST", headers: { "x-maviri-owner-token": token }, body };
 }
 
-test("valida action id, approvazione e contenuto", () => {
+test("valida action id, coerenza con proposta, approvazione e contenuto", () => {
   assert.equal(validateAuthorizedSendBody({}).ok, false);
-  assert.equal(validateAuthorizedSendBody({ actionId: "mavi-action-deadbeef", proposal: { ...proposal, approved: false } }).error, "approval-required");
-  assert.equal(validateAuthorizedSendBody({ actionId: "mavi-action-deadbeef", proposal }).ok, true);
+  assert.equal(validateAuthorizedSendBody({ actionId: "mavi-action-deadbeef", proposal }).error, "action-id-mismatch");
+  assert.equal(validateAuthorizedSendBody({ actionId, proposal: { ...proposal, approved: false } }).error, "approval-required");
+  assert.equal(validateAuthorizedSendBody({ actionId, proposal }).ok, true);
 });
 
 test("rifiuta un owner non autenticato", async () => {
   const res = responseRecorder();
   const transport = fakeTransport();
-  await authorizedSendHandler(request({ actionId: "mavi-action-deadbeef", proposal }, "wrong"), res, { env, fetchImpl: transport.fetchImpl });
+  await authorizedSendHandler(request({ actionId, proposal }, "wrong"), res, { env, fetchImpl: transport.fetchImpl });
   assert.equal(res.statusCode, 401);
   assert.equal(transport.deliveryCount(), 0);
 });
 
-test("consegna una sola volta lo stesso actionId", async () => {
+test("consegna una sola volta lo stesso actionId e persiste il lifecycle completato", async () => {
   const transport = fakeTransport();
-  const body = { actionId: "mavi-action-deadbeef", proposal };
+  const body = { actionId, proposal };
 
   const first = responseRecorder();
   await authorizedSendHandler(request(body), first, { env, fetchImpl: transport.fetchImpl });
@@ -85,6 +89,12 @@ test("consegna una sola volta lo stesso actionId", async () => {
   assert.equal(first.payload.ok, true);
   assert.equal(first.payload.duplicate, false);
   assert.equal(transport.deliveryCount(), 1);
+
+  const historyRaw = transport.store.get("maviri:tenant:default:action-history");
+  assert.ok(historyRaw);
+  const history = JSON.parse(historyRaw);
+  const persisted = history.actions.find(row => row.id === actionId);
+  assert.equal(persisted.status, "completed");
 
   const second = responseRecorder();
   await authorizedSendHandler(request(body), second, { env, fetchImpl: transport.fetchImpl });
