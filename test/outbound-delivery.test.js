@@ -10,7 +10,8 @@ import {
 
 const whatsappEnv = {
   WHATSAPP_ACCESS_TOKEN: "token-test",
-  WHATSAPP_PHONE_NUMBER_ID: "123456"
+  WHATSAPP_PHONE_NUMBER_ID: "123456",
+  MAVIRI_WHATSAPP_PROACTIVE: "true"
 };
 
 const emailEnv = {

@@ -46,7 +46,8 @@ const env = {
   UPSTASH_REDIS_REST_URL: "https://redis.test",
   UPSTASH_REDIS_REST_TOKEN: "redis-secret",
   WHATSAPP_ACCESS_TOKEN: "wa-secret",
-  WHATSAPP_PHONE_NUMBER_ID: "123456"
+  WHATSAPP_PHONE_NUMBER_ID: "123456",
+  MAVIRI_WHATSAPP_PROACTIVE: "true"
 };
 
 const proposal = {
