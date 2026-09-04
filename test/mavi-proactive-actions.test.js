@@ -77,6 +77,33 @@ test("sceglie il servizio con più valore completato e propone un pubblico coere
   assert.match(result.answer, /qualsiasi ricontatto/);
 });
 
+test("aggiunge un valore storico prudente senza presentarlo come previsione", () => {
+  const actions = createMaviProactiveActions();
+  const result = actions.handle("Preparami qualcosa per la fascia pranzo", brief, data, "value-context");
+  assert.equal(result.proposal.recoveryValueContext.valuePerRecoveredBooking, 70);
+  assert.equal(result.proposal.recoveryValueContext.completedSample, 4);
+  assert.equal(result.proposal.recoveryValueContext.basis, "historical-average-completed");
+  assert.equal(result.proposal.recoveryValueContext.forecast, false);
+  assert.match(result.answer, /Valore storico medio/);
+  assert.match(result.answer, /€70\.00/);
+  assert.match(result.answer, /non una previsione/);
+});
+
+test("il valore storico ignora cancellazioni e usa il prezzo di servizio come fallback", () => {
+  const actions = createMaviProactiveActions();
+  const valueData = {
+    ...data,
+    appointments: [
+      { clientId: "c2", client: "Anna Bianchi", service: "Colore", status: "completed" },
+      { clientId: "c3", client: "Luca Verdi", service: "Colore", status: "completed", price: 50 },
+      { clientId: "c1", client: "Mario Rossi", service: "Colore", status: "cancelled", price: 1000 }
+    ]
+  };
+  const result = actions.handle("Preparami qualcosa per la fascia pranzo", brief, valueData, "value-fallback");
+  assert.equal(result.proposal.recoveryValueContext.valuePerRecoveredBooking, 60);
+  assert.equal(result.proposal.recoveryValueContext.completedSample, 2);
+});
+
 test("esclude dal pubblico chi ha già un appuntamento futuro e privilegia chi è inattivo da più tempo", () => {
   const actions = createMaviProactiveActions();
   const smartData = {
