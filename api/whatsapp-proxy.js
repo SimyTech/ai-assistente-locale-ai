@@ -30,9 +30,22 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: "Corpo webhook non leggibile." });
   }
 
+  const suppliedSignature = clean(req.headers?.["x-hub-signature-256"]);
+
+  // Meta's dashboard can emit webhook test payloads without the production
+  // X-Hub-Signature-256 header. Acknowledge those probes but never process
+  // them, so unsigned traffic cannot reach booking/chat logic.
+  if (!suppliedSignature) {
+    return res.status(200).json({
+      ok: true,
+      ignored: true,
+      reason: "unsigned-webhook-probe"
+    });
+  }
+
   const valid = verifyMetaSignature({
     secret: process.env.WHATSAPP_APP_SECRET,
-    signature: req.headers?.["x-hub-signature-256"],
+    signature: suppliedSignature,
     rawBody
   });
 
