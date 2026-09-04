@@ -54,6 +54,44 @@ test("completamento è valido solo dopo richiesta invio", () => {
   assert.equal(lifecycle.requestSend(proposal, 5000).duplicate, true);
 });
 
+test("registra una prenotazione come esito solo dopo il completamento dell'azione", () => {
+  const lifecycle = createActionLifecycle();
+  assert.equal(lifecycle.recordOutcome(proposal, { type: "booked", value: 70 }, 1000).accepted, false);
+  lifecycle.approve(proposal, 2000);
+  lifecycle.requestSend(proposal, 3000);
+  lifecycle.complete(proposal, 4000);
+  const result = lifecycle.recordOutcome(proposal, { type: "booked", value: 70, appointmentId: "apt-123" }, 5000);
+  assert.equal(result.accepted, true);
+  assert.equal(result.action.status, "completed");
+  assert.equal(result.action.outcome, "booked");
+  assert.equal(result.action.outcomeValue, 70);
+  assert.equal(result.action.appointmentId, "apt-123");
+  assert.equal(result.action.outcomeAt, 5000);
+});
+
+test("registra esiti senza prenotazione senza attribuire valore", () => {
+  const lifecycle = createActionLifecycle();
+  lifecycle.approve(proposal, 1000);
+  lifecycle.requestSend(proposal, 2000);
+  lifecycle.complete(proposal, 3000);
+  const result = lifecycle.recordOutcome(proposal, { type: "no-booking", value: 999, appointmentId: "fake" }, 4000);
+  assert.equal(result.accepted, true);
+  assert.equal(result.action.outcome, "no-booking");
+  assert.equal(result.action.outcomeValue, 0);
+  assert.equal(result.action.appointmentId, "");
+});
+
+test("rifiuta tipi di esito non previsti", () => {
+  const lifecycle = createActionLifecycle();
+  lifecycle.approve(proposal, 1000);
+  lifecycle.requestSend(proposal, 2000);
+  lifecycle.complete(proposal, 3000);
+  const result = lifecycle.recordOutcome(proposal, { type: "maybe" }, 4000);
+  assert.equal(result.accepted, false);
+  assert.equal(result.reason, "invalid-outcome");
+  assert.equal(lifecycle.get(proposal).outcome, null);
+});
+
 test("un errore può tornare in stato approvato solo con retry esplicito", () => {
   const lifecycle = createActionLifecycle();
   lifecycle.approve(proposal, 1000);
