@@ -77,6 +77,32 @@ test("sceglie il servizio con più valore completato e propone un pubblico coere
   assert.match(result.answer, /qualsiasi ricontatto/);
 });
 
+test("esclude dal pubblico chi ha già un appuntamento futuro e privilegia chi è inattivo da più tempo", () => {
+  const actions = createMaviProactiveActions();
+  const smartData = {
+    ...data,
+    now: "2026-09-04",
+    clients: [
+      ...data.clients,
+      { id: "c4", name: "Sara Blu", phone: "3330000000", whatsapp: "3330000000" },
+      { id: "c5", name: "Paolo Neri", phone: "3331111111", whatsapp: "3331111111", recoveryContactedAt: "2026-08-25" }
+    ],
+    appointments: [
+      ...data.appointments,
+      { clientId: "c2", client: "Anna Bianchi", service: "Colore", status: "completed", date: "2026-06-01", price: 70 },
+      { clientId: "c2", client: "Anna Bianchi", service: "Colore", status: "confirmed", date: "2026-09-10", price: 70 },
+      { clientId: "c4", client: "Sara Blu", service: "Colore", status: "completed", date: "2026-02-01", price: 70 },
+      { clientId: "c5", client: "Paolo Neri", service: "Colore", status: "completed", date: "2026-01-01", price: 70 }
+    ]
+  };
+  const result = actions.handle("Prepara WhatsApp per il pubblico della fascia pranzo", brief, smartData, "smart-audience");
+  assert.deepEqual(result.proposal.suggestedAudience, ["Sara Blu", "Luca Verdi"]);
+  assert.equal(result.proposal.audienceDetails[0].name, "Sara Blu");
+  assert.ok(result.proposal.audienceDetails[0].inactiveDays > 200);
+  assert.doesNotMatch(result.proposal.suggestedAudience.join(" "), /Anna Bianchi|Paolo Neri/);
+  assert.equal(result.proposal.whatsappDrafts[0].recipientName, "Sara Blu");
+});
+
 test("prepara bozze WhatsApp tramite la policy centrale e non le rende eseguibili", () => {
   const actions = createMaviProactiveActions();
   const result = actions.handle("Prepara WhatsApp per il pubblico della fascia pranzo", brief, data, "whatsapp");
