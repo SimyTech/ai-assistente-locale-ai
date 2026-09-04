@@ -92,6 +92,15 @@ test("rifiuta tipi di esito non previsti", () => {
   assert.equal(lifecycle.get(proposal).outcome, null);
 });
 
+test("espone lo storico senza permettere di mutare la proposta interna", () => {
+  const lifecycle = createActionLifecycle();
+  lifecycle.propose(proposal);
+  const history = lifecycle.list();
+  assert.equal(history.length, 1);
+  history[0].proposal.text = "modificato fuori dal lifecycle";
+  assert.equal(lifecycle.get(proposal).proposal.text, proposal.text);
+});
+
 test("un errore può tornare in stato approvato solo con retry esplicito", () => {
   const lifecycle = createActionLifecycle();
   lifecycle.approve(proposal, 1000);
