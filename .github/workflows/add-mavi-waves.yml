@@ -1,0 +1,43 @@
+name: Add Mavi voice waves
+on:
+  push:
+    branches: [ui/mavi-voice-waves]
+    paths:
+      - '.github/workflows/add-mavi-waves.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ui/mavi-voice-waves
+      - name: Add voice waves behind Mavi
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          css_anchor=".mavi-name{position:relative;z-index:1;margin:17px 0 0;font-size:clamp(42px,6vw,60px);line-height:1;font-weight:950;letter-spacing:-2.5px;background:linear-gradient(110deg,#28c7ff 0%,#477cff 25%,#9854ff 55%,#39d98a 100%);-webkit-background-clip:text;background-clip:text;color:transparent}"
+          css_add=""".mavi-wave{position:absolute;z-index:0;left:50%;top:154px;width:118%;height:150px;transform:translateX(-50%);overflow:visible;pointer-events:none;opacity:.9;filter:drop-shadow(0 0 8px rgba(56,167,255,.28)) drop-shadow(0 0 12px rgba(135,92,255,.18))}.mavi-wave path{fill:none;stroke-linecap:round;stroke-linejoin:round}.mavi-wave .wave-main{stroke:url(#maviWaveGradient);stroke-width:2.2}.mavi-wave .wave-soft{stroke:url(#maviWaveGradient);stroke-width:1.1;opacity:.38}.mavi-wave .wave-faint{stroke:url(#maviWaveGradient);stroke-width:.8;opacity:.2}.mavi-orb,.mavi-name,.mavi-tagline,.mavi-voice-wrap{position:relative;z-index:1}@media(max-width:760px){.mavi-wave{top:118px;width:145%;height:132px;opacity:.85}}@media(max-width:430px){.mavi-wave{top:102px;width:165%;height:122px;opacity:.8}}\n"""
+          if css_add.strip() not in s:
+              if css_anchor not in s:
+                  raise SystemExit('css anchor not found')
+              s=s.replace(css_anchor, css_add+css_anchor, 1)
+          html_anchor='</div></div><h2 class="mavi-name">Mavi</h2><p class="mavi-tagline">Il tuo assistente intelligente</p>'
+          svg='''</div></div><svg class="mavi-wave" viewBox="0 0 1000 180" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="maviWaveGradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#875cff"/><stop offset="28%" stop-color="#38a7ff"/><stop offset="55%" stop-color="#37d7ff"/><stop offset="78%" stop-color="#39d98a"/><stop offset="100%" stop-color="#875cff"/></linearGradient></defs><path class="wave-faint" d="M0 92 C55 72 80 114 125 92 S195 48 240 92 S310 132 360 92 S430 54 480 92 S560 128 610 92 S680 58 730 92 S805 132 855 92 S930 66 1000 92"/><path class="wave-soft" d="M0 92 C45 105 65 55 105 92 S160 145 205 92 S260 38 310 92 S365 148 415 92 S475 42 525 92 S590 142 640 92 S700 46 750 92 S820 142 870 92 S940 50 1000 92"/><path class="wave-main" d="M0 92 C42 92 58 34 92 92 S142 154 188 92 S246 24 294 92 S354 162 402 92 S462 28 512 92 S575 154 624 92 S685 36 734 92 S798 150 846 92 S920 44 1000 92"/><path class="wave-soft" d="M0 92 C52 82 70 126 112 92 S174 62 216 92 S278 120 320 92 S382 64 424 92 S486 118 528 92 S590 66 632 92 S694 120 736 92 S798 66 840 92 S914 112 1000 92"/></svg><h2 class="mavi-name">Mavi</h2><p class="mavi-tagline">Il tuo assistente intelligente</p>'''
+          if 'class="mavi-wave"' not in s:
+              if html_anchor not in s:
+                  raise SystemExit('html anchor not found')
+              s=s.replace(html_anchor, svg, 1)
+          p.write_text(s)
+          PY
+      - name: Commit waveform
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'UI: aggiunge onde vocali dietro Mavi'
+          git push origin HEAD:ui/mavi-voice-waves
