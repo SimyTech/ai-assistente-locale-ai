@@ -70,8 +70,6 @@
   root.maviriRecoveryMetrics = recoveryConversionMetrics;
 
   if (typeof document !== "undefined") {
-    import("/mavi-chat-link.js")
-      .then(module => module.installMaviChatLink?.(document, root))
-      .catch(() => {});
+    document.querySelector('.context-actions a[href="/account"][aria-label="Gestisci account"]')?.remove();
   }
 })(globalThis);
