@@ -68,4 +68,10 @@
   }
 
   root.maviriRecoveryMetrics = recoveryConversionMetrics;
+
+  if (typeof document !== "undefined") {
+    import("/mavi-chat-link.js")
+      .then(module => module.installMaviChatLink?.(document, root))
+      .catch(() => {});
+  }
 })(globalThis);
