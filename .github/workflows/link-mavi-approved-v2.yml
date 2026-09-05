@@ -1,0 +1,34 @@
+name: Link Mavi approved v2
+on:
+  push:
+    branches: [ui/mavi-approved-mark-v2]
+    paths:
+      - '.github/workflows/link-mavi-approved-v2.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch index
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          if 'mavi-approved-v2.css' not in s:
+              s=s.replace('</head>','<link rel="stylesheet" href="./mavi-approved-v2.css">\n</head>',1)
+          old='<button class="prompt-chip" onclick="askMavi(\'Dimmi gli orari di apertura\')">◷ Orari</button></div>'
+          new='<button class="prompt-chip" onclick="askMavi(\'Dimmi gli orari di apertura\')">◷ Orari</button><button class="prompt-chip" onclick="askMavi(\'Mostrami altri comandi\')">▦ Altri comandi</button></div>'
+          if old in s and 'Mostrami altri comandi' not in s:
+              s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "UI: collega interfaccia Mavi approvata"
+          git push
