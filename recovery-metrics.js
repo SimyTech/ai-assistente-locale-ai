@@ -3,6 +3,7 @@
 
   const RECOVERY_SOURCES = new Set(["smart-rebooking", "operational-recovery"]);
   const INACTIVE_STATUSES = new Set(["cancelled", "no_show", "no-show", "assente"]);
+  const OFFICIAL_LOGO = "/maviri-logo.svg";
 
   function clean(value) {
     return String(value ?? "").trim();
@@ -67,10 +68,37 @@
     };
   }
 
+  function applyOfficialBrandToFrame() {
+    const frame = document.getElementById("appFrame");
+    if (!frame) return;
+    try {
+      const doc = frame.contentDocument;
+      if (!doc) return;
+      doc.querySelectorAll("img.logo").forEach(img => {
+        img.src = OFFICIAL_LOGO;
+        img.alt = "Maviri";
+      });
+      const brand = doc.querySelector(".brand");
+      if (brand && !doc.getElementById("maviri-official-brand-style")) {
+        const style = doc.createElement("style");
+        style.id = "maviri-official-brand-style";
+        style.textContent = ".brand{justify-content:flex-start}.brand .logo{width:88px;height:88px;border-radius:22px;object-fit:cover;box-shadow:0 12px 34px rgba(0,0,0,.28)}.brand .brand-name,.brand .brand-sub{display:none}";
+        doc.head.appendChild(style);
+      }
+    } catch {}
+  }
+
   root.maviriRecoveryMetrics = recoveryConversionMetrics;
 
   if (typeof document !== "undefined") {
     document.querySelector('.context-actions a[href="/account"][aria-label="Gestisci account"]')?.remove();
+    const frame = document.getElementById("appFrame");
+    if (frame) {
+      frame.addEventListener("load", () => {
+        applyOfficialBrandToFrame();
+        setTimeout(applyOfficialBrandToFrame, 250);
+      });
+    }
     import("/mavi-chat-link.js")
       .then(module => module.installMaviChatLink?.(document, root))
       .catch(() => {});
