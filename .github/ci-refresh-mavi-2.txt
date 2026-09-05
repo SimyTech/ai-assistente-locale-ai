@@ -1,1 +1,0 @@
-Temporary CI trigger for PR #135 after UI contract fix.
