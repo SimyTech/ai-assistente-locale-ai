@@ -59,14 +59,6 @@ export function installMaviChatLink(doc = document, root = window) {
   const url = buildMaviChatUrl(root.location?.origin, tenantId);
   if (!url) return;
 
-  const open = doc.createElement("a");
-  open.id = "maviChatOpenLink";
-  open.href = url;
-  open.target = "_blank";
-  open.rel = "noopener noreferrer";
-  open.textContent = "Mavi Chat";
-  open.title = "Apri la Mavi Chat pubblica dell'attività";
-
   const copy = actionButton(doc, "maviChatCopyLink", "Copia link", url);
   copy.addEventListener("click", () => copyWithFeedback(copy, url, doc, root, "Link copiato"));
 
@@ -85,5 +77,4 @@ export function installMaviChatLink(doc = document, root = window) {
 
   actions.prepend(whatsapp);
   actions.prepend(copy);
-  actions.prepend(open);
 }

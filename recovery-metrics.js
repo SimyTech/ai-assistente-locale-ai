@@ -71,5 +71,8 @@
 
   if (typeof document !== "undefined") {
     document.querySelector('.context-actions a[href="/account"][aria-label="Gestisci account"]')?.remove();
+    import("/mavi-chat-link.js")
+      .then(module => module.installMaviChatLink?.(document, root))
+      .catch(() => {});
   }
 })(globalThis);
