@@ -1,0 +1,46 @@
+name: Apply Mavi perfect concept
+on:
+  push:
+    branches: [ui/mavi-perfect-concept]
+    paths:
+      - '.github/workflows/apply-mavi-perfect-concept.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ui/mavi-perfect-concept
+      - name: Apply approved Mavi visual
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          marker='</style>'
+          css='''
+/* MAVI APPROVED VISUAL: logo aperto + wordmark coerente */
+#mavi .mavi-orb{width:150px;height:122px;padding:0;border-radius:0;background:transparent;box-shadow:none}
+#mavi .mavi-orb-inner{width:100%;height:100%;border-radius:0;background:transparent;box-shadow:none}
+#mavi .mavi-hero-logo{width:122px;height:122px;border-radius:0;object-fit:cover;mix-blend-mode:screen;filter:drop-shadow(0 0 15px rgba(56,167,255,.42)) drop-shadow(0 0 24px rgba(135,92,255,.3))}
+#mavi .mavi-name{margin-top:8px;font-family:"Arial Rounded MT Bold","Nunito","Poppins",Inter,system-ui,sans-serif;font-weight:950;letter-spacing:-3px;font-size:clamp(44px,6vw,62px);background:linear-gradient(110deg,#27c7ff 0%,#427cff 24%,#9b4dff 56%,#39d98a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 28px rgba(82,96,255,.18)}
+#mavi .mavi-wave{top:112px;width:128%;height:170px;opacity:.95;filter:drop-shadow(0 0 9px rgba(56,167,255,.34)) drop-shadow(0 0 14px rgba(135,92,255,.22))}
+@media(max-width:760px){#mavi .mavi-orb{width:132px;height:108px}#mavi .mavi-hero-logo{width:108px;height:108px}#mavi .mavi-name{font-size:44px;margin-top:7px;letter-spacing:-2.4px}#mavi .mavi-wave{top:92px;width:155%;height:145px}}
+@media(max-width:430px){#mavi .mavi-orb{width:118px;height:98px}#mavi .mavi-hero-logo{width:98px;height:98px}#mavi .mavi-name{font-size:41px}#mavi .mavi-wave{top:82px;width:175%;height:132px}}
+'''
+          if 'MAVI APPROVED VISUAL' in s:
+              raise SystemExit('already applied')
+          if marker not in s:
+              raise SystemExit('style marker not found')
+          s=s.replace(marker,css+'\n'+marker,1)
+          p.write_text(s)
+          PY
+      - name: Commit visual update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "UI: applica concept Mavi approvato"
+          git push
