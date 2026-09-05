@@ -73,7 +73,7 @@ export function installMaviChatLink(doc = document, root = window) {
   const whatsapp = actionButton(
     doc,
     "maviChatCopyWhatsApp",
-    "Messaggio WA",
+    "Messaggio WhatsApp",
     "Copia il messaggio di benvenuto da inserire nella risposta automatica WhatsApp Business"
   );
   whatsapp.addEventListener("click", () => {
