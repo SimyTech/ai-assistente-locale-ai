@@ -10,6 +10,8 @@
     { "source": "/reset-password", "destination": "/reset-password.html" },
     { "source": "/verify-email", "destination": "/verify-email.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/mavi", "destination": "/mavi.html" },
+    { "source": "/mavi/:tenant", "destination": "/mavi.html?tenant=:tenant" },
     { "source": "/api/chat", "destination": "/api/chat-entry" },
     { "source": "/api/whatsapp", "destination": "/api/whatsapp-proxy" },
     { "source": "/api/readiness", "destination": "/api/health?mode=readiness" },
@@ -24,6 +26,8 @@
     { "source": "/account", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
     { "source": "/forgot-password", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
     { "source": "/reset-password", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
-    { "source": "/verify-email", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] }
+    { "source": "/verify-email", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
+    { "source": "/mavi", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
+    { "source": "/mavi/:tenant", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] }
   ]
 }
