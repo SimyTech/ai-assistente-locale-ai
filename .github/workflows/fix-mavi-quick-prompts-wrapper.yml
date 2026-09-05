@@ -1,0 +1,43 @@
+name: Fix Mavi quick prompts wrapper
+
+on:
+  push:
+    branches:
+      - feat/mavi-screen-account-menu
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/mavi-screen-account-menu
+      - name: Restore exact quick prompts contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          start='<div class="quick-prompts mavi-actions" aria-label="Azioni rapide di Mavi">'
+          replacement='<div class="quick-prompts"><div class="mavi-actions" aria-label="Azioni rapide di Mavi">'
+          if start not in s:
+              raise SystemExit('quick prompts start not found')
+          s=s.replace(start,replacement,1)
+          boundary='</button></div><div class="mavi-conversation">'
+          if boundary not in s:
+              raise SystemExit('quick prompts boundary not found')
+          s=s.replace(boundary,'</button></div></div><div class="mavi-conversation">',1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Remove one-time workflow and commit
+        run: |
+          git rm .github/workflows/fix-mavi-quick-prompts-wrapper.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Test: ripristina wrapper prompt rapidi"
+          git push origin HEAD:feat/mavi-screen-account-menu
