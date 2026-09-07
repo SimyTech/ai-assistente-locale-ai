@@ -1,0 +1,33 @@
+name: Fix Maviri logo binary
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-maviri-logo.yml'
+      - 'logo-decode-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  decode-logo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode official logo
+        run: |
+          base64 -d maviri-logo.jpg > maviri-logo-final.jpg
+          file maviri-logo-final.jpg
+      - name: Commit binary logo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add maviri-logo-final.jpg
+          if git diff --cached --quiet; then
+            echo "Logo already decoded"
+            exit 0
+          fi
+          git commit -m "Decode official Maviri logo as binary image"
+          git push
