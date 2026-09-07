@@ -37,7 +37,7 @@ export function normalizeLifecycleTimestamps(body = {}) {
   if (clean(body.action) !== "owner-sync") return body;
   if (!Array.isArray(body.appointments)) return body;
 
-  const datasetUpdatedAt = clean(body.updatedAt);
+  const syncAt = new Date().toISOString();
 
   return {
     ...body,
@@ -58,9 +58,10 @@ export function normalizeLifecycleTimestamps(body = {}) {
 
       return {
         ...appointment,
-        updatedAt:
-          latestIso(appointment.updatedAt, lifecycleAt, datasetUpdatedAt) ||
-          lifecycleAt
+        // owner-sync represents an explicit lifecycle mutation from the owner.
+        // Stamp the sync moment so it wins over an older server copy even when
+        // that copy has a later unrelated updatedAt value.
+        updatedAt: syncAt
       };
     })
   };
