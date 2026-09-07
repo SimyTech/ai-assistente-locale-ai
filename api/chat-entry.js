@@ -1,5 +1,6 @@
 import chatProxy from "./chat-proxy.js";
-import { sendAutomaticWhatsAppNotification } from "./whatsapp-notify.js";
+import { sendAutomaticWhatsAppNotification } from "../lib/whatsapp-notify.js";
+import { verifyMaviEntryToken } from "../lib/mavi-entry-link.js";
 import { resolveTenantId } from "../lib/tenant.js";
 
 const clean = value => String(value ?? "").trim();
@@ -58,7 +59,36 @@ export function stampOwnerLifecycleMutations(body = {}) {
   };
 }
 
-function notificationEventForAction(action, body = {}, payload = {}) {
+export function applyMaviEntryToken(body = {}, headers = {}) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return { ok: true, body };
+  }
+
+  const token = clean(body.token || headers?.["x-mavi-entry-token"]);
+  if (!token) return { ok: true, body };
+
+  const verified = verifyMaviEntryToken(token);
+  if (!verified.ok) return { ok: false, error: verified.error };
+
+  const next = { ...body };
+  delete next.token;
+
+  return {
+    ok: true,
+    body: {
+      ...next,
+      tenantId: verified.tenantId,
+      role: "client",
+      mode: "client",
+      channel: "mavi-link",
+      source: "whatsapp-link",
+      clientId: verified.clientId || "",
+      appointmentId: verified.appointmentId || ""
+    }
+  };
+}
+
+function notificationEventForAction(action, body = {}) {
   if (action === "book") return "confirmed";
   if (action === "cancel") return "cancelled";
   if (action === "update") {
@@ -105,7 +135,6 @@ function shouldNotify(body = {}, payload = {}, statusCode = 200) {
   const role = clean(body.role || body.mode).toLowerCase();
   const source = clean(body.source || body.channel).toLowerCase();
 
-  // A client already inside Mavi Chat does not need another WhatsApp for the same action.
   if (role === "client" || source === "mavi-link" || source === "whatsapp-link") return false;
 
   return true;
@@ -146,18 +175,22 @@ async function notifyAppointmentEvent(req, body, payload, statusCode) {
       appointmentId: clean(appointment.id || body.appointmentId || body.id),
       appointment,
       businessName,
-      eventType: notificationEventForAction(action, body, payload)
+      eventType: notificationEventForAction(action, body)
     });
   } catch (error) {
-    // L'operazione principale resta valida anche se WhatsApp è temporaneamente indisponibile.
     console.error("MAVIRI APPOINTMENT WHATSAPP NOTIFICATION ERROR:", error);
   }
 }
 
 export default async function handler(req, res) {
   if (req?.method === "POST") {
+    const entry = applyMaviEntryToken(req.body, req.headers);
+    if (!entry.ok) {
+      return res.status(401).json({ ok: false, error: entry.error || "Link Mavi non valido." });
+    }
+
     req.body = stampOwnerLifecycleMutations(
-      normalizeExplicitDateTimeMessage(req.body)
+      normalizeExplicitDateTimeMessage(entry.body)
     );
 
     const bodySnapshot =
