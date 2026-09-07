@@ -29,6 +29,35 @@ export function normalizeExplicitDateTimeMessage(body = {}) {
   };
 }
 
+export function stampOwnerLifecycleMutations(body = {}) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return body;
+  if (clean(body.action) !== "owner-sync") return body;
+  if (!Array.isArray(body.appointments)) return body;
+
+  const syncAt = new Date().toISOString();
+
+  return {
+    ...body,
+    appointments: body.appointments.map(appointment => {
+      if (!appointment || typeof appointment !== "object" || Array.isArray(appointment)) return appointment;
+      const status = clean(appointment.status).toLowerCase();
+      const lifecycle =
+        status === "completed"
+          ? clean(appointment.completedAt)
+          : status === "cancelled" || status === "canceled"
+            ? clean(appointment.cancelledAt)
+            : "";
+
+      if (!lifecycle) return appointment;
+
+      return {
+        ...appointment,
+        updatedAt: syncAt
+      };
+    })
+  };
+}
+
 function notificationEventForAction(action, body = {}, payload = {}) {
   if (action === "book") return "confirmed";
   if (action === "cancel") return "cancelled";
@@ -127,7 +156,9 @@ async function notifyAppointmentEvent(req, body, payload, statusCode) {
 
 export default async function handler(req, res) {
   if (req?.method === "POST") {
-    req.body = normalizeExplicitDateTimeMessage(req.body);
+    req.body = stampOwnerLifecycleMutations(
+      normalizeExplicitDateTimeMessage(req.body)
+    );
 
     const bodySnapshot =
       req.body && typeof req.body === "object" && !Array.isArray(req.body)
