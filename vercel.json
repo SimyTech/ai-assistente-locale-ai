@@ -4,7 +4,7 @@
     { "source": "/login", "destination": "/login.html" },
     { "source": "/register", "destination": "/register.html" },
     { "source": "/app", "destination": "/app.html" },
-    { "source": "/mavi", "destination": "/api/client.html" },
+    { "source": "/mavi", "destination": "/client.html" },
     { "source": "/setup", "destination": "/setup.html" },
     { "source": "/account", "destination": "/account.html" },
     { "source": "/forgot-password", "destination": "/forgot-password.html" },
