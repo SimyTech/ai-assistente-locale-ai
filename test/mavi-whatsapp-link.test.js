@@ -6,7 +6,8 @@ import {
   createMaviEntryToken,
   verifyMaviEntryToken
 } from "../lib/mavi-entry-link.js";
-import { composeAutomaticWhatsAppMessage } from "../api/whatsapp-notify.js";
+import { composeAutomaticWhatsAppMessage } from "../lib/whatsapp-notify.js";
+import { applyMaviEntryToken } from "../api/chat-entry.js";
 
 const ORIGINAL_SECRET = process.env.MAVIRI_SESSION_SECRET;
 
@@ -62,6 +63,32 @@ test("Mavi entry URL points to public Mavi route and contains only the signed to
     assert.equal(parsed.searchParams.has("tenantId"), false);
     assert.equal(parsed.searchParams.has("clientId"), false);
     assert.equal(parsed.searchParams.has("appointmentId"), false);
+  });
+});
+
+test("signed Mavi context cannot be overridden by browser payload", () => {
+  withSecret(() => {
+    const token = createMaviEntryToken({
+      tenantId: "salone-demo",
+      clientId: "client-42",
+      appointmentId: "appointment-99"
+    });
+
+    const result = applyMaviEntryToken({
+      token,
+      action: "chat",
+      tenantId: "altro-tenant",
+      clientId: "client-attacker",
+      appointmentId: "appointment-attacker"
+    });
+
+    assert.equal(result.ok, true);
+    assert.equal(result.body.tenantId, "salone-demo");
+    assert.equal(result.body.clientId, "client-42");
+    assert.equal(result.body.appointmentId, "appointment-99");
+    assert.equal(result.body.role, "client");
+    assert.equal(result.body.source, "whatsapp-link");
+    assert.equal("token" in result.body, false);
   });
 });
 
