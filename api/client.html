@@ -81,7 +81,7 @@ function add(text,cls){
 async function api(action,extra={}){
   if(!token)throw new Error("Link Mavi non valido.");
 
-  const r=await fetch("/api/mavi-client",{
+  const r=await fetch("/api/chat",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
