@@ -7,34 +7,30 @@ const clean = value => String(value ?? "").trim();
 function originFor(req) {
   const configured = clean(process.env.MAVIRI_PUBLIC_URL).replace(/\/$/, "");
   if (configured) return configured;
-  const proto = clean(req?.headers?.["x-forwarded-proto"]) || "https";
-  const host = clean(req?.headers?.["x-forwarded-host"] || req?.headers?.host);
+  const proto = clean(req.headers?.["x-forwarded-proto"]) || "https";
+  const host = clean(req.headers?.["x-forwarded-host"] || req.headers?.host);
   return host ? `${proto}://${host}` : "";
 }
 
-function eventMessage(eventType, businessName, appointment) {
-  const name = clean(businessName) || "L'attività";
+export function composeAutomaticWhatsAppMessage({ message, businessName, appointment, link, eventType = "updated" }) {
+  const custom = clean(message);
+  if (custom) return `${custom}\n\nApri Mavi: ${link}`;
+
+  const name = clean(businessName) || "l'attività";
   const service = clean(appointment?.service || appointment?.serviceName);
   const date = clean(appointment?.date);
   const time = clean(appointment?.time);
   const details = [service, date, time ? `alle ${time}` : ""].filter(Boolean).join(" · ");
 
-  if (eventType === "created" || eventType === "confirmed") {
-    return details ? `${name}: appuntamento confermato (${details}).` : `${name}: il tuo appuntamento è confermato.`;
-  }
-  if (eventType === "updated" || eventType === "rescheduled") {
-    return details ? `${name}: il tuo appuntamento è stato aggiornato (${details}).` : `${name}: il tuo appuntamento è stato aggiornato.`;
-  }
-  if (eventType === "cancelled" || eventType === "canceled") {
-    return details ? `${name}: il tuo appuntamento è stato cancellato (${details}).` : `${name}: il tuo appuntamento è stato cancellato.`;
-  }
-  return details ? `${name}: aggiornamento appuntamento (${details}).` : `${name}: hai un aggiornamento sul tuo appuntamento.`;
-}
+  const eventText = {
+    confirmed: "Il tuo appuntamento è confermato",
+    rescheduled: "Il tuo appuntamento è stato spostato",
+    cancelled: "Il tuo appuntamento è stato cancellato",
+    updated: "Il tuo appuntamento è stato aggiornato"
+  }[clean(eventType).toLowerCase()] || "Hai un aggiornamento sul tuo appuntamento";
 
-function composeMessage({ message, businessName, appointment, link, eventType }) {
-  const custom = clean(message);
-  const intro = custom || eventMessage(clean(eventType).toLowerCase(), businessName, appointment);
-  return `${intro}\n\nPer gestire l'appuntamento o scrivere a Mavi, apri questo link:\n${link}`;
+  const summary = details ? ` (${details})` : "";
+  return `${name}: ${eventText}${summary}.\n\nPer gestire l'appuntamento o scrivere a Mavi, apri questo link:\n${link}`;
 }
 
 async function sendWhatsAppText({ to, body, phoneNumberId }) {
@@ -78,21 +74,18 @@ export async function sendAutomaticWhatsAppNotification({
   phoneNumberId = "",
   ttlMs
 } = {}) {
-  const phone = clean(to || appointment?.whatsapp || appointment?.phone);
-  if (!phone) return { ok: false, skipped: true, reason: "missing-phone" };
-
-  const origin = originFor(req);
+  const origin = originFor(req || { headers: {} });
   if (!origin) throw new Error("URL pubblico Maviri non configurato.");
 
   const link = buildMaviEntryUrl({
     origin,
     tenantId,
-    clientId: clean(clientId || appointment?.clientId),
-    appointmentId: clean(appointmentId || appointment?.id),
+    clientId,
+    appointmentId,
     ttlMs
   });
 
-  const text = composeMessage({
+  const body = composeAutomaticWhatsAppMessage({
     message,
     businessName,
     appointment,
@@ -100,18 +93,13 @@ export async function sendAutomaticWhatsAppNotification({
     eventType
   });
 
-  const sent = await sendWhatsAppText({
-    to: phone,
-    body: text,
-    phoneNumberId
-  });
-
+  const sent = await sendWhatsAppText({ to, body, phoneNumberId });
   return {
     ok: true,
     tenantId,
-    to: phone,
+    to: clean(to),
     link,
-    message: text,
+    message: body,
     whatsappMessageId: clean(sent?.messages?.[0]?.id) || null
   };
 }
@@ -131,24 +119,23 @@ export default async function handler(req, res) {
     return res.status(401).json({ ok: false, error: "Autorizzazione proprietario richiesta." });
   }
 
+  const to = clean(body.to || body.phone || body.whatsapp);
+  if (!to) return res.status(400).json({ ok: false, error: "Numero WhatsApp obbligatorio." });
+
   try {
     const result = await sendAutomaticWhatsAppNotification({
       req,
       tenantId,
-      to: body.to || body.phone || body.whatsapp,
-      clientId: body.clientId,
-      appointmentId: body.appointmentId,
+      to,
+      clientId: clean(body.clientId),
+      appointmentId: clean(body.appointmentId || body.appointment?.id),
       appointment: body.appointment,
       businessName: body.businessName,
       message: body.message,
       eventType: body.eventType,
-      phoneNumberId: body.phoneNumberId,
+      phoneNumberId: clean(body.phoneNumberId),
       ttlMs: body.ttlMs
     });
-
-    if (result.skipped) {
-      return res.status(400).json({ ok: false, error: "Numero WhatsApp obbligatorio." });
-    }
 
     return res.status(200).json(result);
   } catch (error) {
