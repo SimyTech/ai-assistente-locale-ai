@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 
 import {
   buildMaviEntryUrl,
@@ -64,6 +65,16 @@ test("Mavi entry URL points to public Mavi route and contains only the signed to
     assert.equal(parsed.searchParams.has("clientId"), false);
     assert.equal(parsed.searchParams.has("appointmentId"), false);
   });
+});
+
+test("Mavi route serves the static client page and keeps the chat on the existing API", () => {
+  const vercel = JSON.parse(fs.readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  const rewrite = vercel.rewrites.find(item => item.source === "/mavi");
+  assert.equal(rewrite?.destination, "/client.html");
+
+  const html = fs.readFileSync(new URL("../client.html", import.meta.url), "utf8");
+  assert.match(html, /fetch\("\/api\/chat"/);
+  assert.doesNotMatch(html, /\/api\/mavi-client/);
 });
 
 test("signed Mavi context cannot be overridden by browser payload", () => {
