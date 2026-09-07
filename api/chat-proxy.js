@@ -37,8 +37,6 @@ export function normalizeLifecycleTimestamps(body = {}) {
   if (clean(body.action) !== "owner-sync") return body;
   if (!Array.isArray(body.appointments)) return body;
 
-  const syncAt = new Date().toISOString();
-
   return {
     ...body,
     appointments: body.appointments.map(appointment => {
@@ -56,12 +54,20 @@ export function normalizeLifecycleTimestamps(body = {}) {
 
       if (!lifecycleAt) return appointment;
 
+      const previousUpdatedAt = Date.parse(clean(appointment.updatedAt)) || 0;
+      const lifecycleTime = Date.parse(lifecycleAt) || 0;
+      const authoritativeTime = Math.max(
+        Date.now(),
+        previousUpdatedAt + 1,
+        lifecycleTime
+      );
+
       return {
         ...appointment,
-        // owner-sync represents an explicit lifecycle mutation from the owner.
-        // Stamp the sync moment so it wins over an older server copy even when
-        // that copy has a later unrelated updatedAt value.
-        updatedAt: syncAt
+        // owner-sync is an explicit lifecycle mutation. Its timestamp must be
+        // strictly newer than the record being replaced; equal timestamps are
+        // intentionally not enough in the merge engine.
+        updatedAt: new Date(authoritativeTime).toISOString()
       };
     })
   };
