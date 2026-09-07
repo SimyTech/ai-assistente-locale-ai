@@ -16,9 +16,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Decode official logo
+      - name: Decode official logo from SVG data URI
         run: |
-          base64 -d maviri-logo.jpg > maviri-logo-final.jpg
+          python - <<'PY'
+          import re, base64, pathlib
+          s = pathlib.Path('maviri-logo.svg').read_text()
+          m = re.search(r'data:image/jpeg;base64,([^"\']+)', s)
+          if not m:
+              raise SystemExit('Embedded JPEG not found')
+          data = ''.join(m.group(1).split())
+          raw = base64.b64decode(data + '===')
+          pathlib.Path('maviri-logo-final.jpg').write_bytes(raw)
+          print(len(raw), raw[:10])
+          PY
           file maviri-logo-final.jpg
       - name: Commit binary logo
         run: |
