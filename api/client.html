@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#07142f">
-<title>Mavi â€” Prenotazioni</title>
+<title>Mavi — Prenotazioni</title>
 <style>
 :root{--n:#07142f;--n2:#0b1d40;--t:#f6f8ff;--m:#9eafd0;--l:rgba(255,255,255,.09);--grad:linear-gradient(135deg,#38a7ff,#875cff 52%,#39d98a)}
 *{box-sizing:border-box}
@@ -47,14 +47,14 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
   </div>
 
   <div class="bar">
-    <button class="btn" id="voice" title="Parla con Mavi">ðŸŽ™</button>
-    <input id="input" placeholder="Scrivi a Maviâ€¦" autocomplete="off">
+    <button class="btn" id="voice" title="Parla con Mavi">🎙</button>
+    <input id="input" placeholder="Scrivi a Mavi…" autocomplete="off">
     <button class="btn primary" id="send">Invia</button>
   </div>
 
   <div class="info">
-    Mavi utilizza esclusivamente le informazioni pubbliche configurate dall'attivitÃ .
-    Per una prenotazione chiederÃ  sempre una conferma esplicita prima di procedere.
+    Mavi utilizza esclusivamente le informazioni pubbliche configurate dall'attività.
+    Per una prenotazione chiederà sempre una conferma esplicita prima di procedere.
   </div>
 </div>
 </div>
@@ -63,6 +63,8 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
 "use strict";
 
 const $=id=>document.getElementById(id);
+const params=new URLSearchParams(location.search);
+const token=params.get("token")||"";
 const sessionId=crypto.randomUUID?crypto.randomUUID():String(Date.now());
 const history=[];
 let publicContext=null;
@@ -77,13 +79,14 @@ function add(text,cls){
 }
 
 async function api(action,extra={}){
-  const r=await fetch("/api/chat",{
+  if(!token)throw new Error("Link Mavi non valido.");
+
+  const r=await fetch("/api/mavi-client",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
+      token,
       action,
-      role:"client",
-      mode:"client",
       sessionId,
       ...extra
     })
@@ -100,14 +103,21 @@ async function api(action,extra={}){
 }
 
 async function init(){
+  if(!token){
+    add("Il link non è valido. Richiedi un nuovo messaggio all'attività.","mavi");
+    $("send").disabled=true;
+    $("input").disabled=true;
+    return;
+  }
+
   try{
     publicContext=await api("public-context");
     $("businessName").textContent=publicContext.business?.name||"Mavi";
 
     const n=publicContext.business?.name;
-    if(n)document.title="Mavi â€” "+n;
+    if(n)document.title="Mavi — "+n;
   }catch(e){
-    add("Il servizio clienti non Ã¨ ancora configurato. Contatta l'attivitÃ .","mavi");
+    add(e.message||"Il link non è più valido. Richiedi un nuovo messaggio all'attività.","mavi");
     $("send").disabled=true;
     $("input").disabled=true;
   }
@@ -121,7 +131,7 @@ async function send(){
   i.value="";
   add(q,"user");
 
-  const wait=add("Sto verificandoâ€¦","mavi");
+  const wait=add("Sto verificando…","mavi");
   $("send").disabled=true;
   i.disabled=true;
 
@@ -131,7 +141,7 @@ async function send(){
       history
     });
 
-    const answer=r.answer||"Non ho ricevuto risposta.";
+    const answer=r.answer||r.reply||"Non ho ricevuto risposta.";
     wait.textContent=answer;
 
     history.push(
