@@ -12,6 +12,7 @@
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/mavi", "destination": "/mavi.html" },
     { "source": "/mavi/:tenant", "destination": "/mavi.html?tenant=:tenant" },
+    { "source": "/maviri-logo.svg", "destination": "/maviri-logo.jpg" },
     { "source": "/api/chat", "destination": "/api/chat-entry" },
     { "source": "/api/whatsapp", "destination": "/api/whatsapp-proxy" },
     { "source": "/api/readiness", "destination": "/api/health?mode=readiness" },
@@ -28,6 +29,7 @@
     { "source": "/reset-password", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
     { "source": "/verify-email", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
     { "source": "/mavi", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
-    { "source": "/mavi/:tenant", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] }
+    { "source": "/mavi/:tenant", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
+    { "source": "/maviri-logo.jpg", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] }
   ]
 }
