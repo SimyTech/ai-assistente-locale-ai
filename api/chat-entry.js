@@ -67,7 +67,12 @@ export function applyMaviEntryToken(body = {}, headers = {}) {
   const token = clean(body.token || headers?.["x-mavi-entry-token"]);
   if (!token) return { ok: true, body };
 
-  const verified = verifyMaviEntryToken(token);
+  let verified;
+  try {
+    verified = verifyMaviEntryToken(token);
+  } catch {
+    return { ok: false, error: "Link Mavi non disponibile." };
+  }
   if (!verified.ok) return { ok: false, error: verified.error };
 
   const next = { ...body };
@@ -99,7 +104,7 @@ function notificationEventForAction(action, body = {}) {
   return "";
 }
 
-function appointmentForNotification(body = {}, payload = {}) {
+export function appointmentForNotification(body = {}, payload = {}) {
   const returned =
     payload?.appointment ||
     payload?.updatedAppointment ||
@@ -110,9 +115,15 @@ function appointmentForNotification(body = {}, payload = {}) {
     return returned;
   }
 
+  const requestedId = clean(body.appointmentId || body.id);
+  const stored = Array.isArray(body.appointments)
+    ? body.appointments.find(item => clean(item?.id) === requestedId)
+    : null;
   const source = body.appointment && typeof body.appointment === "object" && !Array.isArray(body.appointment)
     ? body.appointment
-    : {};
+    : stored && typeof stored === "object" && !Array.isArray(stored)
+      ? stored
+      : {};
 
   return {
     ...source,
@@ -127,10 +138,11 @@ function appointmentForNotification(body = {}, payload = {}) {
   };
 }
 
-function shouldNotify(body = {}, payload = {}, statusCode = 200) {
+export function shouldNotify(body = {}, payload = {}, statusCode = 200) {
   const action = clean(body.action).toLowerCase();
   if (!["book", "update", "cancel"].includes(action)) return false;
   if (Number(statusCode) >= 400 || payload?.ok === false) return false;
+  if (action === "book" && payload?.bookingConfirmed !== true) return false;
 
   const role = clean(body.role || body.mode).toLowerCase();
   const source = clean(body.source || body.channel).toLowerCase();
