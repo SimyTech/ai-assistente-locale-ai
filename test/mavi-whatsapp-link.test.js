@@ -8,7 +8,11 @@ import {
   verifyMaviEntryToken
 } from "../lib/mavi-entry-link.js";
 import { composeAutomaticWhatsAppMessage } from "../lib/whatsapp-notify.js";
-import { applyMaviEntryToken } from "../api/chat-entry.js";
+import {
+  applyMaviEntryToken,
+  appointmentForNotification,
+  shouldNotify
+} from "../api/chat-entry.js";
 
 const ORIGINAL_SECRET = process.env.MAVIRI_SESSION_SECRET;
 
@@ -46,6 +50,18 @@ test("Mavi entry token rejects tampering", () => {
     const verified = verifyMaviEntryToken(tampered);
     assert.equal(verified.ok, false);
   });
+});
+
+test("Mavi entry token fails closed when the signing secret is unavailable", () => {
+  const previous = process.env.MAVIRI_SESSION_SECRET;
+  delete process.env.MAVIRI_SESSION_SECRET;
+  try {
+    const result = verifyMaviEntryToken("payload.signature");
+    assert.equal(result.ok, false);
+  } finally {
+    if (previous === undefined) delete process.env.MAVIRI_SESSION_SECRET;
+    else process.env.MAVIRI_SESSION_SECRET = previous;
+  }
 });
 
 test("Mavi entry URL points to public Mavi route and contains only the signed token", () => {
@@ -139,4 +155,33 @@ test("automatic WhatsApp messages distinguish reschedule and cancellation", () =
     composeAutomaticWhatsAppMessage({ ...common, eventType: "cancelled" }),
     /cancellato/i
   );
+});
+
+test("owner cancellation resolves the customer contact from the appointment list", () => {
+  const appointment = appointmentForNotification({
+    action: "cancel",
+    id: "appointment-99",
+    appointments: [
+      {
+        id: "appointment-99",
+        clientId: "client-42",
+        name: "Mario Rossi",
+        phone: "+393331234567",
+        service: "Taglio",
+        date: "2026-09-10",
+        time: "15:30"
+      }
+    ]
+  });
+
+  assert.equal(appointment.id, "appointment-99");
+  assert.equal(appointment.clientId, "client-42");
+  assert.equal(appointment.phone, "+393331234567");
+});
+
+test("WhatsApp notification starts only after a successful confirmed booking", () => {
+  const body = { action: "book", role: "owner" };
+  assert.equal(shouldNotify(body, { ok: true, bookingConfirmed: false }, 200), false);
+  assert.equal(shouldNotify(body, { ok: true, bookingConfirmed: true }, 200), true);
+  assert.equal(shouldNotify(body, { ok: false, bookingConfirmed: true }, 409), false);
 });
