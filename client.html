@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#07142f">
-<title>Mavi â€” Prenotazioni</title>
+<title>Mavi — Prenotazioni</title>
 <style>
 :root{--n:#07142f;--n2:#0b1d40;--t:#f6f8ff;--m:#9eafd0;--l:rgba(255,255,255,.09);--grad:linear-gradient(135deg,#38a7ff,#875cff 52%,#39d98a)}
 *{box-sizing:border-box}
@@ -13,7 +13,6 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
 .card{background:linear-gradient(180deg,rgba(19,43,87,.97),rgba(10,29,62,.97));border:1px solid var(--l);border-radius:24px;padding:22px;box-shadow:0 20px 55px rgba(0,0,0,.28)}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .logo{width:54px;height:54px;border-radius:16px;object-fit:cover}
-.mark{width:54px;height:54px;border-radius:16px;background:var(--grad);display:grid;place-items:center;font-size:28px;font-weight:900}
 .muted{color:var(--m);font-size:13px}
 .badge{display:inline-flex;padding:5px 9px;border-radius:99px;background:rgba(57,217,138,.12);color:#72e9ae;font-size:11px}
 .chat{height:calc(100vh - 100px);min-height:560px;display:flex;flex-direction:column}
@@ -34,7 +33,7 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
 <div class="wrap">
 <div class="card chat">
   <div class="brand">
-    <div class="mark">M</div>
+    <img class="logo" src="/assets/maviri-logo-original.jpg" alt="Maviri">
     <div style="flex:1">
       <strong id="businessName">Mavi</strong>
       <div class="muted">Assistente clienti per informazioni e prenotazioni</div>
@@ -47,14 +46,14 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
   </div>
 
   <div class="bar">
-    <button class="btn" id="voice" title="Parla con Mavi">ðŸŽ™</button>
-    <input id="input" placeholder="Scrivi a Maviâ€¦" autocomplete="off">
+    <button class="btn" id="voice" title="Parla con Mavi">🎙</button>
+    <input id="input" placeholder="Scrivi a Mavi…" autocomplete="off">
     <button class="btn primary" id="send">Invia</button>
   </div>
 
   <div class="info">
-    Mavi utilizza esclusivamente le informazioni pubbliche configurate dall'attivitÃ .
-    Per una prenotazione chiederÃ  sempre una conferma esplicita prima di procedere.
+    Mavi utilizza esclusivamente le informazioni pubbliche configurate dall'attività.
+    Per una prenotazione chiederà sempre una conferma esplicita prima di procedere.
   </div>
 </div>
 </div>
@@ -63,6 +62,8 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
 "use strict";
 
 const $=id=>document.getElementById(id);
+const params=new URLSearchParams(location.search);
+const token=params.get("token")||"";
 const sessionId=crypto.randomUUID?crypto.randomUUID():String(Date.now());
 const history=[];
 let publicContext=null;
@@ -77,37 +78,35 @@ function add(text,cls){
 }
 
 async function api(action,extra={}){
+  if(!token)throw new Error("Link Mavi non valido.");
+
   const r=await fetch("/api/chat",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      action,
-      role:"client",
-      mode:"client",
-      sessionId,
-      ...extra
-    })
+    body:JSON.stringify({token,action,sessionId,...extra})
   });
 
   let j={};
   try{j=await r.json()}catch{}
-
-  if(!r.ok||j.ok===false){
-    throw new Error(j.error||"Servizio Mavi non disponibile.");
-  }
-
+  if(!r.ok||j.ok===false)throw new Error(j.error||"Servizio Mavi non disponibile.");
   return j;
 }
 
 async function init(){
+  if(!token){
+    add("Il link non è valido. Richiedi un nuovo messaggio all'attività.","mavi");
+    $("send").disabled=true;
+    $("input").disabled=true;
+    return;
+  }
+
   try{
     publicContext=await api("public-context");
     $("businessName").textContent=publicContext.business?.name||"Mavi";
-
     const n=publicContext.business?.name;
-    if(n)document.title="Mavi â€” "+n;
+    if(n)document.title="Mavi — "+n;
   }catch(e){
-    add("Il servizio clienti non Ã¨ ancora configurato. Contatta l'attivitÃ .","mavi");
+    add(e.message||"Il link non è più valido. Richiedi un nuovo messaggio all'attività.","mavi");
     $("send").disabled=true;
     $("input").disabled=true;
   }
@@ -117,27 +116,17 @@ async function send(){
   const i=$("input");
   const q=i.value.trim();
   if(!q)return;
-
   i.value="";
   add(q,"user");
-
-  const wait=add("Sto verificandoâ€¦","mavi");
+  const wait=add("Sto verificando…","mavi");
   $("send").disabled=true;
   i.disabled=true;
 
   try{
-    const r=await api("chat",{
-      message:q,
-      history
-    });
-
-    const answer=r.answer||"Non ho ricevuto risposta.";
+    const r=await api("chat",{message:q,history});
+    const answer=r.answer||r.reply||"Non ho ricevuto risposta.";
     wait.textContent=answer;
-
-    history.push(
-      {role:"user",content:q},
-      {role:"assistant",content:answer}
-    );
+    history.push({role:"user",content:q},{role:"assistant",content:answer});
 
     if("speechSynthesis" in window){
       speechSynthesis.cancel();
@@ -155,25 +144,16 @@ async function send(){
 }
 
 $("send").onclick=send;
-
-$("input").onkeydown=e=>{
-  if(e.key==="Enter")send();
-};
+$("input").onkeydown=e=>{if(e.key==="Enter")send();};
 
 if("SpeechRecognition" in window||"webkitSpeechRecognition" in window){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-
   $("voice").onclick=()=>{
     const r=new SR();
     r.lang="it-IT";
     r.interimResults=false;
-    r.onresult=e=>{
-      $("input").value=e.results[0][0].transcript;
-      send();
-    };
-    r.onerror=()=>{
-      add("Microfono non disponibile.","mavi");
-    };
+    r.onresult=e=>{$("input").value=e.results[0][0].transcript;send();};
+    r.onerror=()=>{add("Microfono non disponibile.","mavi");};
     r.start();
   };
 }else{

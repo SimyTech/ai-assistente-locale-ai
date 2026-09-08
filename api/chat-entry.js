@@ -1,4 +1,7 @@
 import chatProxy from "./chat-proxy.js";
+import { sendAutomaticWhatsAppNotification } from "../lib/whatsapp-notify.js";
+import { verifyMaviEntryToken } from "../lib/mavi-entry-link.js";
+import { resolveTenantId } from "../lib/tenant.js";
 
 const clean = value => String(value ?? "").trim();
 
@@ -27,9 +30,193 @@ export function normalizeExplicitDateTimeMessage(body = {}) {
   };
 }
 
+export function stampOwnerLifecycleMutations(body = {}) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return body;
+  if (clean(body.action) !== "owner-sync") return body;
+  if (!Array.isArray(body.appointments)) return body;
+
+  const syncAt = new Date().toISOString();
+
+  return {
+    ...body,
+    appointments: body.appointments.map(appointment => {
+      if (!appointment || typeof appointment !== "object" || Array.isArray(appointment)) return appointment;
+      const status = clean(appointment.status).toLowerCase();
+      const lifecycle =
+        status === "completed"
+          ? clean(appointment.completedAt)
+          : status === "cancelled" || status === "canceled"
+            ? clean(appointment.cancelledAt)
+            : "";
+
+      if (!lifecycle) return appointment;
+
+      return {
+        ...appointment,
+        updatedAt: syncAt
+      };
+    })
+  };
+}
+
+export function applyMaviEntryToken(body = {}, headers = {}) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return { ok: true, body };
+  }
+
+  const token = clean(body.token || headers?.["x-mavi-entry-token"]);
+  if (!token) return { ok: true, body };
+
+  let verified;
+  try {
+    verified = verifyMaviEntryToken(token);
+  } catch {
+    return { ok: false, error: "Link Mavi non disponibile." };
+  }
+  if (!verified.ok) return { ok: false, error: verified.error };
+
+  const next = { ...body };
+  delete next.token;
+
+  return {
+    ok: true,
+    body: {
+      ...next,
+      tenantId: verified.tenantId,
+      role: "client",
+      mode: "client",
+      channel: "mavi-link",
+      source: "whatsapp-link",
+      clientId: verified.clientId || "",
+      appointmentId: verified.appointmentId || ""
+    }
+  };
+}
+
+function notificationEventForAction(action, body = {}) {
+  if (action === "book") return "confirmed";
+  if (action === "cancel") return "cancelled";
+  if (action === "update") {
+    const changedDate = clean(body.date || body.newDate);
+    const changedTime = clean(body.time || body.newTime);
+    return changedDate || changedTime ? "rescheduled" : "updated";
+  }
+  return "";
+}
+
+export function appointmentForNotification(body = {}, payload = {}) {
+  const returned =
+    payload?.appointment ||
+    payload?.updatedAppointment ||
+    payload?.cancelledAppointment ||
+    null;
+
+  if (returned && typeof returned === "object" && !Array.isArray(returned)) {
+    return returned;
+  }
+
+  const requestedId = clean(body.appointmentId || body.id);
+  const stored = Array.isArray(body.appointments)
+    ? body.appointments.find(item => clean(item?.id) === requestedId)
+    : null;
+  const source = body.appointment && typeof body.appointment === "object" && !Array.isArray(body.appointment)
+    ? body.appointment
+    : stored && typeof stored === "object" && !Array.isArray(stored)
+      ? stored
+      : {};
+
+  return {
+    ...source,
+    id: clean(source.id || body.appointmentId || body.id),
+    clientId: clean(source.clientId || body.clientId),
+    name: clean(source.name || body.name || body.clientName),
+    service: clean(source.service || source.serviceName || body.service || body.serviceName),
+    date: clean(source.date || body.date || body.newDate),
+    time: clean(source.time || body.time || body.newTime),
+    phone: clean(source.phone || body.phone || body.clientPhone),
+    whatsapp: clean(source.whatsapp || body.whatsapp || body.clientWhatsapp)
+  };
+}
+
+export function shouldNotify(body = {}, payload = {}, statusCode = 200) {
+  const action = clean(body.action).toLowerCase();
+  if (!["book", "update", "cancel"].includes(action)) return false;
+  if (Number(statusCode) >= 400 || payload?.ok === false) return false;
+  if (action === "book" && payload?.bookingConfirmed !== true) return false;
+
+  const role = clean(body.role || body.mode).toLowerCase();
+  const source = clean(body.source || body.channel).toLowerCase();
+
+  if (role === "client" || source === "mavi-link" || source === "whatsapp-link") return false;
+
+  return true;
+}
+
+async function notifyAppointmentEvent(req, body, payload, statusCode) {
+  if (!shouldNotify(body, payload, statusCode)) return;
+
+  const action = clean(body.action).toLowerCase();
+  const appointment = appointmentForNotification(body, payload);
+  const to = clean(
+    appointment.whatsapp ||
+    appointment.phone ||
+    payload?.whatsapp ||
+    payload?.phone ||
+    body.whatsapp ||
+    body.phone ||
+    body.clientWhatsapp ||
+    body.clientPhone
+  );
+
+  if (!to) return;
+
+  const tenantId = resolveTenantId(req, body);
+  const businessName = clean(
+    body.businessName ||
+    body.business?.name ||
+    body.settings?.businessName ||
+    body.settings?.name
+  );
+
+  try {
+    await sendAutomaticWhatsAppNotification({
+      req,
+      tenantId,
+      to,
+      clientId: clean(appointment.clientId || body.clientId),
+      appointmentId: clean(appointment.id || body.appointmentId || body.id),
+      appointment,
+      businessName,
+      eventType: notificationEventForAction(action, body)
+    });
+  } catch (error) {
+    console.error("MAVIRI APPOINTMENT WHATSAPP NOTIFICATION ERROR:", error);
+  }
+}
+
 export default async function handler(req, res) {
   if (req?.method === "POST") {
-    req.body = normalizeExplicitDateTimeMessage(req.body);
+    const entry = applyMaviEntryToken(req.body, req.headers);
+    if (!entry.ok) {
+      return res.status(401).json({ ok: false, error: entry.error || "Link Mavi non valido." });
+    }
+
+    req.body = stampOwnerLifecycleMutations(
+      normalizeExplicitDateTimeMessage(entry.body)
+    );
+
+    const bodySnapshot =
+      req.body && typeof req.body === "object" && !Array.isArray(req.body)
+        ? { ...req.body }
+        : {};
+
+    const originalJson = res.json.bind(res);
+    res.json = payload => {
+      const statusCode = res.statusCode || 200;
+      return notifyAppointmentEvent(req, bodySnapshot, payload, statusCode)
+        .then(() => originalJson(payload));
+    };
   }
+
   return chatProxy(req, res);
 }
