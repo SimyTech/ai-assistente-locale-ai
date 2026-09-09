@@ -61,10 +61,9 @@ async function api(path){
 }
 async function verify(){return await api("/api/auth")}
 async function loadProfile(){
-  const j=await api("/api/activity-profile");
-  if(!j)return null;
+  const j=await api("/api/activity-profile")||{configured:true,profile:{name:"",summary:""}};
   if(!j.configured){location.replace("/setup");return null}
-  return j.profile||null;
+  return j.profile||{name:"",summary:""};
 }
 function syncAccountFromAuth(auth){
   const account=auth&&auth.account&&typeof auth.account==="object"?auth.account:null;
