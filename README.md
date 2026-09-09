@@ -104,12 +104,20 @@ Il bridge WhatsApp Cloud API supporta:
 
 La configurazione effettiva del numero WhatsApp e dell'account Meta resta un passaggio esterno alla codebase.
 
+## Mavi Chat e promemoria
+
+- `/client?tenant=<id-attività>` apre la Mavi Chat pubblica della singola attività;
+- dalla Home l'attività può inviare o copiare il link Mavi Chat per WhatsApp, SMS e social;
+- il pulsante **Promemoria** prepara un messaggio WhatsApp per ogni appuntamento confermato: non usa l'API Meta e non genera costi;
+- gli appuntamenti possono essere segnati come **Assente** e ricevere un messaggio di invito a riprenotare.
+
 ## Route principali
 
 - `/` — login
 - `/register` — registrazione nuova attività
 - `/setup` — onboarding/configurazione attività
 - `/app` — dashboard autenticata
+- `/client` — Mavi Chat pubblica per clienti
 - `/api/auth` — login/sessione/logout
 - `/api/register` — creazione account e tenant
 - `/api/activity-profile` — profilo universale attività

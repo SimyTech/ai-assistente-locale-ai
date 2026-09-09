@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#07142f">
-<title>Mavi â€” Prenotazioni</title>
+<title>Mavi — Prenotazioni</title>
 <style>
 :root{--n:#07142f;--n2:#0b1d40;--t:#f6f8ff;--m:#9eafd0;--l:rgba(255,255,255,.09);--grad:linear-gradient(135deg,#38a7ff,#875cff 52%,#39d98a)}
 *{box-sizing:border-box}
@@ -12,6 +12,7 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
 .wrap{width:min(900px,100%);margin:auto;padding:22px}
 .card{background:linear-gradient(180deg,rgba(19,43,87,.97),rgba(10,29,62,.97));border:1px solid var(--l);border-radius:24px;padding:22px;box-shadow:0 20px 55px rgba(0,0,0,.28)}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.brand-actions{display:flex;align-items:center;gap:8px}
 .logo{width:54px;height:54px;border-radius:16px;object-fit:cover}
 .mark{width:54px;height:54px;border-radius:16px;background:var(--grad);display:grid;place-items:center;font-size:28px;font-weight:900}
 .muted{color:var(--m);font-size:13px}
@@ -21,6 +22,7 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
 .bubble{max-width:88%;padding:12px 15px;border-radius:17px;line-height:1.5;white-space:pre-wrap}
 .mavi{justify-self:start;background:#091a39;border:1px solid var(--l)}
 .user{justify-self:end;background:var(--grad)}
+.quick{display:flex;gap:8px;overflow:auto;padding:0 2px 12px}.quick button{white-space:nowrap}
 .bar{display:flex;gap:8px}
 .bar input{flex:1;border:1px solid var(--l);border-radius:13px;background:#091a39;color:#fff;padding:13px;outline:none}
 .btn{border:1px solid var(--l);border-radius:13px;background:#193968;color:#fff;padding:11px 14px;cursor:pointer}
@@ -34,27 +36,38 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
 <div class="wrap">
 <div class="card chat">
   <div class="brand">
-    <div class="mark">M</div>
+    <img class="logo" src="/assets/maviri-logo-original.jpg" alt="Logo Maviri">
     <div style="flex:1">
       <strong id="businessName">Mavi</strong>
       <div class="muted">Assistente clienti per informazioni e prenotazioni</div>
     </div>
-    <span class="badge">ONLINE</span>
+    <div class="brand-actions"><button class="btn" id="newChat" type="button">Nuova chat</button><span class="badge">ONLINE</span></div>
   </div>
 
   <div class="messages" id="messages">
     <div class="bubble mavi">Ciao, sono Mavi. Posso aiutarti con servizi, prezzi, orari e prenotazioni.</div>
   </div>
 
+  <div class="quick" aria-label="Domande rapide">
+    <button class="btn" onclick="quickMessage('Quali servizi e prezzi avete?')">Servizi e prezzi</button>
+    <button class="btn" onclick="quickMessage('Avete promozioni attive?')">Promozioni</button>
+    <button class="btn" onclick="quickMessage('Quali sono i vostri orari?')">Orari</button>
+    <button class="btn" onclick="quickMessage('Dove vi trovate?')">Dove siamo</button>
+    <button class="btn" onclick="quickMessage('Come posso contattarvi?')">Contatti</button>
+    <button class="btn" onclick="quickMessage('Che disponibilità avete?')">Disponibilità</button>
+    <button class="btn" onclick="quickMessage('Vorrei prenotare per domani')">Per domani</button>
+    <button class="btn" onclick="quickMessage('Vorrei prenotare un appuntamento')">Prenota</button>
+  </div>
+
   <div class="bar">
-    <button class="btn" id="voice" title="Parla con Mavi">ðŸŽ™</button>
-    <input id="input" placeholder="Scrivi a Maviâ€¦" autocomplete="off">
+    <button class="btn" id="voice" title="Parla con Mavi">🎙</button>
+    <input id="input" placeholder="Scrivi a Mavi…" autocomplete="off">
     <button class="btn primary" id="send">Invia</button>
   </div>
 
   <div class="info">
-    Mavi utilizza esclusivamente le informazioni pubbliche configurate dall'attivitÃ .
-    Per una prenotazione chiederÃ  sempre una conferma esplicita prima di procedere.
+    Mavi utilizza esclusivamente le informazioni pubbliche configurate dall'attività.
+    Per una prenotazione chiederà sempre una conferma esplicita prima di procedere.
   </div>
 </div>
 </div>
@@ -66,6 +79,9 @@ const $=id=>document.getElementById(id);
 const sessionId=crypto.randomUUID?crypto.randomUUID():String(Date.now());
 const history=[];
 let publicContext=null;
+const requestedTenant=(new URLSearchParams(location.search).get("tenant")||"").trim().toLowerCase();
+const tenantId=/^[a-z0-9][a-z0-9_-]{0,63}$/.test(requestedTenant)?requestedTenant:"";
+function greeting(){const name=publicContext?.business?.name;return name?`Ciao, sono Mavi, l'assistente di ${name}. Posso aiutarti con servizi, prezzi, orari e prenotazioni.`:"Ciao, sono Mavi. Posso aiutarti con servizi, prezzi, orari e prenotazioni."}
 
 function add(text,cls){
   const x=document.createElement("div");
@@ -79,7 +95,7 @@ function add(text,cls){
 async function api(action,extra={}){
   const r=await fetch("/api/chat",{
     method:"POST",
-    headers:{"Content-Type":"application/json"},
+    headers:{"Content-Type":"application/json",...(tenantId?{"x-maviri-tenant":tenantId}:{})},
     body:JSON.stringify({
       action,
       role:"client",
@@ -103,11 +119,12 @@ async function init(){
   try{
     publicContext=await api("public-context");
     $("businessName").textContent=publicContext.business?.name||"Mavi";
+    $("messages").firstElementChild.textContent=greeting();
 
     const n=publicContext.business?.name;
-    if(n)document.title="Mavi â€” "+n;
+    if(n)document.title="Mavi — "+n;
   }catch(e){
-    add("Il servizio clienti non Ã¨ ancora configurato. Contatta l'attivitÃ .","mavi");
+    add("Il servizio clienti non è ancora configurato. Contatta l'attività.","mavi");
     $("send").disabled=true;
     $("input").disabled=true;
   }
@@ -121,9 +138,12 @@ async function send(){
   i.value="";
   add(q,"user");
 
-  const wait=add("Sto verificandoâ€¦","mavi");
+  const wait=add("Sto verificando…","mavi");
   $("send").disabled=true;
   i.disabled=true;
+  $("voice").disabled=true;
+  $("newChat").disabled=true;
+  document.querySelectorAll(".quick button").forEach(button=>button.disabled=true);
 
   try{
     const r=await api("chat",{
@@ -150,11 +170,28 @@ async function send(){
   }finally{
     $("send").disabled=false;
     i.disabled=false;
+    $("voice").disabled=!("SpeechRecognition" in window||"webkitSpeechRecognition" in window);
+    $("newChat").disabled=false;
+    document.querySelectorAll(".quick button").forEach(button=>button.disabled=false);
     i.focus();
   }
 }
 
+function quickMessage(message){
+  $("input").value=message;
+  send();
+}
+
+function resetConversation(){
+  history.length=0;
+  $("messages").innerHTML='';
+  add(greeting(),"mavi");
+  $("input").value="";
+  $("input").focus();
+}
+
 $("send").onclick=send;
+$("newChat").onclick=resetConversation;
 
 $("input").onkeydown=e=>{
   if(e.key==="Enter")send();

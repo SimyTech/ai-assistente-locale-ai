@@ -165,6 +165,14 @@ function originFor(req) {
   return `${req.headers["x-forwarded-proto"] || "https"}://${req.headers["x-forwarded-host"] || req.headers.host}`;
 }
 
+function wantsClientChat(text) {
+  return /\b(?:link|collegamento|chat|apri\s+mavi|parlare\s+con\s+mavi)\b/i.test(clean(text));
+}
+
+function clientChatUrl(req, tenantId) {
+  return `${originFor(req)}/client?tenant=${encodeURIComponent(clean(tenantId))}`;
+}
+
 async function businessApi(req, tenantId, payload) {
   const response = await fetch(`${originFor(req)}/api/chat`, {
     method: "POST",
@@ -352,7 +360,12 @@ export default async function handler(req, res) {
 
     addHistory(session, "user", text);
 
-    let responsePayload = await continueBooking(req, { tenantId, phone, text, profileName, session });
+    let responsePayload = wantsClientChat(text)
+      ? {
+          reply: `Certo! Apri Mavi Chat da qui: ${clientChatUrl(req, tenantId)}`,
+          appointment: null
+        }
+      : await continueBooking(req, { tenantId, phone, text, profileName, session });
 
     if (!responsePayload.bookingHandled) {
       const result = await callMavi(req, { tenantId, phone, text, profileName, session });

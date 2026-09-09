@@ -818,6 +818,47 @@ function availableSlots({
   return result;
 }
 
+function nextAvailableAlternatives({
+  date,
+  service,
+  appointments,
+  settings,
+  services,
+  period
+}) {
+
+  const options = [];
+
+  for (let offset = 1; offset <= 14 && options.length < 3; offset++) {
+    const candidate = addDaysISO(date, offset);
+    const slots = filterSlotsByPeriod(
+      availableSlots({
+        date: candidate,
+        service,
+        appointments,
+        settings,
+        services
+      }),
+      period
+    );
+
+    if (slots.length) {
+      options.push({ date: candidate, slots: slots.slice(0, 3) });
+    }
+  }
+
+  return options;
+}
+
+function formatAlternatives(options) {
+
+  if (!options.length) return "";
+
+  return options
+    .map(option => `${option.date}: ${option.slots.join(", ")}`)
+    .join(" · ");
+}
+
 
 /* ============================================================
    CLIENTI
@@ -1529,12 +1570,11 @@ function promotionList(
 
   return activePromos
     .map(
-      p =>
-        clean(
-          p.title ||
-          p.name ||
-          p.description
-        )
+      p => {
+        const title = clean(p.title || p.name || p.description);
+        const validity = clean(p.valid || p.validity || p.expiresAt || p.endDate);
+        return validity ? `${title} · ${validity}` : title;
+      }
     )
     .filter(Boolean)
     .join("\n");
@@ -1553,16 +1593,34 @@ function detectService(
   const n =
     norm(text);
 
-  return (
-    services.find(
-      s =>
-        norm(s?.name) &&
-        n.includes(
-          norm(s.name)
-        )
-    ) ||
-    null
-  );
+  const ranked =
+    services
+      .map(service => {
+        const words =
+          norm(service?.name)
+            .split(" ")
+            .filter(word => word.length >= 3);
+        const score =
+          words.filter(word => n.includes(word)).length;
+        return {
+          service,
+          score,
+          coverage: words.length ? score / words.length : 0,
+          words: words.length
+        };
+      })
+      .filter(item => item.score > 0)
+      .sort((left, right) =>
+        right.coverage - left.coverage ||
+        right.score - left.score ||
+        right.words - left.words
+      );
+
+  if (!ranked.length) return null;
+  if (ranked.length > 1 && ranked[0].score === 1) return null;
+  if (ranked.length > 1 && ranked[0].coverage === ranked[1].coverage && ranked[0].score === ranked[1].score) return null;
+
+  return ranked[0].service;
 }
 
 function addDaysISO(
@@ -1595,6 +1653,14 @@ function detectDate(
   const today =
     todayRome();
 
+  if (/\b(?:stamattina|stasera)\b/.test(n)) {
+    return today;
+  }
+
+  if (/\b(?:domattina|domani\s+mattina|domani\s+pomeriggio|domani\s+sera)\b/.test(n)) {
+    return addDaysISO(today, 1);
+  }
+
   if (
     /\boggi\b/.test(n)
   ) {
@@ -1617,6 +1683,29 @@ function detectDate(
       today,
       2
     );
+  }
+
+  const relative =
+    n.match(/\b(?:tra|fra)\s+(\d{1,2})\s+giorn[oi]\b/);
+
+  if (relative) {
+    return addDaysISO(today, Number(relative[1]));
+  }
+
+  const relativeWeeks =
+    n.match(/\b(?:tra|fra)\s+(una|un|\d{1,2})\s+settiman[ae]\b/);
+
+  if (relativeWeeks) {
+    const amount =
+      /una|un/.test(relativeWeeks[1])
+        ? 1
+        : Number(relativeWeeks[1]);
+
+    return addDaysISO(today, amount * 7);
+  }
+
+  if (/\b(?:la\s+)?prossima\s+settimana\b/.test(n)) {
+    return addDaysISO(today, 7);
   }
 
   const match =
@@ -1651,6 +1740,38 @@ function detectDate(
 
     const result =
       `${year}-${month}-${day}`;
+
+    return validDate(result)
+      ? result
+      : null;
+  }
+
+  const dayOnly =
+    n.match(/\bil\s+([0-3]?\d)\b/);
+
+  if (dayOnly) {
+
+    const requestedDay =
+      Number(dayOnly[1]);
+
+    const year =
+      Number(today.slice(0, 4));
+
+    const month =
+      Number(today.slice(5, 7));
+
+    let result =
+      `${year}-${String(month).padStart(2, "0")}-${String(requestedDay).padStart(2, "0")}`;
+
+    if (!validDate(result)) return null;
+
+    if (result < today) {
+      const nextMonth =
+        new Date(Date.UTC(year, month, 1));
+
+      result =
+        `${nextMonth.getUTCFullYear()}-${String(nextMonth.getUTCMonth() + 1).padStart(2, "0")}-${String(requestedDay).padStart(2, "0")}`;
+    }
 
     return validDate(result)
       ? result
@@ -1727,25 +1848,129 @@ function detectTime(
   text
 ) {
 
-  const m =
+  const source =
     clean(text)
-      .match(
-        /\b([01]?\d|2[0-3])(?:[:.](\d{2}))?\b/
+      .replace(
+        /\b\d{1,2}[\/-]\d{1,2}(?:[\/-]\d{2,4})?\b/g,
+        ""
       );
+
+  const m =
+    source.match(
+      /\b(?:ore|alle|h|per le|verso le|intorno alle)\s*([01]?\d|2[0-3])(?:(?:[:.](\d{2}))|(?:\s+e\s+mezz[oa]))?\b/i
+    ) ||
+    source.match(
+      /\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/
+    ) ||
+    source.trim().match(
+      /^([01]?\d|2[0-3])$/
+    );
 
   if (!m) {
     return null;
   }
 
+  const afternoon =
+    /\b(?:di|del|della)\s+(?:pomeriggio|sera)\b/i.test(source);
+
+  let hour =
+    Number(m[1]);
+
+  if (afternoon && hour < 12) {
+    hour += 12;
+  }
+
   return (
-    String(
-      Number(m[1])
-    ).padStart(2, "0") +
+    String(hour).padStart(2, "0") +
     ":" +
     String(
-      m[2] || "00"
+      m[2] || (/mezz/i.test(m[0]) ? "30" : "00")
     ).padStart(2, "0")
   );
+}
+
+function detectPeriod(
+  text
+) {
+
+  const n = norm(text);
+
+  if (/mattin|stamattina|domattina/.test(n)) return "mattina";
+  if (/pomeriggio/.test(n)) return "pomeriggio";
+  if (/sera|serata|stasera/.test(n)) return "sera";
+
+  return null;
+}
+
+function filterSlotsByPeriod(
+  slots,
+  period
+) {
+
+  if (!period) return slots;
+
+  return slots.filter(slot => {
+    const hour = Number(String(slot).slice(0, 2));
+    if (period === "mattina") return hour < 12;
+    if (period === "pomeriggio") return hour >= 12 && hour < 17;
+    return hour >= 17;
+  });
+}
+
+function nearestSlots(
+  slots,
+  requestedTime,
+  limit = 3
+) {
+
+  const requested =
+    mins(requestedTime);
+
+  if (requested === null) return slots.slice(0, limit);
+
+  return slots
+    .slice()
+    .sort((left, right) => {
+      const leftDistance = Math.abs(mins(left) - requested);
+      const rightDistance = Math.abs(mins(right) - requested);
+
+      return leftDistance - rightDistance || mins(left) - mins(right);
+    })
+    .slice(0, limit);
+}
+
+function bookingContextFromHistory(
+  history,
+  services
+) {
+
+  let service = null;
+  let date = null;
+  let time = null;
+
+  for (
+    const item of arr(history).slice().reverse()
+  ) {
+
+    if (
+      clean(item?.role) !== "user"
+    ) {
+      continue;
+    }
+
+    const content =
+      clean(item?.content);
+
+    if (!content) continue;
+
+    if (!service) service = detectService(content, services);
+    if (!date) date = detectDate(content);
+    if (!time) time = detectTime(content);
+
+    if (service && date && time) break;
+  }
+
+  return { service, date, time };
 }
 
 function detectExplicitConfirmation(
@@ -1795,13 +2020,24 @@ async function localChat({
   const name =
     businessName(data);
 
+  const previous =
+    bookingContextFromHistory(
+      history,
+      services
+    );
+
+  const bookingIntent =
+    /prenot|appuntamento|voglio venire|vorrei venire|posso venire|mi serve|mi piacerebbe|prima possibile|appena possibile|primo (?:posto|orario) (?:libero|disponibile)/
+      .test(text);
+
   /*
    * SALUTO
    */
 
   if (
     /^(ciao|salve|buongiorno|buonasera|buon giorno|hey|ehi)\b/
-      .test(text)
+      .test(text) &&
+    !bookingIntent
   ) {
 
     return {
@@ -1819,6 +2055,8 @@ async function localChat({
 
   if (
     /servizi|trattamenti|cosa fate|cosa offrite|prestazioni/
+      .test(text) &&
+    !(/servizi.*(?:richiest|popolar|promuov)|(?:piu|più).*richiest.*servizi|quale servizio.*promuov|cosa.*promuov/)
       .test(text)
   ) {
 
@@ -1871,6 +2109,34 @@ async function localChat({
     };
   }
 
+  /*
+   * DURATA SERVIZI
+   */
+
+  if (
+    /durata|quanto tempo|quanto ci vuole|quanto dura/
+      .test(text)
+  ) {
+
+    const service =
+      detectService(
+        text,
+        services
+      );
+
+    if (service) {
+      return {
+        answer: `${service.name} dura circa ${duration(service)} minuti.`,
+        booking: null
+      };
+    }
+
+    return {
+      answer: `Dimmi il servizio e ti indico subito la durata.\n\n${serviceList(services)}`,
+      booking: null
+    };
+  }
+
 
   /*
    * PROMOZIONI
@@ -1896,13 +2162,20 @@ async function localChat({
     detectService(
       text,
       services
-    );
+    ) || previous.service;
 
   const date =
-    detectDate(text);
+    detectDate(text) || previous.date;
 
   const time =
-    detectTime(text);
+    detectTime(text) || previous.time;
+
+  const period =
+    detectPeriod(text);
+
+  const bookingFollowUp =
+    Boolean(previous.service || service) &&
+    Boolean(detectDate(text) || detectTime(text) || period);
 
 
   /*
@@ -2012,14 +2285,447 @@ async function localChat({
     };
   }
 
+  /*
+   * INTELLIGENZA TITOLARE
+   * I dati privati non vengono mai esposti alla chat cliente.
+   */
+
+  if (mode !== "client") {
+
+    if (/come sono messo|quanto sono pieno|carico.*(?:oggi|domani)|occupazione.*(?:oggi|domani)/.test(text)) {
+
+      const workloadDate =
+        detectDate(text) ||
+        todayRome();
+
+      const day =
+        getHours(data.settings, workloadDate);
+
+      if (!day || day.closed || mins(day.open) === null || mins(day.close) === null) {
+        return {
+          answer: `L'attività risulta chiusa il ${workloadDate}.`,
+          booking: null
+        };
+      }
+
+      const pauses =
+        arr(day.pauses);
+
+      const pauseMinutes =
+        pauses.reduce((total, pause) => {
+          const from = mins(pause.from);
+          const to = mins(pause.to);
+          return total + (from !== null && to !== null && to > from ? to - from : 0);
+        }, 0);
+
+      const availableMinutes =
+        Math.max(0, mins(day.close) - mins(day.open) - pauseMinutes);
+
+      const dayAppointments =
+        appointments.filter(item =>
+          clean(item.date) === workloadDate &&
+          !["cancelled", "no-show"].includes(clean(item.status))
+        );
+
+      const bookedMinutes =
+        dayAppointments.reduce((total, item) => {
+          const matchedService =
+            services.find(candidate => String(candidate.id) === String(item.serviceId)) ||
+            detectService(clean(item.service), services);
+          return total + duration(matchedService);
+        }, 0);
+
+      const load =
+        availableMinutes
+          ? Math.min(100, Math.round((bookedMinutes / availableMinutes) * 100))
+          : 0;
+
+      return {
+        answer:
+          `Carico del ${workloadDate}:\n` +
+          `• ${dayAppointments.length} appuntament${dayAppointments.length === 1 ? "o" : "i"}\n` +
+          `• ${bookedMinutes} minuti prenotati su ${availableMinutes}\n` +
+          `• Occupazione stimata: ${load}%`,
+        booking: null
+      };
+    }
+
+    if (/quale.*prossim.*appuntamento|quando.*prossim.*appuntamento|\bprossimo appuntamento\b/.test(text)) {
+
+      const next =
+        appointments
+          .filter(item =>
+            clean(item.date) >= todayRome() &&
+            !["cancelled", "completed", "no-show"].includes(clean(item.status))
+          )
+          .sort((left, right) => `${left.date}${left.time}`.localeCompare(`${right.date}${right.time}`))[0];
+
+      return {
+        answer: next
+          ? `Il prossimo appuntamento è il ${clean(next.date)} alle ${clean(next.time)} con ${clean(next.name)} · ${clean(next.service)}.`
+          : "Non risultano prossimi appuntamenti.",
+        booking: null
+      };
+    }
+
+    if (/cosa devo fare|priorita|priorità|azioni.*oggi/.test(text)) {
+
+      const today =
+        todayRome();
+
+      const todayBookings =
+        appointments.filter(item =>
+          clean(item.date) === today &&
+          !["cancelled", "completed", "no-show"].includes(clean(item.status))
+        );
+
+      const awaitingConfirmation =
+        appointments.filter(item =>
+          clean(item.date) >= today &&
+          clean(item.status) === "pending"
+        );
+
+      const recentNoShows =
+        appointments.filter(item =>
+          clean(item.status) === "no-show" &&
+          clean(item.date) >= addDaysISO(today, -30)
+        );
+
+      const priorities = [];
+
+      if (todayBookings.length) {
+        priorities.push(`${todayBookings.length} appuntament${todayBookings.length === 1 ? "o" : "i"} ancora da gestire oggi`);
+      }
+
+      if (awaitingConfirmation.length) {
+        priorities.push(`${awaitingConfirmation.length} appuntament${awaitingConfirmation.length === 1 ? "o" : "i"} da confermare`);
+      }
+
+      if (recentNoShows.length) {
+        priorities.push(`${recentNoShows.length} client${recentNoShows.length === 1 ? "e" : "i"} da ricontattare dopo un'assenza`);
+      }
+
+      return {
+        answer: priorities.length
+          ? `Priorità operative:\n${priorities.map(item => `• ${item}`).join("\n")}`
+          : "Non emergono priorità operative urgenti. Puoi usare questo momento per clienti, promozioni o contenuti.",
+        booking: null
+      };
+    }
+
+    if (
+      /(?:appuntamenti|agenda|impegni).*(?:oggi|domani|dopodomani)|(?:oggi|domani|dopodomani).*(?:appuntamenti|agenda|impegni)|cosa ho (?:oggi|domani|dopodomani)/
+        .test(text) ||
+      (/(?:appuntamenti|agenda|impegni)/.test(text) && detectDate(text))
+    ) {
+
+      const agendaDate =
+        detectDate(text) ||
+        todayRome();
+
+      const todayAppointments =
+        appointments
+          .filter(item => item.date === agendaDate && item.status !== "cancelled")
+          .sort((left, right) => clean(left.time).localeCompare(clean(right.time)));
+
+      return {
+        answer: todayAppointments.length
+          ? `Hai ${todayAppointments.length} appuntamenti il ${agendaDate}:\n` +
+            todayAppointments
+              .map(item => `${clean(item.time)} · ${clean(item.name)} · ${clean(item.service)}`)
+              .join("\n")
+          : `Non risultano appuntamenti il ${agendaDate}.`,
+        booking: null
+      };
+    }
+
+    if (/appuntamenti.*(?:da confermare|in attesa)|(?:da confermare|in attesa).*appuntamenti/.test(text)) {
+
+      const pending =
+        appointments
+          .filter(item => clean(item.status) === "pending" && clean(item.date) >= todayRome())
+          .sort((left, right) => `${left.date}${left.time}`.localeCompare(`${right.date}${right.time}`))
+          .slice(0, 10);
+
+      return {
+        answer: pending.length
+          ? `Appuntamenti da confermare:\n${pending.map(item => `${clean(item.date)} alle ${clean(item.time)} · ${clean(item.name)} · ${clean(item.service)}`).join("\n")}`
+          : "Non risultano appuntamenti in attesa di conferma.",
+        booking: null
+      };
+    }
+
+    if (/riepilogo.*settimana|settimana.*riepilogo|andamento.*settimana|come sta andando/.test(text)) {
+
+      const today =
+        todayRome();
+
+      const dayOfWeek =
+        new Date(`${today}T12:00:00Z`).getUTCDay();
+
+      const monday =
+        addDaysISO(today, dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
+
+      const sunday =
+        addDaysISO(monday, 6);
+
+      const weekly =
+        appointments.filter(item => clean(item.date) >= monday && clean(item.date) <= sunday);
+
+      const completed =
+        weekly.filter(item => item.status === "completed");
+
+      const noShowCount =
+        weekly.filter(item => item.status === "no-show").length;
+
+      const cancelled =
+        weekly.filter(item => item.status === "cancelled").length;
+
+      const revenue =
+        completed.reduce((total, item) => {
+          const service = services.find(candidate => String(candidate.id) === String(item.serviceId)) ||
+            detectService(clean(item.service), services);
+          return total + Number(service?.price || item.price || 0);
+        }, 0);
+
+      return {
+        answer:
+          `Riepilogo settimana (${monday}–${sunday}):\n` +
+          `• ${weekly.length} appuntamenti\n` +
+          `• ${completed.length} completati\n` +
+          `• ${cancelled} annullati\n` +
+          `• ${noShowCount} assenze\n` +
+          `• Incasso stimato: ${revenue.toFixed(2)} €`,
+        booking: null
+      };
+    }
+
+    if (/storico|scheda cliente|ultimo appuntamento|prossimo appuntamento|quando.*(?:viene|torna)|note.*(?:cliente|di)|preferenze.*(?:cliente|di)/.test(text)) {
+
+      const clientMatches =
+        arr(data.clients)
+          .map(client => {
+            const words = norm(client.name)
+              .split(/\s+/)
+              .filter(word => word.length >= 3);
+
+            return {
+              client,
+              score: words.filter(word => text.includes(word)).length
+            };
+          })
+          .filter(item => item.score > 0)
+          .sort((left, right) => right.score - left.score);
+
+      const selected =
+        clientMatches.length &&
+        (clientMatches.length === 1 || clientMatches[0].score > clientMatches[1].score)
+          ? clientMatches[0].client
+          : null;
+
+      if (selected) {
+
+        const clientAppointments =
+          appointments
+            .filter(item => String(item.clientId) === String(selected.id))
+            .sort((left, right) => `${right.date}${right.time}`.localeCompare(`${left.date}${left.time}`));
+
+        const latest =
+          clientAppointments.find(item => item.status !== "cancelled");
+
+        const upcoming =
+          clientAppointments
+            .filter(item => item.status !== "cancelled" && clean(item.date) >= todayRome())
+            .sort((left, right) => `${left.date}${left.time}`.localeCompare(`${right.date}${right.time}`))[0];
+
+        const completedCount =
+          clientAppointments.filter(item => item.status === "completed").length;
+
+        const noShowCount =
+          clientAppointments.filter(item => item.status === "no-show").length;
+
+        return {
+          answer:
+            `Scheda di ${clean(selected.name)}:\n` +
+            `• ${completedCount} appuntamenti completati\n` +
+            `• Ultimo: ${latest ? `${clean(latest.date)} alle ${clean(latest.time)} · ${clean(latest.service)}` : "nessun appuntamento"}\n` +
+            `• Prossimo: ${upcoming ? `${clean(upcoming.date)} alle ${clean(upcoming.time)} · ${clean(upcoming.service)}` : "non fissato"}\n` +
+            `• Assenze: ${noShowCount}\n` +
+            `• Note: ${clean(selected.notes || selected.preferences) || "nessuna nota registrata"}`,
+          booking: null
+        };
+      }
+
+      if (clientMatches.length > 1) {
+        return {
+          answer: "Ho trovato più clienti con questo nome. Scrivimi anche il cognome per mostrarti la scheda corretta.",
+          booking: null
+        };
+      }
+    }
+
+    if (/assenze|assenti|no show/.test(text)) {
+
+      const noShows =
+        appointments
+          .filter(item => item.status === "no-show")
+          .sort((left, right) => `${right.date}${right.time}`.localeCompare(`${left.date}${left.time}`))
+          .slice(0, 10);
+
+      return {
+        answer: noShows.length
+          ? `Ci sono ${noShows.length} assenze registrate:\n` +
+            noShows
+              .map(item => `${clean(item.name)} · ${clean(item.date)} · ${clean(item.service)}`)
+              .join("\n")
+          : "Non risultano assenze registrate.",
+        booking: null
+      };
+    }
+
+    if (/clienti.*(?:inattiv|richiam|non vengono)|(?:inattiv|richiam|non vengono).*clienti/.test(text)) {
+
+      const cutoff =
+        addDaysISO(todayRome(), -60);
+
+      const inactive =
+        arr(data.clients)
+          .filter(client => {
+            const latest = appointments
+              .filter(item => String(item.clientId) === String(client.id) && item.status !== "cancelled")
+              .sort((left, right) => `${right.date}${right.time}`.localeCompare(`${left.date}${left.time}`))[0];
+            return latest && clean(latest.date) < cutoff;
+          })
+          .slice(0, 10);
+
+      return {
+        answer: inactive.length
+          ? `Clienti da ricontattare (oltre 60 giorni):\n` +
+            inactive.map(client => clean(client.name)).join("\n")
+          : "Non risultano clienti inattivi da oltre 60 giorni.",
+        booking: null
+      };
+    }
+
+    if (/clienti.*abitual|abitual.*clienti|clienti.*fedel/.test(text)) {
+
+      const regulars =
+        arr(data.clients)
+          .map(client => ({
+            client,
+            count: appointments.filter(item => String(item.clientId) === String(client.id) && item.status === "completed").length
+          }))
+          .filter(item => item.count >= 3)
+          .sort((left, right) => right.count - left.count)
+          .slice(0, 10);
+
+      return {
+        answer: regulars.length
+          ? `Clienti abituali:\n` +
+            regulars.map(item => `${clean(item.client.name)} · ${item.count} appuntamenti completati`).join("\n")
+          : "Non risultano ancora clienti abituali con almeno 3 appuntamenti completati.",
+        booking: null
+      };
+    }
+
+    if (
+      /servizi.*(?:richiest|popolar)|(?:piu|più).*richiest.*servizi/.test(text) &&
+      !/meno richiesti|promuov/.test(text)
+    ) {
+
+      const popular =
+        appointments
+          .filter(item => !["cancelled", "no-show"].includes(clean(item.status)))
+          .reduce((result, item) => {
+            const serviceName = clean(item.service) || "Servizio non specificato";
+            result.set(serviceName, (result.get(serviceName) || 0) + 1);
+            return result;
+          }, new Map());
+
+      const ranking =
+        Array.from(popular.entries())
+          .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], "it"))
+          .slice(0, 5);
+
+      return {
+        answer: ranking.length
+          ? `Servizi più richiesti:\n${ranking.map(([serviceName, count]) => `• ${serviceName}: ${count} appuntament${count === 1 ? "o" : "i"}`).join("\n")}`
+          : "Non ci sono ancora appuntamenti sufficienti per analizzare i servizi più richiesti.",
+        booking: null
+      };
+    }
+
+    if (/servizi.*(?:meno richiesti|promuov)|quale servizio.*promuov|cosa.*promuov/.test(text)) {
+
+      const counts =
+        new Map(
+          services.map(service => [String(service.id), 0])
+        );
+
+      for (const appointment of appointments) {
+        if (["cancelled", "no-show"].includes(clean(appointment.status))) continue;
+        const serviceId = String(appointment.serviceId || "");
+        if (counts.has(serviceId)) {
+          counts.set(serviceId, counts.get(serviceId) + 1);
+        }
+      }
+
+      const opportunities =
+        services
+          .map(service => ({ service, count: counts.get(String(service.id)) || 0 }))
+          .sort((left, right) => left.count - right.count || clean(left.service.name).localeCompare(clean(right.service.name), "it"))
+          .slice(0, 3);
+
+      return {
+        answer: opportunities.length
+          ? `Servizi da valorizzare con una promozione:\n${opportunities.map(item => `• ${clean(item.service.name)}: ${item.count} appuntament${item.count === 1 ? "o" : "i"}`).join("\n")}\n\nPuoi creare un'offerta mirata su uno di questi servizi.`
+          : "Aggiungi almeno un servizio per ricevere suggerimenti sulle promozioni.",
+        booking: null
+      };
+    }
+
+    if (/clienti.*(?:migliori|importanti|preziosi)|(?:migliori|importanti|preziosi).*clienti/.test(text)) {
+
+      const valuableClients =
+        arr(data.clients)
+          .map(client => {
+            const completed =
+              appointments.filter(item =>
+                String(item.clientId) === String(client.id) &&
+                clean(item.status) === "completed"
+              );
+
+            const value =
+              completed.reduce((total, item) => {
+                const matchedService =
+                  services.find(candidate => String(candidate.id) === String(item.serviceId)) ||
+                  detectService(clean(item.service), services);
+                return total + Number(matchedService?.price || item.price || 0);
+              }, 0);
+
+            return { client, visits: completed.length, value };
+          })
+          .filter(item => item.visits > 0)
+          .sort((left, right) => right.value - left.value || right.visits - left.visits)
+          .slice(0, 5);
+
+      return {
+        answer: valuableClients.length
+          ? `Clienti con maggior valore:\n${valuableClients.map(item => `• ${clean(item.client.name)}: ${item.visits} visite · ${item.value.toFixed(2)} €`).join("\n")}`
+          : "Non ci sono ancora appuntamenti completati per calcolare il valore dei clienti.",
+        booking: null
+      };
+    }
+  }
+
 
   /*
    * DISPONIBILITÀ
    */
 
   if (
-    /disponibil|libero|libera|posto|orario|appuntamento|prenotare|prenotazione/
-      .test(text) &&
+    (/disponibil|libero|libera|posto|orario|appuntamento|prenotare|prenotazione/
+      .test(text) || bookingFollowUp) &&
     service &&
     date
   ) {
@@ -2039,14 +2745,35 @@ async function localChat({
         services
       });
 
+    const shownSlots =
+      filterSlotsByPeriod(
+        slots,
+        period
+      );
+
     if (
-      !slots.length
+      !shownSlots.length
     ) {
+
+      const alternatives =
+        nextAvailableAlternatives({
+          date,
+          service,
+          appointments,
+          settings: data.settings,
+          services,
+          period
+        });
 
       return {
 
         answer:
-          `Per ${service.name} il ${date} non risultano orari disponibili. Posso verificare un altro giorno.`,
+          `Per ${service.name} il ${date}` +
+          (period ? ` in ${period}` : "") +
+          ` non risultano orari disponibili.` +
+          (alternatives.length
+            ? ` Puoi scegliere tra: ${formatAlternatives(alternatives)}.`
+            : " Posso verificare un altro giorno."),
 
         booking: null
       };
@@ -2091,16 +2818,34 @@ async function localChat({
       return {
 
         answer:
-          `Alle ${time} non è disponibile. Gli orari disponibili sono: ${slots.join(", ")}.`,
+          `Alle ${time} non è disponibile. Gli orari più vicini sono: ${nearestSlots(shownSlots, time).join(", ")}.`,
 
         booking: null
+      };
+    }
+
+    if (/prima possibile|appena possibile|primo (?:posto|orario) (?:libero|disponibile)/.test(text)) {
+
+      const earliestTime =
+        shownSlots[0];
+
+      return {
+        answer: `Il primo posto disponibile per ${service.name} il ${date}${period ? ` in ${period}` : ""} è alle ${earliestTime}. Se vuoi prenotarlo, indicami il tuo nome.`,
+        booking: {
+          status: "pending",
+          date,
+          time: earliestTime,
+          service: service.name
+        }
       };
     }
 
     return {
 
       answer:
-        `Per ${service.name} il ${date} gli orari disponibili sono: ${slots.join(", ")}.`,
+        `Per ${service.name} il ${date}` +
+        (period ? ` in ${period}` : "") +
+        ` gli orari disponibili sono: ${shownSlots.join(", ")}.`,
 
       booking: null
     };
@@ -2112,8 +2857,9 @@ async function localChat({
    */
 
   if (
-    /prenot|appuntamento|voglio venire|vorrei venire|posso venire/
-      .test(text)
+    bookingIntent ||
+    bookingFollowUp ||
+    Boolean(service && date && (time || period))
   ) {
 
     if (!service) {
@@ -2131,6 +2877,38 @@ async function localChat({
     }
 
     if (!date) {
+
+      if (/prima possibile|appena possibile|primo (?:posto|orario) (?:libero|disponibile)/.test(text)) {
+
+        const earliest =
+          nextAvailableAlternatives({
+            date: addDaysISO(todayRome(), -1),
+            service,
+            appointments,
+            settings: data.settings,
+            services,
+            period
+          })[0];
+
+        if (earliest?.slots?.length) {
+          const earliestTime = earliest.slots[0];
+
+          return {
+            answer: `Il primo posto disponibile per ${service.name} è il ${earliest.date} alle ${earliestTime}. Se vuoi prenotarlo, indicami il tuo nome.`,
+            booking: {
+              status: "pending",
+              date: earliest.date,
+              time: earliestTime,
+              service: service.name
+            }
+          };
+        }
+
+        return {
+          answer: `Non trovo disponibilità nei prossimi giorni per ${service.name}. Posso verificare una data specifica.`,
+          booking: null
+        };
+      }
 
       return {
 
@@ -2162,12 +2940,33 @@ async function localChat({
         services
       });
 
-    if (!slots.length) {
+    const shownSlots =
+      filterSlotsByPeriod(
+        slots,
+        period
+      );
+
+    if (!shownSlots.length) {
+
+      const alternatives =
+        nextAvailableAlternatives({
+          date,
+          service,
+          appointments,
+          settings: data.settings,
+          services,
+          period
+        });
 
       return {
 
         answer:
-          `Per ${service.name} il ${date} non ci sono orari disponibili.`,
+          `Per ${service.name} il ${date}` +
+          (period ? ` in ${period}` : "") +
+          ` non ci sono orari disponibili.` +
+          (alternatives.length
+            ? ` Le prime alternative sono: ${formatAlternatives(alternatives)}.`
+            : ""),
 
         booking: null
       };
@@ -2178,7 +2977,9 @@ async function localChat({
       return {
 
         answer:
-          `Per ${service.name} il ${date} sono disponibili: ${slots.join(", ")}. Quale orario preferisci?`,
+          `Per ${service.name} il ${date}` +
+          (period ? ` in ${period}` : "") +
+          ` sono disponibili: ${shownSlots.join(", ")}. Quale orario preferisci?`,
 
         booking: {
           status:

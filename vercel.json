@@ -9,6 +9,7 @@
     { "source": "/forgot-password", "destination": "/forgot-password.html" },
     { "source": "/reset-password", "destination": "/reset-password.html" },
     { "source": "/verify-email", "destination": "/verify-email.html" },
+    { "source": "/client", "destination": "/client.html" },
     { "source": "/api/chat", "destination": "/api/chat-entry" },
     { "source": "/api/whatsapp", "destination": "/api/whatsapp-proxy" }
   ],
@@ -21,6 +22,7 @@
     { "source": "/account", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
     { "source": "/forgot-password", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
     { "source": "/reset-password", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
-    { "source": "/verify-email", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] }
+    { "source": "/verify-email", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] },
+    { "source": "/client", "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }] }
   ]
 }
