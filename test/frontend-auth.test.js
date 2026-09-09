@@ -38,14 +38,11 @@ test("il login usa credenziali account e salva il tenant restituito dal server",
   assert.match(html, /href="\/register"/);
 });
 
-test("l'accesso esplicito mostra il form anche con una sessione già valida", async () => {
+test("il parametro switch non annulla una sessione già valida", async () => {
   const html = await text("login.html");
-  assert.match(html, /new URLSearchParams\(location\.search\)\.get\("switch"\)===\"1\"/);
-  assert.match(html, /if\(FORCE_LOGIN\)\{/);
-  assert.match(html, /Inserisci le credenziali dell’account che vuoi usare/);
-  const forceIndex = html.indexOf("if(FORCE_LOGIN)");
-  const authIndex = html.indexOf("if(await authStatus())");
-  assert.ok(forceIndex >= 0 && authIndex > forceIndex);
+  assert.match(html, /if\(await authStatus\(\)\)\{/);
+  assert.doesNotMatch(html, /FORCE_LOGIN/);
+  assert.doesNotMatch(html, /Inserisci le credenziali dell’account che vuoi usare/);
 });
 
 test("una nuova attività può registrarsi senza configurazione tecnica", async () => {
