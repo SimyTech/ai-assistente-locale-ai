@@ -37,6 +37,19 @@ let adaptiveObserver=null;
 let adaptiveScheduled=false;
 let adaptiveRunning=false;
 
+function normalizeForcedDesktopOnPhone(){
+  const screenWidth=Number(window.screen&&window.screen.width)||0;
+  const viewportWidth=Number(window.innerWidth)||0;
+  const isPhone=screenWidth>0&&screenWidth<800;
+  const forcedDesktop=isPhone&&viewportWidth>screenWidth*1.2;
+  if(!forcedDesktop)return;
+  const zoom=Math.min(2,viewportWidth/screenWidth);
+  document.body.style.zoom=String(zoom);
+  document.body.style.width=(100/zoom)+"%";
+}
+normalizeForcedDesktopOnPhone();
+window.addEventListener("resize",normalizeForcedDesktopOnPhone,{passive:true});
+
 function tenant(){return(localStorage.getItem(TENANT_KEY)||"").trim()}
 function clearLocalAuth(){localStorage.removeItem(AUTH_KEY);localStorage.removeItem(ACCOUNT_KEY);localStorage.removeItem(LEGACY_TOKEN_KEY)}
 function guardTenantCache(){
