@@ -8,8 +8,7 @@
 <style>
 html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
 #gate{position:fixed;inset:0;display:grid;place-items:center;color:#dfe7ff;font-size:14px;background:#07142f;z-index:5}
-.context{height:48px;display:none;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.08);background:#091a39;color:#f6f8ff}
-.context strong{font-size:13px}.context span{font-size:11px;color:#9eafd0;margin-left:8px}.context-actions{display:flex;align-items:center;gap:12px;white-space:nowrap}.context a{color:#9fcfff;text-decoration:none;font-size:12px;touch-action:manipulation}.context a:hover{text-decoration:underline}.context a.verify{color:#ffd07c}.hidden{display:none!important}
+.context{height:48px;display:none;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.08);background:#091a39;color:#f6f8ff}.context-brand{display:flex;align-items:center;gap:9px;min-width:0}.context-logo{width:30px;height:30px;border-radius:9px;object-fit:cover;display:block}.context strong{font-size:14px}.context span{font-size:11px;color:#9eafd0;margin-left:8px}.context-actions{display:flex;align-items:center;gap:12px;white-space:nowrap}.context a{color:#9fcfff;text-decoration:none;font-size:12px;touch-action:manipulation}.context a:hover{text-decoration:underline}.context a.verify{color:#ffd07c}.hidden{display:none!important}
 #appFrame{width:100%;height:100%;border:0;display:none;background:#07142f;pointer-events:auto;touch-action:auto}
 .ready #appFrame{height:calc(100% - 48px)}
 @media(max-width:650px){.context span{display:none}.context{padding:0 12px}.context-actions{gap:9px}.context a{font-size:11px}}
@@ -17,7 +16,7 @@ html,body{margin:0;width:100%;height:100%;background:#07142f;overflow:hidden;fon
 </head>
 <body>
 <div id="gate">Apertura del tuo spazio Maviri…</div>
-<div id="context" class="context"><div><strong id="activityName">Maviri</strong><span id="activitySummary"></span></div><div class="context-actions"><a id="verifyEmailLink" class="verify hidden" href="/account">Verifica email</a><a href="/account" aria-label="Gestisci account">Account</a><a href="/setup">Configura attività</a></div></div>
+<div id="context" class="context"><div class="context-brand"><img class="context-logo" src="data:image/webp;base64,UklGRnYEAABXRUJQVlA4WAoAAAAgAAAAXwAAXwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggiAIAALAQAJ0BKmAAYAA+kUKeSiWjoyGnNAqQsBIJZADUxgFAX+q8cTwzIed6DobeTkZvdzvM3oO+Wn7MxEiE9LFGzCY5tobrTm6dxNTmKPiLuUA03xABv1x1J9rb07HqYpXRT8Zlv9BeAJdXg/DmXLhorU70cBmWmNxO1GxR7UvMbIhnLeK1qLYK6fOmaI41uAAA/vozy4Uaq4uJiOzaBAKF4gLlO00K5PLBhz2u1OqFSFPytHINn/8aXl/9EmmvvK6qixG3QM4CJINIYXjYYXzT18sfXPtjhpYtK0eY0L/W+dWekA/SscxqHbZQ3VOtmdB1XBVYhXenENBe199vmKYxj1ztC/fT75jyI+gk/18ewLVjmqubXUkeoREzgiFhF1bwKdsAtoZLwQD4H5LgJgosXv8BanE5lPf61NXyNWhRiMZu7zpNCUS5EtEZItHcz9qcIncqbKEW5TDXyzKWpvU7O60ONZ/1+LVXsl6eOUq5CQXNn2raAupq0B59cGt3TPv2lh6GQtOROOtvHzUK6aTdhtQjUWTzTKV56PQHxGMTo3Mqf7PdmANKAwYE1QiWAd5AY8LogzaI/qQYacxcZoICiSkb0kbcTfzB+qo2BqelIcv7fgZ8gOgSMH1hNuTOd5iRWH8Aqc3UV1dYpAb1nAADZyC97Rn0NrO0hm2VmdeBxKgVwGqjuQ/VaxpMZjjwLDqUoKQgBHFMoN4Nyn9AW8HVRPb6l4owuvGgDqE8l3TH68jbN3te9X8JQEFG2Kfv/ik1ml/XRQizgiXANkWuxBXmZ3c+9G3BrO8YGYs1xFgI2GvxBOcdByvgVH0Eqyvr7KgSOvaUr8JLSpTRQ7+38cgxa78ngHtSfAAAAA==" alt=""><div><strong id="activityName">Maviri</strong><span id="activitySummary"></span></div></div><div class="context-actions"><a id="verifyEmailLink" class="verify hidden" href="/account">Verifica email</a><a href="/account" aria-label="Gestisci account">Account</a><a href="/setup">Configura attività</a></div></div>
 <iframe id="appFrame" title="Maviri"></iframe>
 <script type="module">
 import { adaptiveDashboardPlan } from "/lib/adaptive-ui.js";
@@ -231,8 +230,8 @@ frame.addEventListener("load",()=>{
   profile=await loadProfile();
   if(!profile)return;
   plan=adaptiveDashboardPlan(profile);
-  document.getElementById("activityName").textContent=plan.name||"Maviri";
-  document.getElementById("activitySummary").textContent=plan.summary;
+  document.getElementById("activityName").textContent="Maviri";
+  document.getElementById("activitySummary").textContent=plan.name?"Spazio di "+plan.name:plan.summary;
   frame.src="/index.html";
 })();
 </script>
