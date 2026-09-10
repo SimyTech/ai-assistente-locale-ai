@@ -167,8 +167,8 @@ test("il login migra il vecchio token ma non lo conserva dopo la sessione", asyn
 
 test("Mavi Client Chat usa il logo Mavi dedicato", async () => {
   const html = await text("client.html");
-  const logo = await readFile(new URL("../assets/mavi-logo.png", import.meta.url));
-  assert.match(html, /src="\/assets\/mavi-logo\.png" alt="Logo Mavi"/);
+  const logo = await readFile(new URL("../assets/mavi-logo.webp", import.meta.url));
+  assert.match(html, /src="\/assets\/mavi-logo\.webp" alt="Logo Mavi"/);
   assert.doesNotMatch(html, /maviri-logo-original\.jpg/);
-  assert.deepEqual([...logo.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+  assert.equal(logo.subarray(0, 4).toString("ascii"), "RIFF");
 });
