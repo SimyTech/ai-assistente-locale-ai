@@ -220,6 +220,8 @@ test("Mavi propone gli orari più vicini quando quello richiesto non è libero",
   assert.equal(res.statusCode, 200);
   assert.match(res.payload.answer, /15:00 non è disponibile/);
   assert.match(res.payload.answer, /14:30, 15:30/);
+  assert.equal(res.payload.booking?.status, "choosing-time");
+  assert.deepEqual(res.payload.booking?.options, ["14:30", "15:30", "16:00"]);
 });
 
 test("Mavi trova il primo posto disponibile senza richiedere una data", async () => {
@@ -236,6 +238,21 @@ test("Mavi trova il primo posto disponibile senza richiedere una data", async ()
   assert.equal(res.payload.booking?.service, "Taglio uomo");
   assert.match(res.payload.booking?.date || "", /^\d{4}-\d{2}-\d{2}$/);
   assert.match(res.payload.answer, /primo posto disponibile/i);
+});
+
+test("Mavi restituisce orari selezionabili quando manca l'ora", async () => {
+  const res = response();
+  await handler({
+    method: "POST", headers: {},
+    body: {
+      action: "chat", role: "owner", message: "vorrei prenotare taglio uomo domani",
+      settings: { hours: Array.from({ length: 7 }, () => ({ ...openDay })) },
+      services: [{ id: "s1", name: "Taglio uomo", duration: 30, price: 20 }], appointments: [], clients: [], promotions: []
+    }
+  }, res);
+  assert.equal(res.payload.booking?.status, "collecting-time");
+  assert.ok(res.payload.booking?.options.length > 0);
+  assert.match(res.payload.booking.options[0], /^\d{2}:\d{2}$/);
 });
 
 test("Mavi trova il primo posto nella data e fascia richieste", async () => {

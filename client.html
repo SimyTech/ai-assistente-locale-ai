@@ -48,6 +48,8 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
     <div class="bubble mavi">Ciao, sono Mavi. Posso aiutarti con servizi, prezzi, orari e prenotazioni.</div>
   </div>
 
+  <div class="quick" id="contextActions" aria-label="Azioni suggerite" hidden></div>
+
   <div class="quick" aria-label="Domande rapide">
     <button class="btn" onclick="quickMessage('Quali servizi e prezzi avete?')">Servizi e prezzi</button>
     <button class="btn" onclick="quickMessage('Avete promozioni attive?')">Promozioni</button>
@@ -155,6 +157,7 @@ function newBookingRequestId(){
 function clearBooking(){
   bookingDraft=null;
   bookingRequestId="";
+  renderContextActions();
   saveConversation();
 }
 
@@ -164,7 +167,38 @@ function mergeBookingDraft(next){
   if(bookingDraft.date&&bookingDraft.time&&bookingDraft.service&&!bookingDraft.name){
     bookingDraft.status="collecting-name";
   }
+  renderContextActions();
   saveConversation();
+}
+
+function renderContextActions(){
+  const area=$("contextActions");
+  if(!area)return;
+  area.innerHTML="";
+  const actions=[];
+
+  if(bookingDraft?.status==="awaiting-confirmation"){
+    actions.push(
+      ["Conferma prenotazione","Confermo","primary"],
+      ["Annulla","Annulla",""]
+    );
+  }else if(Array.isArray(bookingDraft?.options)){
+    for(const option of bookingDraft.options.slice(0,8)){
+      if(/^\d{2}:\d{2}$/.test(String(option))){
+        actions.push([String(option),`Alle ${option}`,""]);
+      }
+    }
+  }
+
+  for(const [label,message,kind] of actions){
+    const button=document.createElement("button");
+    button.type="button";
+    button.className=`btn ${kind}`.trim();
+    button.textContent=label;
+    button.onclick=()=>quickMessage(message);
+    area.appendChild(button);
+  }
+  area.hidden=actions.length===0;
 }
 
 function saveConversation(){
@@ -270,6 +304,7 @@ async function continueBooking(message,wait){
   });
   bookingDraft={...bookingDraft,...(proposal.appointment||{}),status:"awaiting-confirmation"};
   wait.textContent=`${proposal.message} Scrivi “Confermo” per registrarla oppure “Annulla”.`;
+  renderContextActions();
   return true;
 }
 
@@ -285,6 +320,7 @@ async function init(){
     }
     const resumed=resumedBookingMessage();
     if(resumed)add(resumed,"mavi");
+    renderContextActions();
 
     const n=publicContext.business?.name;
     if(n)document.title="Mavi Client Chat — "+n;

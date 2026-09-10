@@ -2821,7 +2821,12 @@ async function localChat({
         answer:
           `Alle ${time} non è disponibile. Gli orari più vicini sono: ${nearestSlots(shownSlots, time).join(", ")}.`,
 
-        booking: null
+        booking: {
+          status: "choosing-time",
+          date,
+          service: service.name,
+          options: nearestSlots(shownSlots, time)
+        }
       };
     }
 
@@ -2848,7 +2853,12 @@ async function localChat({
         (period ? ` in ${period}` : "") +
         ` gli orari disponibili sono: ${shownSlots.join(", ")}.`,
 
-      booking: null
+      booking: {
+        status: "collecting-time",
+        date,
+        service: service.name,
+        options: shownSlots.slice(0, 8)
+      }
     };
   }
 
@@ -2989,7 +2999,10 @@ async function localChat({
           date,
 
           service:
-            service.name
+            service.name,
+
+          options:
+            shownSlots.slice(0, 8)
         }
       };
     }
