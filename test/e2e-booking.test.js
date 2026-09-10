@@ -99,12 +99,16 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
       action: "book",
       mode: "client",
       tenantId: "default",
-      date: "2026-09-07",
+      date: "2030-01-07",
       time: "10:00",
       service: "Taglio",
       name: "Mario Rossi",
       phone: "3331234567"
     };
+
+    const missingPhone = await call({ ...booking, phone: "" }, clientHeaders);
+    assert.equal(missingPhone.statusCode, 400);
+    assert.equal(missingPhone.payload.error, "Inserisci un numero di cellulare valido.");
 
     const proposal = await call(booking, clientHeaders);
     assert.equal(proposal.statusCode, 200);
@@ -117,6 +121,11 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
     assert.equal(confirmed.payload.persisted, true);
     assert.equal(confirmed.payload.appointment.name, "Mario Rossi");
     const appointmentId = confirmed.payload.appointment.id;
+
+    const retried = await call({ ...booking, id: appointmentId, confirmed: true }, clientHeaders);
+    assert.equal(retried.statusCode, 200);
+    assert.equal(retried.payload.bookingConfirmed, true);
+    assert.equal(retried.payload.idempotent, true);
 
     const duplicate = await call({ ...booking, name: "Luigi Bianchi", phone: "3337654321", confirmed: true }, clientHeaders);
     assert.equal(duplicate.statusCode, 409);
@@ -133,7 +142,7 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
       mode: "client",
       tenantId: "default",
       id: appointmentId,
-      date: "2026-09-07",
+      date: "2030-01-07",
       time: "11:00",
       service: "Taglio",
       name: "Mario Rossi",
@@ -146,7 +155,7 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
       mode: "client",
       tenantId: "default",
       id: appointmentId,
-      date: "2026-09-07",
+      date: "2030-01-07",
       time: "11:00",
       service: "Taglio",
       name: "Mario Rossi",
@@ -161,7 +170,7 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
     ownerData.appointments[0] = {
       ...ownerData.appointments[0],
       status: "completed",
-      completedAt: "2026-09-07T12:00:00.000Z"
+      completedAt: "2030-01-07T12:00:00.000Z"
     };
 
     const completionSync = await call({
@@ -179,7 +188,7 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
 
     const afterComplete = await call({ action: "owner-pull", tenantId: "default" }, ownerHeaders);
     assert.equal(afterComplete.payload.data.appointments[0].status, "completed");
-    assert.equal(afterComplete.payload.data.appointments[0].completedAt, "2026-09-07T12:00:00.000Z");
+    assert.equal(afterComplete.payload.data.appointments[0].completedAt, "2030-01-07T12:00:00.000Z");
 
     const unauthorizedCancel = await call({
       action: "cancel",

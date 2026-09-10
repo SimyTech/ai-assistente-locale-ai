@@ -30,6 +30,7 @@ import {
 } from "../lib/tenant.js";
 import {
   clientOwnsAppointment,
+  normalizePhone,
   ownerAuthorized
 } from "../lib/auth.js";
 import {
@@ -3859,7 +3860,8 @@ export default async function handler(
         !validDate(date) ||
         mins(time) === null ||
         !name ||
-        !service
+        !service ||
+        name.length > 80
       ) {
 
         return res
@@ -3874,6 +3876,61 @@ export default async function handler(
             error:
               "Dati della prenotazione incompleti."
           });
+      }
+
+      if (mode === "client" && date < todayRome()) {
+        return res
+          .status(400)
+          .json({
+            ok: false,
+            bookingConfirmed: false,
+            error: "Non è possibile prenotare una data passata."
+          });
+      }
+
+      if (mode === "client" && !normalizePhone(phone || whatsapp)) {
+        return res
+          .status(400)
+          .json({
+            ok: false,
+            bookingConfirmed: false,
+            error: "Inserisci un numero di cellulare valido."
+          });
+      }
+
+      const requestedId = clean(body.id);
+      const existingRequest = requestedId
+        ? appointments.find(item => String(item.id) === requestedId)
+        : null;
+
+      if (existingRequest) {
+        const sameBooking =
+          clean(existingRequest.date || existingRequest.d) === date &&
+          clean(existingRequest.time || existingRequest.t) === time &&
+          norm(existingRequest.service || existingRequest.serviceName || existingRequest.s) === norm(service.name) &&
+          clientOwnsAppointment(existingRequest, body);
+
+        if (!sameBooking) {
+          return res.status(409).json({
+            ok: false,
+            bookingConfirmed: false,
+            error: "Richiesta di prenotazione non valida."
+          });
+        }
+
+        const existingClient = clients.find(item =>
+          String(item.id) === String(existingRequest.clientId)
+        ) || null;
+
+        return res.status(200).json({
+          ok: true,
+          bookingConfirmed: true,
+          persisted: true,
+          idempotent: true,
+          appointment: existingRequest,
+          client: existingClient,
+          message: "Prenotazione già confermata e registrata."
+        });
       }
 
       if (

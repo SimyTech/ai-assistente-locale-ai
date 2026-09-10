@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#07142f">
-<title>Mavi — Prenotazioni</title>
+<title>Mavi Client Chat — Prenotazioni</title>
 <style>
 :root{--n:#07142f;--n2:#0b1d40;--t:#f6f8ff;--m:#9eafd0;--l:rgba(255,255,255,.09);--grad:linear-gradient(135deg,#38a7ff,#875cff 52%,#39d98a)}
 *{box-sizing:border-box}
@@ -39,12 +39,12 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
     <img class="logo" src="/assets/maviri-logo-original.jpg" alt="Logo Maviri">
     <div style="flex:1">
       <strong id="businessName">Mavi</strong>
-      <div class="muted">Assistente clienti per informazioni e prenotazioni</div>
+      <div class="muted">Mavi Client Chat · informazioni e prenotazioni</div>
     </div>
     <div class="brand-actions"><button class="btn" id="newChat" type="button">Nuova chat</button><span class="badge">ONLINE</span></div>
   </div>
 
-  <div class="messages" id="messages">
+  <div class="messages" id="messages" aria-live="polite">
     <div class="bubble mavi">Ciao, sono Mavi. Posso aiutarti con servizi, prezzi, orari e prenotazioni.</div>
   </div>
 
@@ -79,6 +79,8 @@ const $=id=>document.getElementById(id);
 const sessionId=crypto.randomUUID?crypto.randomUUID():String(Date.now());
 const history=[];
 let publicContext=null;
+let bookingDraft=null;
+let bookingRequestId="";
 const requestedTenant=(new URLSearchParams(location.search).get("tenant")||"").trim().toLowerCase();
 const tenantId=/^[a-z0-9][a-z0-9_-]{0,63}$/.test(requestedTenant)?requestedTenant:"";
 function greeting(){const name=publicContext?.business?.name;return name?`Ciao, sono Mavi, l'assistente di ${name}. Posso aiutarti con servizi, prezzi, orari e prenotazioni.`:"Ciao, sono Mavi. Posso aiutarti con servizi, prezzi, orari e prenotazioni."}
@@ -93,17 +95,28 @@ function add(text,cls){
 }
 
 async function api(action,extra={}){
-  const r=await fetch("/api/chat",{
-    method:"POST",
-    headers:{"Content-Type":"application/json",...(tenantId?{"x-maviri-tenant":tenantId}:{})},
-    body:JSON.stringify({
-      action,
-      role:"client",
-      mode:"client",
-      sessionId,
-      ...extra
-    })
-  });
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),20000);
+  let r;
+  try{
+    r=await fetch("/api/chat",{
+      method:"POST",
+      headers:{"Content-Type":"application/json",...(tenantId?{"x-maviri-tenant":tenantId}:{})},
+      signal:controller.signal,
+      body:JSON.stringify({
+        action,
+        role:"client",
+        mode:"client",
+        sessionId,
+        ...extra
+      })
+    });
+  }catch(error){
+    if(error?.name==="AbortError")throw new Error("Mavi sta impiegando troppo tempo. Riprova: la prenotazione non verrà duplicata.");
+    throw new Error("Connessione non disponibile. Controlla la rete e riprova.");
+  }finally{
+    clearTimeout(timeout);
+  }
 
   let j={};
   try{j=await r.json()}catch{}
@@ -115,6 +128,105 @@ async function api(action,extra={}){
   return j;
 }
 
+function normalizedPhone(value){
+  const digits=String(value||"").replace(/\D/g,"");
+  return digits.length>=7&&digits.length<=15?digits:"";
+}
+
+function validName(value){
+  const name=String(value||"").trim().replace(/\s+/g," ");
+  return name.length>=2&&name.length<=80&&!/\d/.test(name)?name:"";
+}
+
+function isConfirmation(value){
+  return /^(s[iì]|confermo|ok|okay|va bene|perfetto|procedi|prenota)(?:\b|[.!])/i.test(String(value||"").trim());
+}
+
+function isCancellation(value){
+  return /^(no|annulla|cancella|lascia stare|non confermo)(?:\b|[.!])/i.test(String(value||"").trim());
+}
+
+function newBookingRequestId(){
+  return `client-${sessionId}-${crypto.randomUUID?crypto.randomUUID():Date.now()}`;
+}
+
+function clearBooking(){
+  bookingDraft=null;
+  bookingRequestId="";
+}
+
+function mergeBookingDraft(next){
+  if(!next||typeof next!=="object")return;
+  bookingDraft={...(bookingDraft||{}),...next};
+  if(bookingDraft.date&&bookingDraft.time&&bookingDraft.service&&!bookingDraft.name){
+    bookingDraft.status="collecting-name";
+  }
+}
+
+async function continueBooking(message,wait){
+  if(!bookingDraft)return false;
+
+  if(isCancellation(message)){
+    clearBooking();
+    wait.textContent="Va bene, non ho effettuato alcuna prenotazione. Dimmi pure se posso aiutarti con altro.";
+    return true;
+  }
+
+  if(bookingDraft.status==="collecting-name"||bookingDraft.status==="pending"){
+    const phone=normalizedPhone(message);
+    const possibleName=validName(String(message).replace(/[+\d][\d\s().-]{5,}/g,"").replace(/(?:telefono|cellulare|numero|whatsapp)\s*:?/ig,"").trim());
+
+    if(!bookingDraft.name&&possibleName)bookingDraft.name=possibleName;
+    if(phone)bookingDraft.phone=phone;
+
+    if(!bookingDraft.name){
+      wait.textContent="Scrivimi nome e cognome per intestare la prenotazione.";
+      return true;
+    }
+
+    if(!bookingDraft.phone){
+      bookingDraft.status="collecting-phone";
+      wait.textContent=`Grazie ${bookingDraft.name}. Indicami un numero di cellulare, utile anche per riconoscere la tua prenotazione.`;
+      return true;
+    }
+  }else if(bookingDraft.status==="collecting-phone"){
+    const phone=normalizedPhone(message);
+    if(!phone){
+      wait.textContent="Il numero non sembra completo. Inserisci almeno 7 cifre, includendo il prefisso internazionale se necessario.";
+      return true;
+    }
+    bookingDraft.phone=phone;
+  }else if(bookingDraft.status==="awaiting-confirmation"){
+    if(!isConfirmation(message)){
+      wait.textContent="Per registrare l'appuntamento scrivi “Confermo”. Se hai cambiato idea, scrivi “Annulla”.";
+      return true;
+    }
+
+    const result=await api("book",{
+      ...bookingDraft,
+      id:bookingRequestId,
+      confirmed:true,
+      persist:true
+    });
+    wait.textContent=result.message||"Prenotazione confermata e registrata.";
+    clearBooking();
+    return true;
+  }else{
+    return false;
+  }
+
+  bookingRequestId=bookingRequestId||newBookingRequestId();
+  const proposal=await api("book",{
+    ...bookingDraft,
+    id:bookingRequestId,
+    confirmed:false,
+    persist:true
+  });
+  bookingDraft={...bookingDraft,...(proposal.appointment||{}),status:"awaiting-confirmation"};
+  wait.textContent=`${proposal.message} Scrivi “Confermo” per registrarla oppure “Annulla”.`;
+  return true;
+}
+
 async function init(){
   try{
     publicContext=await api("public-context");
@@ -122,7 +234,7 @@ async function init(){
     $("messages").firstElementChild.textContent=greeting();
 
     const n=publicContext.business?.name;
-    if(n)document.title="Mavi — "+n;
+    if(n)document.title="Mavi Client Chat — "+n;
   }catch(e){
     add("Il servizio clienti non è ancora configurato. Contatta l'attività.","mavi");
     $("send").disabled=true;
@@ -146,6 +258,8 @@ async function send(){
   document.querySelectorAll(".quick button").forEach(button=>button.disabled=true);
 
   try{
+    if(await continueBooking(q,wait))return;
+
     const r=await api("chat",{
       message:q,
       history
@@ -153,11 +267,13 @@ async function send(){
 
     const answer=r.answer||"Non ho ricevuto risposta.";
     wait.textContent=answer;
+    mergeBookingDraft(r.booking);
 
     history.push(
       {role:"user",content:q},
       {role:"assistant",content:answer}
     );
+    if(history.length>12)history.splice(0,history.length-12);
 
     if("speechSynthesis" in window){
       speechSynthesis.cancel();
@@ -184,6 +300,7 @@ function quickMessage(message){
 
 function resetConversation(){
   history.length=0;
+  clearBooking();
   $("messages").innerHTML='';
   add(greeting(),"mavi");
   $("input").value="";
