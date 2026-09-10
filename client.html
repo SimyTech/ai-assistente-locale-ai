@@ -76,13 +76,15 @@ body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe 
 "use strict";
 
 const $=id=>document.getElementById(id);
-const sessionId=crypto.randomUUID?crypto.randomUUID():String(Date.now());
+let sessionId=crypto.randomUUID?crypto.randomUUID():String(Date.now());
 const history=[];
 let publicContext=null;
 let bookingDraft=null;
 let bookingRequestId="";
 const requestedTenant=(new URLSearchParams(location.search).get("tenant")||"").trim().toLowerCase();
 const tenantId=/^[a-z0-9][a-z0-9_-]{0,63}$/.test(requestedTenant)?requestedTenant:"";
+const STATE_KEY=`mavi-client-chat:${tenantId||"default"}`;
+const STATE_TTL=30*60*1000;
 function greeting(){const name=publicContext?.business?.name;return name?`Ciao, sono Mavi, l'assistente di ${name}. Posso aiutarti con servizi, prezzi, orari e prenotazioni.`:"Ciao, sono Mavi. Posso aiutarti con servizi, prezzi, orari e prenotazioni."}
 
 function add(text,cls){
@@ -153,6 +155,7 @@ function newBookingRequestId(){
 function clearBooking(){
   bookingDraft=null;
   bookingRequestId="";
+  saveConversation();
 }
 
 function mergeBookingDraft(next){
@@ -161,6 +164,43 @@ function mergeBookingDraft(next){
   if(bookingDraft.date&&bookingDraft.time&&bookingDraft.service&&!bookingDraft.name){
     bookingDraft.status="collecting-name";
   }
+  saveConversation();
+}
+
+function saveConversation(){
+  try{
+    sessionStorage.setItem(STATE_KEY,JSON.stringify({
+      savedAt:Date.now(),
+      sessionId,
+      history:history.slice(-12),
+      bookingDraft,
+      bookingRequestId
+    }));
+  }catch{}
+}
+
+function restoreConversation(){
+  try{
+    const saved=JSON.parse(sessionStorage.getItem(STATE_KEY)||"null");
+    if(!saved||Date.now()-Number(saved.savedAt||0)>STATE_TTL){
+      sessionStorage.removeItem(STATE_KEY);
+      return;
+    }
+    if(Array.isArray(saved.history))history.push(...saved.history.slice(-12));
+    if(saved.bookingDraft&&typeof saved.bookingDraft==="object")bookingDraft=saved.bookingDraft;
+    if(typeof saved.bookingRequestId==="string")bookingRequestId=saved.bookingRequestId;
+    if(typeof saved.sessionId==="string"&&saved.sessionId)sessionId=saved.sessionId;
+  }catch{
+    sessionStorage.removeItem(STATE_KEY);
+  }
+}
+
+function resumedBookingMessage(){
+  if(!bookingDraft)return "";
+  if(bookingDraft.status==="awaiting-confirmation")return "Hai una prenotazione pronta. Scrivi “Confermo” per registrarla, “Annulla” per eliminarla oppure indicami cosa vuoi cambiare.";
+  if(bookingDraft.status==="collecting-phone")return `Riprendiamo la prenotazione per ${bookingDraft.name}. Indicami il numero di cellulare.`;
+  if(bookingDraft.date&&bookingDraft.time&&bookingDraft.service)return "Riprendiamo la prenotazione: indicami nome e cognome.";
+  return "Possiamo riprendere la prenotazione da dove eri rimasto.";
 }
 
 async function continueBooking(message,wait){
@@ -197,6 +237,12 @@ async function continueBooking(message,wait){
     }
     bookingDraft.phone=phone;
   }else if(bookingDraft.status==="awaiting-confirmation"){
+    if(/\b(cambia|cambiare|modifica|modificare|sposta|spostare|invece|correggi)\b/i.test(message)){
+      bookingDraft=null;
+      bookingRequestId="";
+      saveConversation();
+      return false;
+    }
     if(!isConfirmation(message)){
       wait.textContent="Per registrare l'appuntamento scrivi “Confermo”. Se hai cambiato idea, scrivi “Annulla”.";
       return true;
@@ -232,6 +278,13 @@ async function init(){
     publicContext=await api("public-context");
     $("businessName").textContent=publicContext.business?.name||"Mavi";
     $("messages").firstElementChild.textContent=greeting();
+
+    for(const item of history){
+      if(item?.role==="user")add(item.content,"user");
+      if(item?.role==="assistant")add(item.content,"mavi");
+    }
+    const resumed=resumedBookingMessage();
+    if(resumed)add(resumed,"mavi");
 
     const n=publicContext.business?.name;
     if(n)document.title="Mavi Client Chat — "+n;
@@ -274,6 +327,7 @@ async function send(){
       {role:"assistant",content:answer}
     );
     if(history.length>12)history.splice(0,history.length-12);
+    saveConversation();
 
     if("speechSynthesis" in window){
       speechSynthesis.cancel();
@@ -284,6 +338,7 @@ async function send(){
   }catch(e){
     wait.textContent=e.message||"Non riesco a rispondere in questo momento.";
   }finally{
+    saveConversation();
     $("send").disabled=false;
     i.disabled=false;
     $("voice").disabled=!("SpeechRecognition" in window||"webkitSpeechRecognition" in window);
@@ -301,6 +356,8 @@ function quickMessage(message){
 function resetConversation(){
   history.length=0;
   clearBooking();
+  try{sessionStorage.removeItem(STATE_KEY)}catch{}
+  sessionId=crypto.randomUUID?crypto.randomUUID():String(Date.now());
   $("messages").innerHTML='';
   add(greeting(),"mavi");
   $("input").value="";
@@ -334,6 +391,7 @@ if("SpeechRecognition" in window||"webkitSpeechRecognition" in window){
   $("voice").disabled=true;
 }
 
+restoreConversation();
 init();
 </script>
 </body>

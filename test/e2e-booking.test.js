@@ -110,6 +110,10 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
     assert.equal(missingPhone.statusCode, 400);
     assert.equal(missingPhone.payload.error, "Inserisci un numero di cellulare valido.");
 
+    const pastDate = await call({ ...booking, date: "2020-01-06" }, clientHeaders);
+    assert.equal(pastDate.statusCode, 400);
+    assert.equal(pastDate.payload.error, "Non è possibile prenotare una data passata.");
+
     const proposal = await call(booking, clientHeaders);
     assert.equal(proposal.statusCode, 200);
     assert.equal(proposal.payload.requiresConfirmation, true);
