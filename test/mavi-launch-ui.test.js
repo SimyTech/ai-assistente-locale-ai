@@ -28,6 +28,10 @@ test('Mavi Client Chat usa il logo ufficiale e gestisce rete e continuità', () 
   assert.match(client, /new AbortController\(\)/);
   assert.match(client, /20000/);
   assert.match(client, /sessionStorage\.removeItem\(HISTORY_KEY\)/);
+  assert.match(client, /let pendingBooking=null/);
+  assert.match(client, /async function bookingReply\(q\)/);
+  assert.match(client, /confirmed:true/);
+  assert.match(client, /Scrivi Confermo oppure Annulla/);
   assert.match(vercel, /mavi-logo-official\.webp/);
   assert.match(vercel, /max-age=31536000, immutable/);
 });
