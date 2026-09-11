@@ -33,6 +33,13 @@ const brief = {
   ]
 };
 
+test("lascia le richieste informative sulle promozioni al motore dati", () => {
+  const actions = createMaviProactiveActions();
+  for (const message of ["Mostra le promozioni", "Quali promozioni ho?", "Elenca le offerte"]) {
+    assert.equal(actions.handle(message, brief, data, "info").handled, false);
+  }
+});
+
 test("prepara una bozza di ricontatto senza inviarla", () => {
   const actions = createMaviProactiveActions();
   const result = actions.handle("Ricontatta Mario Rossi", brief, data, "conv");

@@ -1055,6 +1055,11 @@ function makePublicContext(
     promotions:
       arr(data?.promotions),
 
+    settings: {
+      hours:
+        normalizeSettings(settings).hours || {}
+    },
+
     appointments: []
   };
 }
@@ -1625,6 +1630,18 @@ function detectDate(
     );
   }
 
+  const isoMatch =
+    n.match(
+      /\b(\d{4})-(\d{2})-(\d{2})\b/
+    );
+
+  if (
+    isoMatch &&
+    validDate(isoMatch[0])
+  ) {
+    return isoMatch[0];
+  }
+
   const match =
     n.match(
       /\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b/
@@ -1966,7 +1983,7 @@ async function localChat({
    */
 
   if (
-    /telefono|numero|contatto|whatsapp|indirizzo|dove siete|dove vi trovate/
+    /telefono|numero|contatt|whatsapp|indirizzo|dove siete|dove vi trovate/
       .test(text)
   ) {
 

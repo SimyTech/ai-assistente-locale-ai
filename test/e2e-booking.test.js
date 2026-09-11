@@ -106,6 +106,19 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
     assert.equal(sync.statusCode, 200);
     assert.equal(sync.payload.synced, true);
 
+    const publicContext = await call({ action: "public-context", tenantId: "default", role: "client" }, clientHeaders);
+    assert.equal(publicContext.statusCode, 200);
+    assert.equal(publicContext.payload.settings.hours.monday.open, "09:00");
+    assert.equal(publicContext.payload.settings.hours.monday.close, "19:00");
+
+    const hoursReply = await call({ action: "chat", tenantId: "default", role: "client", mode: "client", message: `Quali sono gli orari il ${bookingDate}?` }, clientHeaders);
+    assert.equal(hoursReply.statusCode, 200);
+    assert.match(hoursReply.payload.answer, /09:00/);
+
+    const contactReply = await call({ action: "chat", tenantId: "default", role: "client", mode: "client", message: "Come posso contattarvi?" }, clientHeaders);
+    assert.equal(contactReply.statusCode, 200);
+    assert.match(contactReply.payload.answer, /dati di contatto non sono ancora configurati/i);
+
     const booking = {
       action: "book",
       mode: "client",
