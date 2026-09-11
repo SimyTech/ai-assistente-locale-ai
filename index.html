@@ -219,7 +219,7 @@ function toast(s){const x=$("toast");x.textContent=s;x.classList.add("show");cle
 function closeMore(){const menu=$("moreMenu"),button=document.querySelector(".mobile-more");menu?.classList.remove("show");button?.classList.remove("open");button?.setAttribute("aria-expanded","false")}
 function toggleMore(event){event?.stopPropagation();const menu=$("moreMenu"),button=document.querySelector(".mobile-more"),open=!menu?.classList.contains("show");menu?.classList.toggle("show",open);button?.classList.toggle("open",open);button?.setAttribute("aria-expanded",String(open))}
 function go(p){closeMore();page=p;document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===p));document.querySelectorAll(".nav button[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("title").textContent=titles[p][0];$("subtitle").textContent=titles[p][1];renderAll()}
-function syncMaviHeroLogo(){const hero=$("maviHeroLogo");if(hero)hero.src="/assets/mavi-logo-official.png"}
+function syncMaviHeroLogo(){const hero=$("maviHeroLogo");if(hero){hero.src="/assets/mavi-logo-official.webp";hero.width=384;hero.height=384}}
 function askMavi(message){$("maviInput").value=message;sendMavi()}
 document.querySelectorAll(".nav button[data-page]").forEach(b=>b.onclick=()=>go(b.dataset.page));
 document.querySelector(".mobile-more")?.addEventListener("click",toggleMore);

@@ -90,3 +90,19 @@ test("rifiuta un tenant esplicito malformato senza usare quello default", async 
   assert.equal(res.statusCode, 400);
   assert.equal(res.payload.error, "Identificativo attività non valido.");
 });
+
+test("restituisce 400 quando il body parser segnala JSON non valido", async () => {
+  const res = response();
+  const invalidJson = new Error("Invalid JSON");
+  invalidJson.statusCode = 400;
+  const req = { method: "POST", headers: {} };
+  Object.defineProperty(req, "body", { get() { throw invalidJson; } });
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.deepEqual(res.payload, {
+    ok: false,
+    error: "JSON della richiesta non valido."
+  });
+});

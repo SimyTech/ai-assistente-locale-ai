@@ -4264,6 +4264,22 @@ export default async function handler(
 
   } catch (error) {
 
+    const statusCode =
+      Number(
+        error?.statusCode ||
+        error?.status
+      );
+
+    if (statusCode === 400) {
+      return res
+        .status(400)
+        .json({
+          ok: false,
+          error:
+            "JSON della richiesta non valido."
+        });
+    }
+
     console.error(
       "MAVIRI API ERROR:",
       error
