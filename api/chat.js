@@ -2657,7 +2657,9 @@ export default async function handler(
        */
 
       if (
-        !context
+        !context ||
+        !obj(context.settings) ||
+        !obj(context.settings.hours)
       ) {
 
         const data =
