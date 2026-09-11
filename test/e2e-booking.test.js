@@ -73,7 +73,18 @@ function dataset() {
   };
 }
 
+function futureMondayIso() {
+  const date = new Date();
+  date.setUTCDate(date.getUTCDate() + ((8 - date.getUTCDay()) % 7 || 7));
+  return date.toISOString().slice(0, 10);
+}
+
 test("sincronizza, conferma, persiste e recupera una prenotazione", async () => {
+  const bookingDate = futureMondayIso();
+  const dayBefore = new Date(`${bookingDate}T10:00:00.000Z`);
+  dayBefore.setUTCDate(dayBefore.getUTCDate() - 1);
+  const confirmationRequestedAt = dayBefore.toISOString();
+  const completedAt = `${bookingDate}T12:00:00.000Z`;
   const redis = fakeRedis();
   const originalFetch = globalThis.fetch;
   process.env.UPSTASH_REDIS_REST_URL = "https://redis.test";
@@ -99,7 +110,7 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
       action: "book",
       mode: "client",
       tenantId: "default",
-      date: "2026-09-07",
+      date: bookingDate,
       time: "10:00",
       service: "Taglio",
       name: "Mario Rossi",
@@ -133,7 +144,7 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
       mode: "client",
       tenantId: "default",
       id: appointmentId,
-      date: "2026-09-07",
+      date: bookingDate,
       time: "11:00",
       service: "Taglio",
       name: "Mario Rossi",
@@ -146,7 +157,7 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
       mode: "client",
       tenantId: "default",
       id: appointmentId,
-      date: "2026-09-07",
+      date: bookingDate,
       time: "11:00",
       service: "Taglio",
       name: "Mario Rossi",
@@ -157,8 +168,8 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
     assert.equal(moved.payload.appointment.time, "11:00");
 
     const attendanceData = (await call({ action: "owner-pull", tenantId: "default" }, ownerHeaders)).payload.data;
-    attendanceData.appointments[0].confirmationRequestedAt = "2026-09-06T10:00:00.000Z";
-    attendanceData.appointments[0].updatedAt = "2026-09-06T10:00:00.000Z";
+    attendanceData.appointments[0].confirmationRequestedAt = confirmationRequestedAt;
+    attendanceData.appointments[0].updatedAt = confirmationRequestedAt;
     await call({ action: "owner-sync", tenantId: "default", ...attendanceData }, ownerHeaders);
     const attendance = await call({
       action: "confirm-attendance",
@@ -175,7 +186,7 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
     ownerData.appointments[0] = {
       ...ownerData.appointments[0],
       status: "completed",
-      completedAt: "2026-09-07T12:00:00.000Z"
+      completedAt
     };
 
     const completionSync = await call({
@@ -193,7 +204,7 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
 
     const afterComplete = await call({ action: "owner-pull", tenantId: "default" }, ownerHeaders);
     assert.equal(afterComplete.payload.data.appointments[0].status, "completed");
-    assert.equal(afterComplete.payload.data.appointments[0].completedAt, "2026-09-07T12:00:00.000Z");
+    assert.equal(afterComplete.payload.data.appointments[0].completedAt, completedAt);
 
     const unauthorizedCancel = await call({
       action: "cancel",
