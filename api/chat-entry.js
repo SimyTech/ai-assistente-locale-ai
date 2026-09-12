@@ -12,6 +12,7 @@ const DIRECT_OPERATION_ACTIONS = new Set([
   "book",
   "update",
   "cancel",
+  "delete-appointment",
   "confirm-attendance",
   "client",
   "context",

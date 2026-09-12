@@ -49,6 +49,7 @@ const OWNER_PROTECTED_ACTIONS = new Set([
   "book",
   "update",
   "cancel",
+  "delete-appointment",
   "client",
   "whatsapp-message"
 ]);
@@ -3863,6 +3864,67 @@ export default async function handler(
           lock
         );
       }
+    }
+
+
+    /* ========================================================
+       DELETE APPOINTMENT — SOLO TITOLARE
+       ======================================================== */
+
+    if (
+      action === "delete-appointment"
+    ) {
+      const id = clean(body.id);
+
+      if (!id) {
+        return res.status(400).json({
+          ok: false,
+          error: "ID appuntamento mancante."
+        });
+      }
+
+      if (!redisConfigured()) {
+        return res.status(503).json({
+          ok: false,
+          error: "Archivio attività non disponibile."
+        });
+      }
+
+      const data = await getServerData(DATA_KEY);
+      if (!data) {
+        return res.status(503).json({
+          ok: false,
+          error: "Dati attività non disponibili."
+        });
+      }
+
+      const appointments = arr(data.appointments);
+      if (!appointments.some(appointment => String(appointment.id) === String(id))) {
+        return res.status(404).json({
+          ok: false,
+          error: "Appuntamento non trovato."
+        });
+      }
+
+      const nextData = {
+        ...data,
+        appointments: appointments.filter(
+          appointment => String(appointment.id) !== String(id)
+        ),
+        revision: Number(data.revision || 0) + 1,
+        updatedAt: new Date().toISOString()
+      };
+
+      await redisSet(DATA_KEY, nextData);
+      await redisSet(PUBLIC_KEY, makePublicContext(nextData));
+
+      return res.status(200).json({
+        ok: true,
+        deleted: true,
+        persisted: true,
+        id,
+        message: "Appuntamento eliminato definitivamente."
+      });
     }
 
 

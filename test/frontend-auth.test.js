@@ -244,6 +244,10 @@ test("l\'annullamento registra il motivo e lo mostra nello storico", async () =>
   assert.match(html, /api\("cancel",\{id,reason\}\)/);
   assert.match(html, /a\.cancellationReason=String\(result\.cancellationReason/);
   assert.match(html, /Motivo: \$\{esc\(a\.cancellationReason\)\}/);
+  assert.match(html, /function deleteAp\(id\)/);
+  assert.match(html, /function confirmDeleteAp\(id\)/);
+  assert.match(html, /api\("delete-appointment",\{id\}\)/);
+  assert.match(html, /Elimina definitivamente/);
 });
 
 test("la home rende azionabili i richiami intelligenti", async () => {

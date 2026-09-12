@@ -298,6 +298,19 @@ test("l'annullamento del titolare persiste prima del successivo owner-pull", asy
     assert.equal(pull.statusCode, 200);
     assert.equal(pull.payload.data.appointments[0].status, "cancelled");
     assert.equal(pull.payload.data.appointments[0].cancellationReason, "Collaudo tecnico");
+
+    const deleted = await call({
+      action: "delete-appointment",
+      mode: "owner",
+      tenantId: "default",
+      id: appointment.id
+    }, ownerHeaders);
+    assert.equal(deleted.statusCode, 200);
+    assert.equal(deleted.payload.deleted, true);
+    assert.equal(deleted.payload.persisted, true);
+
+    const afterDelete = await call({ action: "owner-pull", tenantId: "default" }, ownerHeaders);
+    assert.deepEqual(afterDelete.payload.data.appointments, []);
   } finally {
     globalThis.fetch = originalFetch;
     delete process.env.UPSTASH_REDIS_REST_URL;
