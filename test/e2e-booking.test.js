@@ -64,7 +64,7 @@ const closed = { closed: true, open: "09:00", close: "19:00", pauses: [] };
 
 function dataset() {
   return {
-    business: { name: "Salone Test", type: "Parrucchiere" },
+    business: { name: "Salone Test", type: "Parrucchiere", phone: "0523123456" },
     settings: { hours: [openMonday, closed, closed, closed, closed, closed, closed] },
     services: [{ id: "s1", name: "Taglio", duration: 60, price: 30 }],
     promotions: [],
@@ -117,7 +117,12 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
 
     const contactReply = await call({ action: "chat", tenantId: "default", role: "client", mode: "client", message: "Come posso contattarvi?" }, clientHeaders);
     assert.equal(contactReply.statusCode, 200);
-    assert.match(contactReply.payload.answer, /dati di contatto non sono ancora configurati/i);
+    assert.match(contactReply.payload.answer, /Telefono: 0523123456/i);
+
+    const addressReply = await call({ action: "chat", tenantId: "default", role: "client", mode: "client", message: "Dove vi trovate?" }, clientHeaders);
+    assert.equal(addressReply.statusCode, 200);
+    assert.match(addressReply.payload.answer, /indirizzo non è ancora configurato/i);
+    assert.match(addressReply.payload.answer, /Telefono: 0523123456/i);
 
     const booking = {
       action: "book",

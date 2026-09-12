@@ -1991,7 +1991,22 @@ async function localChat({
     const b =
       data.business || {};
 
+    const asksForAddress =
+      /indirizzo|dove siete|dove vi trovate/.test(text);
+
+    const asksForContact =
+      /telefono|numero|contatt|whatsapp/.test(text);
+
     const parts = [];
+
+    if (
+      asksForAddress &&
+      !b.address
+    ) {
+      parts.push(
+        "L'indirizzo non è ancora configurato."
+      );
+    }
 
     if (
       b.address
@@ -2002,7 +2017,8 @@ async function localChat({
     }
 
     if (
-      b.phone
+      b.phone &&
+      (asksForContact || !b.address)
     ) {
       parts.push(
         `Telefono: ${b.phone}`
@@ -2010,7 +2026,8 @@ async function localChat({
     }
 
     if (
-      b.whatsapp
+      b.whatsapp &&
+      (asksForContact || !b.address)
     ) {
       parts.push(
         `WhatsApp: ${b.whatsapp}`
