@@ -91,6 +91,22 @@ test("una proposta approvata viene instradata solo al canale dichiarato", async 
   assert.equal(calls, 1);
 });
 
+test("una proposta WhatsApp manuale approvata passa anche con automazioni disattivate", async () => {
+  let calls = 0;
+  const result = await deliverAuthorizedProposal(
+    { channel: "whatsapp", recipient: "+391234567890", text: "Ciao", approved: true, requiresApproval: true, sourceType: "manual-whatsapp" },
+    "default",
+    { WHATSAPP_ACCESS_TOKEN: "token-test", WHATSAPP_PHONE_NUMBER_ID: "123456" },
+    async () => {
+      calls += 1;
+      return { ok: true, json: async () => ({ messages: [{ id: "wamid.manual" }] }) };
+    }
+  );
+  assert.equal(result.sent, true);
+  assert.equal(result.id, "wamid.manual");
+  assert.equal(calls, 1);
+});
+
 test("canali sconosciuti e payload vuoti falliscono chiusi", async () => {
   assert.deepEqual(
     await deliverAuthorizedProposal({ channel: "sms", approved: true, text: "Ciao" }, "default", {}, async () => {}),
