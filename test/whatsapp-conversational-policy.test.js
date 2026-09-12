@@ -55,3 +55,20 @@ test("l'invio proattivo richiede opt-in esplicito", async () => {
   assert.equal(result.id, "wamid-test");
   assert.equal(calls, 1);
 });
+
+test("un invio manuale già approvato non abilita gli invii proattivi generali", async () => {
+  let calls = 0;
+  const fetchImpl = async () => {
+    calls += 1;
+    return { ok: true, json: async () => ({ messages: [{ id: "wamid-manual" }] }) };
+  };
+  const result = await sendWhatsAppText(
+    { to: "393331112222", text: "Messaggio manuale", tenantId: "default", authorizedManual: true },
+    configuredEnv,
+    fetchImpl
+  );
+  assert.equal(result.sent, true);
+  assert.equal(result.id, "wamid-manual");
+  assert.equal(whatsappProactiveEnabled(configuredEnv), false);
+  assert.equal(calls, 1);
+});
