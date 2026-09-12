@@ -59,6 +59,35 @@ test("Mavi riconosce domani ore 15 come slot libero nella chat titolare", async 
   assert.equal(res.payload.booking?.service, "Taglio uomo");
 });
 
+test("un numero di telefono dentro una prenotazione non viene scambiato per una richiesta contatti", async () => {
+  const res = response();
+  const date = new Date();
+  date.setUTCDate(date.getUTCDate() + 1);
+  const bookingDate = date.toISOString().slice(0, 10);
+
+  await chatEntryHandler({
+    method: "POST",
+    headers: {},
+    body: {
+      action: "chat",
+      role: "owner",
+      mode: "owner",
+      message: `Vorrei prenotare Taglio il ${bookingDate} alle 10:00. Nome Mario Rossi, telefono 3331234567.`,
+      business: { name: "Attività Test", phone: "0523123456" },
+      settings: { hours: Array.from({ length: 7 }, () => ({ ...openDay })) },
+      services: [{ id: "s1", name: "Taglio", duration: 30, price: 20 }],
+      appointments: [],
+      clients: [],
+      promotions: []
+    }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.payload.booking?.date, bookingDate);
+  assert.equal(res.payload.booking?.time, "10:00");
+  assert.doesNotMatch(res.payload.answer, /Telefono: 0523123456/);
+});
+
 test("normalizza data esplicita senza scambiare il giorno per l'orario", () => {
   const cases = [
     ["appuntamento il 02/09/2026 ore 15", "ore 15:00"],

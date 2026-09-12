@@ -1983,9 +1983,13 @@ async function localChat({
    * CONTATTI
    */
 
+  const operationalRequest =
+    /prenot|appuntamento|voglio venire|vorrei venire|posso venire|spost|annull|cancell/.test(text);
+
   if (
     /telefono|numero|contatt|whatsapp|indirizzo|dove siete|dove vi trovate/
-      .test(text)
+      .test(text) &&
+    !operationalRequest
   ) {
 
     const b =
