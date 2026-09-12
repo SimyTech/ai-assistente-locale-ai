@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import authorizedSendHandler, { validateAuthorizedSendBody } from "../lib/authorized-send-handler.js";
 import { proposalActionId } from "../lib/mavi-action-lifecycle.js";
+import { requestAuthorizedSend } from "../lib/mavi-authorized-send-client.js";
 
 function responseRecorder() {
   return {
@@ -102,4 +103,17 @@ test("consegna una sola volta lo stesso actionId e persiste il lifecycle complet
   assert.equal(second.statusCode, 200);
   assert.equal(second.payload.duplicate, true);
   assert.equal(transport.deliveryCount(), 1);
+});
+
+test("il client usa direttamente l'endpoint che gestisce gli invii autorizzati", async () => {
+  let requestedUrl = "";
+  const result = await requestAuthorizedSend(proposal, {
+    tenantId: "default",
+    fetchImpl: async url => {
+      requestedUrl = url;
+      return { ok: true, status: 200, json: async () => ({ ok: true, delivery: { sent: true } }) };
+    }
+  });
+  assert.equal(requestedUrl, "/api/chat-entry");
+  assert.equal(result.ok, true);
 });
