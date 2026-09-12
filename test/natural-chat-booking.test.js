@@ -64,6 +64,8 @@ test("un numero di telefono dentro una prenotazione non viene scambiato per una 
   const date = new Date();
   date.setUTCDate(date.getUTCDate() + 1);
   const bookingDate = date.toISOString().slice(0, 10);
+  const monthNames = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
+  const spokenDate = `${Number(bookingDate.slice(8, 10))} ${monthNames[Number(bookingDate.slice(5, 7)) - 1]} ${bookingDate.slice(0, 4)}`;
 
   await chatEntryHandler({
     method: "POST",
@@ -72,7 +74,7 @@ test("un numero di telefono dentro una prenotazione non viene scambiato per una 
       action: "chat",
       role: "owner",
       mode: "owner",
-      message: `Vorrei prenotare Taglio il ${bookingDate} alle 10:00. Nome Mario Rossi, telefono 3331234567.`,
+      message: `Vorrei prenotare Taglio il ${spokenDate} alle 10:00. Nome Mario Rossi, telefono 3331234567.`,
       business: { name: "Attività Test", phone: "0523123456" },
       settings: { hours: Array.from({ length: 7 }, () => ({ ...openDay })) },
       services: [{ id: "s1", name: "Taglio", duration: 30, price: 20 }],
@@ -164,4 +166,3 @@ test("Mavi individua i clienti che non vengono da un po", async () => {
   assert.doesNotMatch(res.payload.answer, /Marco Verdi/);
   assert.doesNotMatch(res.payload.answer, /Posso aiutarti con servizi/);
 });
-
