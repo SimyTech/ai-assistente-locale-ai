@@ -1643,6 +1643,53 @@ function detectDate(
     return isoMatch[0];
   }
 
+  const monthNumbers = {
+    gennaio: 1,
+    febbraio: 2,
+    marzo: 3,
+    aprile: 4,
+    maggio: 5,
+    giugno: 6,
+    luglio: 7,
+    agosto: 8,
+    settembre: 9,
+    ottobre: 10,
+    novembre: 11,
+    dicembre: 12
+  };
+
+  const monthMatch =
+    n.match(
+      /\b(\d{1,2})\s+(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre)(?:\s+(\d{4}))?\b/
+    );
+
+  if (monthMatch) {
+    let year =
+      monthMatch[3]
+        ? Number(monthMatch[3])
+        : Number(today.slice(0, 4));
+
+    const month =
+      String(monthNumbers[monthMatch[2]])
+        .padStart(2, "0");
+
+    const day =
+      String(Number(monthMatch[1]))
+        .padStart(2, "0");
+
+    let result =
+      `${year}-${month}-${day}`;
+
+    if (!monthMatch[3] && result < today) {
+      year += 1;
+      result = `${year}-${month}-${day}`;
+    }
+
+    return validDate(result)
+      ? result
+      : null;
+  }
+
   const match =
     n.match(
       /\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b/
@@ -1751,11 +1798,16 @@ function detectTime(
   text
 ) {
 
+  const value =
+    clean(text);
+
   const m =
-    clean(text)
-      .match(
+    value.match(
+      /\b(?:ore|alle|h)\s*([01]?\d|2[0-3])(?:[:.]([0-5]\d))?\b/i
+    ) ||
+    value.match(
         /\b([01]?\d|2[0-3])(?:[:.](\d{2}))?\b/
-      );
+    );
 
   if (!m) {
     return null;
