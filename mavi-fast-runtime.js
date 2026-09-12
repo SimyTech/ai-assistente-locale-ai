@@ -10,6 +10,7 @@ import { installProactiveActionUi } from "./lib/mavi-proactive-action-ui.js";
 import { channelReadyForProposal, fetchMaviChannelStatus } from "./lib/mavi-channel-status.js";
 import { createActionLifecycle } from "./lib/mavi-action-lifecycle.js";
 import { requestAuthorizedSend } from "./lib/mavi-authorized-send-client.js";
+import { installManualWhatsappUi } from "./lib/mavi-manual-whatsapp-ui.js";
 
 const operationalMemory = createMaviOperationalMemory();
 const proactiveActions = createMaviProactiveActions();
@@ -140,6 +141,7 @@ window.MaviAuthorizedSend = Object.freeze({ canSend(proposal) { return channelRe
 installResponsiveNavigationGuard();
 installActionLifecycleBridge();
 installProactiveActionUi();
+installManualWhatsappUi();
 refreshChannelStatus();
 if (!installSemanticRouter()) queueMicrotask(() => { if (!installSemanticRouter()) setTimeout(installSemanticRouter, 0); });
 setTimeout(showProactiveBriefOnce, 2500);
