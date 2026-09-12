@@ -252,6 +252,60 @@ test("sincronizza, conferma, persiste e recupera una prenotazione", async () => 
   }
 });
 
+test("l'annullamento del titolare persiste prima del successivo owner-pull", async () => {
+  const redis = fakeRedis();
+  const originalFetch = globalThis.fetch;
+  process.env.UPSTASH_REDIS_REST_URL = "https://redis.test";
+  process.env.UPSTASH_REDIS_REST_TOKEN = "redis-token";
+  process.env.MAVIRI_OWNER_SYNC_TOKEN = "owner-secret";
+  globalThis.fetch = redis.fetch;
+
+  const ownerHeaders = {
+    "x-maviri-owner-token": "owner-secret",
+    "x-maviri-tenant": "default"
+  };
+  const appointment = {
+    id: "owner-cancel-1",
+    name: "Cliente Test",
+    phone: "3331234567",
+    service: "Taglio",
+    date: futureMondayIso(),
+    time: "10:00",
+    status: "confirmed"
+  };
+
+  try {
+    const sync = await call({
+      action: "owner-sync",
+      tenantId: "default",
+      ...dataset(),
+      appointments: [appointment]
+    }, ownerHeaders);
+    assert.equal(sync.statusCode, 200);
+
+    const cancelled = await call({
+      action: "cancel",
+      mode: "owner",
+      tenantId: "default",
+      id: appointment.id,
+      reason: "Collaudo tecnico"
+    }, ownerHeaders);
+    assert.equal(cancelled.statusCode, 200);
+    assert.equal(cancelled.payload.persisted, true);
+    assert.equal(cancelled.payload.status, "cancelled");
+
+    const pull = await call({ action: "owner-pull", tenantId: "default" }, ownerHeaders);
+    assert.equal(pull.statusCode, 200);
+    assert.equal(pull.payload.data.appointments[0].status, "cancelled");
+    assert.equal(pull.payload.data.appointments[0].cancellationReason, "Collaudo tecnico");
+  } finally {
+    globalThis.fetch = originalFetch;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.MAVIRI_OWNER_SYNC_TOKEN;
+  }
+});
+
 test("owner-sync può eliminare anche l'ultimo servizio e l'ultima promozione", async () => {
   const redis = fakeRedis();
   const originalFetch = globalThis.fetch;

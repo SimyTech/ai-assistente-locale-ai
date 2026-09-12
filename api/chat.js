@@ -3874,6 +3874,8 @@ export default async function handler(
       action === "cancel"
     ) {
 
+      let persisted = false;
+
       const id =
         clean(body.id);
 
@@ -3892,7 +3894,7 @@ export default async function handler(
 
 
       if (
-        mode === "client"
+        redisConfigured()
       ) {
 
         const data =
@@ -3938,6 +3940,7 @@ export default async function handler(
         }
 
         if (
+          mode === "client" &&
           !clientOwnsAppointment(appointment, body)
         ) {
           return res
@@ -4000,6 +4003,17 @@ export default async function handler(
             nextData
           )
         );
+
+        persisted = true;
+      } else if (
+        mode === "client"
+      ) {
+        return res
+          .status(503)
+          .json({
+            ok: false,
+            error: "Dati attività non disponibili."
+          });
       }
 
       return res
@@ -4012,7 +4026,7 @@ export default async function handler(
             true,
 
           persisted:
-            mode === "client",
+            persisted,
 
           id,
 
