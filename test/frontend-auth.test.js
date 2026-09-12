@@ -238,8 +238,11 @@ test("la home mostra redditività servizi e valore perso per no-show", async () 
 test("l\'annullamento registra il motivo e lo mostra nello storico", async () => {
   const html = await text("index.html");
   assert.match(html, /Motivo dell\'annullamento/);
+  assert.match(html, /function confirmCancelAp\(id\)/);
+  assert.match(html, /Conferma annullamento/);
+  assert.doesNotMatch(html, /confirm\("Annullare l'appuntamento\?"\)/);
   assert.match(html, /api\("cancel",\{id,reason\}\)/);
-  assert.match(html, /a\.cancellationReason=String\(reason/);
+  assert.match(html, /a\.cancellationReason=String\(result\.cancellationReason/);
   assert.match(html, /Motivo: \$\{esc\(a\.cancellationReason\)\}/);
 });
 
