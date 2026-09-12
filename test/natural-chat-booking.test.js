@@ -90,6 +90,38 @@ test("un numero di telefono dentro una prenotazione non viene scambiato per una 
   assert.doesNotMatch(res.payload.answer, /Telefono: 0523123456/);
 });
 
+test("Mavi conserva servizio e data quando propone un orario alternativo", async () => {
+  const res = response();
+  const date = new Date();
+  date.setUTCDate(date.getUTCDate() + 1);
+  const bookingDate = date.toISOString().slice(0, 10);
+
+  await chatEntryHandler({
+    method: "POST",
+    headers: {},
+    body: {
+      action: "chat",
+      role: "owner",
+      mode: "owner",
+      message: `Vorrei prenotare Taglio il ${bookingDate} alle 10:00`,
+      business: { name: "Attività Test" },
+      settings: { hours: Array.from({ length: 7 }, () => ({ ...openDay })) },
+      services: [{ id: "s1", name: "Taglio", duration: 30, price: 20 }],
+      appointments: [{ id: "busy", date: bookingDate, time: "10:00", duration: 30, service: "Taglio", status: "confirmed" }],
+      clients: [],
+      promotions: []
+    }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.match(res.payload.answer, /non è disponibile/i);
+  assert.deepEqual(res.payload.booking, {
+    status: "collecting-time",
+    date: bookingDate,
+    service: "Taglio"
+  });
+});
+
 test("normalizza data esplicita senza scambiare il giorno per l'orario", () => {
   const cases = [
     ["appuntamento il 02/09/2026 ore 15", "ore 15:00"],

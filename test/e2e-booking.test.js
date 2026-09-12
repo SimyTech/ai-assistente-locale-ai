@@ -359,3 +359,47 @@ test("owner-sync può eliminare anche l'ultimo servizio e l'ultima promozione", 
     delete process.env.MAVIRI_OWNER_SYNC_TOKEN;
   }
 });
+
+test("elimina un cliente senza appuntamenti e protegge quelli con storico", async () => {
+  const redis = fakeRedis();
+  const originalFetch = globalThis.fetch;
+  process.env.UPSTASH_REDIS_REST_URL = "https://redis.test";
+  process.env.UPSTASH_REDIS_REST_TOKEN = "redis-token";
+  process.env.MAVIRI_OWNER_SYNC_TOKEN = "owner-secret";
+  globalThis.fetch = redis.fetch;
+  const headers = { "x-maviri-owner-token": "owner-secret", "x-maviri-tenant": "default" };
+
+  try {
+    const initial = dataset();
+    initial.clients = [
+      { id: "free-client", name: "Cliente libero", phone: "3330000001" },
+      { id: "linked-client", name: "Cliente storico", phone: "3330000002" }
+    ];
+    initial.appointments = [{
+      id: "linked-appointment",
+      clientId: "linked-client",
+      name: "Cliente storico",
+      date: futureMondayIso(),
+      time: "10:00",
+      service: "Taglio",
+      status: "confirmed"
+    }];
+    assert.equal((await call({ action: "owner-sync", tenantId: "default", ...initial }, headers)).statusCode, 200);
+
+    const deleted = await call({ action: "delete-client", mode: "owner", tenantId: "default", id: "free-client" }, headers);
+    assert.equal(deleted.statusCode, 200);
+    assert.equal(deleted.payload.deleted, true);
+
+    const protectedResult = await call({ action: "delete-client", mode: "owner", tenantId: "default", id: "linked-client" }, headers);
+    assert.equal(protectedResult.statusCode, 409);
+    assert.equal(protectedResult.payload.linkedAppointments, 1);
+
+    const pull = await call({ action: "owner-pull", tenantId: "default" }, headers);
+    assert.deepEqual(pull.payload.data.clients.map(client => client.id), ["linked-client"]);
+  } finally {
+    globalThis.fetch = originalFetch;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.MAVIRI_OWNER_SYNC_TOKEN;
+  }
+});

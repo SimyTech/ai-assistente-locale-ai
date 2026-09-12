@@ -50,6 +50,7 @@ const OWNER_PROTECTED_ACTIONS = new Set([
   "update",
   "cancel",
   "delete-appointment",
+  "delete-client",
   "client",
   "whatsapp-message"
 ]);
@@ -78,6 +79,13 @@ const norm = v =>
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, " ");
+
+const normalizePhone = value => {
+  let digits = clean(value).replace(/\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith("39") && digits.length > 10) digits = digits.slice(2);
+  return digits;
+};
 
 const obj = v =>
   !!v &&
@@ -876,30 +884,27 @@ function findClient(
   phone
 ) {
 
-  const n =
-    norm(name);
-
-  const p =
-    clean(phone);
+  const n = norm(name);
+  const p = normalizePhone(phone);
 
   return (
 
     clients.find(
       c =>
+        p &&
+        normalizePhone(c?.phone) === p
+    ) ||
+
+    clients.find(
+      c =>
+        p &&
+        normalizePhone(c?.whatsapp) === p
+    ) ||
+
+    clients.find(
+      c =>
         n &&
         norm(c?.name) === n
-    ) ||
-
-    clients.find(
-      c =>
-        p &&
-        clean(c?.phone) === p
-    ) ||
-
-    clients.find(
-      c =>
-        p &&
-        clean(c?.whatsapp) === p
     ) ||
 
     null
@@ -2182,7 +2187,11 @@ async function localChat({
         answer:
           `Alle ${time} non è disponibile. Gli orari disponibili sono: ${slots.join(", ")}.`,
 
-        booking: null
+        booking: {
+          status: "collecting-time",
+          date,
+          service: service.name
+        }
       };
     }
 
@@ -2191,7 +2200,11 @@ async function localChat({
       answer:
         `Per ${service.name} il ${date} gli orari disponibili sono: ${slots.join(", ")}.`,
 
-      booking: null
+      booking: {
+        status: "collecting-time",
+        date,
+        service: service.name
+      }
     };
   }
 
@@ -3997,6 +4010,62 @@ export default async function handler(
         persisted: true,
         id,
         message: "Appuntamento eliminato definitivamente."
+      });
+    }
+
+
+    /* ========================================================
+       DELETE CLIENT — SOLO TITOLARE
+       ======================================================== */
+
+    if (action === "delete-client") {
+      const id = clean(body.id);
+
+      if (!id) {
+        return res.status(400).json({ ok: false, error: "ID cliente mancante." });
+      }
+
+      if (!redisConfigured()) {
+        return res.status(503).json({ ok: false, error: "Archivio attività non disponibile." });
+      }
+
+      const data = await getServerData(DATA_KEY);
+      if (!data) {
+        return res.status(503).json({ ok: false, error: "Dati attività non disponibili." });
+      }
+
+      const clients = arr(data.clients);
+      if (!clients.some(client => String(client.id) === String(id))) {
+        return res.status(404).json({ ok: false, error: "Cliente non trovato." });
+      }
+
+      const linkedAppointments = arr(data.appointments).filter(
+        appointment => String(appointment.clientId || "") === String(id)
+      );
+      if (linkedAppointments.length) {
+        return res.status(409).json({
+          ok: false,
+          error: "Il cliente ha appuntamenti collegati. Elimina prima gli appuntamenti per conservare uno storico coerente.",
+          linkedAppointments: linkedAppointments.length
+        });
+      }
+
+      const nextData = {
+        ...data,
+        clients: clients.filter(client => String(client.id) !== String(id)),
+        revision: Number(data.revision || 0) + 1,
+        updatedAt: new Date().toISOString()
+      };
+
+      await redisSet(DATA_KEY, nextData);
+      await redisSet(PUBLIC_KEY, makePublicContext(nextData));
+
+      return res.status(200).json({
+        ok: true,
+        deleted: true,
+        persisted: true,
+        id,
+        message: "Cliente eliminato definitivamente."
       });
     }
 
