@@ -122,6 +122,31 @@ test("Mavi conserva servizio e data quando propone un orario alternativo", async
   });
 });
 
+test("Mavi non scambia il giorno di una data testuale per un orario", async () => {
+  const res = response();
+  await chatEntryHandler({
+    method: "POST",
+    headers: {},
+    body: {
+      action: "chat",
+      role: "owner",
+      mode: "owner",
+      message: "Vorrei prenotare Taglio lunedì 14 settembre",
+      business: { name: "Attività Test" },
+      settings: { hours: Array.from({ length: 7 }, () => ({ ...openDay })) },
+      services: [{ id: "s1", name: "Taglio", duration: 30, price: 20 }],
+      appointments: [],
+      clients: [],
+      promotions: []
+    }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.payload.booking?.status, "collecting-time");
+  assert.equal(res.payload.booking?.time, undefined);
+  assert.doesNotMatch(res.payload.answer, /Alle 14:00/);
+});
+
 test("normalizza data esplicita senza scambiare il giorno per l'orario", () => {
   const cases = [
     ["appuntamento il 02/09/2026 ore 15", "ore 15:00"],
