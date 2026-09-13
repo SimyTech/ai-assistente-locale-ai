@@ -134,10 +134,25 @@ const fmt = n =>
   String(n % 60)
     .padStart(2, "0");
 
-const validDate = d =>
-  /^\d{4}-\d{2}-\d{2}$/.test(
-    clean(d)
+const validDate = value => {
+  const d = clean(value);
+  const match = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (!match) {
+    return false;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
   );
+};
 
 const todayRome = () =>
   new Intl.DateTimeFormat(
@@ -1987,9 +2002,34 @@ async function localChat({
       .test(text)
   ) {
 
+    if (!date) {
+      const days = [
+        ["Lunedì", "2024-01-01"],
+        ["Martedì", "2024-01-02"],
+        ["Mercoledì", "2024-01-03"],
+        ["Giovedì", "2024-01-04"],
+        ["Venerdì", "2024-01-05"],
+        ["Sabato", "2024-01-06"],
+        ["Domenica", "2024-01-07"]
+      ];
+
+      const rows = days.map(([label, iso]) => {
+        const hours = getHours(data.settings, iso);
+        if (!hours || hours.closed) return `${label}: chiuso`;
+        const pauses = hours.pauses.length
+          ? `; pausa ${hours.pauses.map(p => `${p.from}-${p.to}`).join(", ")}`
+          : "";
+        return `${label}: ${hours.open}-${hours.close}${pauses}`;
+      });
+
+      return {
+        answer: `Orari settimanali:\n${rows.join("\n")}`,
+        booking: null
+      };
+    }
+
     const dateForHours =
-      date ||
-      todayRome();
+      date;
 
     const h =
       getHours(
