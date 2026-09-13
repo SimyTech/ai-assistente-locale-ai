@@ -4042,17 +4042,31 @@ export default async function handler(
       const linkedAppointments = arr(data.appointments).filter(
         appointment => String(appointment.clientId || "") === String(id)
       );
-      if (linkedAppointments.length) {
+      const protectedAppointments = linkedAppointments.filter(
+        appointment => clean(appointment.status).toLowerCase() !== "cancelled"
+      );
+      if (protectedAppointments.length) {
         return res.status(409).json({
           ok: false,
-          error: "Il cliente ha appuntamenti collegati. Elimina prima gli appuntamenti per conservare uno storico coerente.",
-          linkedAppointments: linkedAppointments.length
+          error: "Il cliente ha appuntamenti attivi o storici da conservare. Eliminali prima per mantenere uno storico coerente.",
+          linkedAppointments: protectedAppointments.length
+        });
+      }
+
+      if (linkedAppointments.length && body.deleteCancelledAppointments !== true) {
+        return res.status(409).json({
+          ok: false,
+          error: "Il cliente ha appuntamenti annullati collegati. Conferma la loro eliminazione insieme alla scheda.",
+          cancelledAppointments: linkedAppointments.length
         });
       }
 
       const nextData = {
         ...data,
         clients: clients.filter(client => String(client.id) !== String(id)),
+        appointments: arr(data.appointments).filter(
+          appointment => String(appointment.clientId || "") !== String(id)
+        ),
         revision: Number(data.revision || 0) + 1,
         updatedAt: new Date().toISOString()
       };
