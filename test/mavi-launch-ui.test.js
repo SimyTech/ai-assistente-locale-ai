@@ -40,6 +40,17 @@ test('Mavi Client Chat usa il logo ufficiale e gestisce rete e continuità', () 
   assert.match(vercel, /max-age=31536000, immutable/);
 });
 
+test('Mavi Client Chat accetta ore naturali senza confondere le date', () => {
+  const source = client.match(/const bookingTime=(q=>\{.*?\});\nconst bookingPhone=/s)?.[1];
+  assert.ok(source, 'bookingTime deve essere presente nel client');
+  const bookingTime = Function('clean', `return (${source})`)(value => String(value || '').trim());
+
+  assert.equal(bookingTime('Va bene alle 11'), '11:00');
+  assert.equal(bookingTime('ore 9'), '09:00');
+  assert.equal(bookingTime('11:30'), '11:30');
+  assert.equal(bookingTime('14 settembre'), null);
+});
+
 test('la gestione clienti usa il telefono come identità e consente l’eliminazione sicura', () => {
   assert.match(owner, /function findClientIdentity\(name,phone\)/);
   assert.match(owner, /api\("delete-client",\{id,deleteCancelledAppointments:true\}\)/);
