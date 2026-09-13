@@ -134,10 +134,25 @@ const fmt = n =>
   String(n % 60)
     .padStart(2, "0");
 
-const validDate = d =>
-  /^\d{4}-\d{2}-\d{2}$/.test(
-    clean(d)
+const validDate = value => {
+  const d = clean(value);
+  const match = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (!match) {
+    return false;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
   );
+};
 
 const todayRome = () =>
   new Intl.DateTimeFormat(
@@ -1987,9 +2002,34 @@ async function localChat({
       .test(text)
   ) {
 
+    if (!date) {
+      const days = [
+        ["Lunedì", "2024-01-01"],
+        ["Martedì", "2024-01-02"],
+        ["Mercoledì", "2024-01-03"],
+        ["Giovedì", "2024-01-04"],
+        ["Venerdì", "2024-01-05"],
+        ["Sabato", "2024-01-06"],
+        ["Domenica", "2024-01-07"]
+      ];
+
+      const rows = days.map(([label, iso]) => {
+        const hours = getHours(data.settings, iso);
+        if (!hours || hours.closed) return `${label}: chiuso`;
+        const pauses = hours.pauses.length
+          ? `; pausa ${hours.pauses.map(p => `${p.from}-${p.to}`).join(", ")}`
+          : "";
+        return `${label}: ${hours.open}-${hours.close}${pauses}`;
+      });
+
+      return {
+        answer: `Orari settimanali:\n${rows.join("\n")}`,
+        booking: null
+      };
+    }
+
     const dateForHours =
-      date ||
-      todayRome();
+      date;
 
     const h =
       getHours(
@@ -4158,392 +4198,3 @@ export default async function handler(
         }
 
         if (
-          mode === "client" &&
-          !clientOwnsAppointment(appointment, body)
-        ) {
-          return res
-            .status(403)
-            .json({
-              ok: false,
-              error: "Verifica cliente non riuscita."
-            });
-        }
-
-        const nextAppointments =
-          arr(
-            data.appointments
-          ).map(
-            a =>
-              String(a.id) ===
-              String(id)
-                ? {
-                    ...a,
-
-                    status:
-                      "cancelled",
-
-                    cancelledAt:
-                      new Date().toISOString(),
-
-                    cancellationReason:
-                      clean(body.reason || body.cancellationReason),
-
-                    updatedAt:
-                      new Date().toISOString()
-                  }
-                : a
-          );
-
-        const nextData = {
-
-          ...data,
-
-          appointments:
-            nextAppointments,
-
-          revision:
-            Number(
-              data.revision || 0
-            ) + 1,
-
-          updatedAt:
-            new Date().toISOString()
-        };
-
-        await redisSet(
-          DATA_KEY,
-          nextData
-        );
-
-        await redisSet(
-          PUBLIC_KEY,
-          makePublicContext(
-            nextData
-          )
-        );
-
-        persisted = true;
-      } else if (
-        mode === "client"
-      ) {
-        return res
-          .status(503)
-          .json({
-            ok: false,
-            error: "Dati attività non disponibili."
-          });
-      }
-
-      return res
-        .status(200)
-        .json({
-
-          ok: true,
-
-          cancelled:
-            true,
-
-          persisted:
-            persisted,
-
-          id,
-
-          status:
-            "cancelled",
-
-          cancellationReason:
-            clean(body.reason || body.cancellationReason),
-
-          message:
-            "Appuntamento annullato."
-        });
-    }
-
-
-    /* ========================================================
-       CLIENT LOOKUP
-       ======================================================== */
-
-    if (
-      action === "client"
-    ) {
-
-      if (
-        mode !== "owner"
-      ) {
-
-        return res
-          .status(403)
-          .json({
-
-            ok: false,
-
-            error:
-              "Operazione non disponibile per il cliente."
-          });
-      }
-
-      const name =
-        clean(body.name);
-
-      const phone =
-        clean(body.phone);
-
-      const clients =
-        arr(body.clients);
-
-      const appointments =
-        arr(body.appointments);
-
-      const client =
-        findClient(
-          clients,
-          name,
-          phone
-        );
-
-      if (
-        !client
-      ) {
-
-        return res
-          .status(404)
-          .json({
-
-            ok: false,
-
-            client: null,
-
-            error:
-              "Cliente non trovato."
-          });
-      }
-
-      const history =
-        appointments
-          .filter(
-            a => {
-
-              if (
-                !active(a)
-              ) {
-                return false;
-              }
-
-              if (
-                client.id &&
-                String(a.clientId) ===
-                String(client.id)
-              ) {
-                return true;
-              }
-
-              return (
-                norm(a.name) ===
-                norm(client.name)
-              );
-            }
-          )
-          .sort(
-            (a, b) =>
-              `${a.date} ${a.time}`
-                .localeCompare(
-                  `${b.date} ${b.time}`
-                )
-          );
-
-      return res
-        .status(200)
-        .json({
-
-          ok: true,
-
-          client,
-
-          appointments:
-            history
-        });
-    }
-
-
-    /* ========================================================
-       WHATSAPP MESSAGE
-       ========================================================
-       Endpoint interno predisposto per il futuro
-       webhook WhatsApp.
-
-       Il provider WhatsApp dovrà trasformare
-       il messaggio ricevuto in:
-
-       {
-         action: "whatsapp-message",
-         from: "...",
-         message: "..."
-       }
-
-       Mavi risponde usando esclusivamente
-       il motore locale.
-       ======================================================== */
-
-    if (
-      action === "whatsapp-message"
-    ) {
-
-      const from =
-        clean(
-          body.from ||
-          body.phone ||
-          body.whatsapp
-        );
-
-      const message =
-        clean(
-          body.message ||
-          body.text
-        );
-
-      if (
-        !from ||
-        !message
-      ) {
-
-        return res
-          .status(400)
-          .json({
-
-            ok: false,
-
-            error:
-              "Mittente o messaggio WhatsApp mancanti."
-          });
-      }
-
-
-      const data =
-        await getServerData(DATA_KEY);
-
-      if (
-        !data
-      ) {
-
-        return res
-          .status(503)
-          .json({
-
-            ok: false,
-
-            error:
-              "Mavi non è ancora collegata ai dati dell'attività."
-          });
-      }
-
-
-      const client =
-        findClient(
-          arr(data.clients),
-          "",
-          from
-        );
-
-
-      const result =
-        await localChat({
-
-          message,
-
-          history:
-            Array.isArray(
-              body.history
-            )
-              ? body.history
-              : [],
-
-          mode:
-            "client",
-
-          data
-        });
-
-
-      /*
-       * Non vengono esposti:
-       * - clienti
-       * - appuntamenti privati
-       * - note interne
-       * - dati del titolare
-       */
-
-      return res
-        .status(200)
-        .json({
-
-          ok: true,
-
-          channel:
-            "whatsapp",
-
-          from,
-
-          knownClient:
-            !!client,
-
-          answer:
-            result.answer,
-
-          booking:
-            result.booking || null,
-
-          engine:
-            "maviri-business-engine-v5"
-        });
-    }
-
-
-    /* ========================================================
-       UNKNOWN
-       ======================================================== */
-
-    return res
-      .status(400)
-      .json({
-
-        ok: false,
-
-        error:
-          "Azione API non riconosciuta."
-      });
-
-  } catch (error) {
-
-    const statusCode =
-      Number(
-        error?.statusCode ||
-        error?.status
-      );
-
-    if (statusCode === 400) {
-      return res
-        .status(400)
-        .json({
-          ok: false,
-          error:
-            "JSON della richiesta non valido."
-        });
-    }
-
-    console.error(
-      "MAVIRI API ERROR:",
-      error
-    );
-
-    return res
-      .status(500)
-      .json({
-
-        ok: false,
-
-        error:
-          "Errore interno del servizio Maviri."
-      });
-  }
-}
