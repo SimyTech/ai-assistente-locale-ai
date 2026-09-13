@@ -186,6 +186,56 @@ test("Mavi usa l'orario dopo 'ore' quando la richiesta contiene una data esplici
   assert.equal(res.payload.booking?.time, "15:00");
 });
 
+test("Mavi rifiuta una data di calendario impossibile", async () => {
+  const res = response();
+
+  await chatEntryHandler({
+    method: "POST",
+    headers: {},
+    body: {
+      action: "chat",
+      role: "owner",
+      message: "Vorrei prenotare Taglio il 31 settembre 2026 alle 11",
+      business: { name: "Attività Test" },
+      settings: { hours: Array.from({ length: 7 }, () => ({ ...openDay })) },
+      services: [{ id: "s1", name: "Taglio", duration: 30, price: 20 }],
+      appointments: [],
+      clients: [],
+      promotions: []
+    }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.payload.booking?.date, undefined);
+  assert.doesNotMatch(res.payload.answer, /L'orario 11:00 è disponibile/i);
+});
+
+test("Mavi mostra l'intera settimana quando il cliente chiede gli orari generali", async () => {
+  const res = response();
+  const closedDay = { closed: true, open: "", close: "", pauses: [] };
+
+  await chatEntryHandler({
+    method: "POST",
+    headers: {},
+    body: {
+      action: "chat",
+      role: "owner",
+      message: "Quali sono i vostri orari?",
+      business: { name: "Attività Test" },
+      settings: { hours: [...Array.from({ length: 6 }, () => ({ ...openDay })), closedDay] },
+      services: [],
+      appointments: [],
+      clients: [],
+      promotions: []
+    }
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.match(res.payload.answer, /Orari settimanali/);
+  assert.match(res.payload.answer, /Lunedì: 09:00-19:00; pausa 13:00-14:30/);
+  assert.match(res.payload.answer, /Domenica: chiuso/);
+});
+
 const customerDataset = {
   action: "chat",
   role: "owner",
