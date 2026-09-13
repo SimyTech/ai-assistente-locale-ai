@@ -57,3 +57,13 @@ test('la gestione clienti usa il telefono come identità e consente l’eliminaz
   assert.match(owner, /Elimina cliente/);
   assert.match(owner, /Elimina prima.*appuntament/);
 });
+
+test('i campi del gestionale hanno nomi accessibili', () => {
+  for (const id of ['tone', 'bName', 'bType', 'bDesc', 'bPhone', 'bWhats', 'bAddress', 'maviModelPreference']) {
+    assert.match(owner, new RegExp(`id="${id}"[^>]*aria-label="[^"]+"`));
+  }
+  assert.match(owner, /aria-label="Apertura \$\{esc\(h\.name\)\}"/);
+  assert.match(owner, /aria-label="Chiusura \$\{esc\(h\.name\)\}"/);
+  assert.match(owner, /aria-label="Inizio pausa \$\{j\+1\} \$\{esc\(h\.name\)\}"/);
+  assert.match(owner, /aria-label="Fine pausa \$\{j\+1\} \$\{esc\(h\.name\)\}"/);
+});
