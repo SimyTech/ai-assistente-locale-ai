@@ -373,7 +373,8 @@ test("elimina un cliente senza appuntamenti e protegge quelli con storico", asyn
     const initial = dataset();
     initial.clients = [
       { id: "free-client", name: "Cliente libero", phone: "3330000001" },
-      { id: "linked-client", name: "Cliente storico", phone: "3330000002" }
+      { id: "linked-client", name: "Cliente storico", phone: "3330000002" },
+      { id: "cancelled-client", name: "Cliente annullato", phone: "3330000003" }
     ];
     initial.appointments = [{
       id: "linked-appointment",
@@ -383,6 +384,14 @@ test("elimina un cliente senza appuntamenti e protegge quelli con storico", asyn
       time: "10:00",
       service: "Taglio",
       status: "confirmed"
+    }, {
+      id: "cancelled-appointment",
+      clientId: "cancelled-client",
+      name: "Cliente annullato",
+      date: futureMondayIso(),
+      time: "11:00",
+      service: "Taglio",
+      status: "cancelled"
     }];
     assert.equal((await call({ action: "owner-sync", tenantId: "default", ...initial }, headers)).statusCode, 200);
 
@@ -394,8 +403,22 @@ test("elimina un cliente senza appuntamenti e protegge quelli con storico", asyn
     assert.equal(protectedResult.statusCode, 409);
     assert.equal(protectedResult.payload.linkedAppointments, 1);
 
+    const needsConfirmation = await call({ action: "delete-client", mode: "owner", tenantId: "default", id: "cancelled-client" }, headers);
+    assert.equal(needsConfirmation.statusCode, 409);
+    assert.equal(needsConfirmation.payload.cancelledAppointments, 1);
+
+    const deletedWithCancelled = await call({
+      action: "delete-client",
+      mode: "owner",
+      tenantId: "default",
+      id: "cancelled-client",
+      deleteCancelledAppointments: true
+    }, headers);
+    assert.equal(deletedWithCancelled.statusCode, 200);
+
     const pull = await call({ action: "owner-pull", tenantId: "default" }, headers);
     assert.deepEqual(pull.payload.data.clients.map(client => client.id), ["linked-client"]);
+    assert.deepEqual(pull.payload.data.appointments.map(appointment => appointment.id), ["linked-appointment"]);
   } finally {
     globalThis.fetch = originalFetch;
     delete process.env.UPSTASH_REDIS_REST_URL;

@@ -42,7 +42,7 @@ test('Mavi Client Chat usa il logo ufficiale e gestisce rete e continuità', () 
 
 test('la gestione clienti usa il telefono come identità e consente l’eliminazione sicura', () => {
   assert.match(owner, /function findClientIdentity\(name,phone\)/);
-  assert.match(owner, /api\("delete-client",\{id\}\)/);
+  assert.match(owner, /api\("delete-client",\{id,deleteCancelledAppointments:true\}\)/);
   assert.match(owner, /Elimina cliente/);
   assert.match(owner, /Elimina prima.*appuntament/);
 });
