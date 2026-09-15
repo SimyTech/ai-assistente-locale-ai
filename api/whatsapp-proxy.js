@@ -110,6 +110,11 @@ export default async function handler(req, res) {
 }
 
 async function processVerifiedWebhook(req, res) {
+  const entryMode = clean(process.env.WHATSAPP_ENTRY_MODE).toLowerCase();
+  if (entryMode !== "conversation") {
+    return whatsappHandler(req, res);
+  }
+
   try {
     const safeReschedule = await handleSafeReschedule(req, res);
     if (safeReschedule) return safeReschedule;
