@@ -575,6 +575,21 @@ async function confirmRequestedAttendance(req, { tenantId, phone, text, session 
   }
 }
 
+export function whatsappClientChatUrl(origin, tenantId) {
+  const base = clean(origin).replace(/\/+$/, "");
+  const tenant = encodeURIComponent(clean(tenantId));
+  return `${base}/mavi/${tenant}`;
+}
+
+export function whatsappClientChatReply(origin, tenantId) {
+  const url = whatsappClientChatUrl(origin, tenantId);
+  return `Ciao! Per informazioni, disponibilità e prenotazioni apri Mavi Client Chat: ${url}`;
+}
+
+function usesClientChatLinkFlow(env = process.env) {
+  return clean(env.WHATSAPP_ENTRY_MODE).toLowerCase() !== "conversation";
+}
+
 async function sendWhatsAppMessage(to, message, phoneNumberId) {
   const token = clean(process.env.WHATSAPP_ACCESS_TOKEN);
   const senderId = clean(phoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID);
@@ -630,6 +645,20 @@ export default async function handler(req, res) {
       const alreadyProcessed = await redisGet(processedKey);
       if (alreadyProcessed) return jsonResponse(res, 200, { ok: true, duplicate: true, tenantId, messageId });
       await redisSet(processedKey, { tenantId, phone, messageId }, PROCESSED_TTL);
+    }
+
+    if (usesClientChatLinkFlow()) {
+      const reply = whatsappClientChatReply(originFor(req), tenantId);
+      await sendWhatsAppMessage(phone, reply, metadata.phoneNumberId);
+      return jsonResponse(res, 200, {
+        ok: true,
+        tenantId,
+        phoneNumberId: metadata.phoneNumberId || null,
+        messageId,
+        phone,
+        flow: "client-chat-link",
+        reply
+      });
     }
 
     addHistory(session, "user", text);
