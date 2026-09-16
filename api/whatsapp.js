@@ -18,6 +18,10 @@ import {
   normalizeReschedule,
   selectCandidateByNumber
 } from "../lib/whatsapp-reschedule.js";
+export const config = {
+  api: { bodyParser: false }
+};
+
 import {
   awaitingField,
   bookingComplete,
@@ -161,15 +165,26 @@ function safeEqualHex(left, right) {
   return a.length > 0 && a.length === b.length && timingSafeEqual(a, b);
 }
 
-function verifySignature(req) {
+export async function readRawBody(req) {
+  if (Buffer.isBuffer(req.rawBody)) return req.rawBody;
+  if (typeof req.rawBody === "string") return Buffer.from(req.rawBody);
+  if (Buffer.isBuffer(req.body)) return req.body;
+  if (typeof req.body === "string") return Buffer.from(req.body);
+
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks);
+}
+
+export function verifySignature(req, rawBody) {
   const secret = clean(process.env.WHATSAPP_APP_SECRET);
   if (!secret) return true;
   const signature = clean(req.headers?.["x-hub-signature-256"]);
   if (!signature.startsWith("sha256=")) return false;
-  const raw = req.rawBody;
-  if (!raw) return false;
-  const source = Buffer.isBuffer(raw) ? raw : Buffer.from(String(raw));
-  const expected = `sha256=${createHmac("sha256", secret).update(source).digest("hex")}`;
+  if (!Buffer.isBuffer(rawBody) || rawBody.length === 0) return false;
+  const expected = `sha256=${createHmac("sha256", secret).update(rawBody).digest("hex")}`;
   return safeEqualHex(signature, expected);
 }
 
@@ -625,13 +640,28 @@ export default async function handler(req, res) {
     return jsonResponse(res, 405, { ok: false, error: "Method Not Allowed" });
   }
 
-  if (!verifySignature(req)) {
+  let rawBody;
+  try {
+    rawBody = await readRawBody(req);
+  } catch (error) {
+    console.error("WHATSAPP BODY READ ERROR:", error);
+    return jsonResponse(res, 400, { ok: false, error: "Payload WhatsApp non leggibile." });
+  }
+
+  if (!verifySignature(req, rawBody)) {
     return jsonResponse(res, 401, { ok: false, error: "Firma WhatsApp non valida." });
   }
 
-  const metadata = whatsappMetadata(req.body);
-  const tenantId = resolveWhatsAppTenant(req.body);
-  const incoming = extractIncomingMessage(req.body);
+  let body;
+  try {
+    body = JSON.parse(rawBody.toString("utf8"));
+  } catch {
+    return jsonResponse(res, 400, { ok: false, error: "Payload WhatsApp non valido." });
+  }
+
+  const metadata = whatsappMetadata(body);
+  const tenantId = resolveWhatsAppTenant(body);
+  const incoming = extractIncomingMessage(body);
 
   if (!incoming) return jsonResponse(res, 200, { ok: true, ignored: true, tenantId });
 
