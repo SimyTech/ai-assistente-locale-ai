@@ -71,6 +71,10 @@
     {
       "source": "/api/reminders",
       "destination": "/api/health?mode=reminders"
+    },
+    {
+      "source": "/api/mavi-qr",
+      "destination": "/api/health?mode=mavi-qr"
     }
   ],
   "headers": [
