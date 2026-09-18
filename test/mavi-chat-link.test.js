@@ -14,7 +14,7 @@ test("buildWhatsAppWelcome include Mavi Chat e il link personale", () => {
   assert.match(text, /Mavi Chat/);
   assert.match(text, /Benvenuto da Salone Demo/);
   assert.match(text, /informazioni, disponibilità e prenotazioni/);
-  assert.match(text, /https:\/\/www\.maviri\.it\/mavi\/tenant-1/);
+  assert.match(text, /https:\/\/www\.maviri\.it\/s\/tenant-1/);
 });
 
 test("buildWhatsAppWelcome funziona anche senza nome attività", () => {
