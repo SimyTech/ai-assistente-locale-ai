@@ -5,7 +5,7 @@ import { buildMaviChatUrl, buildWhatsAppWelcome } from "../mavi-chat-link.js";
 test("buildMaviChatUrl crea il link pubblico tenant-scoped", () => {
   assert.equal(
     buildMaviChatUrl("https://www.maviri.it/", "salone demo"),
-    "https://www.maviri.it/mavi/salone%20demo"
+    "https://www.maviri.it/s/salone%20demo"
   );
 });
 
@@ -20,7 +20,7 @@ test("buildWhatsAppWelcome include Mavi Chat e il link personale", () => {
 test("buildWhatsAppWelcome funziona anche senza nome attività", () => {
   assert.equal(
     buildWhatsAppWelcome("https://www.maviri.it", "tenant-2"),
-    "Ciao! Benvenuto. Per informazioni, disponibilità e prenotazioni entra in Mavi Chat: https://www.maviri.it/mavi/tenant-2"
+    "Ciao! Benvenuto. Per informazioni, disponibilità e prenotazioni entra in Mavi Chat: https://www.maviri.it/s/tenant-2"
   );
 });
 
