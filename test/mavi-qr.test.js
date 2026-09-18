@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { maviQrTarget, publicMaviOrigin } from "../api/mavi-qr.js";
+import { maviQrTarget, publicMaviOrigin } from "../lib/mavi-qr-handler.js";
 
 test("uses the canonical Maviri origin by default", () => {
   assert.equal(publicMaviOrigin({}), "https://www.maviri.it");
