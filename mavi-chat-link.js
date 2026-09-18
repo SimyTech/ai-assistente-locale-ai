@@ -2,7 +2,7 @@ export function buildMaviChatUrl(origin, tenantId) {
   const base = String(origin || "").replace(/\/$/, "");
   const tenant = String(tenantId || "").trim();
   if (!base || !tenant) return "";
-  return `${base}/mavi/${encodeURIComponent(tenant)}`;
+  return `${base}/s/${encodeURIComponent(tenant)}`;
 }
 
 export function buildWhatsAppWelcome(origin, tenantId, businessName = "") {
@@ -75,6 +75,34 @@ export function installMaviChatLink(doc = document, root = window) {
     return copyWithFeedback(whatsapp, message, doc, root, "Messaggio copiato");
   });
 
+  const qr = doc.createElement("a");
+  qr.id = "maviChatQr";
+  qr.href = `/api/mavi-qr?tenant=${encodeURIComponent(tenantId)}`;
+  qr.target = "_blank";
+  qr.rel = "noopener";
+  qr.textContent = "QR Mavi";
+  qr.title = "Apri il QR code personale della Mavi Client Chat";
+
+  const share = actionButton(doc, "maviChatShare", "Condividi", "Condividi il link personale della Mavi Client Chat");
+  share.addEventListener("click", async () => {
+    const currentName = String(doc.getElementById("activityName")?.textContent || "").trim();
+    if (root.navigator?.share) {
+      try {
+        await root.navigator.share({
+          title: currentName ? `Mavi Chat · ${currentName}` : "Mavi Chat",
+          text: "Apri Mavi Chat per informazioni, disponibilità e prenotazioni.",
+          url
+        });
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+      }
+    }
+    return copyWithFeedback(share, url, doc, root, "Link copiato");
+  });
+
+  actions.prepend(qr);
+  actions.prepend(share);
   actions.prepend(whatsapp);
   actions.prepend(copy);
 }
