@@ -1,9 +1,11 @@
 import { launchReadiness, readinessChecks } from "../lib/launch-readiness.js";
 import reminderHandler from "../lib/reminders-handler.js";
+import maviQrHandler from "../lib/mavi-qr-handler.js";
 
 export default function handler(req, res) {
   const mode = String(req?.query?.mode || "").trim().toLowerCase();
   if (mode === "reminders") return reminderHandler(req, res);
+  if (mode === "mavi-qr") return maviQrHandler(req, res);
 
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
