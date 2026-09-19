@@ -407,7 +407,7 @@ async function initOwnerSession(){
   try{
     const r=await fetch("/api/auth",{headers:{"x-maviri-tenant":tenantId}});
     const j=await r.json().catch(()=>({}));
-    if(r.ok&&j.authenticated){localStorage.setItem(OWNER_AUTH_KEY,"true");startOwnerPull()}
+    if(r.ok&&j.authenticated){localStorage.setItem(OWNER_AUTH_KEY,"true");await syncOwnerData();startOwnerPull()}
     else localStorage.removeItem(OWNER_AUTH_KEY);
   }catch{}
 }
