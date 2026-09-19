@@ -62,19 +62,6 @@ export function installMaviChatLink(doc = document, root = window) {
   const copy = actionButton(doc, "maviChatCopyLink", "Copia link", url);
   copy.addEventListener("click", () => copyWithFeedback(copy, url, doc, root, "Link copiato"));
 
-  const whatsapp = actionButton(
-    doc,
-    "maviChatCopyWhatsApp",
-    "Messaggio WhatsApp",
-    "Copia il messaggio di benvenuto da inserire nella risposta automatica WhatsApp Business"
-  );
-  whatsapp.addEventListener("click", () => {
-    const currentName = String(doc.getElementById("activityName")?.textContent || "").trim();
-    const businessName = currentName && currentName !== "Maviri" ? currentName : "";
-    const message = buildWhatsAppWelcome(root.location?.origin, tenantId, businessName);
-    return copyWithFeedback(whatsapp, message, doc, root, "Messaggio copiato");
-  });
-
   const qr = doc.createElement("a");
   qr.id = "maviChatQr";
   qr.href = `/api/mavi-qr?tenant=${encodeURIComponent(tenantId)}`;
@@ -103,6 +90,5 @@ export function installMaviChatLink(doc = document, root = window) {
 
   actions.prepend(qr);
   actions.prepend(share);
-  actions.prepend(whatsapp);
   actions.prepend(copy);
 }
