@@ -38,7 +38,7 @@
 const $=id=>document.getElementById(id);
 const clean=v=>String(v??"").trim();
 const parts=location.pathname.split("/").filter(Boolean);
-const tenantFromPath=parts[0]==="mavi"&&parts[1]?decodeURIComponent(parts[1]):"";
+const tenantFromPath=(parts[0]==="mavi"||parts[0]==="s")&&parts[1]?decodeURIComponent(parts[1]):"";
 const tenantFromQuery=clean(new URLSearchParams(location.search).get("tenant"));
 const tenantFromSession=clean(localStorage.getItem("MAVIRI_TENANT_ID"));
 const tenantId=clean((tenantFromPath&&tenantFromPath!=="default"?tenantFromPath:"")||tenantFromQuery||tenantFromSession||tenantFromPath);
