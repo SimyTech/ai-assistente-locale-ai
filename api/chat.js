@@ -82,7 +82,10 @@ const norm = v =>
 
 const normalizePhone = value => {
   let digits = clean(value).replace(/\D/g, "");
-  if (digits.startsWith("00")) digits = digits.slice(2);
+  // Treat 00 as an international prefix only when more than a local
+  // ten-digit number follows. This also preserves legitimate/test values
+  // such as 0000000000 exactly as entered.
+  if (digits.startsWith("00") && digits.length > 10) digits = digits.slice(2);
   if (digits.startsWith("39") && digits.length > 10) digits = digits.slice(2);
   return digits;
 };
