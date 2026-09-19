@@ -1859,6 +1859,10 @@ export function detectCancellation(
   return isExplicitCancellation(text) || /disdici|disdire/i.test(clean(text));
 }
 
+export function detectReschedule(text) {
+  return /\b(?:spost(?:a|are|o)|riprogramm(?:a|are|o)|modific(?:a|are|o)\s+(?:la\s+)?prenotazione|cambi(?:a|are|o)\s+(?:il\s+)?(?:giorno|orario|appuntamento))\b/i.test(clean(text));
+}
+
 export function detectPhoneNumber(text) {
   const match = clean(text).match(
     /(?:telefono|tel\.?|cellulare|whatsapp|numero)\s*[:,-]?\s*(\+?[\d][\d\s().-]{5,}\d)/i
@@ -2001,6 +2005,78 @@ async function localChat({
 
   const time =
     detectTime(text);
+
+  /*
+   * SPOSTAMENTO CLIENTE
+   * Identifica prima l'appuntamento esistente; il nuovo slot viene
+   * raccolto e confermato dal client prima di chiamare update.
+   */
+  if (
+    mode === "client" &&
+    detectReschedule(message)
+  ) {
+    const phone = detectPhoneNumber(message);
+
+    if (!phone) {
+      return {
+        answer:
+          "Per trovare la prenotazione da spostare indicami il numero di telefono o WhatsApp usato in fase di prenotazione.",
+        booking: null,
+        reschedule: {
+          status: "collecting-phone",
+          date: date || "",
+          time: time || "",
+          service: service?.name || ""
+        }
+      };
+    }
+
+    const matches = appointments.filter(appointment => {
+      if (!active(appointment)) return false;
+      if (date && apDate(appointment) !== date) return false;
+      if (time && apTime(appointment) !== time) return false;
+      if (service && norm(apService(appointment)) !== norm(service.name)) return false;
+      return normalizePhone(appointment?.phone || appointment?.whatsapp) === phone;
+    });
+
+    if (!matches.length) {
+      return {
+        answer:
+          "Non trovo una prenotazione attiva con questi dati. Controlla giorno, ora e numero di telefono.",
+        booking: null,
+        reschedule: null
+      };
+    }
+
+    if (matches.length > 1 && (!date || !time)) {
+      return {
+        answer:
+          "Ho trovato più prenotazioni associate al numero. Indicami anche giorno e ora dell'appuntamento da spostare.",
+        booking: null,
+        reschedule: {
+          status: "collecting-details",
+          phone
+        }
+      };
+    }
+
+    const appointment = matches[0];
+
+    return {
+      answer:
+        `Ho trovato ${apService(appointment)} del ${apDate(appointment)} alle ${apTime(appointment)}. Indicami il nuovo giorno e il nuovo orario.`,
+      booking: null,
+      reschedule: {
+        status: "collecting-new-slot",
+        id: clean(appointment.id),
+        phone,
+        oldDate: apDate(appointment),
+        oldTime: apTime(appointment),
+        service: apService(appointment),
+        name: clean(appointment.name)
+      }
+    };
+  }
 
   /*
    * ANNULLAMENTO CLIENTE
@@ -3077,7 +3153,10 @@ export default async function handler(
             result.booking || null,
 
           cancellation:
-            result.cancellation || null
+            result.cancellation || null,
+
+          reschedule:
+            result.reschedule || null
         });
     }
 
@@ -4002,7 +4081,9 @@ export default async function handler(
             "confirmed",
 
           notes:
-            clean(body.notes),
+            body.notes === undefined
+              ? clean(old.notes)
+              : clean(body.notes),
 
           updatedAt:
             new Date().toISOString()
@@ -4057,6 +4138,8 @@ export default async function handler(
           .json({
 
             ok: true,
+
+            updated: true,
 
             appointment:
               updated,
@@ -4616,6 +4699,9 @@ export default async function handler(
 
           booking:
             result.booking || null,
+
+          reschedule:
+            result.reschedule || null,
 
           engine:
             "maviri-business-engine-v5"
