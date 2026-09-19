@@ -82,7 +82,10 @@ const norm = v =>
 
 const normalizePhone = value => {
   let digits = clean(value).replace(/\D/g, "");
-  if (digits.startsWith("00")) digits = digits.slice(2);
+  // Treat 00 as an international prefix only when more than a local
+  // ten-digit number follows. This also preserves legitimate/test values
+  // such as 0000000000 exactly as entered.
+  if (digits.startsWith("00") && digits.length > 10) digits = digits.slice(2);
   if (digits.startsWith("39") && digits.length > 10) digits = digits.slice(2);
   return digits;
 };
@@ -1856,6 +1859,13 @@ export function detectCancellation(
   return isExplicitCancellation(text) || /disdici|disdire/i.test(clean(text));
 }
 
+export function detectPhoneNumber(text) {
+  const match = clean(text).match(
+    /(?:telefono|tel\.?|cellulare|whatsapp|numero)\s*[:,-]?\s*(\+?[\d][\d\s().-]{5,}\d)/i
+  );
+  return match ? normalizePhone(match[1]) : "";
+}
+
 
 /* ============================================================
    CHAT LOCALE
@@ -1991,6 +2001,77 @@ async function localChat({
 
   const time =
     detectTime(text);
+
+  /*
+   * ANNULLAMENTO CLIENTE
+   * Ha priorità su disponibilità e nuova prenotazione.
+   */
+  if (
+    mode === "client" &&
+    detectCancellation(message)
+  ) {
+    const phone = detectPhoneNumber(message);
+
+    if (!phone) {
+      return {
+        answer:
+          "Per trovare la prenotazione da annullare indicami il numero di telefono o WhatsApp usato in fase di prenotazione.",
+        booking: null,
+        cancellation: {
+          status: "collecting-phone",
+          date: date || "",
+          time: time || "",
+          service: service?.name || ""
+        }
+      };
+    }
+
+    const matches = appointments.filter(appointment => {
+      if (!active(appointment)) return false;
+      if (date && apDate(appointment) !== date) return false;
+      if (time && apTime(appointment) !== time) return false;
+      if (service && norm(apService(appointment)) !== norm(service.name)) return false;
+      return normalizePhone(appointment?.phone || appointment?.whatsapp) === phone;
+    });
+
+    if (!matches.length) {
+      return {
+        answer:
+          "Non trovo una prenotazione attiva con questi dati. Controlla giorno, ora e numero di telefono.",
+        booking: null,
+        cancellation: null
+      };
+    }
+
+    if (matches.length > 1 && (!date || !time)) {
+      return {
+        answer:
+          "Ho trovato più prenotazioni associate al numero. Indicami anche giorno e ora dell'appuntamento da annullare.",
+        booking: null,
+        cancellation: {
+          status: "collecting-details",
+          phone
+        }
+      };
+    }
+
+    const appointment = matches[0];
+
+    return {
+      answer:
+        `Confermi l'annullamento di ${apService(appointment)} il ${apDate(appointment)} alle ${apTime(appointment)} per ${clean(appointment.name)}? Scrivi Confermo oppure Mantieni.`,
+      booking: null,
+      cancellation: {
+        status: "confirmation-required",
+        id: clean(appointment.id),
+        phone,
+        date: apDate(appointment),
+        time: apTime(appointment),
+        service: apService(appointment),
+        name: clean(appointment.name)
+      }
+    };
+  }
 
 
   /*
@@ -2993,7 +3074,10 @@ export default async function handler(
             result.answer,
 
           booking:
-            result.booking || null
+            result.booking || null,
+
+          cancellation:
+            result.cancellation || null
         });
     }
 
