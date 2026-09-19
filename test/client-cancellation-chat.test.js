@@ -14,5 +14,5 @@ test("Mavi Client Chat richiede conferma e usa l endpoint cancel", async () => {
   assert.match(html, /pendingCancellation/);
   assert.match(html, /status==="confirmation-required"/);
   assert.match(html, /api\("cancel"/);
-  assert.match(html, /Scrivi Confermo oppure Mantieni/);
+  assert.match(html, /Per annullare scrivi Confermo/);
 });
