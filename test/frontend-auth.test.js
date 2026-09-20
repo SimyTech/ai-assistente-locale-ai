@@ -106,6 +106,15 @@ test("l'interfaccia resta intuitiva e operativa anche su smartphone", async () =
   assert.match(html, /function askMavi\(message\)/);
 });
 
+test("la versione desktop usa il logo Maviri pubblicato invece di un'immagine incorporata", async () => {
+  const html = await text("index.html");
+  const logos = html.match(/src="\/assets\/maviri-logo-official\.jpg" alt="Logo ufficiale Maviri"/g) || [];
+  assert.equal(logos.length, 2);
+  assert.doesNotMatch(html, /data:image\/png;base64/);
+  const asset = await readFile(new URL("../assets/maviri-logo-official.jpg", import.meta.url));
+  assert.equal(asset.subarray(0, 3).toString("hex"), "ffd8ff");
+});
+
 test("la gestione account è raggiungibile dalla dashboard", async () => {
   const html = await text("app.html");
   assert.match(html, /href="\/account"/);
