@@ -93,10 +93,20 @@ test("account username/password seleziona automaticamente il tenant", async () =
     assert.match(login.headers["Set-Cookie"], /HttpOnly/);
 
     const cookie = login.headers["Set-Cookie"].split(";")[0];
+    const recoveredTenant = await call("GET", {}, { cookie });
+    assert.equal(recoveredTenant.statusCode, 200);
+    assert.equal(recoveredTenant.payload.authenticated, true);
+    assert.equal(recoveredTenant.payload.tenantId, "salone-anna");
+
     const correctTenant = await call("GET", { tenantId: "salone-anna" }, { cookie });
     assert.equal(correctTenant.statusCode, 200);
     const wrongTenant = await call("GET", { tenantId: "barber-luca" }, { cookie });
     assert.equal(wrongTenant.statusCode, 401);
+
+    const forgedCookie = `${cookie.slice(0, -1)}${cookie.endsWith("a") ? "b" : "a"}`;
+    const forged = await call("GET", {}, { cookie: forgedCookie });
+    assert.equal(forged.statusCode, 401);
+    assert.equal(forged.payload.authenticated, false);
   } finally {
     delete process.env.MAVIRI_SESSION_SECRET;
     delete process.env.MAVIRI_OWNER_ACCOUNTS;
