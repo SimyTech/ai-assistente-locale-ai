@@ -82,7 +82,7 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /syncAccountFromAuth\(auth\)/);
   assert.match(html, /if\(!j\.configured\)\{location\.replace\("\/setup"\)/);
   assert.match(html, /adaptiveDashboardPlan\(profile\)/);
-  assert.match(html, /frame\.src="\/index\.html\?v=20260920-3"/);
+  assert.match(html, /frame\.src="\/index\.html\?v=20260920-4"/);
   assert.match(html, /ownerSyncToken/);
   assert.match(index, /window\.top===window\.self/);
   assert.match(index, /location\.replace\("\/app"\)/);
@@ -106,21 +106,20 @@ test("l'interfaccia resta intuitiva e operativa anche su smartphone", async () =
   assert.match(html, /function askMavi\(message\)/);
 });
 
-test("la versione desktop usa il logo Maviri WebP compatibile con Android", async () => {
+test("la versione desktop incorpora il logo Maviri senza dipendere da immagini esterne", async () => {
   const html = await text("index.html");
-  const logos = html.match(/src="\/assets\/mavi-logo-official\.webp\?v=20260920-3" alt="Logo ufficiale Maviri"/g) || [];
+  const logos = html.match(/<svg class="logo(?: big)?" role="img" aria-label="Logo ufficiale Maviri"/g) || [];
   assert.equal(logos.length, 2);
   assert.doesNotMatch(html, /data:image\/png;base64/);
-  const asset = await readFile(new URL("../assets/mavi-logo-official.webp", import.meta.url));
-  assert.equal(asset.subarray(0, 4).toString("ascii"), "RIFF");
-  assert.equal(asset.subarray(8, 12).toString("ascii"), "WEBP");
+  assert.doesNotMatch(html, /<img class="logo(?: big)?"/);
+  assert.match(html, /id="maviriHeroGradient"/);
 });
 
 test("la dashboard e il logo non restano bloccati nella cache del browser", async () => {
   const app = await text("app.html");
   const config = JSON.parse(await text("vercel.json"));
   const headers = new Map(config.headers.map(item => [item.source, item.headers]));
-  assert.match(app, /frame\.src="\/index\.html\?v=20260920-3"/);
+  assert.match(app, /frame\.src="\/index\.html\?v=20260920-4"/);
   assert.ok((headers.get("/index.html") || []).some(item => item.key === "Cache-Control" && /no-store/.test(item.value)));
 });
 
