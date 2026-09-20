@@ -2,7 +2,7 @@ import { authenticateOwnerAccount } from "../lib/accounts.js";
 import { authenticateStoredOwnerAccount, getStoredOwnerAccountByTenant } from "../lib/account-store.js";
 import { ownerAuthorized, ownerTokenForTenant } from "../lib/auth.js";
 import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
-import { clearSessionCookie, createSession, sessionCookie, sessionSecretForTenant } from "../lib/session.js";
+import { clearSessionCookie, cookieValue, createSession, sessionCookie, sessionSecretForTenant, sessionTenantId } from "../lib/session.js";
 import { explicitTenantId, isValidTenantId, normalizeTenantId, resolveTenantId } from "../lib/tenant.js";
 
 const redisUrl = () => process.env.UPSTASH_REDIS_REST_URL || "";
@@ -87,12 +87,15 @@ export default async function handler(req, res) {
   const resolvedTenant = resolveTenantId(req, body);
 
   if (req.method === "GET") {
-    const authenticated = ownerAuthorized(req, resolvedTenant);
-    const account = authenticated ? await accountForTenant(resolvedTenant) : null;
+    const tenantId = requestedTenant
+      ? resolvedTenant
+      : sessionTenantId(cookieValue(req)) || resolvedTenant;
+    const authenticated = ownerAuthorized(req, tenantId);
+    const account = authenticated ? await accountForTenant(tenantId) : null;
     return res.status(authenticated ? 200 : 401).json({
       ok: authenticated,
       authenticated,
-      tenantId: resolvedTenant,
+      tenantId,
       account
     });
   }
