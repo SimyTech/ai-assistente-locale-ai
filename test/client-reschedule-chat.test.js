@@ -18,3 +18,11 @@ test("Mavi Client Chat conserva lo spostamento e usa update solo dopo conferma",
   assert.match(html, /api\("update"/);
   assert.match(html, /Prenotazione spostata/);
 });
+
+test("lo script della Mavi Client Chat è JavaScript valido", async () => {
+  const html = await readFile(new URL("../mavi.html", import.meta.url), "utf8");
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(script, "script client non trovato");
+  assert.doesNotThrow(() => new Function(script));
+  assert.doesNotMatch(script, /;\\n(?:let|async function)/);
+});
