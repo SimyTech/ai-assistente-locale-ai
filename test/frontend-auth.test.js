@@ -82,7 +82,7 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /syncAccountFromAuth\(auth\)/);
   assert.match(html, /if\(!j\.configured\)\{location\.replace\("\/setup"\)/);
   assert.match(html, /adaptiveDashboardPlan\(profile\)/);
-  assert.match(html, /frame\.src="\/index\.html"/);
+  assert.match(html, /frame\.src="\/index\.html\?v=20260920-2"/);
   assert.match(html, /ownerSyncToken/);
   assert.match(index, /window\.top===window\.self/);
   assert.match(index, /location\.replace\("\/app"\)/);
@@ -108,11 +108,19 @@ test("l'interfaccia resta intuitiva e operativa anche su smartphone", async () =
 
 test("la versione desktop usa il logo Maviri pubblicato invece di un'immagine incorporata", async () => {
   const html = await text("index.html");
-  const logos = html.match(/src="\/assets\/maviri-logo-official\.jpg" alt="Logo ufficiale Maviri"/g) || [];
+  const logos = html.match(/src="\/assets\/maviri-logo-official\.jpg\?v=20260920-2" alt="Logo ufficiale Maviri"/g) || [];
   assert.equal(logos.length, 2);
   assert.doesNotMatch(html, /data:image\/png;base64/);
   const asset = await readFile(new URL("../assets/maviri-logo-official.jpg", import.meta.url));
   assert.equal(asset.subarray(0, 3).toString("hex"), "ffd8ff");
+});
+
+test("la dashboard e il logo non restano bloccati nella cache del browser", async () => {
+  const app = await text("app.html");
+  const config = JSON.parse(await text("vercel.json"));
+  const headers = new Map(config.headers.map(item => [item.source, item.headers]));
+  assert.match(app, /frame\.src="\/index\.html\?v=20260920-2"/);
+  assert.ok((headers.get("/index.html") || []).some(item => item.key === "Cache-Control" && /no-store/.test(item.value)));
 });
 
 test("la gestione account è raggiungibile dalla dashboard", async () => {
