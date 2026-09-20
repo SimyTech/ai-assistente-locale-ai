@@ -65,12 +65,12 @@ function rememberSession(payload){
 }
 async function authStatus(){
   const tenant=(localStorage.getItem(TENANT_KEY)||"").trim();
-  if(!tenant)return false;
   try{
-    const r=await fetch("/api/auth",{method:"GET",headers:{"x-maviri-tenant":tenant},credentials:"same-origin",cache:"no-store"});
+    const headers={};if(tenant)headers["x-maviri-tenant"]=tenant;
+    const r=await fetch("/api/auth",{method:"GET",headers,credentials:"same-origin",cache:"no-store"});
     if(!r.ok)return false;
     const j=await r.json();
-    if(j.authenticated){localStorage.setItem(AUTH_KEY,"true");return true}
+    if(j.authenticated&&j.tenantId){localStorage.setItem(AUTH_KEY,"true");localStorage.setItem(TENANT_KEY,String(j.tenantId));if(j.account)localStorage.setItem(ACCOUNT_KEY,JSON.stringify(j.account));return true}
   }catch{}
   return false;
 }

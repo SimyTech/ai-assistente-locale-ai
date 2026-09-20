@@ -36,6 +36,7 @@ test("il login usa credenziali account e salva il tenant restituito dal server",
   assert.match(html, /payload\.tenantId/);
   assert.match(html, /location\.replace\("\/app"\)/);
   assert.match(html, /href="\/register"/);
+  assert.match(html, /localStorage\.setItem\(TENANT_KEY,String\(j\.tenantId\)\)/);
 });
 
 test("l'accesso esplicito mostra il form anche con una sessione già valida", async () => {
@@ -73,6 +74,8 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /api\("\/api\/activity-profile"\)/);
   assert.match(html, /x-maviri-tenant/);
   assert.match(html, /const auth=await verify\(\)/);
+  assert.match(html, /path!=="\/api\/auth"/);
+  assert.match(html, /localStorage\.setItem\(TENANT_KEY,String\(auth\.tenantId\)\)/);
   assert.match(html, /if\(!auth\|\|auth\.authenticated!==true\)/);
   assert.match(html, /location\.replace\("\/login\?switch=1&reason=session-required"\)/);
   assert.doesNotMatch(html, /if\(!auth\|\|auth\.authenticated!==true\)\{clearLocalAuth\(\);location\.replace\("\/"\)/);
@@ -112,6 +115,8 @@ test("la gestione account è raggiungibile dalla dashboard", async () => {
   assert.match(accountHtml, /fetch\("\/api\/account"/);
   assert.match(accountHtml, /currentPassword/);
   assert.match(accountHtml, /newPassword/);
+  assert.match(accountHtml, /if\(t\)headers\["x-maviri-tenant"\]=t/);
+  assert.match(accountHtml, /localStorage\.setItem\(TENANT_KEY,t\)/);
 });
 
 test("la pagina account modifica il nome titolare senza confonderlo con il nome attività", async () => {

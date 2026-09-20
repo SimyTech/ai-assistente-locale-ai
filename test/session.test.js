@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cookieValue, createSession, verifySession } from "../lib/session.js";
+import { cookieValue, createSession, sessionTenantId, verifySession } from "../lib/session.js";
 
 test("crea una sessione valida solo per il tenant corretto", () => {
   const now = Date.UTC(2026, 8, 1, 12, 0, 0);
@@ -18,4 +18,11 @@ test("rifiuta sessioni alterate o scadute", () => {
 
 test("estrae il cookie di sessione senza confonderlo con altri cookie", () => {
   assert.equal(cookieValue({ headers: { cookie: "theme=dark; maviri_session=abc.def; x=1" } }), "abc.def");
+});
+
+test("recupera il tenant candidato dalla sessione per ripristinare il contesto browser", () => {
+  const token = createSession({ tenantId: "salone-anna", secret: "session-secret" });
+  assert.equal(sessionTenantId(token), "salone-anna");
+  assert.equal(sessionTenantId("non-e-un-token"), "");
+  assert.equal(sessionTenantId("e30.firma.parte-extra"), "");
 });

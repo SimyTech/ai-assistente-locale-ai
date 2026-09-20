@@ -58,9 +58,10 @@ function guardTenantCache(){
 
 async function api(path){
   const t=tenant();
-  if(!t)return null;
+  if(!t&&path!=="/api/auth")return null;
   try{
-    const r=await fetch(path,{method:"GET",headers:{"x-maviri-tenant":t},credentials:"same-origin",cache:"no-store"});
+    const headers={};if(t)headers["x-maviri-tenant"]=t;
+    const r=await fetch(path,{method:"GET",headers,credentials:"same-origin",cache:"no-store"});
     const j=await r.json().catch(()=>({}));
     return r.ok?j:null;
   }catch{return null}
@@ -402,6 +403,7 @@ frame.addEventListener("load",()=>{
 (async()=>{
   const auth=await verify();
   if(!auth||auth.authenticated!==true){clearLocalAuth();location.replace("/login?switch=1&reason=session-required");return}
+  if(auth.tenantId)localStorage.setItem(TENANT_KEY,String(auth.tenantId));
   localStorage.setItem(AUTH_KEY,"true");
   syncAccountFromAuth(auth);
   guardTenantCache();
