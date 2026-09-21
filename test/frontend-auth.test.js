@@ -82,7 +82,7 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /syncAccountFromAuth\(auth\)/);
   assert.match(html, /if\(!j\.configured\)\{location\.replace\("\/setup"\)/);
   assert.match(html, /adaptiveDashboardPlan\(profile\)/);
-  assert.match(html, /frame\.src="\/index\.html\?v=20260920-5"/);
+  assert.match(html, /frame\.src="\/index\.html\?v=20260921-6"/);
   assert.match(html, /ownerSyncToken/);
   assert.match(index, /window\.top===window\.self/);
   assert.match(index, /location\.replace\("\/app"\)/);
@@ -118,9 +118,11 @@ test("la versione desktop incorpora l'esatto logo Maviri originale convertito co
 
 test("la dashboard e il logo non restano bloccati nella cache del browser", async () => {
   const app = await text("app.html");
+  const dashboard = await text("index.html");
   const config = JSON.parse(await text("vercel.json"));
   const headers = new Map(config.headers.map(item => [item.source, item.headers]));
-  assert.match(app, /frame\.src="\/index\.html\?v=20260920-5"/);
+  assert.match(app, /frame\.src="\/index\.html\?v=20260921-6"/);
+  assert.match(dashboard, /const session=await fetch\("\/api\/auth",\{method:"GET",credentials:"same-origin",cache:"no-store"\}\)/);
   assert.ok((headers.get("/index.html") || []).some(item => item.key === "Cache-Control" && /no-store/.test(item.value)));
 });
 
