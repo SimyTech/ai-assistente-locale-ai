@@ -133,7 +133,8 @@ test("la gestione account è raggiungibile dalla dashboard", async () => {
   assert.match(accountHtml, /fetch\("\/api\/account"/);
   assert.match(accountHtml, /currentPassword/);
   assert.match(accountHtml, /newPassword/);
-  assert.match(accountHtml, /if\(t\)headers\["x-maviri-tenant"\]=t/);
+  assert.doesNotMatch(accountHtml, /fetch\("\/api\/auth",\{headers/);
+  assert.match(accountHtml, /fetch\("\/api\/auth",\{credentials:"same-origin",cache:"no-store"\}/);
   assert.match(accountHtml, /localStorage\.setItem\(TENANT_KEY,t\)/);
 });
 
