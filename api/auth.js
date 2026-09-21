@@ -91,6 +91,16 @@ export default async function handler(req, res) {
       ? resolvedTenant
       : sessionTenantId(cookieValue(req)) || resolvedTenant;
     const authenticated = ownerAuthorized(req, tenantId);
+    if (!authenticated) {
+      console.info("MAVIRI AUTH SESSION REJECTED", {
+        host: String(req.headers?.host || "").trim().toLowerCase(),
+        tenantId,
+        requestedTenant: Boolean(requestedTenant),
+        hasSessionCookie: Boolean(cookieValue(req)),
+        userAgent: String(req.headers?.["user-agent"] || "").trim().slice(0, 160),
+        referer: String(req.headers?.referer || "").trim().slice(0, 240)
+      });
+    }
     const account = authenticated ? await accountForTenant(tenantId) : null;
     return res.status(authenticated ? 200 : 401).json({
       ok: authenticated,
