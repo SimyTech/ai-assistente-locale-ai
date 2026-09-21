@@ -82,7 +82,7 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /syncAccountFromAuth\(auth\)/);
   assert.match(html, /if\(!j\.configured\)\{location\.replace\("\/setup"\)/);
   assert.match(html, /adaptiveDashboardPlan\(profile\)/);
-  assert.match(html, /frame\.src="\/index\.html\?v=20260920-5"/);
+  assert.match(html, /frame\.src="\/index\.html\?v=20260921-6"/);
   assert.match(html, /ownerSyncToken/);
   assert.match(index, /window\.top===window\.self/);
   assert.match(index, /location\.replace\("\/app"\)/);
