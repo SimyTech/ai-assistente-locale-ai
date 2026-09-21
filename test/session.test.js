@@ -17,7 +17,7 @@ test("rifiuta sessioni alterate o scadute", () => {
 });
 
 test("estrae il cookie di sessione senza confonderlo con altri cookie", () => {
-  assert.equal(cookieValue({ headers: { cookie: "theme=dark; maviri_session=abc.def; x=1" } }), "abc.def");
+  assert.equal(cookieValue({ headers: { cookie: `theme=dark; ${SESSION_COOKIE}=abc.def; x=1` } }), "abc.def");
 });
 
 test("recupera il tenant candidato dalla sessione per ripristinare il contesto browser", () => {
