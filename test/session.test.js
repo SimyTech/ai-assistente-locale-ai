@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cookieValue, createSession, sessionTenantId, verifySession } from "../lib/session.js";
+import { SESSION_COOKIE, SESSION_COOKIE_DOMAIN, cookieValue, createSession, sessionCookie, sessionTenantId, verifySession } from "../lib/session.js";
 
 test("crea una sessione valida solo per il tenant corretto", () => {
   const now = Date.UTC(2026, 8, 1, 12, 0, 0);
@@ -17,7 +17,7 @@ test("rifiuta sessioni alterate o scadute", () => {
 });
 
 test("estrae il cookie di sessione senza confonderlo con altri cookie", () => {
-  assert.equal(cookieValue({ headers: { cookie: "theme=dark; maviri_session=abc.def; x=1" } }), "abc.def");
+  assert.equal(cookieValue({ headers: { cookie: `theme=dark; ${SESSION_COOKIE}=abc.def; x=1` } }), "abc.def");
 });
 
 test("recupera il tenant candidato dalla sessione per ripristinare il contesto browser", () => {
@@ -25,4 +25,12 @@ test("recupera il tenant candidato dalla sessione per ripristinare il contesto b
   assert.equal(sessionTenantId(token), "salone-anna");
   assert.equal(sessionTenantId("non-e-un-token"), "");
   assert.equal(sessionTenantId("e30.firma.parte-extra"), "");
+});
+
+
+test("il cookie di sessione usa il dominio condiviso e una chiave nuova", () => {
+  const cookie = sessionCookie("firma-valida");
+  assert.match(cookie, new RegExp(`^${SESSION_COOKIE}=`));
+  assert.match(cookie, new RegExp(`Domain=${SESSION_COOKIE_DOMAIN.replace(".", "\\.")}`));
+  assert.equal(SESSION_COOKIE, "maviri_session_v2");
 });

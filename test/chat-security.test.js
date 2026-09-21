@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import handler from "../api/chat.js";
-import { createSession } from "../lib/session.js";
+import { SESSION_COOKIE, createSession } from "../lib/session.js";
 
 function response() {
   return {
@@ -55,7 +55,7 @@ test("accetta la sessione account per una mutazione owner senza token legacy", a
   try {
     const res = await request(
       { action: "cancel", mode: "owner", tenantId: "default", id: "appointment-1" },
-      { cookie: `maviri_session=${encodeURIComponent(session)}`, "x-maviri-tenant": "default" }
+      { cookie: `${SESSION_COOKIE}=${encodeURIComponent(session)}`, "x-maviri-tenant": "default" }
     );
     assert.equal(res.statusCode, 200);
     assert.equal(res.payload.cancelled, true);
