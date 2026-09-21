@@ -60,7 +60,7 @@ async function api(path){
   const t=tenant();
   if(!t&&path!=="/api/auth")return null;
   try{
-    const headers={};if(t)headers["x-maviri-tenant"]=t;
+    const headers={};if(t&&path!=="/api/auth")headers["x-maviri-tenant"]=t;
     const r=await fetch(path,{method:"GET",headers,credentials:"same-origin",cache:"no-store"});
     const j=await r.json().catch(()=>({}));
     return r.ok?j:null;
