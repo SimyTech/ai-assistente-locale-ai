@@ -82,7 +82,7 @@ test("la dashboard verifica sessione e carica il profilo prima di mostrare index
   assert.match(html, /syncAccountFromAuth\(auth\)/);
   assert.match(html, /if\(!j\.configured\)\{location\.replace\("\/setup"\)/);
   assert.match(html, /adaptiveDashboardPlan\(profile\)/);
-  assert.match(html, /frame\.src="\/index\.html\?v=20260920-4"/);
+  assert.match(html, /frame\.src="\/index\.html\?v=20260920-5"/);
   assert.match(html, /ownerSyncToken/);
   assert.match(index, /window\.top===window\.self/);
   assert.match(index, /location\.replace\("\/app"\)/);
@@ -106,20 +106,21 @@ test("l'interfaccia resta intuitiva e operativa anche su smartphone", async () =
   assert.match(html, /function askMavi\(message\)/);
 });
 
-test("la versione desktop incorpora il logo Maviri senza dipendere da immagini esterne", async () => {
+test("la versione desktop incorpora l'esatto logo Maviri originale convertito correttamente", async () => {
   const html = await text("index.html");
-  const logos = html.match(/<svg class="logo(?: big)?" role="img" aria-label="Logo ufficiale Maviri"/g) || [];
+  const logos = html.match(/<span class="logo(?: big)? logo-original" role="img" aria-label="Logo ufficiale Maviri"><\/span>/g) || [];
   assert.equal(logos.length, 2);
   assert.doesNotMatch(html, /data:image\/png;base64/);
   assert.doesNotMatch(html, /<img class="logo(?: big)?"/);
-  assert.match(html, /id="maviriHeroGradient"/);
+  assert.match(html, /background:center\/cover no-repeat url\("data:image\/webp;base64,/);
+  assert.doesNotMatch(html, /maviriHeroGradient|maviriSidebarGradient/);
 });
 
 test("la dashboard e il logo non restano bloccati nella cache del browser", async () => {
   const app = await text("app.html");
   const config = JSON.parse(await text("vercel.json"));
   const headers = new Map(config.headers.map(item => [item.source, item.headers]));
-  assert.match(app, /frame\.src="\/index\.html\?v=20260920-4"/);
+  assert.match(app, /frame\.src="\/index\.html\?v=20260920-5"/);
   assert.ok((headers.get("/index.html") || []).some(item => item.key === "Cache-Control" && /no-store/.test(item.value)));
 });
 
