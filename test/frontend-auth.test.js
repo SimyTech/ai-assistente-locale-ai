@@ -322,3 +322,11 @@ test("segnala e gestisce gli appuntamenti a rischio no-show", async () => {
   assert.match(html, /confirmationRequestedAt/);
   assert.match(html, /Number\(appointmentRisk\(b\)\.high\)-Number\(appointmentRisk\(a\)\.high\)/);
 });
+
+
+test("Mavi cliente conserva servizio e giorno tra i messaggi di prenotazione", async () => {
+  const html = await text("mavi.html");
+  assert.match(html, /pendingBooking\.status==="collecting-service"\|\|pendingBooking\.status==="collecting-date"/);
+  assert.match(html, /if\(pendingBooking\.status==="collecting-service"\)\{const r=await api\("chat",\{message:"Vorrei prenotare "\+q/);
+  assert.match(html, /if\(pendingBooking\.status==="collecting-date"\)\{const r=await api\("chat",\{message:"Vorrei prenotare "\+pendingBooking\.service\+" "\+q/);
+});
