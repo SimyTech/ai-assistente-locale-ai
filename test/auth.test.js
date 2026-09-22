@@ -41,3 +41,10 @@ test("mantiene il confronto esatto per numeri internazionali non italiani", () =
   assert.equal(clientOwnsAppointment(appointment, { phone: "0044 7700 900123" }), true);
   assert.equal(clientOwnsAppointment(appointment, { phone: "7700900123" }), false);
 });
+
+
+test("riconosce un numero internazionale completo anche se il più non è persistito", () => {
+  const appointment = { phone: "15550100000" };
+  assert.equal(clientOwnsAppointment(appointment, { phone: "+1 555 010 0000" }), true);
+  assert.equal(clientOwnsAppointment(appointment, { phone: "+1 555 010 0001" }), false);
+});
