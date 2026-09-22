@@ -337,3 +337,10 @@ test("Mavi cliente raccoglie il nome solo nel passaggio dedicato", async () => {
   assert.match(html, /collectingIdentity=pendingBooking\?\.status==="collecting-name"\|\|pendingBooking\?\.status==="collecting-phone"/);
   assert.match(html, /name:booking\.name\|\|\(collectingIdentity\?parsedName:""\)\|\|pendingBooking\?\.name/);
 });
+
+
+test("Mavi cliente annulla una prenotazione pendente prima di gestire una disdetta", async () => {
+  const html = await text("mavi.html");
+  assert.match(html, /annulla\|annullare\|cancella\|cancellare\|disdici\|disdire/);
+  assert.match(html, /test\(clean\(q\)\)\)pendingBooking=null/);
+});
