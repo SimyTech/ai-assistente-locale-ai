@@ -330,3 +330,10 @@ test("Mavi cliente conserva servizio e giorno tra i messaggi di prenotazione", a
   assert.match(html, /if\(pendingBooking\.status==="collecting-service"\)\{const r=await api\("chat",\{message:"Vorrei prenotare "\+q/);
   assert.match(html, /if\(pendingBooking\.status==="collecting-date"\)\{const r=await api\("chat",\{message:"Vorrei prenotare "\+pendingBooking\.service\+" "\+q/);
 });
+
+
+test("Mavi cliente raccoglie il nome solo nel passaggio dedicato", async () => {
+  const html = await text("mavi.html");
+  assert.match(html, /collectingIdentity=pendingBooking\?\.status==="collecting-name"\|\|pendingBooking\?\.status==="collecting-phone"/);
+  assert.match(html, /name:booking\.name\|\|\(collectingIdentity\?parsedName:""\)\|\|pendingBooking\?\.name/);
+});
