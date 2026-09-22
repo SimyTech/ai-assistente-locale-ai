@@ -344,3 +344,10 @@ test("Mavi cliente annulla una prenotazione pendente prima di gestire una disdet
   assert.match(html, /annulla\|annullare\|cancella\|cancellare\|disdici\|disdire/);
   assert.match(html, /test\(clean\(q\)\)\)pendingBooking=null/);
 });
+
+
+test("il rilevamento annullamento usa confini di parola JavaScript validi", async () => {
+  const html = await text("mavi.html");
+  assert.equal(html.includes("/\\\\b(?:annulla"), false);
+  assert.equal(html.includes("/\\b(?:annulla"), true);
+});
