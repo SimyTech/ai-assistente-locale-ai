@@ -73,7 +73,8 @@ test("registra una nuova attività e permette subito il login", async () => {
       businessName: "Officina Rossi",
       ownerName: "Mario Rossi",
       email: "mario@example.test",
-      password: "Password!12345"
+      password: "Password!12345",
+      termsAccepted: true
     });
 
     assert.equal(created.statusCode, 201);
@@ -85,7 +86,8 @@ test("registra una nuova attività e permette subito il login", async () => {
 
     const login = await call(authHandler, "POST", {
       email: "mario@example.test",
-      password: "Password!12345"
+      password: "Password!12345",
+      termsAccepted: true
     });
     assert.equal(login.statusCode, 200);
     assert.equal(login.payload.authenticated, true);
@@ -106,7 +108,8 @@ test("non permette due account Redis con la stessa email", async () => {
     const body = {
       businessName: "Studio Uno",
       email: "owner@example.test",
-      password: "Password!12345"
+      password: "Password!12345",
+      termsAccepted: true
     };
     const first = await call(registerHandler, "POST", body, { "x-forwarded-for": "198.51.100.12" });
     const second = await call(registerHandler, "POST", { ...body, businessName: "Studio Due" }, { "x-forwarded-for": "198.51.100.13" });
@@ -139,7 +142,8 @@ test("non collide con account storici configurati via ambiente", async () => {
     const denied = await call(registerHandler, "POST", {
       businessName: "Nuovo Studio",
       email: "OWNER@example.test",
-      password: "Password!12345"
+      password: "Password!12345",
+      termsAccepted: true
     }, { "x-forwarded-for": "198.51.100.22" });
     assert.equal(denied.statusCode, 409);
     assert.match(denied.payload.error, /già un account/i);
@@ -147,6 +151,17 @@ test("non collide con account storici configurati via ambiente", async () => {
     globalThis.fetch = originalFetch;
     cleanupRuntime();
   }
+});
+
+test("richiede l’accettazione dei documenti legali", async () => {
+  const originalFetch = globalThis.fetch;
+  configureRuntime();
+  globalThis.fetch = fakeRedis();
+  try {
+    const denied = await call(registerHandler, "POST", { businessName: "Studio Test", email: "test@example.test", password: "Password!12345" });
+    assert.equal(denied.statusCode, 400);
+    assert.match(denied.payload.error, /accettare/i);
+  } finally { globalThis.fetch = originalFetch; cleanupRuntime(); }
 });
 
 test("valida email e robustezza minima della password", async () => {
@@ -158,7 +173,8 @@ test("valida email e robustezza minima della password", async () => {
     const badEmail = await call(registerHandler, "POST", {
       businessName: "Studio Test",
       email: "non-email",
-      password: "Password!12345"
+      password: "Password!12345",
+      termsAccepted: true
     });
     assert.equal(badEmail.statusCode, 400);
 
