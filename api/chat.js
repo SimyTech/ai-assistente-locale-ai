@@ -35,8 +35,13 @@ import {
 import {
   clientAddress,
   rateLimitKey,
-  rateLimitPolicy
+  rateLimitPolicy,
+  tenantRateLimitKey
 } from "../lib/rate-limit.js";
+import {
+  logServiceFailure,
+  observeRequest
+} from "../lib/resilience.js";
 import {
   isCancellation as isExplicitCancellation,
   isConfirmation as isExplicitConfirmation
@@ -44,6 +49,7 @@ import {
 
 const LOCK_TTL = 15000;
 const MAX_BODY_BYTES = 1024 * 1024;
+const REDIS_TIMEOUT_MS = Number(process.env.MAVIRI_REDIS_TIMEOUT_MS || 5000);
 
 const OWNER_PROTECTED_ACTIONS = new Set([
   "book",
@@ -239,24 +245,47 @@ async function redisCommand(
     );
   }
 
-  const response =
-    await fetch(
-      redisUrl(),
-      {
-        method: "POST",
-        headers: {
-          Authorization:
-            `Bearer ${redisToken()}`,
-          "Content-Type":
-            "application/json"
-        },
-        body:
-          JSON.stringify([
-            command,
-            ...args
-          ])
-      }
-    );
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(),
+    REDIS_TIMEOUT_MS
+  );
+
+  let response;
+
+  try {
+    response =
+      await fetch(
+        redisUrl(),
+        {
+          method: "POST",
+          headers: {
+            Authorization:
+              `Bearer ${redisToken()}`,
+            "Content-Type":
+              "application/json"
+          },
+          body:
+            JSON.stringify([
+              command,
+              ...args
+            ]),
+          signal: controller.signal
+        }
+      );
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      const timeoutError =
+        new Error(
+          "Redis non raggiungibile in tempo utile."
+        );
+      timeoutError.statusCode = 503;
+      throw timeoutError;
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -331,6 +360,29 @@ async function redisSetNX(
   );
 }
 
+async function incrementRateLimit(
+  key,
+  policy
+) {
+  const count =
+    Number(
+      await redisCommand(
+        "INCR",
+        key
+      )
+    );
+
+  if (count === 1) {
+    await redisCommand(
+      "EXPIRE",
+      key,
+      String(policy.windowSeconds)
+    );
+  }
+
+  return count;
+}
+
 async function enforceRateLimit({
   req,
   res,
@@ -344,23 +396,30 @@ async function enforceRateLimit({
     return false;
   }
 
-  const key =
+  const identityKey =
     rateLimitKey({
       tenantId,
       action,
       identity: clientAddress(req)
     });
 
-  const count =
-    Number(await redisCommand("INCR", key));
+  const tenantKey =
+    tenantRateLimitKey({
+      tenantId,
+      action
+    });
 
-  if (count === 1) {
-    await redisCommand(
-      "EXPIRE",
-      key,
-      String(policy.windowSeconds)
-    );
-  }
+  const [identityCount, tenantCount] =
+    await Promise.all([
+      incrementRateLimit(
+        identityKey,
+        policy
+      ),
+      incrementRateLimit(
+        tenantKey,
+        policy
+      )
+    ]);
 
   res.setHeader(
     "X-RateLimit-Limit",
@@ -369,10 +428,18 @@ async function enforceRateLimit({
 
   res.setHeader(
     "X-RateLimit-Remaining",
-    String(Math.max(0, policy.limit - count))
+    String(
+      Math.max(
+        0,
+        policy.limit - identityCount
+      )
+    )
   );
 
-  if (count <= policy.limit) {
+  if (
+    identityCount <= policy.limit &&
+    tenantCount <= policy.tenantLimit
+  ) {
     return false;
   }
 
@@ -2638,6 +2705,13 @@ export default async function handler(
     "DENY"
   );
 
+  const requestId =
+    observeRequest(
+      req,
+      res,
+      "/api/chat"
+    );
+
   if (
     req.method !== "POST"
   ) {
@@ -4741,10 +4815,11 @@ export default async function handler(
         });
     }
 
-    console.error(
-      "MAVIRI API ERROR:",
+    logServiceFailure({
+      route: "/api/chat",
+      requestId,
       error
-    );
+    });
 
     return res
       .status(500)
