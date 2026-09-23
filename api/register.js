@@ -95,6 +95,8 @@ export default async function handler(req, res) {
     const ownerName = clean(body.ownerName || body.displayName);
     const email = clean(body.email).toLowerCase();
     const password = String(body.password || "");
+    const termsAccepted = body.termsAccepted === true;
+    const termsVersion = clean(body.termsVersion) || "beta-1.0";
 
     if (businessName.length < 2 || businessName.length > 80) {
       return res.status(400).json({ ok: false, error: "Inserisci un nome attività valido." });
@@ -105,6 +107,9 @@ export default async function handler(req, res) {
     if (password.length < 10 || password.length > 200) {
       return res.status(400).json({ ok: false, error: "La password deve contenere almeno 10 caratteri." });
     }
+    if (!termsAccepted) {
+      return res.status(400).json({ ok: false, error: "Devi accettare Termini di servizio e Informativa privacy." });
+    }
     if (configuredLoginExists(email)) {
       return res.status(409).json({ ok: false, error: "Esiste già un account con questa email." });
     }
@@ -114,7 +119,9 @@ export default async function handler(req, res) {
       email,
       password,
       tenantId,
-      displayName: ownerName || businessName
+      displayName: ownerName || businessName,
+      termsAcceptedAt: new Date().toISOString(),
+      termsVersion
     });
 
     if (!result.created) {
