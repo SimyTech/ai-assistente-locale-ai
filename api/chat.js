@@ -34,6 +34,7 @@ import {
 } from "../lib/auth.js";
 import {
   clientAddress,
+  globalRateLimitKey,
   rateLimitKey,
   rateLimitPolicy,
   tenantRateLimitKey
@@ -409,7 +410,16 @@ async function enforceRateLimit({
       action
     });
 
-  const [identityCount, tenantCount] =
+  const globalKey =
+    globalRateLimitKey({
+      action
+    });
+
+  const [
+    identityCount,
+    tenantCount,
+    globalCount
+  ] =
     await Promise.all([
       incrementRateLimit(
         identityKey,
@@ -417,6 +427,10 @@ async function enforceRateLimit({
       ),
       incrementRateLimit(
         tenantKey,
+        policy
+      ),
+      incrementRateLimit(
+        globalKey,
         policy
       )
     ]);
@@ -436,9 +450,20 @@ async function enforceRateLimit({
     )
   );
 
+  res.setHeader(
+    "X-Maviri-Global-Remaining",
+    String(
+      Math.max(
+        0,
+        policy.globalLimit - globalCount
+      )
+    )
+  );
+
   if (
     identityCount <= policy.limit &&
-    tenantCount <= policy.tenantLimit
+    tenantCount <= policy.tenantLimit &&
+    globalCount <= policy.globalLimit
   ) {
     return false;
   }
