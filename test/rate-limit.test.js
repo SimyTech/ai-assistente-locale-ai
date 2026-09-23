@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
+import { clientAddress, globalRateLimitKey, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
 
 test("estrae solo il primo IP inoltrato", () => {
   assert.equal(clientAddress({ headers: { "x-forwarded-for": "203.0.113.9, 10.0.0.1" } }), "203.0.113.9");
@@ -19,4 +19,11 @@ test("applica limiti più severi alle operazioni sensibili", () => {
   assert.equal(rateLimitPolicy("account").limit, 8);
   assert.equal(rateLimitPolicy("account").windowSeconds, 600);
   assert.equal(rateLimitPolicy("unknown"), null);
+});
+
+
+test("isola il limitatore globale dal tenant e mantiene una soglia di protezione", () => {
+  assert.equal(globalRateLimitKey({ action: "chat" }), "maviri:global:rate:chat");
+  assert.ok(rateLimitPolicy("chat").globalLimit >= rateLimitPolicy("chat").tenantLimit);
+  assert.ok(rateLimitPolicy("book").globalLimit > rateLimitPolicy("book").tenantLimit);
 });
