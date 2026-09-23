@@ -1,8 +1,10 @@
 import { launchReadiness, readinessChecks } from "../lib/launch-readiness.js";
 import reminderHandler from "../lib/reminders-handler.js";
 import maviQrHandler from "../lib/mavi-qr-handler.js";
+import { observeRequest } from "../lib/resilience.js";
+import { checkRedisConnection } from "../lib/runtime-health.js";
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   const mode = String(req?.query?.mode || "").trim().toLowerCase();
   if (mode === "reminders") return reminderHandler(req, res);
   if (mode === "mavi-qr") return maviQrHandler(req, res);
@@ -14,19 +16,31 @@ export default function handler(req, res) {
 
   res.setHeader("Cache-Control", "no-store");
   res.setHeader("X-Content-Type-Options", "nosniff");
+  observeRequest(req, res, "/api/health");
+
+  const checks = readinessChecks(process.env);
+  const redisProbe = checks.core.redis
+    ? await checkRedisConnection(process.env)
+    : { ok: false, reason: "not-configured" };
 
   if (mode === "readiness") {
     const result = launchReadiness(process.env);
-    return res.status(result.ready ? 200 : 503).json({
-      ok: result.ready,
+    const ready = Boolean(result.ready && redisProbe.ok);
+    return res.status(ready ? 200 : 503).json({
+      ok: ready,
       service: "maviri",
       version: "0.2.0",
       ...result,
+      ready,
+      redis: {
+        configured: Boolean(checks.core.redis),
+        live: redisProbe.ok,
+        reason: redisProbe.reason
+      },
       timestamp: new Date().toISOString()
     });
   }
 
-  const checks = readinessChecks(process.env);
   if (mode === "channels") {
     return res.status(200).json({
       ok: true,
@@ -38,7 +52,7 @@ export default function handler(req, res) {
     });
   }
 
-  const redis = checks.core.redis;
+  const redis = Boolean(checks.core.redis && redisProbe.ok);
   const sessions = checks.core.sessions;
   const registration = redis && sessions;
   const legacyOwnerSync = Boolean(process.env.MAVIRI_OWNER_SYNC_TOKEN || process.env.MAVIRI_OWNER_TOKENS);
@@ -53,6 +67,8 @@ export default function handler(req, res) {
     version: "0.2.0",
     checks: {
       redis,
+      redisConfigured: Boolean(checks.core.redis),
+      redisReason: redisProbe.reason,
       sessions,
       registration,
       legacyOwnerSync,
