@@ -17,7 +17,7 @@ async function runLevel(concurrency) {
           body: JSON.stringify({
             action: "public-context",
             mode: "client",
-            tenantId
+            tenantId: `${tenantId}-${index}`
           })
         });
         await response.text();
