@@ -23,7 +23,7 @@ test("applica limiti più severi alle operazioni sensibili", () => {
 
 
 test("isola il limitatore globale dal tenant e mantiene una soglia di protezione", () => {
-  assert.equal(globalRateLimitKey({ action: "chat" }), "maviri:global:rate:chat");
+  assert.equal(globalRateLimitKey({ action: "chat" }), "maviri:global:rate:public-read");
   assert.ok(rateLimitPolicy("chat").globalLimit >= rateLimitPolicy("chat").tenantLimit);
   assert.ok(rateLimitPolicy("book").globalLimit > rateLimitPolicy("book").tenantLimit);
 });
