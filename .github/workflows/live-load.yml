@@ -1,8 +1,8 @@
 name: Misura carico reale Maviri
 
 on:
-  push:
-    branches: ["codex/real-load-test"]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   live-load:
+    if: github.head_ref == 'codex/real-load-test'
     name: Carico reale isolato
     runs-on: ubuntu-latest
     timeout-minutes: 5
