@@ -53,24 +53,6 @@
       "destination": "/dpa.html"
     },
     {
-      "source": "/terms",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store, max-age=0"
-        }
-      ]
-    },
-    {
-      "source": "/privacy",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store, max-age=0"
-        }
-      ]
-    },
-    {
       "source": "/mavi",
       "destination": "/mavi.html"
     },
