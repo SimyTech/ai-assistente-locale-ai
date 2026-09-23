@@ -1,5 +1,5 @@
 const baseUrl = "https://www.maviri.it/api/chat";
-const levels = [50, 100, 200];
+const levels = [400];
 const runId = `load-${Date.now()}`;
 
 async function runLevel(concurrency) {
