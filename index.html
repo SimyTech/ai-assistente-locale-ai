@@ -182,7 +182,7 @@ Mavi = internal AI assistant.
   <div class="card" style="margin-top:18px"><div class="between"><div><h3>Potenza AI di Mavi</h3><div class="muted">Automatico protegge i dispositivi meno potenti. Ultra va attivato solo su hardware dedicato.</div></div><span id="maviModelSettingsBadge" class="badge blue">Mavi Fast Core</span></div><div class="field" style="margin-top:14px"><label>Modello locale preferito</label><select id="maviModelPreference" aria-label="Modello locale preferito" onchange="setMaviModelPreference(this.value)"><option value="auto">Automatico (consigliato)</option><option value="fast">Fast Core — compatibilità massima</option><option value="light">Qwen 1.7B — dispositivi meno potenti</option><option value="power">Qwen 4B — dispositivi potenti</option><option value="ultra">Qwen 8B Ultra — hardware estremo</option></select></div></div>
   <div class="card" style="margin-top:18px"><div class="between"><div><h3>Orari, chiusure e pause</h3><div class="muted">Imposta apertura, chiusura e una o più pause per ogni giorno. Le modifiche diventano attive solo dopo <strong>Salva orari</strong>.</div></div><button class="btn primary small" onclick="saveHours()">Salva orari</button></div><div class="hours" id="hours" style="margin-top:15px"></div></div>
   <div class="card" style="margin-top:18px"><div class="between"><h3>Promozioni</h3><button class="btn primary small" onclick="addPromo()">＋ Promozione</button></div><div class="list" id="promos" style="margin-top:14px"></div></div>
-  <div class="card" style="margin-top:18px"><h3>Licenza, copyright e proprietà</h3><div class="legal"><strong>Copyright © 2026 Maviri / SimyTech. Tutti i diritti riservati.</strong><br><br>Maviri, il logo Maviri, l'interfaccia, il design originale, i testi originali e gli elementi distintivi sono proprietà del titolare dei diritti nei limiti previsti dalla legge.<br><br>Questo prodotto è software proprietario e non è rilasciato con una licenza open source. La copia, redistribuzione, sublicenza, rivendita non autorizzata, pubblicazione del codice, reverse engineering, decompilazione e creazione di opere derivate dagli elementi proprietari sono vietati salvo autorizzazione scritta.<br><br><strong>Marchio:</strong> Maviri e il logo Maviri sono elementi distintivi del prodotto e non sono concessi per uso indipendente da parte di terzi.<br><br><strong>Dipendenze:</strong> questa versione non richiede librerie runtime di terze parti. Eventuali componenti aggiunti in futuro devono mantenere i propri avvisi e licenze.</div></div>
+  <div class="card" style="margin-top:18px"><div class="between"><h3>Informazioni legali</h3><div class="row"><a class="btn small secondary" href="/privacy">Privacy</a><a class="btn small secondary" href="/terms">Termini</a><a class="btn small secondary" href="/data-rights">Gestione dati</a><a class="btn small secondary" href="/dpa">DPA</a></div></div><div class="legal" style="margin-top:14px"><strong>Copyright © 2026 Maviri / SimyTech. Tutti i diritti riservati.</strong><br><br>Maviri, il logo Maviri, l'interfaccia, il design originale, i testi originali e gli elementi distintivi sono proprietà del titolare dei diritti nei limiti previsti dalla legge.<br><br>Questo prodotto è software proprietario e non è rilasciato con una licenza open source. La copia, redistribuzione, sublicenza, rivendita non autorizzata, pubblicazione del codice, reverse engineering, decompilazione e creazione di opere derivate dagli elementi proprietari sono vietati salvo autorizzazione scritta.<br><br><strong>Marchio:</strong> Maviri e il logo Maviri sono elementi distintivi del prodotto e non sono concessi per uso indipendente da parte di terzi.<br><br><strong>Dipendenze:</strong> questa versione non richiede librerie runtime di terze parti. Eventuali componenti aggiunti in futuro devono mantenere i propri avvisi e licenze.</div></div>
 </section>
 
 <div class="footer"><strong>Maviri</strong> · Manager digitale · Mavi AI<br>Copyright © 2026 Maviri / SimyTech · All rights reserved.</div>
@@ -213,7 +213,7 @@ function normalizeHours(h){
  const names=["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];return baseHours.map((b,i)=>{const x=h?.[names[i]]||{};let pauses=Array.isArray(x.pauses)?x.pauses.map(p=>({from:p.from||p.start||p.pauseStart||"",to:p.to||p.end||p.pauseEnd||""})).filter(p=>p.from&&p.to):[];if(x.breakStart&&x.breakEnd)pauses.push({from:x.breakStart,to:x.breakEnd});return {...b,...x,name:b.name,open:x.open||x.start||b.open,close:x.close||x.end||b.close,closed:x.closed===true||x.open===false||x.status==="closed"||x.status==="chiuso",pauses}})}
 function migrate(x){const d=defaults();if(!x||typeof x!=="object")return d;const src=x.appData||x;return {...d,...src,version:8,revision:Number(src.revision||0),business:{...d.business,...(src.business||{})},services:Array.isArray(src.services)?src.services:[],promotions:Array.isArray(src.promotions)?src.promotions:[],clients:Array.isArray(src.clients)?src.clients:[],appointments:Array.isArray(src.appointments)?src.appointments:[],settings:{...d.settings,...(src.settings||{}),hours:normalizeHours(src.settings?.hours)}}}
 function load(){try{let raw=localStorage.getItem(KEY);if(raw)return migrate(JSON.parse(raw));for(const k of OLD_KEYS){raw=localStorage.getItem(k);if(raw){const d=migrate(JSON.parse(raw));localStorage.setItem(KEY,JSON.stringify(d));return d}}}catch(e){}return defaults()}
-let data=load(),page="home",selectedDate=iso(new Date()),cursor=new Date(new Date().getFullYear(),new Date().getMonth(),1),selectedClient=null,social="Instagram",bookingBusy=false,maviBusy=false,sessionId=uid();
+let data=load(),page="home",selectedDate=iso(new Date()),cursor=new Date(new Date().getFullYear(),new Date().getMonth(),1),selectedClient=null,social="Instagram",bookingBusy=false,maviBusy=false,businessFormDirty=false,sessionId=uid();
 const tenantId=(localStorage.getItem("MAVIRI_TENANT_ID")||"default").trim().toLowerCase();
 const OWNER_AUTH_KEY="MAVIRI_OWNER_AUTHENTICATED";
 const ownerReady=()=>localStorage.getItem(OWNER_AUTH_KEY)==="true"||!!localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN");
@@ -243,7 +243,7 @@ async function api(action,extra={}){const body={action,tenantId,business:data.bu
    Dopo il login l'autorizzazione usa un cookie HttpOnly.
    Il vecchio token localStorage viene migrato e poi eliminato.
 ============================================================ */
-let ownerPullBusy=false, ownerPullTimer=null;
+let ownerPullBusy=false, ownerPullTimer=null,ownerSyncBusy=false,ownerSyncPending=false,ownerSyncEpoch=0;
 
 function pullAppointmentKey(a){
   if(!a)return "";
@@ -337,11 +337,12 @@ function applyOwnerPullPayload(j){
 }
 
 async function pullOwnerData(silent=true){
-  if(ownerPullBusy)return;
+  if(ownerPullBusy||ownerSyncBusy)return;
   const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";
   if(!token&&localStorage.getItem(OWNER_AUTH_KEY)!=="true")return;
 
   ownerPullBusy=true;
+  const pullEpoch=ownerSyncEpoch;
   try{
     const r=await fetch("/api/chat",{
       method:"POST",
@@ -355,6 +356,7 @@ async function pullOwnerData(silent=true){
     let j={};
     try{j=await r.json()}catch{}
     if(!r.ok||j.ok===false)throw new Error(j.error||"Sincronizzazione proprietario non riuscita.");
+    if(pullEpoch!==ownerSyncEpoch)return;
     const changed=applyOwnerPullPayload(j);
     const badge=$("syncBadge");
     if(badge){
@@ -425,19 +427,25 @@ async function initOwnerSession(){
 async function syncOwnerData(){
   const badge=$("syncBadge");
   if(!badge)return;
+  if(ownerSyncBusy){ownerSyncPending=true;return}
   const token=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";
   if(!token&&localStorage.getItem(OWNER_AUTH_KEY)!=="true"){badge.textContent="Accesso richiesto";return}
+  ownerSyncBusy=true;
+  ownerSyncEpoch++;
   badge.textContent="Sincronizzazione…";
   try{
-    await api("owner-sync");
+    const result=await api("owner-sync");
+    if(result?.data)applyOwnerPullPayload(result);
     badge.textContent="Sincronizzato";
     badge.className="badge";
     toast("Dati pubblicati per Mavi cliente.");
-    await pullOwnerData(true);
   }catch(e){
     badge.textContent="Errore";
     badge.className="badge blue";
     toast(e.message||"Sincronizzazione non riuscita.");
+  }finally{
+    ownerSyncBusy=false;
+    if(ownerSyncPending){ownerSyncPending=false;syncOwnerData()}
   }
 }
 
@@ -512,12 +520,12 @@ async function maviAnswer(q){
   }
   return serverAnswer;
 }
-function renderSettings(){const b=data.business;if($("ownerSyncToken"))$("ownerSyncToken").value=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";$("bName").value=b.name;$("bType").value=b.type;$("bDesc").value=b.description;$("bPhone").value=b.phone;$("bWhats").value=b.whatsapp;$("bAddress").value=b.address;$("services").innerHTML=data.services.length?data.services.map((s,i)=>`<div class="item"><div class="between"><strong>${esc(s.name)}</strong><span class="badge blue">€${Number(s.price||0).toFixed(2)} · ${s.duration} min</span></div><button class="btn danger small" onclick="removeService(${i})" style="margin-top:8px">Elimina</button></div>`).join(""):"<div class=\"empty\">Nessun servizio.</div>"}
+function renderSettings(){const b=data.business;if($("ownerSyncToken"))$("ownerSyncToken").value=localStorage.getItem("MAVIRI_OWNER_SYNC_TOKEN")||"";if(!businessFormDirty){$("bName").value=b.name;$("bType").value=b.type;$("bDesc").value=b.description;$("bPhone").value=b.phone;$("bWhats").value=b.whatsapp;$("bAddress").value=b.address}$("services").innerHTML=data.services.length?data.services.map((s,i)=>`<div class="item"><div class="between"><strong>${esc(s.name)}</strong><span class="badge blue">€${Number(s.price||0).toFixed(2)} · ${s.duration} min</span></div><button class="btn danger small" onclick="removeService(${i})" style="margin-top:8px">Elimina</button></div>`).join(""):"<div class=\"empty\">Nessun servizio.</div>"}
 function renderMaviModel(){if(!window.MaviModels)return;const tier=window.MaviModels.getCurrent(),pref=window.MaviModels.getPreference();if($("maviModelPreference"))$("maviModelPreference").value=pref;if($("maviModelBadge"))$("maviModelBadge").textContent=tier.label.toUpperCase();if($("maviModelSettingsBadge"))$("maviModelSettingsBadge").textContent=tier.label}
 function setMaviModelPreference(value){if(!window.MaviModels)return toast("Il selettore AI si sta avviando.");const tier=window.MaviModels.setPreference(value);renderMaviModel();toast(`${tier.label} selezionato. La catena di fallback protegge Mavi in caso di memoria insufficiente.`)}
 window.addEventListener("mavi-model-change",renderMaviModel);
 window.addEventListener("mavi-model-status",event=>{const detail=event.detail||{},badge=$("maviModelBadge");if(badge)badge.textContent=detail.state==="loading"?"CARICAMENTO AI…":detail.state==="thinking"?"MAVI ELABORA…":(detail.tier?.label||"MAVI FAST CORE").toUpperCase()});
-function saveBusiness(){data.business={name:$("bName").value.trim(),type:$("bType").value.trim(),description:$("bDesc").value.trim(),phone:$("bPhone").value.trim(),whatsapp:$("bWhats").value.trim(),address:$("bAddress").value.trim()};save();toast("Dati attività salvati.")}
+function saveBusiness(){data.business={name:$("bName").value.trim(),type:$("bType").value.trim(),description:$("bDesc").value.trim(),phone:$("bPhone").value.trim(),whatsapp:$("bWhats").value.trim(),address:$("bAddress").value.trim()};businessFormDirty=false;save();toast("Dati attività salvati.")}
 function addService(){const n=$("svName").value.trim(),p=Number($("svPrice").value||0),d=Number($("svDur").value||0);if(!n||!d)return toast("Inserisci nome e durata.");data.services.push({id:uid(),name:n,price:p,duration:d});$("svName").value=$("svPrice").value=$("svDur").value="";save()}
 function removeService(i){data.services.splice(i,1);save()}
 function renderHours(){$("hours").innerHTML=data.settings.hours.map((h,i)=>`<div class="hour"><div class="hourtop"><strong>${h.name}</strong><div class="controls"><label><input type="checkbox" ${h.closed?"checked":""} onchange="toggleClosed(${i},this.checked)"> Giorno chiuso</label>${h.closed?`<span class="badge">Chiuso</span>`:`<span class="muted">Apertura</span><input id="ho${i}" type="time" aria-label="Apertura ${esc(h.name)}" value="${h.open}"><span>—</span><span class="muted">Chiusura</span><input id="hc${i}" type="time" aria-label="Chiusura ${esc(h.name)}" value="${h.close}"><button class="btn small" onclick="pause(${i})">＋ Aggiungi pausa</button>`}</div></div>${(h.pauses||[]).map((p,j)=>`<div class="pause"><strong class="muted">Pausa ${j+1}</strong><span class="muted">dalle</span><input type="time" aria-label="Inizio pausa ${j+1} ${esc(h.name)}" value="${p.from}" onchange="data.settings.hours[${i}].pauses[${j}].from=this.value"><span class="muted">alle</span><input type="time" aria-label="Fine pausa ${j+1} ${esc(h.name)}" value="${p.to}" onchange="data.settings.hours[${i}].pauses[${j}].to=this.value"><button class="btn danger small" onclick="data.settings.hours[${i}].pauses.splice(${j},1);renderHours()">Rimuovi</button></div>`).join("")}${!h.closed&&!(h.pauses||[]).length?`<div class="meta">Nessuna pausa impostata.</div>`:""}</div>`).join("")}
@@ -526,6 +534,7 @@ function renderPromos(){$("promos").innerHTML=data.promotions.length?data.promot
 function addPromo(){modal(`<h3>Nuova promozione</h3><div class="form"><div class="field"><label>Titolo</label><input id="pt"></div><div class="field"><label>Descrizione</label><textarea id="pd"></textarea></div><div class="field"><label>Validità</label><input id="pv" placeholder="Es. fino al 30/09"></div><button class="btn primary" onclick="savePromo()">Salva</button></div>`)}
 function savePromo(){const t=$("pt").value.trim();if(!t)return toast("Inserisci un titolo.");data.promotions.push({id:uid(),title:t,description:$("pd").value.trim(),valid:$("pv").value.trim()});closeModal();save()}
 if("SpeechRecognition"in window||"webkitSpeechRecognition"in window){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;$("voice").onclick=()=>{const r=new SR();r.lang="it-IT";r.interimResults=false;r.onresult=e=>{$("maviInput").value=e.results[0][0].transcript;sendMavi()};r.onerror=()=>toast("Microfono non disponibile.");r.start()}}else $("voice").disabled=true;
+["bName","bType","bDesc","bPhone","bWhats","bAddress"].forEach(id=>$(id)?.addEventListener("input",()=>{businessFormDirty=true}));
 renderAll();
 syncMaviHeroLogo();
 initOwnerSession();
