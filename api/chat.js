@@ -49,6 +49,7 @@ import {
 } from "../lib/whatsapp-booking.js";
 import { getStoredOwnerAccountByTenant } from "../lib/account-store.js";
 import { sendEmailText } from "../lib/outbound-delivery.js";
+import { sendBookingPush } from "../lib/push-notifications.js";
 
 const LOCK_TTL = 15000;
 const MAX_BODY_BYTES = 1024 * 1024;
@@ -3901,6 +3902,12 @@ export default async function handler(
                 error: notificationError
               });
             }
+            sendBookingPush({
+              tenantId,
+              title: "Nuova prenotazione · Maviri",
+              body: `${appointment.name || name} · ${appointment.service || freshService.name} · ${appointment.date || date} ${appointment.time || time}`,
+              appointmentId: appointment.id
+            }).catch(notificationError => logServiceFailure({ route: "/api/chat:booking-push", requestId, error: notificationError }));
           }
         }
 

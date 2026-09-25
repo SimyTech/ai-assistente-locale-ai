@@ -1,6 +1,7 @@
 import { changeStoredOwnerEmail, changeStoredOwnerPassword, updateStoredOwnerProfile } from "../lib/account-store.js";
 import { ownerAuthorized } from "../lib/auth.js";
 import { emailVerificationConfigured, requestEmailVerification } from "../lib/email-verification.js";
+import { pushNotificationsConfigured, pushPublicKey, savePushSubscription } from "../lib/push-notifications.js";
 import { clientAddress, rateLimitKey, rateLimitPolicy } from "../lib/rate-limit.js";
 import { explicitTenantId, isValidTenantId, normalizeTenantId, resolveTenantId } from "../lib/tenant.js";
 
@@ -68,6 +69,19 @@ export default async function handler(req, res) {
   const action = clean(body.action).toLowerCase();
   const login = clean(body.login);
   if (await accountMutationLimited(req, res, tenantId, action, login)) return;
+
+  if (action === "push-status") return res.status(200).json({ ok: true, configured: pushNotificationsConfigured(), publicKey: pushPublicKey() });
+
+  if (action === "push-subscribe") {
+    try {
+      const result = await savePushSubscription({ tenantId, subscription: body.subscription });
+      if (!result.saved) return res.status(400).json({ ok: false, error: result.reason === "push-not-configured" ? "Notifiche push non ancora configurate." : "Sottoscrizione notifiche non valida." });
+      return res.status(200).json({ ok: true, subscribed: true });
+    } catch (error) {
+      console.error("MAVIRI PUSH SUBSCRIPTION ERROR:", error);
+      return res.status(503).json({ ok: false, error: "Attivazione notifiche temporaneamente non disponibile." });
+    }
+  }
 
   if (action === "update-profile") {
     const displayName = clean(body.displayName);
