@@ -243,7 +243,7 @@ async function api(action,extra={}){const body={action,tenantId,business:data.bu
    Dopo il login l'autorizzazione usa un cookie HttpOnly.
    Il vecchio token localStorage viene migrato e poi eliminato.
 ============================================================ */
-let ownerPullBusy=false, ownerPullTimer=null,ownerSyncBusy=false,ownerSyncPending=false,ownerSyncEpoch=0;
+let ownerPullBusy=false, ownerPullTimer=null,ownerSyncBusy=false,ownerSyncPending=false,ownerSyncEpoch=0,ownerPullInitialized=false;
 
 function pullAppointmentKey(a){
   if(!a)return "";
@@ -296,6 +296,7 @@ function applyOwnerPullPayload(j){
   /* Il server è la fonte per i dati gestionali. Le liste vengono
      fuse in modo idempotente per evitare duplicati, mentre i dati
      ricevuti dal server sovrascrivono l'eventuale copia locale. */
+  const appointmentKeysBefore=new Set(data.appointments.map(pullAppointmentKey).filter(Boolean));
   if(hasAppointments){
     data.appointments=mergeRemoteList(
       data.appointments,
@@ -333,6 +334,17 @@ function applyOwnerPullPayload(j){
   localStorage.setItem(KEY,snapshot);
   localStorage.setItem("appData_backup",snapshot);
   renderAll();
+  if(hasAppointments){
+    const incoming=remote.appointments.filter(a=>{
+      const source=String(a?.source||"").toLowerCase();
+      return !appointmentKeysBefore.has(pullAppointmentKey(a))&&["mavi-client","whatsapp"].includes(source);
+    });
+    if(ownerPullInitialized&&incoming.length){
+      const a=incoming[0];
+      toast(`Nuova prenotazione: ${a.name||"cliente"}, ${a.service||"servizio"}, ${a.date||""} ${a.time||""}`.trim());
+    }
+    ownerPullInitialized=true;
+  }
   return true;
 }
 

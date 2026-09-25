@@ -47,6 +47,8 @@ import {
   isCancellation as isExplicitCancellation,
   isConfirmation as isExplicitConfirmation
 } from "../lib/whatsapp-booking.js";
+import { getStoredOwnerAccountByTenant } from "../lib/account-store.js";
+import { sendEmailText } from "../lib/outbound-delivery.js";
 
 const LOCK_TTL = 15000;
 const MAX_BODY_BYTES = 1024 * 1024;
@@ -3834,6 +3836,8 @@ export default async function handler(
          * scrittura immediata sul database
          */
 
+        let ownerNotificationSent = false;
+
         if (
           mode === "client" ||
           body.persist === true ||
@@ -3870,6 +3874,34 @@ export default async function handler(
               nextData
             )
           );
+
+          if (mode === "client" && !duplicate) {
+            try {
+              const owner = await getStoredOwnerAccountByTenant(tenantId);
+              if (clean(owner?.email)) {
+                const businessName = clean(nextData?.business?.name || nextData?.settings?.name || "Maviri");
+                const delivery = await sendEmailText({
+                  to: owner.email,
+                  subject: `Nuova prenotazione · ${businessName}`,
+                  text: [
+                    `Hai una nuova prenotazione per ${businessName}.`,
+                    `Cliente: ${appointment.name || name}`,
+                    `Servizio: ${appointment.service || freshService.name}`,
+                    `Quando: ${appointment.date || date} alle ${appointment.time || time}`,
+                    appointment.phone ? `Telefono: ${appointment.phone}` : "",
+                    "Apri Maviri per vedere e gestire l'appuntamento."
+                  ].filter(Boolean).join("\n")
+                });
+                ownerNotificationSent = delivery.sent === true;
+              }
+            } catch (notificationError) {
+              logServiceFailure({
+                route: "/api/chat:booking-notification",
+                requestId,
+                error: notificationError
+              });
+            }
+          }
         }
 
 
@@ -3890,6 +3922,8 @@ export default async function handler(
             appointment,
 
             client,
+
+            ownerNotificationSent,
 
             message:
               "Prenotazione confermata e registrata."
